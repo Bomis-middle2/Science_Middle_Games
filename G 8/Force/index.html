@@ -1,1 +1,535 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G8 Science Ch 1 - Force Field Lab</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(#0f172a,#1e3a8a);
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#eaf9ff,#ffffff);
+  color:#0f172a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+
+.logo{
+  width:min(180px,55vw);
+  margin-bottom:18px;
+}
+
+button{
+  border:0;
+  border-radius:14px;
+  background:#2563eb;
+  color:white;
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:bold;
+  padding:13px 26px;
+  cursor:pointer;
+  min-height:55px;
+}
+
+#hud{
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:10px;
+  background:#020617dd;
+  padding:12px;
+  font-size:clamp(17px,3vw,23px);
+  font-weight:bold;
+}
+
+#title{
+  font-size:clamp(30px,5vw,48px);
+  margin:14px 0 6px;
+}
+
+#questionBox{
+  width:min(950px,94vw);
+  margin:10px auto;
+  background:white;
+  color:#0f172a;
+  border:4px solid #38bdf8;
+  border-radius:18px;
+  padding:16px;
+  font-size:clamp(22px,3.5vw,34px);
+  font-weight:bold;
+  min-height:90px;
+}
+
+#gameArea{
+  width:min(1000px,96vw);
+  min-height:min(520px,68vh);
+  margin:12px auto;
+  background:linear-gradient(#1e293b,#0f172a);
+  border:5px solid #38bdf8;
+  border-radius:22px;
+  padding:20px;
+  position:relative;
+  box-shadow:0 0 25px rgba(56,189,248,.35);
+}
+
+.cardRow,.zoneRow{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:16px;
+  margin:18px auto;
+}
+
+.card{
+  background:white;
+  color:#111;
+  border:4px solid #38bdf8;
+  border-radius:16px;
+  padding:14px;
+  min-width:160px;
+  min-height:72px;
+  font-size:clamp(18px,3vw,26px);
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.card.selected{
+  background:#fef08a;
+  border-color:#f59e0b;
+  transform:scale(1.05);
+}
+
+.zone{
+  background:#e0f2fe;
+  color:#0f172a;
+  border:4px dashed #38bdf8;
+  border-radius:18px;
+  width:min(300px,88vw);
+  min-height:150px;
+  padding:14px;
+  font-size:clamp(20px,3vw,28px);
+  font-weight:bold;
+}
+
+.placed{
+  background:#dcfce7;
+  border:2px solid #22c55e;
+  border-radius:10px;
+  padding:8px;
+  margin:6px;
+  font-size:clamp(16px,2.5vw,21px);
+}
+
+.option{
+  background:white;
+  color:#111;
+  border:4px solid #94a3b8;
+  border-radius:16px;
+  min-width:170px;
+  min-height:75px;
+  padding:14px;
+  font-size:clamp(18px,3vw,28px);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.correctFlash{
+  background:#dcfce7!important;
+  border-color:#22c55e!important;
+}
+
+.wrongFlash{
+  background:#fee2e2!important;
+  border-color:#ef4444!important;
+  animation:shake .35s;
+}
+
+#msg{
+  font-size:clamp(22px,3.5vw,34px);
+  font-weight:bold;
+  min-height:42px;
+}
+
+.instructions{
+  font-size:clamp(18px,3vw,24px);
+  line-height:1.6;
+  max-width:760px;
+}
+
+.labVisual{
+  font-size:clamp(70px,12vw,130px);
+  margin:18px auto;
+}
+
+.forceBox{
+  background:#ffffff;
+  color:#111;
+  border:4px solid #38bdf8;
+  border-radius:18px;
+  padding:16px;
+  margin:12px auto;
+  width:min(700px,92vw);
+  font-size:clamp(22px,4vw,36px);
+  font-weight:bold;
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader" class="screen">
+  <img src="assets/logo.png" class="logo">
+  <h2>Loading Force Field Lab...</h2>
+</div>
+
+<div id="instructions" class="screen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1>⚡ Force Field Lab</h1>
+  <div class="instructions">
+    <p>Complete force-based lab challenges.</p>
+    <p>Tap a card, then tap the correct zone or answer.</p>
+    <p>You get <b>2 chances for each level</b>.</p>
+    <p>After 2 wrong attempts, the correct answer will be shown.</p>
+  </div>
+  <button onclick="startGame()">Start Lab</button>
+</div>
+
+<div id="endScreen" class="screen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1>🏆 Force Lab Complete!</h1>
+  <h2>Your Score: <span id="finalScore"></span></h2>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="hud">
+  <div>⭐ Score: <span id="score">0</span></div>
+  <div>❤️ Chances: <span id="chances">2</span></div>
+  <div>🧪 Level: <span id="levelNo">1</span>/10</div>
+</div>
+
+<h1 id="title">⚡ Force Field Lab</h1>
+<div id="questionBox">Lab challenge will appear here.</div>
+<div id="gameArea"></div>
+<div id="msg"></div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const levels=[
+  {
+    type:"sort",
+    title:"Push or Pull?",
+    q:"Sort the actions into PUSH or PULL.",
+    cards:[
+      {text:"Closing a drawer",ans:"Push"},
+      {text:"Opening a drawer",ans:"Pull"},
+      {text:"Kicking a ball",ans:"Push"},
+      {text:"Lifting a bucket",ans:"Pull"}
+    ],
+    zones:["Push","Pull"]
+  },
+  {
+    type:"sort",
+    title:"Contact or Non-contact?",
+    q:"Sort the forces into the correct groups.",
+    cards:[
+      {text:"Muscular force",ans:"Contact"},
+      {text:"Frictional force",ans:"Contact"},
+      {text:"Magnetic force",ans:"Non-contact"},
+      {text:"Gravitational force",ans:"Non-contact"}
+    ],
+    zones:["Contact","Non-contact"]
+  },
+  {
+    type:"choice",
+    title:"Resultant Force Lab",
+    q:"Two students push a box in the same direction with 20 N and 30 N. What is the resultant force?",
+    visual:"➡️ 20 N  +  ➡️ 30 N",
+    options:["10 N","50 N","30 N"],
+    ans:"50 N"
+  },
+  {
+    type:"choice",
+    title:"Opposite Force Lab",
+    q:"Two forces act in opposite directions: 40 N right and 25 N left. What is the resultant force?",
+    visual:"⬅️ 25 N     📦     40 N ➡️",
+    options:["15 N right","65 N right","15 N left"],
+    ans:"15 N right"
+  },
+  {
+    type:"sort",
+    title:"Effects of Force",
+    q:"Match each situation with the effect of force.",
+    cards:[
+      {text:"Brakes applied to a bicycle",ans:"Changes speed"},
+      {text:"Bat hits a ball",ans:"Changes direction"},
+      {text:"Squeezing sponge",ans:"Changes shape"},
+      {text:"Pushing a toy car",ans:"Starts motion"}
+    ],
+    zones:["Changes speed","Changes direction","Changes shape","Starts motion"]
+  },
+  {
+    type:"choice",
+    title:"Elastic or Plastic?",
+    q:"A rubber band regains its shape after stretching. What type of material is it?",
+    visual:"🟡 Rubber Band",
+    options:["Elastic material","Plastic material","Magnetic material"],
+    ans:"Elastic material"
+  },
+  {
+    type:"sort",
+    title:"Types of Contact Forces",
+    q:"Sort the examples into muscular, frictional and elastic force.",
+    cards:[
+      {text:"Writing with hand",ans:"Muscular"},
+      {text:"Cycle slowing on road",ans:"Frictional"},
+      {text:"Stretched spring",ans:"Elastic"},
+      {text:"Chewing food",ans:"Muscular"}
+    ],
+    zones:["Muscular","Frictional","Elastic"]
+  },
+  {
+    type:"choice",
+    title:"Mass and Weight",
+    q:"Which statement is correct?",
+    visual:"🌍 Earth     🌕 Moon",
+    options:[
+      "Mass changes from place to place",
+      "Weight changes with gravity",
+      "Mass is measured in newton"
+    ],
+    ans:"Weight changes with gravity"
+  },
+  {
+    type:"choice",
+    title:"Spring Balance Reading",
+    q:"A spring balance measures which quantity?",
+    visual:"⚖️ Spring Balance",
+    options:["Mass","Weight","Volume"],
+    ans:"Weight"
+  },
+  {
+    type:"choice",
+    title:"Weight Calculation",
+    q:"A ball has mass 2 kg. If g = 10 m/s², what is its weight?",
+    visual:"W = m × g",
+    options:["20 N","12 N","2 N"],
+    ans:"20 N"
+  }
+];
+
+let order=[...levels].sort(()=>Math.random()-0.5);
+let level=0;
+let score=0;
+let chances=2;
+let selectedCard=null;
+let correctPlaced=0;
+let locked=false;
+
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById("loader").style.display="none";
+    document.getElementById("instructions").style.display="flex";
+  },1200);
+};
+
+function startGame(){
+  document.getElementById("instructions").style.display="none";
+  loadLevel();
+}
+
+function loadLevel(){
+  locked=false;
+  selectedCard=null;
+  correctPlaced=0;
+  chances=2;
+  document.getElementById("chances").textContent=chances;
+  document.getElementById("msg").textContent="";
+  document.getElementById("gameArea").innerHTML="";
+
+  if(level>=order.length){
+    endGame();
+    return;
+  }
+
+  const item=order[level];
+  document.getElementById("levelNo").textContent=level+1;
+  document.getElementById("title").textContent="⚡ "+item.title;
+  document.getElementById("questionBox").textContent="Level "+(level+1)+". "+item.q;
+
+  if(item.type==="sort")buildSortLevel(item);
+  else buildChoiceLevel(item);
+}
+
+function buildSortLevel(item){
+  const area=document.getElementById("gameArea");
+
+  const cardRow=document.createElement("div");
+  cardRow.className="cardRow";
+
+  item.cards.sort(()=>Math.random()-0.5).forEach(c=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.textContent=c.text;
+    card.dataset.answer=c.ans;
+    card.onclick=()=>{
+      if(locked)return;
+      selectedCard=card;
+      document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
+      card.classList.add("selected");
+      showMsg("Now tap the correct zone.", "#38bdf8");
+    };
+    cardRow.appendChild(card);
+  });
+
+  const zoneRow=document.createElement("div");
+  zoneRow.className="zoneRow";
+
+  item.zones.forEach(z=>{
+    const zone=document.createElement("div");
+    zone.className="zone";
+    zone.dataset.zone=z;
+    zone.innerHTML="<div>"+z+"</div>";
+    zone.onclick=()=>checkSort(zone);
+    zoneRow.appendChild(zone);
+  });
+
+  area.appendChild(cardRow);
+  area.appendChild(zoneRow);
+}
+
+function checkSort(zone){
+  if(!selectedCard || locked)return;
+
+  if(selectedCard.dataset.answer===zone.dataset.zone){
+    document.getElementById("correctSound").play();
+    const placed=document.createElement("div");
+    placed.className="placed";
+    placed.textContent=selectedCard.textContent;
+    zone.appendChild(placed);
+    selectedCard.remove();
+    selectedCard=null;
+    correctPlaced++;
+    score+=5;
+    document.getElementById("score").textContent=score;
+    showMsg("✅ Correct!", "#22c55e");
+
+    if(correctPlaced>=order[level].cards.length){
+      level++;
+      setTimeout(loadLevel,1200);
+    }
+  }else{
+    handleWrong(selectedCard.dataset.answer);
+    zone.classList.add("wrongFlash");
+    setTimeout(()=>zone.classList.remove("wrongFlash"),500);
+  }
+}
+
+function buildChoiceLevel(item){
+  const area=document.getElementById("gameArea");
+
+  const visual=document.createElement("div");
+  visual.className="forceBox";
+  visual.textContent=item.visual;
+  area.appendChild(visual);
+
+  const row=document.createElement("div");
+  row.className="cardRow";
+
+  item.options.sort(()=>Math.random()-0.5).forEach(opt=>{
+    const btn=document.createElement("div");
+    btn.className="option";
+    btn.textContent=opt;
+    btn.onclick=()=>checkChoice(btn,opt,item.ans);
+    row.appendChild(btn);
+  });
+
+  area.appendChild(row);
+}
+
+function checkChoice(btn,selected,answer){
+  if(locked)return;
+
+  if(selected===answer){
+    locked=true;
+    btn.classList.add("correctFlash");
+    document.getElementById("correctSound").play();
+    score+=10;
+    document.getElementById("score").textContent=score;
+    showMsg("✅ Correct!", "#22c55e");
+    level++;
+    setTimeout(loadLevel,1200);
+  }else{
+    btn.classList.add("wrongFlash");
+    setTimeout(()=>btn.classList.remove("wrongFlash"),600);
+    handleWrong(answer);
+  }
+}
+
+function handleWrong(answer){
+  document.getElementById("wrongSound").play();
+  chances--;
+  document.getElementById("chances").textContent=chances;
+
+  if(chances>0){
+    showMsg("❌ Try Again!", "#ef4444");
+  }else{
+    locked=true;
+    showMsg("Correct Answer: "+answer, "#ef4444");
+
+    document.querySelectorAll(".option").forEach(o=>{
+      if(o.textContent===answer)o.classList.add("correctFlash");
+    });
+
+    document.querySelectorAll(".zone").forEach(z=>{
+      if(z.dataset.zone===answer)z.classList.add("correctFlash");
+    });
+
+    level++;
+    setTimeout(loadLevel,2200);
+  }
+}
+
+function showMsg(text,color){
+  const msg=document.getElementById("msg");
+  msg.textContent=text;
+  msg.style.color=color;
+}
+
+function endGame(){
+  document.getElementById("clapSound").play();
+  document.getElementById("finalScore").textContent=score+" / 100";
+  document.getElementById("endScreen").style.display="flex";
+}
+</script>
+
+</body>
+</html>
