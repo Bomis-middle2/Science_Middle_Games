@@ -1,1 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Measurement Lab Escape</title>
+<style>
+*{box-sizing:border-box}
 
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  overflow:hidden;
+}
+
+body{
+  background-image:
+    linear-gradient(rgba(14,165,233,.15) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(14,165,233,.15) 1px,transparent 1px);
+  background-size:30px 30px;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#eaf9ff,#ffffff);
+  color:#0f172a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+
+.logo{
+  width:min(180px,55vw);
+  margin-bottom:18px;
+}
+
+button{
+  border:0;
+  border-radius:14px;
+  background:#0ea5e9;
+  color:white;
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:bold;
+  padding:13px 26px;
+  cursor:pointer;
+  min-height:55px;
+}
+
+#hud{
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:10px;
+  background:#1e293bdd;
+  padding:12px;
+  font-size:clamp(17px,3vw,23px);
+  font-weight:bold;
+  border-bottom:3px solid #0ea5e9;
+}
+
+#labArea{
+  width:min(1000px,96vw);
+  height:min(500px,66vh);
+  margin:16px auto;
+  background:linear-gradient(#1e293b,#0f172a);
+  border:5px solid #0ea5e9;
+  border-radius:22px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 0 25px rgba(14,165,233,.4);
+}
+
+#questionBox{
+  width:min(850px,92vw);
+  margin:12px auto;
+  background:white;
+  color:#0f172a;
+  border:4px solid #0ea5e9;
+  border-radius:18px;
+  padding:16px;
+  font-size:clamp(22px,3.5vw,34px);
+  font-weight:bold;
+  min-height:90px;
+}
+
+#options{
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+
+.option{
+  background:white;
+  color:#111;
+  border:4px solid #94a3b8;
+  border-radius:16px;
+  min-width:180px;
+  min-height:75px;
+  padding:14px;
+  font-size:clamp(18px,3vw,28px);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.option.correct{
+  background:#dcfce7;
+  border-color:#22c55e;
+}
+
+.option.wrong{
+  background:#fee2e2;
+  border-color:#ef4444;
+}
+
+#machine{
+  font-size:clamp(70px,12vw,130px);
+  margin-top:25px;
+}
+
+#door{
+  position:absolute;
+  right:40px;
+  bottom:40px;
+  width:130px;
+  height:190px;
+  background:#334155;
+  border:5px solid #94a3b8;
+  border-radius:12px 12px 0 0;
+}
+
+#door::after{
+  content:"";
+  position:absolute;
+  right:18px;
+  top:90px;
+  width:16px;
+  height:16px;
+  background:#facc15;
+  border-radius:50%;
+}
+
+#powerBar{
+  position:absolute;
+  left:40px;
+  bottom:45px;
+  width:55%;
+  height:30px;
+  border:3px solid #0ea5e9;
+  border-radius:18px;
+  overflow:hidden;
+  background:#020617;
+}
+
+#powerFill{
+  width:0%;
+  height:100%;
+  background:#22c55e;
+  transition:.5s;
+}
+
+#msg{
+  font-size:clamp(22px,3.5vw,34px);
+  font-weight:bold;
+  min-height:42px;
+}
+
+.instructions{
+  font-size:clamp(18px,3vw,24px);
+  line-height:1.6;
+  max-width:760px;
+}
+
+.shake{
+  animation:shake .4s;
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader" class="screen">
+  <img src="assets/logo.png" class="logo">
+  <h2>Loading Measurement Lab...</h2>
+</div>
+
+<div id="instructions" class="screen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1>📏 Measurement Lab Escape</h1>
+  <div class="instructions">
+    <p>Answer measurement questions to power the lab.</p>
+    <p>Each correct answer fills the power bar.</p>
+    <p>You get <b>2 chances for each question</b>.</p>
+    <p>After 2 wrong attempts, the correct answer will be shown.</p>
+  </div>
+  <button onclick="startGame()">Begin Experiment</button>
+</div>
+
+<div id="endScreen" class="screen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1 id="endTitle">🏆 Lab Escape Complete!</h1>
+  <h2>Final Score: <span id="finalScore"></span></h2>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="hud">
+  <div>⭐ Score: <span id="score">0</span></div>
+  <div>❤️ Chances: <span id="chances">2</span></div>
+  <div>❓ Question: <span id="qno">1</span>/10</div>
+</div>
+
+<div id="questionBox">Question will appear here.</div>
+
+<div id="labArea">
+  <div id="machine">⚗️</div>
+  <div id="options"></div>
+  <div id="powerBar"><div id="powerFill"></div></div>
+  <div id="door"></div>
+</div>
+
+<div id="msg"></div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const bank=[
+  {q:"How many metres are there in 1 kilometre?",o:["100 m","1000 m","10 m"],a:"1000 m"},
+  {q:"5 metres is equal to:",o:["50 cm","500 cm","5000 cm"],a:"500 cm"},
+  {q:"How many grams are there in 2.5 kg?",o:["250 g","2500 g","25 g"],a:"2500 g"},
+  {q:"100 kg is equal to 1:",o:["Tonne","Quintal","Gram"],a:"Quintal"},
+  {q:"What is the standard unit of capacity?",o:["Litre","Gram","Metre"],a:"Litre"},
+  {q:"500 mL + 500 mL =",o:["1 L","10 L","1000 L"],a:"1 L"},
+  {q:"How many seconds are there in 1 minute?",o:["60 s","100 s","3600 s"],a:"60 s"},
+  {q:"4:00 PM in 24-hour clock is:",o:["04:00","14:00","16:00"],a:"16:00"},
+  {q:"Boiling point of water is:",o:["0°C","100°C","37°C"],a:"100°C"},
+  {q:"Freezing point of water is:",o:["0°C","100°C","37°C"],a:"0°C"},
+  {q:"Distance between cities is usually measured in:",o:["mm","cm","km"],a:"km"},
+  {q:"A clinical thermometer is used to measure:",o:["Fever","Length","Mass"],a:"Fever"},
+  {q:"10 litres is equal to:",o:["1000 mL","10000 mL","100 mL"],a:"10000 mL"},
+  {q:"120 minutes is equal to:",o:["1 hour","2 hours","3 hours"],a:"2 hours"},
+  {q:"A leap year has:",o:["365 days","366 days","364 days"],a:"366 days"}
+];
+
+let questions=[];
+let current=0;
+let score=0;
+let chances=2;
+let locked=false;
+
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById("loader").style.display="none";
+    document.getElementById("instructions").style.display="flex";
+  },1200);
+};
+
+function startGame(){
+  document.getElementById("instructions").style.display="none";
+  questions=[...bank].sort(()=>Math.random()-0.5).slice(0,10);
+  loadQuestion();
+}
+
+function loadQuestion(){
+  locked=false;
+  chances=2;
+  document.getElementById("chances").textContent=chances;
+  document.getElementById("msg").textContent="";
+
+  if(current>=questions.length){
+    endGame();
+    return;
+  }
+
+  const item=questions[current];
+  document.getElementById("qno").textContent=current+1;
+  document.getElementById("questionBox").textContent="Q"+(current+1)+". "+item.q;
+
+  const options=document.getElementById("options");
+  options.innerHTML="";
+
+  [...item.o].sort(()=>Math.random()-0.5).forEach(opt=>{
+    const btn=document.createElement("div");
+    btn.className="option";
+    btn.textContent=opt;
+    btn.onclick=()=>checkAnswer(btn,opt);
+    options.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn,selected){
+  if(locked)return;
+
+  const item=questions[current];
+
+  if(selected===item.a){
+    locked=true;
+    btn.classList.add("correct");
+    document.getElementById("correctSound").play();
+    score+=10;
+    document.getElementById("score").textContent=score;
+    document.getElementById("msg").style.color="#22c55e";
+    document.getElementById("msg").textContent="✅ Correct! Lab powered.";
+    updatePower();
+    current++;
+    setTimeout(loadQuestion,1300);
+  }else{
+    btn.classList.add("wrong");
+    document.getElementById("wrongSound").play();
+    chances--;
+    document.getElementById("chances").textContent=chances;
+    document.getElementById("labArea").classList.add("shake");
+    setTimeout(()=>document.getElementById("labArea").classList.remove("shake"),400);
+
+    if(chances>0){
+      document.getElementById("msg").style.color="#ef4444";
+      document.getElementById("msg").textContent="❌ Try Again!";
+      setTimeout(()=>btn.classList.remove("wrong"),700);
+    }else{
+      locked=true;
+      document.getElementById("msg").style.color="#ef4444";
+      document.getElementById("msg").textContent="Correct Answer: "+item.a;
+
+      document.querySelectorAll(".option").forEach(o=>{
+        if(o.textContent===item.a)o.classList.add("correct");
+      });
+
+      current++;
+      setTimeout(loadQuestion,2200);
+    }
+  }
+}
+
+function updatePower(){
+  const percent=(score/100)*100;
+  document.getElementById("powerFill").style.width=percent+"%";
+}
+
+function endGame(){
+  document.getElementById("clapSound").play();
+  document.getElementById("finalScore").textContent=score+" / 100";
+  document.getElementById("endScreen").style.display="flex";
+}
+</script>
+
+</body>
+</html>
