@@ -1,1 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Machines Match-Up</title>
 
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(#dff6ff,#ffffff);
+  text-align:center;
+  overflow-x:hidden;
+}
+.screen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#eaf9ff,#fff);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+.logo{width:min(180px,55vw);margin-bottom:18px}
+button{
+  border:0;
+  border-radius:14px;
+  background:#2563eb;
+  color:white;
+  font-size:20px;
+  font-weight:bold;
+  padding:13px 26px;
+  cursor:pointer;
+}
+h1{font-size:clamp(28px,5vw,46px);color:#1e3a8a}
+#hud{
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:10px;
+  background:#1e293b;
+  color:white;
+  padding:12px;
+  font-size:clamp(17px,3vw,23px);
+  font-weight:bold;
+}
+#item-bank{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  background:white;
+  padding:18px;
+  border-radius:20px;
+  width:min(760px,94vw);
+  min-height:90px;
+  margin:18px auto;
+  border:3px dashed #94a3b8;
+}
+.drag-item{
+  background:white;
+  border:3px solid #38bdf8;
+  padding:12px 16px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:clamp(16px,3vw,22px);
+  font-weight:bold;
+  box-shadow:0 4px 0 #38bdf8;
+}
+.drag-item.selected{
+  background:#fef08a;
+  border-color:#f59e0b;
+  transform:scale(1.05);
+}
+#drop-zones{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  width:min(900px,96vw);
+  margin:0 auto 20px;
+}
+@media(min-width:700px){
+  #drop-zones{grid-template-columns:repeat(3,1fr)}
+}
+.zone{
+  background:white;
+  border:3px solid #cbd5e1;
+  border-radius:18px;
+  min-height:130px;
+  padding:10px;
+}
+.zone h3{
+  margin:4px 0 10px;
+  color:#334155;
+  font-size:clamp(15px,2.5vw,20px);
+}
+.zone.wrong{animation:shake .4s;background:#fee2e2;border-color:#ef4444}
+.zone.correctFlash{background:#dcfce7;border-color:#22c55e}
+.placed-item{
+  background:#dcfce7;
+  border:2px solid #22c55e;
+  border-radius:10px;
+  padding:7px;
+  margin:4px;
+  font-weight:bold;
+}
+#msg{
+  min-height:35px;
+  font-size:clamp(20px,3vw,30px);
+  font-weight:bold;
+}
+.instructions{
+  font-size:clamp(18px,3vw,24px);
+  line-height:1.6;
+  max-width:760px;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader" class="screen">
+  <img src="assets/logo.png" class="logo">
+  <h2>Loading Machine Match-Up...</h2>
+</div>
+
+<div id="instructions" class="screen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1>⚙️ Machine Match-Up</h1>
+  <div class="instructions">
+    <p>Select or drag each object into the correct simple machine group.</p>
+    <p>You get <b>2 chances for each object</b>.</p>
+    <p>After 2 wrong attempts, the correct group will be shown.</p>
+  </div>
+  <button onclick="startGame()">Start Game</button>
+</div>
+
+<div id="endScreen" class="screen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1>🏆 Great Work!</h1>
+  <h2>Your Score: <span id="finalScore"></span></h2>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="hud">
+  <div>⭐ Score: <span id="score">0</span></div>
+  <div>❤️ Chances: <span id="chances">2</span></div>
+  <div>🔧 Done: <span id="done">0</span>/10</div>
+</div>
+
+<h1>⚙️ Simple Machines Match-Up</h1>
+
+<div id="item-bank"></div>
+<div id="msg"></div>
+
+<div id="drop-zones">
+  <div class="zone" data-type="lever"><h3>Lever</h3></div>
+  <div class="zone" data-type="pulley"><h3>Pulley</h3></div>
+  <div class="zone" data-type="inclined plane"><h3>Inclined Plane</h3></div>
+  <div class="zone" data-type="wheel and axle"><h3>Wheel & Axle</h3></div>
+  <div class="zone" data-type="wedge"><h3>Wedge</h3></div>
+  <div class="zone" data-type="screw"><h3>Screw</h3></div>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const allItems=[
+  {name:"✂️ Scissors",type:"lever"},
+  {name:"⚖️ See-saw",type:"lever"},
+  {name:"🔨 Hammer",type:"lever"},
+  {name:"🚩 Flagpole",type:"pulley"},
+  {name:"🏗️ Crane",type:"pulley"},
+  {name:"🪣 Well Bucket",type:"pulley"},
+  {name:"♿ Ramp",type:"inclined plane"},
+  {name:"🛝 Slide",type:"inclined plane"},
+  {name:"🪜 Ladder",type:"inclined plane"},
+  {name:"🚪 Doorknob",type:"wheel and axle"},
+  {name:"🚲 Bicycle Pedal",type:"wheel and axle"},
+  {name:"🎡 Ferris Wheel",type:"wheel and axle"},
+  {name:"🪓 Axe",type:"wedge"},
+  {name:"🔪 Knife",type:"wedge"},
+  {name:"🚪 Door Stopper",type:"wedge"},
+  {name:"🏺 Jar Lid",type:"screw"},
+  {name:"🔩 Bolt",type:"screw"},
+  {name:"💡 Bulb Base",type:"screw"}
+];
+
+let selectedEl=null;
+let score=0;
+let done=0;
+let chances=2;
+let currentWrongItem=null;
+
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById("loader").style.display="none";
+    document.getElementById("instructions").style.display="flex";
+  },1200);
+};
+
+function startGame(){
+  document.getElementById("instructions").style.display="none";
+  setupGame();
+}
+
+function setupGame(){
+  const bank=document.getElementById("item-bank");
+  bank.innerHTML="";
+  score=0; done=0; chances=2;
+  updateHUD();
+
+  const selected=[...allItems].sort(()=>Math.random()-0.5).slice(0,10);
+
+  selected.forEach(item=>{
+    const div=document.createElement("div");
+    div.className="drag-item";
+    div.textContent=item.name;
+    div.dataset.type=item.type;
+    div.draggable=true;
+
+    div.onclick=()=>{
+      selectedEl=div;
+      chances=2;
+      currentWrongItem=div;
+      document.querySelectorAll(".drag-item").forEach(i=>i.classList.remove("selected"));
+      div.classList.add("selected");
+      updateHUD();
+      showMsg("Now tap the correct machine group.", "#1e3a8a");
+    };
+
+    div.ondragstart=()=>{
+      selectedEl=div;
+      chances=2;
+      currentWrongItem=div;
+    };
+
+    bank.appendChild(div);
+  });
+}
+
+document.querySelectorAll(".zone").forEach(zone=>{
+  zone.ondragover=e=>e.preventDefault();
+  zone.ondrop=e=>{
+    e.preventDefault();
+    checkMatch(zone);
+  };
+  zone.onclick=()=>checkMatch(zone);
+});
+
+function checkMatch(zone){
+  if(!selectedEl)return;
+
+  if(selectedEl.dataset.type===zone.dataset.type){
+    correctPlacement(zone);
+  }else{
+    wrongPlacement(zone);
+  }
+}
+
+function correctPlacement(zone){
+  document.getElementById("correctSound").play();
+  zone.classList.add("correctFlash");
+  setTimeout(()=>zone.classList.remove("correctFlash"),500);
+
+  const placed=document.createElement("div");
+  placed.className="placed-item";
+  placed.textContent=selectedEl.textContent;
+  zone.appendChild(placed);
+
+  selectedEl.remove();
+  selectedEl=null;
+  score+=10;
+  done++;
+  chances=2;
+  updateHUD();
+  showMsg("✅ Correct!", "green");
+
+  if(done>=10){
+    setTimeout(endGame,900);
+  }
+}
+
+function wrongPlacement(zone){
+  document.getElementById("wrongSound").play();
+  chances--;
+  updateHUD();
+  zone.classList.add("wrong");
+  setTimeout(()=>zone.classList.remove("wrong"),500);
+
+  if(chances>0){
+    showMsg("❌ Try Again!", "red");
+  }else{
+    const correctType=selectedEl.dataset.type;
+    showMsg("Correct Answer: "+formatType(correctType), "red");
+
+    document.querySelectorAll(".zone").forEach(z=>{
+      if(z.dataset.type===correctType){
+        z.classList.add("correctFlash");
+        const placed=document.createElement("div");
+        placed.className="placed-item";
+        placed.textContent=selectedEl.textContent;
+        z.appendChild(placed);
+        setTimeout(()=>z.classList.remove("correctFlash"),800);
+      }
+    });
+
+    selectedEl.remove();
+    selectedEl=null;
+    done++;
+    chances=2;
+    updateHUD();
+
+    if(done>=10){
+      setTimeout(endGame,1400);
+    }
+  }
+}
+
+function formatType(type){
+  if(type==="wheel and axle")return "Wheel & Axle";
+  return type.split(" ").map(w=>w[0].toUpperCase()+w.slice(1)).join(" ");
+}
+
+function updateHUD(){
+  document.getElementById("score").textContent=score;
+  document.getElementById("done").textContent=done;
+  document.getElementById("chances").textContent=chances;
+}
+
+function showMsg(text,color){
+  const msg=document.getElementById("msg");
+  msg.textContent=text;
+  msg.style.color=color;
+}
+
+function endGame(){
+  document.getElementById("clapSound").play();
+  document.getElementById("finalScore").textContent=score+" / 100";
+  document.getElementById("endScreen").style.display="flex";
+}
+</script>
+
+</body>
+</html>
