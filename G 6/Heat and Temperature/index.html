@@ -1,72 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thermo Rescue Runner - Grade 6</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#ffe8c7;
+}
+
+#loader,
+#startScreen,
+#endScreen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#fff7ed,#ffffff);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:50;
+  text-align:center;
+  padding:20px;
+}
+
+.logo{
+  width:min(180px,50vw);
+  margin-bottom:20px;
+}
+
+button{
+  border:none;
+  border-radius:14px;
+  background:#f97316;
+  color:white;
+  font-size:20px;
+  font-weight:bold;
+  padding:14px 26px;
+  cursor:pointer;
+}
+
+#gameUI{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:#7c2d12;
+  color:white;
+  padding:10px;
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  z-index:5;
+  font-size:20px;
+  font-weight:bold;
+}
+
+#questionBox{
+  position:fixed;
+  top:70px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(900px,94vw);
+  background:white;
+  border:4px solid #f97316;
+  border-radius:18px;
+  padding:15px;
+  font-size:clamp(20px,3vw,30px);
+  font-weight:bold;
+  z-index:5;
+  text-align:center;
+}
+
+#game{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:linear-gradient(to bottom,#ffedd5,#fdba74);
+}
+
+#ground{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:120px;
+  background:#92400e;
+}
+
+#player{
+  position:absolute;
+  bottom:120px;
+  left:120px;
+  width:90px;
+  height:90px;
+  font-size:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:left 0.12s;
+  z-index:4;
+}
+
+.object{
+  position:absolute;
+  top:-120px;
+  width:180px;
+  min-height:80px;
+  background:white;
+  border:4px solid #f97316;
+  border-radius:18px;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:#111;
+  z-index:3;
+}
+
+.correctGlow{
+  animation:glow 1s infinite;
+}
+
+@keyframes glow{
+  0%{box-shadow:0 0 10px #22c55e}
+  50%{box-shadow:0 0 35px #22c55e}
+  100%{box-shadow:0 0 10px #22c55e}
+}
+
+#controls{
+  position:fixed;
+  bottom:10px;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  z-index:10;
+}
+
+.ctrlBtn{
+  width:90px;
+  height:90px;
+  border-radius:20px;
+  border:none;
+  background:#2563eb;
+  color:white;
+  font-size:40px;
+  font-weight:bold;
+}
+
+#message{
+  position:fixed;
+  top:165px;
+  width:100%;
+  text-align:center;
+  font-size:34px;
+  font-weight:bold;
+  z-index:6;
+}
+
+#readTimer{
+  position:fixed;
+  top:130px;
+  right:20px;
+  background:white;
+  color:#111;
+  padding:12px 18px;
+  border-radius:14px;
+  font-size:28px;
+  font-weight:bold;
+  border:4px solid #f97316;
+  z-index:20;
+}
+
+.instructions{
+  max-width:750px;
+  font-size:22px;
+  line-height:1.7;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader">
+  <img src="assets/logo.png" class="logo">
+  <h2>Loading Thermo Rescue Runner...</h2>
+</div>
+
+<div id="startScreen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+
+  <h1>🔥 Thermo Rescue Runner</h1>
+
+  <div class="instructions">
+    <p>Read the question carefully.</p>
+    <p>You will get time to read before the options fall.</p>
+    <p>Move the robot left and right to catch the correct object.</p>
+    <p>You get only <b>2 chances</b>.</p>
+    <p>After 2 wrong attempts, the correct object will glow.</p>
+  </div>
+
+  <button onclick="startGame()">Start Game</button>
+</div>
+
+<div id="endScreen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+
+  <h1>🏆 Heat Lab Saved!</h1>
+
+  <h2>Final Score: <span id="finalScore"></span></h2>
+
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="gameUI">
+  <div>⭐ Score: <span id="score">0</span></div>
+  <div>❤️ Chances: <span id="chances">2</span></div>
+  <div>🔥 Level: <span id="level">1</span>/10</div>
+</div>
+
+<div id="questionBox"></div>
+<div id="message"></div>
+
+<div id="game">
+  <div id="player">🤖</div>
+  <div id="ground"></div>
+</div>
+
+<div id="controls">
+  <button class="ctrlBtn" id="leftBtn">⬅️</button>
+  <button class="ctrlBtn" id="rightBtn">➡️</button>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const questions=[
+  {
+    q:"Catch the object from which heat flows.",
+    correct:"🔥 Hot Object",
+    options:["🔥 Hot Object","❄️ Cold Object","🧊 Ice Cube"]
+  },
+  {
+    q:"Catch the correct normal body temperature.",
+    correct:"37°C",
+    options:["100°C","37°C","0°C"]
+  },
+  {
+    q:"Catch the example of conduction.",
+    correct:"🥄 Metal spoon gets hot",
+    options:["🥄 Metal spoon gets hot","☀️ Heat from Sun","🌊 Sea breeze"]
+  },
+  {
+    q:"Catch the good conductor.",
+    correct:"🔩 Copper",
+    options:["🪵 Wood","🔩 Copper","🧤 Rubber"]
+  },
+  {
+    q:"Catch the insulator.",
+    correct:"🧤 Rubber",
+    options:["🔩 Iron","🧤 Rubber","🥄 Steel"]
+  },
+  {
+    q:"Catch the thermometer used for body temperature.",
+    correct:"🌡️ Clinical Thermometer",
+    options:["🌡️ Clinical Thermometer","🧪 Laboratory Thermometer","📏 Meter Scale"]
+  },
+  {
+    q:"Catch the heat transfer by radiation.",
+    correct:"☀️ Sun heats Earth",
+    options:["☀️ Sun heats Earth","🍲 Boiling water","🥄 Hot pan handle"]
+  },
+  {
+    q:"Catch the object that absorbs more heat.",
+    correct:"⬛ Black Surface",
+    options:["⬜ White Surface","⬛ Black Surface","🪞 Shiny Surface"]
+  },
+  {
+    q:"Catch the example of convection.",
+    correct:"🍲 Boiling Water Circulation",
+    options:["🍲 Boiling Water Circulation","☀️ Sun rays","🥄 Iron rod heating"]
+  },
+  {
+    q:"Catch the material used in thermos flask insulation.",
+    correct:"🫙 Vacuum",
+    options:["🫙 Vacuum","💧 Water","🪨 Stone"]
+  }
+];
+
+let level=0;
+let score=0;
+let chances=2;
+let playerX=120;
+let currentObjects=[];
+let currentIntervals=[];
+let isLocked=false;
+let countdownInterval=null;
+
+const player=document.getElementById("player");
+const game=document.getElementById("game");
+
+window.onload=()=>{
+  setTimeout(()=>{
+    loader.style.display="none";
+    startScreen.style.display="flex";
+  },1200);
+};
+
+function startGame(){
+  startScreen.style.display="none";
+  loadLevel();
+}
+
 function loadLevel(){
+  isLocked=false;
 
-if(level>=questions.length){
+  if(level>=questions.length){
+    endGame();
+    return;
+  }
 
-endGame();
+  clearObjects();
+  clearCountdown();
 
-return;
+  document.getElementById("level").textContent=level+1;
+  document.getElementById("questionBox").textContent=questions[level].q;
+  document.getElementById("chances").textContent=chances;
 
+  showMessage("⏳ Read the question carefully.","#2563eb");
+
+  let readTime=60;
+
+  const timerBox=document.createElement("div");
+  timerBox.id="readTimer";
+  timerBox.textContent="⏳ "+readTime+"s";
+  document.body.appendChild(timerBox);
+
+  countdownInterval=setInterval(()=>{
+    readTime--;
+    timerBox.textContent="⏳ "+readTime+"s";
+
+    if(readTime<=0){
+      clearCountdown();
+      showMessage("🚀 Catch the correct object!","#22c55e");
+      spawnObjects();
+    }
+  },1000);
 }
 
-clearObjects();
+function clearCountdown(){
+  if(countdownInterval){
+    clearInterval(countdownInterval);
+    countdownInterval=null;
+  }
 
-document.getElementById("level").textContent=level+1;
-
-document.getElementById("questionBox").textContent=
-questions[level].q;
-
-document.getElementById("chances").textContent=chances;
-
-showMessage(
-"⏳ Read the question carefully...",
-"#2563eb"
-);
-
-let readTime=60;
-
-const timerBox=document.createElement("div");
-
-timerBox.id="readTimer";
-
-timerBox.style.position="fixed";
-timerBox.style.top="130px";
-timerBox.style.right="20px";
-timerBox.style.background="#ffffff";
-timerBox.style.color="#111";
-timerBox.style.padding="12px 18px";
-timerBox.style.borderRadius="14px";
-timerBox.style.fontSize="28px";
-timerBox.style.fontWeight="bold";
-timerBox.style.border="4px solid #f97316";
-timerBox.style.zIndex="20";
-
-timerBox.textContent=
-"⏳ "+readTime+"s";
-
-document.body.appendChild(timerBox);
-
-const countdown=setInterval(()=>{
-
-readTime--;
-
-timerBox.textContent=
-"⏳ "+readTime+"s";
-
-if(readTime<=0){
-
-clearInterval(countdown);
-
-timerBox.remove();
-
-showMessage(
-"🚀 Catch the correct object!",
-"#22c55e"
-);
-
-spawnObjects();
-
+  const timer=document.getElementById("readTimer");
+  if(timer)timer.remove();
 }
 
-},1000);
+function clearObjects(){
+  currentIntervals.forEach(i=>clearInterval(i));
+  currentIntervals=[];
 
+  currentObjects.forEach(o=>o.remove());
+  currentObjects=[];
 }
+
+function spawnObjects(){
+  clearObjects();
+
+  const q=questions[level];
+  const shuffled=[...q.options].sort(()=>Math.random()-0.5);
+
+  shuffled.forEach((opt,index)=>{
+    const obj=document.createElement("div");
+    obj.className="object";
+    obj.textContent=opt;
+    obj.dataset.correct=(opt===q.correct);
+    obj.style.left=(10+index*32)+"vw";
+    obj.style.top="-120px";
+
+    game.appendChild(obj);
+    currentObjects.push(obj);
+
+    fallObject(obj);
+  });
+}
+
+function fallObject(obj){
+  let y=-120;
+  const speed=2.8+Math.random()*2.2;
+
+  const fall=setInterval(()=>{
+    if(isLocked){
+      clearInterval(fall);
+      return;
+    }
+
+    y+=speed;
+    obj.style.top=y+"px";
+
+    const objRect=obj.getBoundingClientRect();
+    const playerRect=player.getBoundingClientRect();
+
+    if(
+      objRect.bottom>playerRect.top &&
+      objRect.top<playerRect.bottom &&
+      objRect.left<playerRect.right &&
+      objRect.right>playerRect.left
+    ){
+      clearInterval(fall);
+      checkAnswer(obj);
+    }
+
+    if(y>window.innerHeight){
+      clearInterval(fall);
+      obj.remove();
+    }
+  },20);
+
+  currentIntervals.push(fall);
+}
+
+function checkAnswer(obj){
+  if(isLocked)return;
+
+  if(obj.dataset.correct==="true"){
+    isLocked=true;
+    correctSound.play();
+
+    score+=10;
+    document.getElementById("score").textContent=score;
+
+    showMessage("✅ Correct!","#22c55e");
+
+    clearObjects();
+
+    level++;
+    chances=2;
+
+    setTimeout(loadLevel,1200);
+  }else{
+    wrongSound.play();
+
+    chances--;
+    document.getElementById("chances").textContent=chances;
+
+    if(chances>0){
+      showMessage("❌ Wrong! All options will fall again.","#ef4444");
+
+      setTimeout(()=>{
+        spawnObjects();
+      },800);
+    }else{
+      isLocked=true;
+      showMessage("Correct Answer Highlighted","#ef4444");
+      highlightCorrect();
+
+      setTimeout(()=>{
+        clearObjects();
+        level++;
+        chances=2;
+        loadLevel();
+      },2500);
+    }
+  }
+}
+
+function highlightCorrect(){
+  currentIntervals.forEach(i=>clearInterval(i));
+  currentIntervals=[];
+
+  currentObjects.forEach(o=>{
+    if(o.dataset.correct==="true"){
+      o.classList.add("correctGlow");
+      o.style.top="280px";
+      o.style.left="50%";
+      o.style.transform="translateX(-50%)";
+    }else{
+      o.remove();
+    }
+  });
+
+  currentObjects=currentObjects.filter(o=>o.dataset.correct==="true");
+}
+
+function showMessage(text,color){
+  const msg=document.getElementById("message");
+  msg.textContent=text;
+  msg.style.color=color;
+}
+
+function moveLeft(){
+  playerX-=85;
+  if(playerX<0)playerX=0;
+  player.style.left=playerX+"px";
+}
+
+function moveRight(){
+  playerX+=85;
+  if(playerX>window.innerWidth-100){
+    playerX=window.innerWidth-100;
+  }
+  player.style.left=playerX+"px";
+}
+
+document.getElementById("leftBtn").addEventListener("touchstart",moveLeft);
+document.getElementById("rightBtn").addEventListener("touchstart",moveRight);
+document.getElementById("leftBtn").addEventListener("click",moveLeft);
+document.getElementById("rightBtn").addEventListener("click",moveRight);
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft")moveLeft();
+  if(e.key==="ArrowRight")moveRight();
+});
+
+function endGame(){
+  clearObjects();
+  clearCountdown();
+  clapSound.play();
+  document.getElementById("finalScore").textContent=score;
+  endScreen.style.display="flex";
+}
+</script>
+
+</body>
+</html>
