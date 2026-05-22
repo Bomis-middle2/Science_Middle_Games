@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>G8 Science Ch 2 - Pressure Lab Escape</title>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#0f172a,#1e3a8a);color:white;text-align:center;overflow-x:hidden}
@@ -16,7 +17,7 @@ button{border:0;border-radius:14px;background:#0ea5e9;color:white;font-size:clam
 #gameArea{width:min(1000px,96vw);min-height:min(520px,68vh);margin:12px auto;background:linear-gradient(#1e293b,#0f172a);border:5px solid #38bdf8;border-radius:22px;padding:20px;box-shadow:0 0 25px rgba(56,189,248,.35)}
 .row{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin:18px auto}
 .card,.tile,.zone,.slot,.object,.seqCard{background:white;color:#111;border:4px solid #38bdf8;border-radius:16px;padding:14px;min-width:160px;min-height:72px;font-size:clamp(18px,3vw,26px);font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.card.selected,.tile.selected,.seqCard.selected{background:#fef08a;border-color:#f59e0b;transform:scale(1.05)}
+.card.selected,.tile.selected{background:#fef08a;border-color:#f59e0b;transform:scale(1.05)}
 .zone,.slot{background:#e0f2fe;border-style:dashed;min-height:130px;flex-direction:column}
 .placed{background:#dcfce7;border:2px solid #22c55e;border-radius:10px;padding:8px;margin:6px;font-size:clamp(16px,2.5vw,21px)}
 .correctFlash{background:#dcfce7!important;border-color:#22c55e!important}
@@ -24,7 +25,6 @@ button{border:0;border-radius:14px;background:#0ea5e9;color:white;font-size:clam
 #msg{font-size:clamp(22px,3.5vw,34px);font-weight:bold;min-height:42px}
 .instructions{font-size:clamp(18px,3vw,24px);line-height:1.6;max-width:760px}
 .labBox{background:white;color:#111;border:4px solid #38bdf8;border-radius:18px;padding:16px;margin:14px auto;width:min(760px,92vw);font-size:clamp(22px,4vw,36px);font-weight:bold}
-input{font-size:clamp(22px,4vw,34px);padding:14px;border:4px solid #38bdf8;border-radius:14px;text-align:center;width:min(300px,80vw);font-weight:bold}
 .tank{width:260px;height:330px;border:6px solid white;border-radius:18px;margin:15px auto;position:relative;background:#0ea5e966}
 .hole{position:absolute;left:100px;width:60px;height:45px;background:white;color:#111;border:3px solid #111;border-radius:12px;font-weight:bold;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .h1{top:45px}.h2{top:145px}.h3{top:245px}
@@ -43,8 +43,8 @@ input{font-size:clamp(22px,4vw,34px);padding:14px;border:4px solid #38bdf8;borde
   <img src="assets/logo.png" class="logo">
   <h1>🧪 Pressure Lab Escape</h1>
   <div class="instructions">
-    <p>This is not an MCQ game.</p>
-    <p>Build formulas, sort cards, tap correct lab parts, arrange sequences, and type answers.</p>
+    <p>Complete pressure lab challenges.</p>
+    <p>No typing. Only tap, sort, arrange, and build.</p>
     <p>For sorting: tap a card first, then tap its correct zone.</p>
     <p>You get <b>2 chances</b>. After that, the correct answer is shown.</p>
   </div>
@@ -76,7 +76,7 @@ input{font-size:clamp(22px,4vw,34px);padding:14px;border:4px solid #38bdf8;borde
 <script>
 const levels=[
 {type:"formula",title:"Formula Builder",q:"Build the pressure formula correctly.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
-{type:"input",title:"Pressure Calculation",q:"A force of 20 N acts on an area of 0.0002 m². Type the pressure in Pa.",visual:"P = F ÷ A",answer:"100000"},
+{type:"formula",title:"Unit Builder",q:"Build the unit relation correctly.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
 {type:"sort",title:"Area and Pressure",q:"Sort situations into HIGH pressure and LOW pressure.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
 {type:"tank",title:"Liquid Pressure Tank",q:"Tap the hole where pressure is greatest.",answer:"Bottom"},
 {type:"sequence",title:"Syringe Pressure Sequence",q:"Tap the steps in correct order.",steps:["Pull plunger","Volume inside increases","Pressure inside decreases","Liquid enters syringe"]},
@@ -89,6 +89,20 @@ const levels=[
 
 let order=[...levels].sort(()=>Math.random()-0.5);
 let level=0,score=0,chances=2,locked=false,selected=null,placed=0,seqIndex=0,formulaBuilt=[];
+
+const loader=document.getElementById("loader");
+const instructions=document.getElementById("instructions");
+const gameArea=document.getElementById("gameArea");
+const scoreSpan=document.getElementById("score");
+const chancesSpan=document.getElementById("chances");
+const levelNo=document.getElementById("levelNo");
+const title=document.getElementById("title");
+const questionBox=document.getElementById("questionBox");
+const correctSound=document.getElementById("correctSound");
+const wrongSound=document.getElementById("wrongSound");
+const clapSound=document.getElementById("clapSound");
+const finalScore=document.getElementById("finalScore");
+const endScreen=document.getElementById("endScreen");
 
 window.onload=()=>setTimeout(()=>{loader.style.display="none";instructions.style.display="flex"},1200);
 
@@ -104,7 +118,6 @@ function loadLevel(){
   title.textContent="🧪 "+item.title;
   questionBox.textContent="Level "+(level+1)+". "+item.q;
   if(item.type==="formula")buildFormula(item);
-  if(item.type==="input")buildInput(item);
   if(item.type==="sort")buildSort(item);
   if(item.type==="tank")buildTank(item);
   if(item.type==="sequence")buildSequence(item);
@@ -114,108 +127,192 @@ function loadLevel(){
 function buildFormula(item){
   let slotRow=document.createElement("div");slotRow.className="row";
   item.slots.forEach((s,i)=>{
-    let slot=document.createElement("div");slot.className="slot";slot.dataset.expected=s;slot.textContent="Drop "+(i+1);
+    let slot=document.createElement("div");slot.className="slot";slot.dataset.expected=s;slot.textContent="Step "+(i+1);
     slot.onclick=()=>placeFormula(slot);
     slotRow.appendChild(slot);
   });
+
   let tileRow=document.createElement("div");tileRow.className="row";
   item.tiles.sort(()=>Math.random()-0.5).forEach(t=>{
     let tile=document.createElement("div");tile.className="tile";tile.textContent=t;
-    tile.onclick=()=>{selected=tile;document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));tile.classList.add("selected")};
+    tile.onclick=()=>{
+      if(locked)return;
+      selected=tile;
+      document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));
+      tile.classList.add("selected");
+      msg("Now tap the correct step box.","#38bdf8");
+    };
     tileRow.appendChild(tile);
   });
+
   gameArea.append(slotRow,tileRow);
 }
 
 function placeFormula(slot){
   if(!selected||locked||slot.dataset.filled)return;
-  if(selected.textContent===slot.dataset.expected){
-    slot.textContent=selected.textContent;slot.dataset.filled="yes";slot.classList.add("correctFlash");
-    formulaBuilt.push(selected.textContent);selected.remove();selected=null;score+=5;scoreEl();
-    if(formulaBuilt.length===5){correctNext()}
-  }else wrong("Pressure = Force ÷ Area");
-}
 
-function buildInput(item){
-  let box=document.createElement("div");box.className="labBox";box.textContent=item.visual;
-  let inp=document.createElement("input");inp.id="answerInput";inp.placeholder="Type answer";
-  let btn=document.createElement("button");btn.textContent="Submit";btn.onclick=()=>{answerInput.value.trim()===item.answer?correctNext():wrong(item.answer+" Pa")};
-  gameArea.append(box,inp,document.createElement("br"),btn);
+  if(selected.textContent===slot.dataset.expected){
+    slot.textContent=selected.textContent;
+    slot.dataset.filled="yes";
+    slot.classList.add("correctFlash");
+    formulaBuilt.push(selected.textContent);
+    selected.remove();
+    selected=null;
+    score+=5;
+    scoreEl();
+
+    if(formulaBuilt.length===order[level].slots.length){
+      correctNext(false);
+    }
+  }else{
+    wrong(order[level].answer);
+  }
 }
 
 function buildSort(item){
   let row=document.createElement("div");row.className="row";
+
   item.cards.sort(()=>Math.random()-0.5).forEach(c=>{
-    let card=document.createElement("div");card.className="card";card.textContent=c[0];card.dataset.answer=c[1];
-    card.onclick=()=>{selected=card;document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));card.classList.add("selected");msg("Now tap the correct zone.","#38bdf8")};
+    let card=document.createElement("div");
+    card.className="card";
+    card.textContent=c[0];
+    card.dataset.answer=c[1];
+    card.onclick=()=>{
+      if(locked)return;
+      selected=card;
+      document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
+      card.classList.add("selected");
+      msg("Now tap the correct zone.","#38bdf8");
+    };
     row.appendChild(card);
   });
+
   let zones=document.createElement("div");zones.className="row";
+
   item.zones.forEach(z=>{
-    let zone=document.createElement("div");zone.className="zone";zone.dataset.zone=z;zone.innerHTML="<b>"+z+"</b>";
+    let zone=document.createElement("div");
+    zone.className="zone";
+    zone.dataset.zone=z;
+    zone.innerHTML="<b>"+z+"</b>";
     zone.onclick=()=>checkZone(zone,item.cards.length);
     zones.appendChild(zone);
   });
+
   gameArea.append(row,zones);
 }
 
 function checkZone(zone,total){
   if(!selected||locked)return;
+
   if(selected.dataset.answer===zone.dataset.zone){
-    let p=document.createElement("div");p.className="placed";p.textContent=selected.textContent;zone.appendChild(p);
-    selected.remove();selected=null;placed++;score+=5;scoreEl();msg("✅ Correct!","#22c55e");
+    let p=document.createElement("div");
+    p.className="placed";
+    p.textContent=selected.textContent;
+    zone.appendChild(p);
+
+    selected.remove();
+    selected=null;
+    placed++;
+    score+=5;
+    scoreEl();
+    correctSound.play();
+    msg("✅ Correct!","#22c55e");
+
     if(placed===total)correctNext(false);
-  }else wrong(selected.dataset.answer);
+  }else{
+    wrong(selected.dataset.answer);
+  }
 }
 
 function buildTank(item){
   let tank=document.createElement("div");tank.className="tank";
+
   [["Top","h1"],["Middle","h2"],["Bottom","h3"]].forEach(x=>{
-    let h=document.createElement("div");h.className="hole "+x[1];h.textContent=x[0];h.onclick=()=>x[0]===item.answer?correctNext():wrong(item.answer+" hole");
+    let h=document.createElement("div");
+    h.className="hole "+x[1];
+    h.textContent=x[0];
+    h.onclick=()=>x[0]===item.answer?correctNext():wrong(item.answer+" hole");
     tank.appendChild(h);
   });
+
   gameArea.appendChild(tank);
 }
 
 function buildSequence(item){
   let row=document.createElement("div");row.className="row";
+
   item.steps.sort(()=>Math.random()-0.5).forEach(step=>{
-    let c=document.createElement("div");c.className="seqCard";c.textContent=step;
+    let c=document.createElement("div");
+    c.className="seqCard";
+    c.textContent=step;
     c.onclick=()=>{
       if(locked)return;
+
       if(step===item.steps[seqIndex]){
-        c.classList.add("correctFlash");seqIndex++;score+=5;scoreEl();
-        if(seqIndex===item.steps.length)correctNext(false);
-      }else wrong(item.steps.join(" → "));
+        c.classList.add("correctFlash");
+        c.style.pointerEvents="none";
+        seqIndex++;
+        score+=5;
+        scoreEl();
+        correctSound.play();
+
+        if(seqIndex===item.steps.length){
+          correctNext(false);
+        }
+      }else{
+        wrong(item.steps.join(" → "));
+      }
     };
     row.appendChild(c);
   });
+
   gameArea.appendChild(row);
 }
 
 function buildBalance(item){
-  let box=document.createElement("div");box.className="labBox";box.textContent="⬆️ Buoyant Force     ⬇️ Weight";
-  let row=document.createElement("div");row.className="row";
+  let box=document.createElement("div");
+  box.className="labBox";
+  box.textContent="⬆️ Buoyant Force     ⬇️ Weight";
+
+  let row=document.createElement("div");
+  row.className="row";
+
   ["Buoyant force > Weight","Buoyant force < Weight","Buoyant force = 0"].forEach(x=>{
-    let b=document.createElement("div");b.className="object";b.textContent=x;b.onclick=()=>x===item.answer?correctNext():wrong(item.answer);
+    let b=document.createElement("div");
+    b.className="object";
+    b.textContent=x;
+    b.onclick=()=>x===item.answer?correctNext():wrong(item.answer);
     row.appendChild(b);
   });
+
   gameArea.append(box,row);
 }
 
 function wrong(ans){
-  wrongSound.play();chances--;chancesEl();
-  if(chances>0){msg("❌ Try Again!","#ef4444")}
-  else{
-    locked=true;msg("Correct Answer: "+ans,"#ef4444");
-    level++;setTimeout(loadLevel,2300);
+  wrongSound.play();
+  chances--;
+  chancesEl();
+
+  if(chances>0){
+    msg("❌ Try Again!","#ef4444");
+  }else{
+    locked=true;
+    msg("Correct Answer: "+ans,"#ef4444");
+    level++;
+    setTimeout(loadLevel,2300);
   }
 }
 
 function correctNext(addScore=true){
-  if(addScore){score+=10;scoreEl()}
-  correctSound.play();locked=true;msg("✅ Correct!","#22c55e");
-  level++;setTimeout(loadLevel,1300);
+  if(addScore){
+    score+=10;
+    scoreEl();
+    correctSound.play();
+  }
+  locked=true;
+  msg("✅ Correct!","#22c55e");
+  level++;
+  setTimeout(loadLevel,1300);
 }
 
 function scoreEl(){scoreSpan.textContent=score}
@@ -227,22 +324,6 @@ function endGame(){
   finalScore.textContent=score;
   endScreen.style.display="flex";
 }
-</script>
-
-<script>
-const loader=document.getElementById("loader");
-const instructions=document.getElementById("instructions");
-const gameArea=document.getElementById("gameArea");
-const scoreSpan=document.getElementById("score");
-const chancesSpan=document.getElementById("chances");
-const levelNo=document.getElementById("levelNo");
-const title=document.getElementById("title");
-const questionBox=document.getElementById("questionBox");
-const correctSound=document.getElementById("correctSound");
-const wrongSound=document.getElementById("wrongSound");
-const clapSound=document.getElementById("clapSound");
-const finalScore=document.getElementById("finalScore");
-const endScreen=document.getElementById("endScreen");
 </script>
 
 </body>
