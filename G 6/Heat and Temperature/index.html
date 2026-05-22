@@ -3,19 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G6 Heat and Temperature Lab Quest</title>
+<title>Thermo Rescue Runner - Grade 6</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
+  overflow:hidden;
   font-family:Arial,sans-serif;
-  background:linear-gradient(#ffedd5,#fff7ed);
-  text-align:center;
-  overflow-x:hidden;
-  color:#111;
+  background:#ffe8c7;
 }
-.screen{
+
+#loader,
+#startScreen,
+#endScreen{
   position:fixed;
   inset:0;
   background:linear-gradient(#fff7ed,#ffffff);
@@ -24,619 +26,562 @@ body{
   justify-content:center;
   align-items:center;
   z-index:50;
+  text-align:center;
   padding:20px;
 }
-.logo{width:min(180px,55vw);margin-bottom:18px}
+
+.logo{
+  width:min(180px,50vw);
+  margin-bottom:20px;
+}
+
 button{
-  border:0;
+  border:none;
   border-radius:14px;
   background:#f97316;
   color:white;
-  font-size:clamp(16px,2.5vw,22px);
+  font-size:20px;
   font-weight:bold;
-  padding:13px 26px;
-  min-height:55px;
+  padding:14px 26px;
   cursor:pointer;
 }
-#hud{
+
+#gameUI{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:#7c2d12;
+  color:white;
+  padding:10px;
   display:flex;
   justify-content:space-around;
   flex-wrap:wrap;
-  gap:10px;
-  background:#7c2d12;
-  color:white;
-  padding:12px;
-  font-size:clamp(17px,3vw,23px);
+  z-index:5;
+  font-size:20px;
   font-weight:bold;
 }
-#title{
-  font-size:clamp(30px,5vw,48px);
-  margin:14px 0 6px;
-  color:#9a3412;
-}
+
 #questionBox{
-  width:min(950px,94vw);
-  margin:10px auto;
+  position:fixed;
+  top:70px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(900px,94vw);
   background:white;
   border:4px solid #f97316;
   border-radius:18px;
-  padding:16px;
-  font-size:clamp(22px,3.5vw,34px);
+  padding:15px;
+  font-size:clamp(20px,3vw,30px);
   font-weight:bold;
-  min-height:90px;
+  z-index:5;
 }
-#gameArea{
-  width:min(1000px,96vw);
-  min-height:min(520px,68vh);
-  margin:12px auto;
-  background:linear-gradient(#fed7aa,#fff7ed);
-  border:5px solid #f97316;
-  border-radius:22px;
-  padding:20px;
-  box-shadow:0 0 20px rgba(249,115,22,.35);
-}
-.row{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:16px;
-  margin:18px auto;
-}
-.card,.tile,.zone,.slot,.object,.seqCard{
-  background:white;
-  color:#111;
-  border:4px solid #f97316;
-  border-radius:16px;
-  padding:14px;
-  min-width:160px;
-  min-height:72px;
-  font-size:clamp(18px,3vw,26px);
-  font-weight:bold;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.card.selected,.tile.selected{
-  background:#fef08a;
-  border-color:#ca8a04;
-  transform:scale(1.05);
-}
-.zone,.slot{
-  background:#ffedd5;
-  border-style:dashed;
-  min-height:130px;
-  flex-direction:column;
-}
-.placed{
-  background:#dcfce7;
-  border:2px solid #22c55e;
-  border-radius:10px;
-  padding:8px;
-  margin:6px;
-  font-size:clamp(16px,2.5vw,21px);
-}
-.correctFlash{background:#dcfce7!important;border-color:#22c55e!important}
-.wrongFlash{background:#fee2e2!important;border-color:#ef4444!important;animation:shake .35s}
-#msg{
-  font-size:clamp(22px,3.5vw,34px);
-  font-weight:bold;
-  min-height:42px;
-}
-.instructions{
-  font-size:clamp(18px,3vw,24px);
-  line-height:1.6;
-  max-width:760px;
-}
-.labBox{
-  background:white;
-  color:#111;
-  border:4px solid #f97316;
-  border-radius:18px;
-  padding:16px;
-  margin:14px auto;
-  width:min(760px,92vw);
-  font-size:clamp(22px,4vw,36px);
-  font-weight:bold;
-}
-.thermo{
-  width:110px;
-  height:330px;
-  background:white;
-  border:5px solid #111;
-  border-radius:50px;
-  margin:15px auto;
+
+#game{
   position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:
+  linear-gradient(to bottom,#ffedd5,#fdba74);
 }
-.mercury{
+
+#ground{
   position:absolute;
-  bottom:18px;
-  left:38px;
-  width:25px;
-  background:#ef4444;
-  border-radius:20px;
-  height:45%;
-  transition:.5s;
-}
-.mark{
-  position:absolute;
-  left:75px;
-  width:80px;
-  text-align:left;
-  font-weight:bold;
-}
-.hotObj,.coldObj{
-  width:180px;
+  bottom:0;
+  width:100%;
   height:120px;
-  border-radius:18px;
-  border:4px solid #111;
-  font-size:50px;
+  background:#92400e;
+}
+
+#player{
+  position:absolute;
+  bottom:120px;
+  left:120px;
+  width:90px;
+  height:90px;
+  font-size:70px;
   display:flex;
   align-items:center;
   justify-content:center;
 }
-.hotObj{background:#fb923c}
-.coldObj{background:#93c5fd}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+.object{
+  position:absolute;
+  top:-120px;
+  width:180px;
+  min-height:80px;
+  background:white;
+  border:4px solid #f97316;
+  border-radius:18px;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:#111;
+}
+
+.correctGlow{
+  animation:glow 1s infinite;
+}
+
+@keyframes glow{
+  0%{box-shadow:0 0 10px #22c55e}
+  50%{box-shadow:0 0 35px #22c55e}
+  100%{box-shadow:0 0 10px #22c55e}
+}
+
+#controls{
+  position:fixed;
+  bottom:10px;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  z-index:10;
+}
+
+.ctrlBtn{
+  width:90px;
+  height:90px;
+  border-radius:20px;
+  border:none;
+  background:#2563eb;
+  color:white;
+  font-size:40px;
+  font-weight:bold;
+}
+
+#message{
+  position:fixed;
+  top:160px;
+  width:100%;
+  text-align:center;
+  font-size:34px;
+  font-weight:bold;
+  z-index:6;
+}
+
+.instructions{
+  max-width:750px;
+  font-size:22px;
+  line-height:1.7;
+}
 </style>
 </head>
 
 <body>
 
-<div id="loader" class="screen">
+<div id="loader">
   <img src="assets/logo.png" class="logo">
-  <h2>Loading Heat Lab Quest...</h2>
+  <h2>Loading Thermo Rescue Runner...</h2>
 </div>
 
-<div id="instructions" class="screen" style="display:none">
+<div id="startScreen" style="display:none">
   <img src="assets/logo.png" class="logo">
-  <h1>🔥 Heat Lab Quest</h1>
+
+  <h1>🔥 Thermo Rescue Runner</h1>
+
   <div class="instructions">
-    <p>Complete heat and temperature lab challenges.</p>
-    <p>No typing. Only tap, sort, arrange, build, and choose lab objects.</p>
-    <p><b>Sorting levels:</b> tap one card first. It becomes yellow. Then tap the correct zone.</p>
-    <p>You get <b>2 chances</b>. After that, the correct answer is shown.</p>
+    <p>Catch the correct heat and temperature objects.</p>
+    <p>Move the robot left and right.</p>
+    <p>You get only <b>2 chances</b>.</p>
+    <p>After 2 wrong answers, the correct object will glow.</p>
   </div>
-  <button onclick="startGame()">Start Lab Quest</button>
+
+  <button onclick="startGame()">
+    Start Game
+  </button>
 </div>
 
-<div id="endScreen" class="screen" style="display:none">
+<div id="endScreen" style="display:none">
   <img src="assets/logo.png" class="logo">
-  <h1>🏆 Heat Lab Complete!</h1>
-  <h2>Your Score: <span id="finalScore"></span></h2>
-  <button onclick="location.reload()">Play Again</button>
+
+  <h1>🏆 Heat Lab Saved!</h1>
+
+  <h2>
+    Final Score:
+    <span id="finalScore"></span>
+  </h2>
+
+  <button onclick="location.reload()">
+    Play Again
+  </button>
 </div>
 
-<div id="hud">
+<div id="gameUI">
   <div>⭐ Score: <span id="score">0</span></div>
   <div>❤️ Chances: <span id="chances">2</span></div>
-  <div>🔥 Level: <span id="levelNo">1</span>/10</div>
+  <div>🔥 Level: <span id="level">1</span>/10</div>
 </div>
 
-<h1 id="title">🔥 Heat Lab Quest</h1>
-<div id="questionBox">Lab challenge will appear here.</div>
-<div id="gameArea"></div>
-<div id="msg"></div>
+<div id="questionBox"></div>
+
+<div id="message"></div>
+
+<div id="game">
+
+  <div id="player">🤖</div>
+
+  <div id="ground"></div>
+
+</div>
+
+<div id="controls">
+  <button class="ctrlBtn" id="leftBtn">⬅️</button>
+  <button class="ctrlBtn" id="rightBtn">➡️</button>
+</div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
 <audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
 
 <script>
-const levels=[
+
+const questions=[
+
 {
-type:"flow",
-title:"Heat Flow Lab",
-q:"Tap the object from which heat will flow first.",
-answer:"Hot object"
+q:"Catch the object from which heat flows.",
+correct:"🔥 Hot Object",
+options:["🔥 Hot Object","❄️ Cold Object","🧊 Ice Cube"]
 },
+
 {
-type:"sort",
-title:"Heat vs Temperature",
-q:"Sorting task: Tap one card first. Then tap Heat or Temperature.",
-cards:[
-["Form of energy","Heat"],
-["Measured using thermometer","Temperature"],
-["SI unit is joule","Heat"],
-["Degree of hotness or coldness","Temperature"]
-],
-zones:["Heat","Temperature"]
+q:"Catch the correct normal body temperature.",
+correct:"37°C",
+options:["100°C","37°C","0°C"]
 },
+
 {
-type:"thermo",
-title:"Thermometer Reading",
-q:"Tap the thermometer reading that shows normal human body temperature.",
-answer:"37°C"
-},
-{
-type:"sort",
-title:"Types of Thermometers",
-q:"Sorting task: Tap one use first. Then tap Clinical or Laboratory.",
-cards:[
-["Measures body temperature","Clinical"],
-["Used in experiments","Laboratory"],
-["Commonly digital or mercury body thermometer","Clinical"],
-["Usually measures -10°C to 110°C","Laboratory"]
-],
-zones:["Clinical","Laboratory"]
-},
-{
-type:"sort",
-title:"Modes of Heat Transfer",
-q:"Sorting task: Tap one example first. Then tap Conduction, Convection or Radiation.",
-cards:[
-["Metal spoon gets hot in hot water","Conduction"],
-["Boiling water circulates","Convection"],
-["Heat from the Sun reaches Earth","Radiation"],
-["Hot air rises near ceiling","Convection"]
-],
-zones:["Conduction","Convection","Radiation"]
-},
-{
-type:"sort",
-title:"Conductors and Insulators",
-q:"Sorting task: Tap one material first. Then tap Good Conductor or Insulator.",
-cards:[
-["Copper utensil","Good Conductor"],
-["Aluminium pan","Good Conductor"],
-["Plastic handle","Insulator"],
-["Rubber grip","Insulator"]
-],
-zones:["Good Conductor","Insulator"]
-},
-{
-type:"sequence",
-title:"Sea Breeze Sequence",
-q:"Tap the steps of sea breeze in correct order.",
-steps:[
-"Land heats faster during day",
-"Air above land becomes warm and rises",
-"Cool air from sea moves to land",
-"Sea breeze blows from sea to land"
+q:"Catch the example of conduction.",
+correct:"🥄 Metal spoon gets hot",
+options:[
+"🥄 Metal spoon gets hot",
+"☀️ Heat from Sun",
+"🌊 Sea breeze"
 ]
 },
+
 {
-type:"sort",
-title:"Colour and Heat",
-q:"Sorting task: Tap one surface first. Then tap Absorbs More Heat or Reflects More Heat.",
-cards:[
-["Black rough surface","Absorbs More Heat"],
-["Dark coloured box","Absorbs More Heat"],
-["White loose clothes","Reflects More Heat"],
-["Shiny smooth surface","Reflects More Heat"]
-],
-zones:["Absorbs More Heat","Reflects More Heat"]
+q:"Catch the good conductor.",
+correct:"🔩 Copper",
+options:[
+"🪵 Wood",
+"🔩 Copper",
+"🧤 Rubber"
+]
 },
+
 {
-type:"sort",
-title:"Effects of Heat",
-q:"Sorting task: Tap one change first. Then tap Physical Change or Chemical Change.",
-cards:[
-["Melting chocolate","Physical Change"],
-["Expansion of metal ball","Physical Change"],
-["Burning paper","Chemical Change"],
-["Cooking food","Chemical Change"]
-],
-zones:["Physical Change","Chemical Change"]
+q:"Catch the insulator.",
+correct:"🧤 Rubber",
+options:[
+"🔩 Iron",
+"🧤 Rubber",
+"🥄 Steel"
+]
 },
+
 {
-type:"formula",
-title:"Thermos Flask Builder",
-q:"Build the thermos flask protection system in correct order.",
-slots:["Vacuum","Silvered walls","Insulating stopper","Keeps liquid hot/cold"],
-tiles:["Insulating stopper","Keeps liquid hot/cold","Vacuum","Silvered walls"],
-answer:"Vacuum → Silvered walls → Insulating stopper → Keeps liquid hot/cold"
+q:"Catch the thermometer used for body temperature.",
+correct:"🌡️ Clinical Thermometer",
+options:[
+"🌡️ Clinical Thermometer",
+"🧪 Laboratory Thermometer",
+"📏 Meter Scale"
+]
+},
+
+{
+q:"Catch the heat transfer by radiation.",
+correct:"☀️ Sun heats Earth",
+options:[
+"☀️ Sun heats Earth",
+"🍲 Boiling water",
+"🥄 Hot pan handle"
+]
+},
+
+{
+q:"Catch the object that absorbs more heat.",
+correct:"⬛ Black Surface",
+options:[
+"⬜ White Surface",
+"⬛ Black Surface",
+"🪞 Shiny Surface"
+]
+},
+
+{
+q:"Catch the example of convection.",
+correct:"🍲 Boiling Water Circulation",
+options:[
+"🍲 Boiling Water Circulation",
+"☀️ Sun rays",
+"🥄 Iron rod heating"
+]
+},
+
+{
+q:"Catch the material used in thermos flask insulation.",
+correct:"🫙 Vacuum",
+options:[
+"🫙 Vacuum",
+"💧 Water",
+"🪨 Stone"
+]
 }
+
 ];
 
-let order=[...levels].sort(()=>Math.random()-0.5);
-let level=0,score=0,chances=2,locked=false,selected=null,placed=0,seqIndex=0,formulaBuilt=[];
+let level=0;
+let score=0;
+let chances=2;
 
-const loader=document.getElementById("loader");
-const instructions=document.getElementById("instructions");
-const gameArea=document.getElementById("gameArea");
-const scoreSpan=document.getElementById("score");
-const chancesSpan=document.getElementById("chances");
-const levelNo=document.getElementById("levelNo");
-const title=document.getElementById("title");
-const questionBox=document.getElementById("questionBox");
-const correctSound=document.getElementById("correctSound");
-const wrongSound=document.getElementById("wrongSound");
-const clapSound=document.getElementById("clapSound");
-const finalScore=document.getElementById("finalScore");
-const endScreen=document.getElementById("endScreen");
+const player=document.getElementById("player");
+const game=document.getElementById("game");
 
-window.onload=()=>setTimeout(()=>{loader.style.display="none";instructions.style.display="flex"},1200);
+let playerX=120;
+
+let currentObjects=[];
+
+window.onload=()=>{
+
+setTimeout(()=>{
+
+loader.style.display="none";
+startScreen.style.display="flex";
+
+},1200);
+
+};
 
 function startGame(){
-  instructions.style.display="none";
-  loadLevel();
+
+startScreen.style.display="none";
+
+loadLevel();
+
 }
 
 function loadLevel(){
-  locked=false;selected=null;placed=0;seqIndex=0;formulaBuilt=[];chances=2;
-  chancesEl(); msg("");
-  gameArea.innerHTML="";
-  if(level>=order.length){endGame();return}
-  const item=order[level];
-  levelNo.textContent=level+1;
-  title.textContent="🔥 "+item.title;
-  questionBox.textContent="Level "+(level+1)+". "+item.q;
 
-  if(item.type==="sort")buildSort(item);
-  if(item.type==="sequence")buildSequence(item);
-  if(item.type==="formula")buildFormula(item);
-  if(item.type==="flow")buildFlow(item);
-  if(item.type==="thermo")buildThermo(item);
+if(level>=questions.length){
+
+endGame();
+
+return;
+
 }
 
-function buildFlow(item){
-  let box=document.createElement("div");
-  box.className="labBox";
-  box.textContent="Heat flows from a hotter body to a colder body.";
+document.getElementById("level").textContent=level+1;
+document.getElementById("questionBox").textContent=questions[level].q;
+document.getElementById("chances").textContent=chances;
 
-  let row=document.createElement("div");
-  row.className="row";
+clearObjects();
 
-  let hot=document.createElement("div");
-  hot.className="hotObj";
-  hot.textContent="🔥";
-  hot.dataset.answer="Hot object";
-  hot.onclick=()=>checkSimple(hot,hot.dataset.answer,item.answer);
+spawnObjects();
 
-  let cold=document.createElement("div");
-  cold.className="coldObj";
-  cold.textContent="❄️";
-  cold.dataset.answer="Cold object";
-  cold.onclick=()=>checkSimple(cold,cold.dataset.answer,item.answer);
-
-  row.append(hot,cold);
-  gameArea.append(box,row);
 }
 
-function buildThermo(item){
-  let box=document.createElement("div");
-  box.className="labBox";
-  box.textContent="Normal human body temperature is 37°C.";
+function clearObjects(){
 
-  let row=document.createElement("div");
-  row.className="row";
+currentObjects.forEach(o=>o.remove());
 
-  ["0°C","37°C","100°C"].forEach(temp=>{
-    let t=document.createElement("div");
-    t.className="object";
-    t.textContent=temp;
-    t.onclick=()=>checkSimple(t,temp,item.answer);
-    row.appendChild(t);
-  });
+currentObjects=[];
 
-  let thermo=document.createElement("div");
-  thermo.className="thermo";
-  thermo.innerHTML='<div class="mercury"></div><div class="mark" style="top:30px">100°C</div><div class="mark" style="top:135px">37°C</div><div class="mark" style="top:260px">0°C</div>';
-
-  gameArea.append(box,thermo,row);
 }
 
-function buildSort(item){
-  let instruction=document.createElement("div");
-  instruction.className="labBox";
-  instruction.textContent="Step 1: Tap a card below. Step 2: Tap its correct zone.";
-  gameArea.appendChild(instruction);
+function spawnObjects(){
 
-  let row=document.createElement("div");
-  row.className="row";
+const q=questions[level];
 
-  item.cards.sort(()=>Math.random()-0.5).forEach(c=>{
-    let card=document.createElement("div");
-    card.className="card";
-    card.textContent=c[0];
-    card.dataset.answer=c[1];
-    card.onclick=()=>{
-      if(locked)return;
-      selected=card;
-      document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
-      card.classList.add("selected");
-      msg("Selected: "+card.textContent+". Now tap: "+card.dataset.answer,"#f97316");
-    };
-    row.appendChild(card);
-  });
+const shuffled=[...q.options].sort(()=>Math.random()-0.5);
 
-  let zones=document.createElement("div");
-  zones.className="row";
+shuffled.forEach((opt,index)=>{
 
-  item.zones.forEach(z=>{
-    let zone=document.createElement("div");
-    zone.className="zone";
-    zone.dataset.zone=z;
-    zone.innerHTML="<b>"+z+"</b>";
-    zone.onclick=()=>checkZone(zone,item.cards.length);
-    zones.appendChild(zone);
-  });
+const obj=document.createElement("div");
 
-  gameArea.append(row,zones);
+obj.className="object";
+
+obj.textContent=opt;
+
+obj.dataset.correct=(opt===q.correct);
+
+obj.style.left=(15+index*30)+"vw";
+
+obj.style.top="-120px";
+
+game.appendChild(obj);
+
+currentObjects.push(obj);
+
+fallObject(obj);
+
+});
+
 }
 
-function checkZone(zone,total){
-  if(!selected||locked)return;
+function fallObject(obj){
 
-  if(selected.dataset.answer===zone.dataset.zone){
-    moveCardToZone(zone,selected);
-    selected=null;
-    placed++;
-    score+=5;
-    scoreEl();
-    correctSound.play();
-    msg("✅ Correct!","#22c55e");
+let y=-120;
 
-    if(placed===total)correctNext(false);
-  }else{
-    zone.classList.add("wrongFlash");
-    setTimeout(()=>zone.classList.remove("wrongFlash"),500);
-    wrong(selected.dataset.answer,true);
-  }
+const speed=2+Math.random()*2;
+
+const fall=setInterval(()=>{
+
+y+=speed;
+
+obj.style.top=y+"px";
+
+const objRect=obj.getBoundingClientRect();
+const playerRect=player.getBoundingClientRect();
+
+if(
+objRect.bottom>playerRect.top &&
+objRect.top<playerRect.bottom &&
+objRect.left<playerRect.right &&
+objRect.right>playerRect.left
+){
+
+clearInterval(fall);
+
+checkAnswer(obj);
+
 }
 
-function moveCardToZone(zone,card){
-  let p=document.createElement("div");
-  p.className="placed";
-  p.textContent=card.textContent;
-  zone.appendChild(p);
-  card.remove();
+if(y>window.innerHeight){
+
+clearInterval(fall);
+
+obj.remove();
+
 }
 
-function buildSequence(item){
-  let instruction=document.createElement("div");
-  instruction.className="labBox";
-  instruction.textContent="Tap the steps one by one in the correct order.";
-  gameArea.appendChild(instruction);
+},20);
 
-  let row=document.createElement("div");
-  row.className="row";
-
-  item.steps.sort(()=>Math.random()-0.5).forEach(step=>{
-    let c=document.createElement("div");
-    c.className="seqCard";
-    c.textContent=step;
-    c.onclick=()=>{
-      if(locked)return;
-
-      if(step===item.steps[seqIndex]){
-        c.classList.add("correctFlash");
-        c.style.pointerEvents="none";
-        seqIndex++;
-        score+=5;
-        scoreEl();
-        correctSound.play();
-
-        if(seqIndex===item.steps.length){
-          correctNext(false);
-        }
-      }else{
-        wrong(item.steps.join(" → "));
-      }
-    };
-    row.appendChild(c);
-  });
-
-  gameArea.appendChild(row);
 }
 
-function buildFormula(item){
-  let slotRow=document.createElement("div");
-  slotRow.className="row";
+function checkAnswer(obj){
 
-  item.slots.forEach((s,i)=>{
-    let slot=document.createElement("div");
-    slot.className="slot";
-    slot.dataset.expected=s;
-    slot.textContent="Step "+(i+1);
-    slot.onclick=()=>placeFormula(slot);
-    slotRow.appendChild(slot);
-  });
+if(obj.dataset.correct==="true"){
 
-  let tileRow=document.createElement("div");
-  tileRow.className="row";
+correctSound.play();
 
-  item.tiles.sort(()=>Math.random()-0.5).forEach(t=>{
-    let tile=document.createElement("div");
-    tile.className="tile";
-    tile.textContent=t;
-    tile.onclick=()=>{
-      if(locked)return;
-      selected=tile;
-      document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));
-      tile.classList.add("selected");
-      msg("Selected: "+tile.textContent+". Now tap the correct step box.","#f97316");
-    };
-    tileRow.appendChild(tile);
-  });
+score+=10;
 
-  gameArea.append(slotRow,tileRow);
+document.getElementById("score").textContent=score;
+
+showMessage("✅ Correct!","#22c55e");
+
+level++;
+
+setTimeout(loadLevel,1200);
+
+}else{
+
+wrongSound.play();
+
+chances--;
+
+document.getElementById("chances").textContent=chances;
+
+if(chances>0){
+
+showMessage("❌ Wrong! Try Again","#ef4444");
+
+obj.remove();
+
+}else{
+
+showMessage("Correct Answer Highlighted","#ef4444");
+
+highlightCorrect();
+
+setTimeout(()=>{
+
+level++;
+chances=2;
+loadLevel();
+
+},2500);
+
 }
 
-function placeFormula(slot){
-  if(!selected||locked||slot.dataset.filled)return;
-
-  if(selected.textContent===slot.dataset.expected){
-    slot.textContent=selected.textContent;
-    slot.dataset.filled="yes";
-    slot.classList.add("correctFlash");
-    formulaBuilt.push(selected.textContent);
-    selected.remove();
-    selected=null;
-    score+=5;
-    scoreEl();
-
-    if(formulaBuilt.length===order[level].slots.length){
-      correctNext(false);
-    }
-  }else{
-    wrong(order[level].answer);
-  }
 }
 
-function checkSimple(btn,selectedAns,correctAns){
-  if(locked)return;
-  if(selectedAns===correctAns){
-    btn.classList.add("correctFlash");
-    correctNext();
-  }else{
-    btn.classList.add("wrongFlash");
-    setTimeout(()=>btn.classList.remove("wrongFlash"),500);
-    wrong(correctAns);
-  }
 }
 
-function wrong(ans,isSorting=false){
-  wrongSound.play();
-  chances--;
-  chancesEl();
+function highlightCorrect(){
 
-  if(chances>0){
-    msg("❌ Try Again! Chances left: "+chances,"#ef4444");
-  }else{
-    locked=true;
-    msg("Correct Answer: "+ans,"#ef4444");
+currentObjects.forEach(o=>{
 
-    if(isSorting && selected){
-      document.querySelectorAll(".zone").forEach(z=>{
-        if(z.dataset.zone===ans){
-          z.classList.add("correctFlash");
-          moveCardToZone(z,selected);
-          selected=null;
-        }
-      });
-    }
+if(o.dataset.correct==="true"){
 
-    level++;
-    setTimeout(loadLevel,2400);
-  }
+o.classList.add("correctGlow");
+
 }
 
-function correctNext(addScore=true){
-  if(addScore){
-    score+=10;
-    scoreEl();
-    correctSound.play();
-  }
-  locked=true;
-  msg("✅ Correct!","#22c55e");
-  level++;
-  setTimeout(loadLevel,1300);
+});
+
 }
 
-function scoreEl(){scoreSpan.textContent=score}
-function chancesEl(){chancesSpan.textContent=chances}
-function msg(t,c){
-  let m=document.getElementById("msg");
-  m.textContent=t||"";
-  m.style.color=c||"#111";
+function showMessage(text,color){
+
+const msg=document.getElementById("message");
+
+msg.textContent=text;
+
+msg.style.color=color;
+
 }
+
+function moveLeft(){
+
+playerX-=40;
+
+if(playerX<0)playerX=0;
+
+player.style.left=playerX+"px";
+
+}
+
+function moveRight(){
+
+playerX+=40;
+
+if(playerX>window.innerWidth-100)
+playerX=window.innerWidth-100;
+
+player.style.left=playerX+"px";
+
+}
+
+document.getElementById("leftBtn").addEventListener("touchstart",moveLeft);
+document.getElementById("rightBtn").addEventListener("touchstart",moveRight);
+
+document.getElementById("leftBtn").addEventListener("click",moveLeft);
+document.getElementById("rightBtn").addEventListener("click",moveRight);
+
+document.addEventListener("keydown",e=>{
+
+if(e.key==="ArrowLeft")moveLeft();
+
+if(e.key==="ArrowRight")moveRight();
+
+});
 
 function endGame(){
-  clapSound.play();
-  finalScore.textContent=score;
-  endScreen.style.display="flex";
+
+clapSound.play();
+
+document.getElementById("finalScore").textContent=score;
+
+endScreen.style.display="flex";
+
 }
 </script>
 
