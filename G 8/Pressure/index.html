@@ -45,7 +45,7 @@ button{border:0;border-radius:14px;background:#0ea5e9;color:white;font-size:clam
   <div class="instructions">
     <p>Complete pressure lab challenges.</p>
     <p>No typing. Only tap, sort, arrange, and build.</p>
-    <p>For sorting: tap a card first, then tap its correct zone.</p>
+    <p><b>Sorting levels:</b> first tap one card. It becomes yellow. Then tap the correct zone.</p>
     <p>You get <b>2 chances</b>. After that, the correct answer is shown.</p>
   </div>
   <button onclick="startGame()">Start Lab</button>
@@ -75,16 +75,16 @@ button{border:0;border-radius:14px;background:#0ea5e9;color:white;font-size:clam
 
 <script>
 const levels=[
-{type:"formula",title:"Formula Builder",q:"Build the pressure formula correctly.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
-{type:"formula",title:"Unit Builder",q:"Build the unit relation correctly.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
-{type:"sort",title:"Area and Pressure",q:"Sort situations into HIGH pressure and LOW pressure.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
+{type:"formula",title:"Formula Builder",q:"Build the pressure formula correctly. Tap a tile first, then tap the correct step box.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
+{type:"formula",title:"Unit Builder",q:"Build the unit relation correctly. Tap a tile first, then tap the correct step box.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
+{type:"sort",title:"Area and Pressure",q:"Sorting task: Tap one situation card first. Then tap High Pressure or Low Pressure.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
 {type:"tank",title:"Liquid Pressure Tank",q:"Tap the hole where pressure is greatest.",answer:"Bottom"},
 {type:"sequence",title:"Syringe Pressure Sequence",q:"Tap the steps in correct order.",steps:["Pull plunger","Volume inside increases","Pressure inside decreases","Liquid enters syringe"]},
-{type:"sort",title:"Fluid Pressure Facts",q:"Sort each statement as TRUE or FALSE.",cards:[["Liquids and gases are fluids","True"],["Liquid pressure increases with depth","True"],["Liquids exert pressure only downward","False"],["Denser liquids exert less pressure","False"]],zones:["True","False"]},
+{type:"sort",title:"Fluid Pressure Facts",q:"Sorting task: Tap one statement card first. Then tap True or False.",cards:[["Liquids and gases are fluids","True"],["Liquid pressure increases with depth","True"],["Liquids exert pressure only downward","False"],["Denser liquids exert less pressure","False"]],zones:["True","False"]},
 {type:"balance",title:"Buoyant Force Balance",q:"Tap the condition in which an object floats.",answer:"Buoyant force > Weight"},
-{type:"sort",title:"Pressure Applications",q:"Sort examples into AREA INCREASED or AREA REDUCED.",cards:[["Truck has many tyres","Area Increased"],["Sharp blade cuts object","Area Reduced"],["Caterpillar tracks of tank","Area Increased"],["Pointed nail pierces wood","Area Reduced"]],zones:["Area Increased","Area Reduced"]},
+{type:"sort",title:"Pressure Applications",q:"Sorting task: Tap one example card first. Then tap Area Increased or Area Reduced.",cards:[["Truck has many tyres","Area Increased"],["Sharp blade cuts object","Area Reduced"],["Caterpillar tracks of tank","Area Increased"],["Pointed nail pierces wood","Area Reduced"]],zones:["Area Increased","Area Reduced"]},
 {type:"sequence",title:"Crushing Can Experiment",q:"Tap the steps in correct order.",steps:["Heat can","Air expands and escapes","Invert in cold water","Outside pressure crushes can"]},
-{type:"sort",title:"Atmospheric or Liquid Pressure",q:"Sort each example into the correct pressure type.",cards:[["Suction cup sticks to wall","Atmospheric Pressure"],["Dam wall is thicker at bottom","Liquid Pressure"],["Barometer measures air pressure","Atmospheric Pressure"],["Scuba diver feels pressure at depth","Liquid Pressure"]],zones:["Atmospheric Pressure","Liquid Pressure"]}
+{type:"sort",title:"Atmospheric or Liquid Pressure",q:"Sorting task: Tap one example card first. Then tap Atmospheric Pressure or Liquid Pressure.",cards:[["Suction cup sticks to wall","Atmospheric Pressure"],["Dam wall is thicker at bottom","Liquid Pressure"],["Barometer measures air pressure","Atmospheric Pressure"],["Scuba diver feels pressure at depth","Liquid Pressure"]],zones:["Atmospheric Pressure","Liquid Pressure"]}
 ];
 
 let order=[...levels].sort(()=>Math.random()-0.5);
@@ -140,7 +140,7 @@ function buildFormula(item){
       selected=tile;
       document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));
       tile.classList.add("selected");
-      msg("Now tap the correct step box.","#38bdf8");
+      msg("Selected: "+tile.textContent+". Now tap the correct step box.","#38bdf8");
     };
     tileRow.appendChild(tile);
   });
@@ -170,7 +170,13 @@ function placeFormula(slot){
 }
 
 function buildSort(item){
-  let row=document.createElement("div");row.className="row";
+  let instruction=document.createElement("div");
+  instruction.className="labBox";
+  instruction.textContent="Step 1: Tap a card below. Step 2: Tap its correct zone.";
+  gameArea.appendChild(instruction);
+
+  let row=document.createElement("div");
+  row.className="row";
 
   item.cards.sort(()=>Math.random()-0.5).forEach(c=>{
     let card=document.createElement("div");
@@ -182,12 +188,13 @@ function buildSort(item){
       selected=card;
       document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
       card.classList.add("selected");
-      msg("Now tap the correct zone.","#38bdf8");
+      msg("Selected: "+card.textContent+". Now tap: "+card.dataset.answer,"#38bdf8");
     };
     row.appendChild(card);
   });
 
-  let zones=document.createElement("div");zones.className="row";
+  let zones=document.createElement("div");
+  zones.className="row";
 
   item.zones.forEach(z=>{
     let zone=document.createElement("div");
@@ -205,12 +212,7 @@ function checkZone(zone,total){
   if(!selected||locked)return;
 
   if(selected.dataset.answer===zone.dataset.zone){
-    let p=document.createElement("div");
-    p.className="placed";
-    p.textContent=selected.textContent;
-    zone.appendChild(p);
-
-    selected.remove();
+    moveCardToZone(zone,selected);
     selected=null;
     placed++;
     score+=5;
@@ -220,8 +222,18 @@ function checkZone(zone,total){
 
     if(placed===total)correctNext(false);
   }else{
-    wrong(selected.dataset.answer);
+    zone.classList.add("wrongFlash");
+    setTimeout(()=>zone.classList.remove("wrongFlash"),500);
+    wrong(selected.dataset.answer,true);
   }
+}
+
+function moveCardToZone(zone,card){
+  let p=document.createElement("div");
+  p.className="placed";
+  p.textContent=card.textContent;
+  zone.appendChild(p);
+  card.remove();
 }
 
 function buildTank(item){
@@ -239,6 +251,11 @@ function buildTank(item){
 }
 
 function buildSequence(item){
+  let instruction=document.createElement("div");
+  instruction.className="labBox";
+  instruction.textContent="Tap the steps one by one in the correct order.";
+  gameArea.appendChild(instruction);
+
   let row=document.createElement("div");row.className="row";
 
   item.steps.sort(()=>Math.random()-0.5).forEach(step=>{
@@ -288,18 +305,29 @@ function buildBalance(item){
   gameArea.append(box,row);
 }
 
-function wrong(ans){
+function wrong(ans,isSorting=false){
   wrongSound.play();
   chances--;
   chancesEl();
 
   if(chances>0){
-    msg("❌ Try Again!","#ef4444");
+    msg("❌ Try Again! Chances left: "+chances,"#ef4444");
   }else{
     locked=true;
     msg("Correct Answer: "+ans,"#ef4444");
+
+    if(isSorting && selected){
+      document.querySelectorAll(".zone").forEach(z=>{
+        if(z.dataset.zone===ans){
+          z.classList.add("correctFlash");
+          moveCardToZone(z,selected);
+          selected=null;
+        }
+      });
+    }
+
     level++;
-    setTimeout(loadLevel,2300);
+    setTimeout(loadLevel,2400);
   }
 }
 
