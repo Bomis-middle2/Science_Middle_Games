@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speed Track Challenge</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(#bfdbfe,#eff6ff);
+  text-align:center;
+}
+
+#loader,#startScreen,#endScreen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#eaf9ff,#ffffff);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:50;
+  padding:20px;
+}
+
+.logo{
+  width:min(180px,55vw);
+  margin-bottom:18px;
+}
+
+button{
+  border:none;
+  border-radius:14px;
+  background:#2563eb;
+  color:white;
+  font-size:20px;
+  font-weight:bold;
+  padding:14px 26px;
+  cursor:pointer;
+}
+
+#hud{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#1e3a8a;
+  color:white;
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:10px;
+  font-size:clamp(16px,3vw,22px);
+  font-weight:bold;
+  z-index:10;
+}
+
+#questionBox{
+  position:fixed;
+  top:68px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(950px,94vw);
+  background:white;
+  border:4px solid #2563eb;
+  border-radius:18px;
+  padding:14px;
+  font-size:clamp(20px,3vw,30px);
+  font-weight:bold;
+  z-index:10;
+}
+
+#message{
+  position:fixed;
+  top:155px;
+  width:100%;
+  font-size:clamp(24px,4vw,38px);
+  font-weight:bold;
+  z-index:10;
+}
+
+#game{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  background:linear-gradient(#93c5fd 0 45%,#22c55e 45% 58%,#374151 58% 100%);
+  overflow:hidden;
+}
+
+.roadLine{
+  position:absolute;
+  bottom:150px;
+  width:100%;
+  height:12px;
+  background:repeating-linear-gradient(to right,#fff 0 45px,transparent 45px 90px);
+}
+
+#car{
+  position:absolute;
+  bottom:85px;
+  left:70px;
+  font-size:70px;
+  z-index:5;
+  transition:left .12s,bottom .12s;
+}
+
+.item{
+  position:absolute;
+  right:-220px;
+  bottom:90px;
+  width:210px;
+  min-height:80px;
+  background:white;
+  border:4px solid #2563eb;
+  border-radius:18px;
+  padding:12px;
+  font-size:clamp(18px,3vw,25px);
+  font-weight:bold;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#111;
+}
+
+.correctGlow{
+  animation:glow 1s infinite;
+}
+
+@keyframes glow{
+  0%{box-shadow:0 0 10px #22c55e}
+  50%{box-shadow:0 0 35px #22c55e}
+  100%{box-shadow:0 0 10px #22c55e}
+}
+
+#controls{
+  position:fixed;
+  bottom:12px;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  z-index:12;
+}
+
+.ctrl{
+  width:90px;
+  height:80px;
+  border-radius:18px;
+  background:#2563eb;
+  color:white;
+  font-size:38px;
+  font-weight:bold;
+}
+
+.instructions{
+  max-width:780px;
+  font-size:clamp(18px,3vw,24px);
+  line-height:1.6;
+}
+
+#readTimer{
+  position:fixed;
+  top:130px;
+  right:18px;
+  background:white;
+  color:#111;
+  border:4px solid #2563eb;
+  border-radius:14px;
+  padding:10px 16px;
+  font-size:26px;
+  font-weight:bold;
+  z-index:20;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader">
+  <img src="assets/logo.png" class="logo">
+  <h2>Loading Speed Track Challenge...</h2>
+</div>
+
+<div id="startScreen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1>🚗 Speed Track Challenge</h1>
+  <div class="instructions">
+    <p>Read the motion challenge carefully.</p>
+    <p>The answer boards will race towards you.</p>
+    <p>Move the car and catch the correct board.</p>
+    <p>You get <b>2 chances</b> for each level.</p>
+    <p>After 2 wrong attempts, the correct answer will glow.</p>
+  </div>
+  <button onclick="startGame()">Start Race</button>
+</div>
+
+<div id="endScreen" style="display:none">
+  <img src="assets/logo.png" class="logo">
+  <h1>🏆 Race Complete!</h1>
+  <h2>Final Score: <span id="finalScore"></span></h2>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="hud">
+  <div>⭐ Score: <span id="score">0</span></div>
+  <div>❤️ Chances: <span id="chances">2</span></div>
+  <div>🚩 Level: <span id="level">1</span>/10</div>
+</div>
+
+<div id="questionBox"></div>
+<div id="message"></div>
+
+<div id="game">
+  <div class="roadLine"></div>
+  <div id="car">🚗</div>
+</div>
+
+<div id="controls">
+  <button class="ctrl" onclick="moveLeft()">⬅️</button>
+  <button class="ctrl" onclick="moveRight()">➡️</button>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const challenges=[
+  {
+    q:"A car covers 60 km in 2 hours. Catch its speed.",
+    correct:"30 km/h",
+    options:["30 km/h","60 km/h","120 km/h"]
+  },
+  {
+    q:"Which ancient device measures time using sand?",
+    correct:"Hourglass",
+    options:["Sundial","Hourglass","Obelisk"]
+  },
+  {
+    q:"Catch the SI unit of time.",
+    correct:"Second",
+    options:["Hour","Minute","Second"]
+  },
+  {
+    q:"A swing moving to and fro shows which motion?",
+    correct:"Oscillatory Motion",
+    options:["Linear Motion","Oscillatory Motion","Random Motion"]
+  },
+  {
+    q:"A fan blade spinning about its axis shows:",
+    correct:"Rotatory Motion",
+    options:["Rotatory Motion","Linear Motion","Random Motion"]
+  },
+  {
+    q:"Which device shows speed of a vehicle?",
+    correct:"Speedometer",
+    options:["Odometer","Speedometer","Thermometer"]
+  },
+  {
+    q:"Which device shows total distance travelled?",
+    correct:"Odometer",
+    options:["Odometer","Compass","Speedometer"]
+  },
+  {
+    q:"Equal distances in equal time intervals means:",
+    correct:"Uniform Motion",
+    options:["Uniform Motion","Non-uniform Motion","Random Motion"]
+  },
+  {
+    q:"Unequal distances in equal time intervals means:",
+    correct:"Non-uniform Motion",
+    options:["Circular Motion","Uniform Motion","Non-uniform Motion"]
+  },
+  {
+    q:"A straight line on a distance-time graph shows:",
+    correct:"Uniform Motion",
+    options:["Rest","Uniform Motion","Random Motion"]
+  }
+];
+
+let level=0;
+let score=0;
+let chances=2;
+let carX=70;
+let objects=[];
+let intervals=[];
+let locked=false;
+let countdown=null;
+
+const car=document.getElementById("car");
+const game=document.getElementById("game");
+
+window.onload=()=>{
+  setTimeout(()=>{
+    loader.style.display="none";
+    startScreen.style.display="flex";
+  },1200);
+};
+
+function startGame(){
+  startScreen.style.display="none";
+  loadLevel();
+}
+
+function loadLevel(){
+  locked=false;
+  clearObjects();
+  clearCountdown();
+
+  if(level>=challenges.length){
+    endGame();
+    return;
+  }
+
+  document.getElementById("level").textContent=level+1;
+  document.getElementById("chances").textContent=chances;
+  document.getElementById("questionBox").textContent=challenges[level].q;
+
+  showMessage("⏳ Read carefully.","#2563eb");
+
+  let readTime=10;
+  const timer=document.createElement("div");
+  timer.id="readTimer";
+  timer.textContent="⏳ "+readTime+"s";
+  document.body.appendChild(timer);
+
+  countdown=setInterval(()=>{
+    readTime--;
+    timer.textContent="⏳ "+readTime+"s";
+
+    if(readTime<=0){
+      clearCountdown();
+      showMessage("🚗 Catch the correct board!","#16a34a");
+      spawnBoards();
+    }
+  },1000);
+}
+
+function clearCountdown(){
+  if(countdown){
+    clearInterval(countdown);
+    countdown=null;
+  }
+  const t=document.getElementById("readTimer");
+  if(t)t.remove();
+}
+
+function spawnBoards(){
+  clearObjects();
+
+  const shuffled=[...challenges[level].options].sort(()=>Math.random()-0.5);
+
+  shuffled.forEach((text,i)=>{
+    const board=document.createElement("div");
+    board.className="item";
+    board.textContent=text;
+    board.dataset.correct=(text===challenges[level].correct);
+    board.style.bottom=(90+i*105)+"px";
+    board.style.right="-240px";
+
+    game.appendChild(board);
+    objects.push(board);
+    moveBoard(board);
+  });
+}
+
+function moveBoard(board){
+  let x=-240;
+  const speed=4.2;
+
+  const interval=setInterval(()=>{
+    if(locked){
+      clearInterval(interval);
+      return;
+    }
+
+    x+=speed;
+    board.style.right=x+"px";
+
+    const b=board.getBoundingClientRect();
+    const c=car.getBoundingClientRect();
+
+    if(
+      b.left<c.right &&
+      b.right>c.left &&
+      b.top<c.bottom &&
+      b.bottom>c.top
+    ){
+      clearInterval(interval);
+      checkAnswer(board);
+    }
+
+    if(b.left<0){
+      clearInterval(interval);
+      board.remove();
+    }
+  },20);
+
+  intervals.push(interval);
+}
+
+function checkAnswer(board){
+  if(locked)return;
+
+  if(board.dataset.correct==="true"){
+    locked=true;
+    correctSound.play();
+    score+=10;
+    document.getElementById("score").textContent=score;
+    showMessage("✅ Correct!","#22c55e");
+    clearObjects();
+    level++;
+    chances=2;
+    setTimeout(loadLevel,1200);
+  }else{
+    wrongSound.play();
+    chances--;
+    document.getElementById("chances").textContent=chances;
+
+    if(chances>0){
+      showMessage("❌ Wrong! Boards coming again.","#ef4444");
+      setTimeout(spawnBoards,800);
+    }else{
+      locked=true;
+      showMessage("Correct Answer Highlighted","#ef4444");
+      highlightCorrect();
+      setTimeout(()=>{
+        clearObjects();
+        level++;
+        chances=2;
+        loadLevel();
+      },2500);
+    }
+  }
+}
+
+function highlightCorrect(){
+  intervals.forEach(i=>clearInterval(i));
+  intervals=[];
+
+  objects.forEach(o=>{
+    if(o.dataset.correct==="true"){
+      o.classList.add("correctGlow");
+      o.style.right="50%";
+      o.style.bottom="210px";
+      o.style.transform="translateX(50%)";
+    }else{
+      o.remove();
+    }
+  });
+
+  objects=objects.filter(o=>o.dataset.correct==="true");
+}
+
+function moveLeft(){
+  carX-=90;
+  if(carX<0)carX=0;
+  car.style.left=carX+"px";
+}
+
+function moveRight(){
+  carX+=90;
+  if(carX>window.innerWidth-100)carX=window.innerWidth-100;
+  car.style.left=carX+"px";
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft")moveLeft();
+  if(e.key==="ArrowRight")moveRight();
+});
+
+function clearObjects(){
+  intervals.forEach(i=>clearInterval(i));
+  intervals=[];
+  objects.forEach(o=>o.remove());
+  objects=[];
+}
+
+function showMessage(text,color){
+  const msg=document.getElementById("message");
+  msg.textContent=text;
+  msg.style.color=color;
+}
+
+function endGame(){
+  clearObjects();
+  clearCountdown();
+  clapSound.play();
+  document.getElementById("finalScore").textContent=score;
+  endScreen.style.display="flex";
+}
+</script>
+
+</body>
+</html>
