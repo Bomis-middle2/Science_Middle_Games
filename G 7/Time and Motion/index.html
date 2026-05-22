@@ -3,20 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speed Track Challenge</title>
+<title>Motion Lab Escape Room</title>
 
 <style>
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  overflow:hidden;
   font-family:Arial,sans-serif;
-  background:linear-gradient(#bfdbfe,#eff6ff);
+  background:linear-gradient(#dbeafe,#eff6ff);
   text-align:center;
+  overflow-x:hidden;
+  color:#111;
 }
 
-#loader,#startScreen,#endScreen{
+.screen{
   position:fixed;
   inset:0;
   background:linear-gradient(#eaf9ff,#ffffff);
@@ -38,170 +39,280 @@ button{
   border-radius:14px;
   background:#2563eb;
   color:white;
-  font-size:20px;
+  font-size:clamp(16px,2.5vw,22px);
   font-weight:bold;
-  padding:14px 26px;
+  padding:13px 26px;
   cursor:pointer;
+  min-height:55px;
+  margin:8px;
 }
 
 #hud{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:#1e3a8a;
-  color:white;
   display:flex;
   justify-content:space-around;
   flex-wrap:wrap;
-  gap:8px;
-  padding:10px;
-  font-size:clamp(16px,3vw,22px);
+  gap:10px;
+  background:#1e3a8a;
+  color:white;
+  padding:12px;
+  font-size:clamp(17px,3vw,23px);
   font-weight:bold;
-  z-index:10;
+}
+
+#title{
+  font-size:clamp(30px,5vw,48px);
+  margin:14px 0 6px;
+  color:#1e3a8a;
 }
 
 #questionBox{
-  position:fixed;
-  top:68px;
-  left:50%;
-  transform:translateX(-50%);
   width:min(950px,94vw);
+  margin:10px auto;
   background:white;
   border:4px solid #2563eb;
   border-radius:18px;
-  padding:14px;
-  font-size:clamp(20px,3vw,30px);
+  padding:16px;
+  font-size:clamp(22px,3.5vw,34px);
   font-weight:bold;
-  z-index:10;
+  min-height:90px;
 }
 
-#message{
-  position:fixed;
-  top:155px;
-  width:100%;
-  font-size:clamp(24px,4vw,38px);
-  font-weight:bold;
-  z-index:10;
-}
-
-#game{
+#room{
+  width:min(1050px,96vw);
+  min-height:min(540px,68vh);
+  margin:12px auto;
+  background:linear-gradient(#bfdbfe,#eff6ff);
+  border:6px solid #1e40af;
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 0 20px rgba(37,99,235,.35);
   position:relative;
-  width:100vw;
-  height:100vh;
-  background:linear-gradient(#93c5fd 0 45%,#22c55e 45% 58%,#374151 58% 100%);
-  overflow:hidden;
 }
 
-.roadLine{
-  position:absolute;
-  bottom:150px;
-  width:100%;
-  height:12px;
-  background:repeating-linear-gradient(to right,#fff 0 45px,transparent 45px 90px);
+.row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:16px;
+  margin:18px auto;
 }
 
-#car{
-  position:absolute;
-  bottom:85px;
-  left:70px;
-  font-size:70px;
-  z-index:5;
-  transition:left .12s,bottom .12s;
+.tile,.slot,.zone,.object,.dialOption,.graphCard{
+  background:white;
+  color:#111;
+  border:4px solid #2563eb;
+  border-radius:16px;
+  padding:14px;
+  min-width:160px;
+  min-height:75px;
+  font-size:clamp(18px,3vw,26px);
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
 }
 
-.item{
-  position:absolute;
-  right:-220px;
-  bottom:90px;
-  width:210px;
-  min-height:80px;
+.tile.selected{
+  background:#fef08a;
+  border-color:#ca8a04;
+  transform:scale(1.05);
+}
+
+.slot,.zone{
+  background:#dbeafe;
+  border-style:dashed;
+  min-height:120px;
+  flex-direction:column;
+}
+
+.placed{
+  background:#dcfce7;
+  border:2px solid #22c55e;
+  border-radius:10px;
+  padding:8px;
+  margin:6px;
+  font-size:clamp(16px,2.5vw,21px);
+}
+
+.correctFlash{
+  background:#dcfce7!important;
+  border-color:#22c55e!important;
+}
+
+.wrongFlash{
+  background:#fee2e2!important;
+  border-color:#ef4444!important;
+  animation:shake .35s;
+}
+
+.labBox{
   background:white;
   border:4px solid #2563eb;
   border-radius:18px;
-  padding:12px;
-  font-size:clamp(18px,3vw,25px);
+  padding:16px;
+  margin:14px auto;
+  width:min(780px,92vw);
+  font-size:clamp(22px,4vw,36px);
   font-weight:bold;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#111;
 }
 
-.correctGlow{
-  animation:glow 1s infinite;
-}
-
-@keyframes glow{
-  0%{box-shadow:0 0 10px #22c55e}
-  50%{box-shadow:0 0 35px #22c55e}
-  100%{box-shadow:0 0 10px #22c55e}
-}
-
-#controls{
-  position:fixed;
-  bottom:12px;
-  width:100%;
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  z-index:12;
-}
-
-.ctrl{
-  width:90px;
-  height:80px;
-  border-radius:18px;
-  background:#2563eb;
-  color:white;
-  font-size:38px;
+#msg{
+  font-size:clamp(22px,3.5vw,34px);
   font-weight:bold;
+  min-height:42px;
 }
 
 .instructions{
-  max-width:780px;
   font-size:clamp(18px,3vw,24px);
   line-height:1.6;
+  max-width:780px;
 }
 
-#readTimer{
-  position:fixed;
-  top:130px;
-  right:18px;
-  background:white;
+.door{
+  width:190px;
+  height:250px;
+  background:#7c2d12;
+  border:8px solid #451a03;
+  border-radius:90px 90px 12px 12px;
+  margin:20px auto;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:60px;
+}
+
+.openDoor{
+  background:#fde68a;
   color:#111;
-  border:4px solid #2563eb;
-  border-radius:14px;
-  padding:10px 16px;
-  font-size:26px;
-  font-weight:bold;
-  z-index:20;
+  animation:openDoor .7s ease forwards;
+}
+
+@keyframes openDoor{
+  0%{transform:scale(1)}
+  100%{transform:scale(1.08) rotateY(20deg)}
+}
+
+.pendulum{
+  width:260px;
+  height:250px;
+  margin:20px auto;
+  position:relative;
+  border-top:8px solid #111;
+}
+
+.string{
+  position:absolute;
+  top:0;
+  left:125px;
+  width:5px;
+  height:150px;
+  background:#111;
+  transform-origin:top;
+  animation:swing 2s infinite ease-in-out;
+}
+
+.bob{
+  position:absolute;
+  bottom:-35px;
+  left:-28px;
+  width:60px;
+  height:60px;
+  background:#f97316;
+  border-radius:50%;
+  border:4px solid #111;
+}
+
+@keyframes swing{
+  0%{transform:rotate(-25deg)}
+  50%{transform:rotate(25deg)}
+  100%{transform:rotate(-25deg)}
+}
+
+.graph{
+  width:220px;
+  height:160px;
+  background:white;
+  border:4px solid #111;
+  position:relative;
+  border-radius:12px;
+}
+
+.graph::before{
+  content:"";
+  position:absolute;
+  left:25px;
+  bottom:25px;
+  width:165px;
+  height:4px;
+  background:#111;
+}
+
+.graph::after{
+  content:"";
+  position:absolute;
+  left:25px;
+  bottom:25px;
+  width:4px;
+  height:110px;
+  background:#111;
+}
+
+.lineStraight,.lineFlat,.lineCurve{
+  position:absolute;
+  left:40px;
+  bottom:40px;
+  width:130px;
+  height:70px;
+}
+
+.lineStraight{
+  border-bottom:5px solid #ef4444;
+  transform:rotate(-28deg);
+}
+
+.lineFlat{
+  border-bottom:5px solid #ef4444;
+}
+
+.lineCurve{
+  border-bottom:5px solid #ef4444;
+  border-radius:50%;
+  transform:rotate(-18deg);
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
 }
 </style>
 </head>
 
 <body>
 
-<div id="loader">
+<div id="loader" class="screen">
   <img src="assets/logo.png" class="logo">
-  <h2>Loading Speed Track Challenge...</h2>
+  <h2>Loading Motion Lab Escape Room...</h2>
 </div>
 
-<div id="startScreen" style="display:none">
+<div id="startScreen" class="screen" style="display:none">
   <img src="assets/logo.png" class="logo">
-  <h1>🚗 Speed Track Challenge</h1>
+  <h1>🧪 Motion Lab Escape Room</h1>
   <div class="instructions">
-    <p>Read the motion challenge carefully.</p>
-    <p>The answer boards will race towards you.</p>
-    <p>Move the car and catch the correct board.</p>
-    <p>You get <b>2 chances</b> for each level.</p>
-    <p>After 2 wrong attempts, the correct answer will glow.</p>
+    <p>Unlock each room by solving a Time and Motion challenge.</p>
+    <p>Tap, sort, arrange, build formulas, open dials and identify graphs.</p>
+    <p><b>Sorting:</b> tap a tile first. It becomes yellow. Then tap the correct zone.</p>
+    <p>You get <b>2 chances</b>. After that, the correct answer is shown.</p>
   </div>
-  <button onclick="startGame()">Start Race</button>
+  <button onclick="startGame()">Enter Lab</button>
 </div>
 
-<div id="endScreen" style="display:none">
+<div id="endScreen" class="screen" style="display:none">
   <img src="assets/logo.png" class="logo">
-  <h1>🏆 Race Complete!</h1>
+  <h1>🏆 Lab Escaped!</h1>
   <h2>Final Score: <span id="finalScore"></span></h2>
   <button onclick="location.reload()">Play Again</button>
 </div>
@@ -209,91 +320,127 @@ button{
 <div id="hud">
   <div>⭐ Score: <span id="score">0</span></div>
   <div>❤️ Chances: <span id="chances">2</span></div>
-  <div>🚩 Level: <span id="level">1</span>/10</div>
+  <div>🚪 Room: <span id="levelNo">1</span>/10</div>
 </div>
 
-<div id="questionBox"></div>
-<div id="message"></div>
-
-<div id="game">
-  <div class="roadLine"></div>
-  <div id="car">🚗</div>
-</div>
-
-<div id="controls">
-  <button class="ctrl" onclick="moveLeft()">⬅️</button>
-  <button class="ctrl" onclick="moveRight()">➡️</button>
-</div>
+<h1 id="title">🧪 Motion Lab Escape Room</h1>
+<div id="questionBox">Challenge will appear here.</div>
+<div id="room"></div>
+<div id="msg"></div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
 <audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
 
 <script>
-const challenges=[
-  {
-    q:"A car covers 60 km in 2 hours. Catch its speed.",
-    correct:"30 km/h",
-    options:["30 km/h","60 km/h","120 km/h"]
-  },
-  {
-    q:"Which ancient device measures time using sand?",
-    correct:"Hourglass",
-    options:["Sundial","Hourglass","Obelisk"]
-  },
-  {
-    q:"Catch the SI unit of time.",
-    correct:"Second",
-    options:["Hour","Minute","Second"]
-  },
-  {
-    q:"A swing moving to and fro shows which motion?",
-    correct:"Oscillatory Motion",
-    options:["Linear Motion","Oscillatory Motion","Random Motion"]
-  },
-  {
-    q:"A fan blade spinning about its axis shows:",
-    correct:"Rotatory Motion",
-    options:["Rotatory Motion","Linear Motion","Random Motion"]
-  },
-  {
-    q:"Which device shows speed of a vehicle?",
-    correct:"Speedometer",
-    options:["Odometer","Speedometer","Thermometer"]
-  },
-  {
-    q:"Which device shows total distance travelled?",
-    correct:"Odometer",
-    options:["Odometer","Compass","Speedometer"]
-  },
-  {
-    q:"Equal distances in equal time intervals means:",
-    correct:"Uniform Motion",
-    options:["Uniform Motion","Non-uniform Motion","Random Motion"]
-  },
-  {
-    q:"Unequal distances in equal time intervals means:",
-    correct:"Non-uniform Motion",
-    options:["Circular Motion","Uniform Motion","Non-uniform Motion"]
-  },
-  {
-    q:"A straight line on a distance-time graph shows:",
-    correct:"Uniform Motion",
-    options:["Rest","Uniform Motion","Random Motion"]
-  }
+const levels=[
+{
+type:"device",
+title:"Ancient Time Room",
+q:"Unlock the room by choosing the device that measures time using sand.",
+answer:"Hourglass",
+options:["Sundial","Hourglass","Obelisk","Candle Clock"]
+},
+{
+type:"build",
+title:"Speed Formula Room",
+q:"Build the correct speed formula.",
+slots:["Speed","=","Distance","÷","Time"],
+tiles:["Time","Speed","Distance","=","÷"],
+answer:"Speed = Distance ÷ Time"
+},
+{
+type:"sort",
+title:"Motion Type Room",
+q:"Sort the examples into the correct motion type.",
+cards:[
+["Train on straight track","Linear Motion"],
+["Swing in park","Oscillatory Motion"],
+["Fan blade","Rotatory Motion"],
+["Stone tied to string moving around","Circular Motion"]
+],
+zones:["Linear Motion","Oscillatory Motion","Rotatory Motion","Circular Motion"]
+},
+{
+type:"dial",
+title:"Speed Dial Room",
+q:"A bus covers 120 km in 4 hours. Set the speed dial correctly.",
+answer:"30 km/h",
+options:["20 km/h","30 km/h","40 km/h","60 km/h"]
+},
+{
+type:"device",
+title:"Vehicle Meter Room",
+q:"Which device shows the total distance travelled by a vehicle?",
+answer:"Odometer",
+options:["Speedometer","Odometer","Thermometer","Compass"]
+},
+{
+type:"sort",
+title:"Uniform Motion Room",
+q:"Sort the situations into Uniform and Non-uniform motion.",
+cards:[
+["Car covers 10 km every 10 minutes","Uniform Motion"],
+["Bus slows and speeds up in traffic","Non-uniform Motion"],
+["Train moves steadily at same speed","Uniform Motion"],
+["Runner changes speed during race","Non-uniform Motion"]
+],
+zones:["Uniform Motion","Non-uniform Motion"]
+},
+{
+type:"pendulum",
+title:"Pendulum Room",
+q:"A pendulum completes one to-and-fro movement. What is it called?",
+answer:"One oscillation",
+options:["One oscillation","One rotation","One revolution","One rest position"]
+},
+{
+type:"graph",
+title:"Graph Reader Room",
+q:"Which distance-time graph shows uniform motion?",
+answer:"Straight Line",
+options:["Straight Line","Horizontal Line","Curved Line"]
+},
+{
+type:"sequence",
+title:"Sea of Time Data Room",
+q:"Arrange these distance-time points in increasing time order.",
+steps:["0 min, 0 km","10 min, 2 km","20 min, 4 km","30 min, 6 km"]
+},
+{
+type:"sort",
+title:"Clock Technology Room",
+q:"Sort each clock/device into Ancient or Modern.",
+cards:[
+["Sundial","Ancient"],
+["Hourglass","Ancient"],
+["Quartz Watch","Modern"],
+["Atomic Clock","Modern"]
+],
+zones:["Ancient","Modern"]
+}
 ];
 
+let order=[...levels];
 let level=0;
 let score=0;
 let chances=2;
-let carX=70;
-let objects=[];
-let intervals=[];
+let selected=null;
+let placed=0;
+let seqIndex=0;
+let built=[];
 let locked=false;
-let countdown=null;
 
-const car=document.getElementById("car");
-const game=document.getElementById("game");
+const loader=document.getElementById("loader");
+const startScreen=document.getElementById("startScreen");
+const endScreen=document.getElementById("endScreen");
+const room=document.getElementById("room");
+const scoreSpan=document.getElementById("score");
+const chancesSpan=document.getElementById("chances");
+const levelNo=document.getElementById("levelNo");
+const title=document.getElementById("title");
+const questionBox=document.getElementById("questionBox");
+const finalScore=document.getElementById("finalScore");
 
 window.onload=()=>{
   setTimeout(()=>{
@@ -309,189 +456,370 @@ function startGame(){
 
 function loadLevel(){
   locked=false;
-  clearObjects();
-  clearCountdown();
+  selected=null;
+  placed=0;
+  seqIndex=0;
+  built=[];
+  chances=2;
+  updateHUD();
+  msg("");
 
-  if(level>=challenges.length){
+  room.innerHTML="";
+
+  if(level>=order.length){
     endGame();
     return;
   }
 
-  document.getElementById("level").textContent=level+1;
-  document.getElementById("chances").textContent=chances;
-  document.getElementById("questionBox").textContent=challenges[level].q;
+  const item=order[level];
+  levelNo.textContent=level+1;
+  title.textContent="🔐 "+item.title;
+  questionBox.textContent="Room "+(level+1)+". "+item.q;
 
-  showMessage("⏳ Read carefully.","#2563eb");
-
-  let readTime=10;
-  const timer=document.createElement("div");
-  timer.id="readTimer";
-  timer.textContent="⏳ "+readTime+"s";
-  document.body.appendChild(timer);
-
-  countdown=setInterval(()=>{
-    readTime--;
-    timer.textContent="⏳ "+readTime+"s";
-
-    if(readTime<=0){
-      clearCountdown();
-      showMessage("🚗 Catch the correct board!","#16a34a");
-      spawnBoards();
-    }
-  },1000);
+  if(item.type==="device")buildDevice(item);
+  if(item.type==="build")buildFormula(item);
+  if(item.type==="sort")buildSort(item);
+  if(item.type==="dial")buildDial(item);
+  if(item.type==="pendulum")buildPendulum(item);
+  if(item.type==="graph")buildGraph(item);
+  if(item.type==="sequence")buildSequence(item);
 }
 
-function clearCountdown(){
-  if(countdown){
-    clearInterval(countdown);
-    countdown=null;
-  }
-  const t=document.getElementById("readTimer");
-  if(t)t.remove();
-}
+function buildDevice(item){
+  const box=document.createElement("div");
+  box.className="labBox";
+  box.textContent="Tap the correct object to unlock the door.";
 
-function spawnBoards(){
-  clearObjects();
+  const row=document.createElement("div");
+  row.className="row";
 
-  const shuffled=[...challenges[level].options].sort(()=>Math.random()-0.5);
-
-  shuffled.forEach((text,i)=>{
-    const board=document.createElement("div");
-    board.className="item";
-    board.textContent=text;
-    board.dataset.correct=(text===challenges[level].correct);
-    board.style.bottom=(90+i*105)+"px";
-    board.style.right="-240px";
-
-    game.appendChild(board);
-    objects.push(board);
-    moveBoard(board);
+  item.options.sort(()=>Math.random()-0.5).forEach(opt=>{
+    const card=document.createElement("div");
+    card.className="object";
+    card.textContent=opt;
+    card.onclick=()=>checkSimple(card,opt,item.answer);
+    row.appendChild(card);
   });
+
+  const door=document.createElement("div");
+  door.className="door";
+  door.textContent="🔒";
+
+  room.append(box,row,door);
 }
 
-function moveBoard(board){
-  let x=-240;
-  const speed=4.2;
+function buildFormula(item){
+  const info=document.createElement("div");
+  info.className="labBox";
+  info.textContent="Tap a formula tile. Then tap the correct step box.";
 
-  const interval=setInterval(()=>{
-    if(locked){
-      clearInterval(interval);
-      return;
-    }
+  const slotRow=document.createElement("div");
+  slotRow.className="row";
 
-    x+=speed;
-    board.style.right=x+"px";
+  item.slots.forEach((s,i)=>{
+    const slot=document.createElement("div");
+    slot.className="slot";
+    slot.dataset.expected=s;
+    slot.textContent="Step "+(i+1);
+    slot.onclick=()=>placeTile(slot,item);
+    slotRow.appendChild(slot);
+  });
 
-    const b=board.getBoundingClientRect();
-    const c=car.getBoundingClientRect();
+  const tileRow=document.createElement("div");
+  tileRow.className="row";
 
-    if(
-      b.left<c.right &&
-      b.right>c.left &&
-      b.top<c.bottom &&
-      b.bottom>c.top
-    ){
-      clearInterval(interval);
-      checkAnswer(board);
-    }
+  item.tiles.sort(()=>Math.random()-0.5).forEach(t=>{
+    const tile=document.createElement("div");
+    tile.className="tile";
+    tile.textContent=t;
+    tile.onclick=()=>{
+      if(locked)return;
+      selected=tile;
+      document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));
+      tile.classList.add("selected");
+      msg("Selected: "+t+". Now tap the correct step box.","#2563eb");
+    };
+    tileRow.appendChild(tile);
+  });
 
-    if(b.left<0){
-      clearInterval(interval);
-      board.remove();
-    }
-  },20);
-
-  intervals.push(interval);
+  room.append(info,slotRow,tileRow);
 }
 
-function checkAnswer(board){
+function placeTile(slot,item){
+  if(!selected||locked||slot.dataset.filled)return;
+
+  if(selected.textContent===slot.dataset.expected){
+    slot.textContent=selected.textContent;
+    slot.dataset.filled="yes";
+    slot.classList.add("correctFlash");
+    selected.remove();
+    selected=null;
+    built.push(slot.textContent);
+    score+=5;
+    updateHUD();
+
+    if(built.length===item.slots.length){
+      correctNext(false);
+    }
+  }else{
+    wrong(item.answer);
+  }
+}
+
+function buildSort(item){
+  const info=document.createElement("div");
+  info.className="labBox";
+  info.textContent="Step 1: Tap a tile. Step 2: Tap its correct zone.";
+
+  const cardRow=document.createElement("div");
+  cardRow.className="row";
+
+  item.cards.sort(()=>Math.random()-0.5).forEach(c=>{
+    const card=document.createElement("div");
+    card.className="tile";
+    card.textContent=c[0];
+    card.dataset.answer=c[1];
+
+    card.onclick=()=>{
+      if(locked)return;
+      selected=card;
+      document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));
+      card.classList.add("selected");
+      msg("Selected: "+card.textContent+". Now tap: "+card.dataset.answer,"#2563eb");
+    };
+
+    cardRow.appendChild(card);
+  });
+
+  const zoneRow=document.createElement("div");
+  zoneRow.className="row";
+
+  item.zones.forEach(z=>{
+    const zone=document.createElement("div");
+    zone.className="zone";
+    zone.dataset.zone=z;
+    zone.innerHTML="<b>"+z+"</b>";
+    zone.onclick=()=>checkZone(zone,item.cards.length);
+    zoneRow.appendChild(zone);
+  });
+
+  room.append(info,cardRow,zoneRow);
+}
+
+function checkZone(zone,total){
+  if(!selected||locked)return;
+
+  if(selected.dataset.answer===zone.dataset.zone){
+    moveToZone(zone,selected);
+    selected=null;
+    placed++;
+    score+=5;
+    updateHUD();
+    correctSound.play();
+    msg("✅ Correct!","#22c55e");
+
+    if(placed===total){
+      correctNext(false);
+    }
+  }else{
+    zone.classList.add("wrongFlash");
+    setTimeout(()=>zone.classList.remove("wrongFlash"),500);
+    wrong(selected.dataset.answer,true);
+  }
+}
+
+function moveToZone(zone,card){
+  const p=document.createElement("div");
+  p.className="placed";
+  p.textContent=card.textContent;
+  zone.appendChild(p);
+  card.remove();
+}
+
+function buildDial(item){
+  const box=document.createElement("div");
+  box.className="labBox";
+  box.textContent="Speed = Distance ÷ Time = 120 ÷ 4";
+
+  const row=document.createElement("div");
+  row.className="row";
+
+  item.options.forEach(opt=>{
+    const d=document.createElement("div");
+    d.className="dialOption";
+    d.textContent="🚘 "+opt;
+    d.onclick=()=>checkSimple(d,opt,item.answer);
+    row.appendChild(d);
+  });
+
+  room.append(box,row);
+}
+
+function buildPendulum(item){
+  const box=document.createElement("div");
+  box.className="labBox";
+  box.textContent="Observe the swinging pendulum.";
+
+  const pend=document.createElement("div");
+  pend.className="pendulum";
+  pend.innerHTML='<div class="string"><div class="bob"></div></div>';
+
+  const row=document.createElement("div");
+  row.className="row";
+
+  item.options.forEach(opt=>{
+    const b=document.createElement("div");
+    b.className="object";
+    b.textContent=opt;
+    b.onclick=()=>checkSimple(b,opt,item.answer);
+    row.appendChild(b);
+  });
+
+  room.append(box,pend,row);
+}
+
+function buildGraph(item){
+  const row=document.createElement("div");
+  row.className="row";
+
+  item.options.forEach(opt=>{
+    const card=document.createElement("div");
+    card.className="graphCard";
+    card.style.flexDirection="column";
+
+    const g=document.createElement("div");
+    g.className="graph";
+
+    const line=document.createElement("div");
+    if(opt==="Straight Line")line.className="lineStraight";
+    if(opt==="Horizontal Line")line.className="lineFlat";
+    if(opt==="Curved Line")line.className="lineCurve";
+
+    g.appendChild(line);
+
+    const label=document.createElement("div");
+    label.textContent=opt;
+    label.style.marginTop="10px";
+
+    card.append(g,label);
+    card.onclick=()=>checkSimple(card,opt,item.answer);
+    row.appendChild(card);
+  });
+
+  room.appendChild(row);
+}
+
+function buildSequence(item){
+  const info=document.createElement("div");
+  info.className="labBox";
+  info.textContent="Tap the data cards in the correct order.";
+
+  const row=document.createElement("div");
+  row.className="row";
+
+  item.steps.sort(()=>Math.random()-0.5).forEach(step=>{
+    const card=document.createElement("div");
+    card.className="object";
+    card.textContent=step;
+
+    card.onclick=()=>{
+      if(locked)return;
+
+      if(step===item.steps[seqIndex]){
+        card.classList.add("correctFlash");
+        card.style.pointerEvents="none";
+        seqIndex++;
+        score+=5;
+        updateHUD();
+        correctSound.play();
+
+        if(seqIndex===item.steps.length){
+          correctNext(false);
+        }
+      }else{
+        wrong(item.steps.join(" → "));
+      }
+    };
+
+    row.appendChild(card);
+  });
+
+  room.append(info,row);
+}
+
+function checkSimple(btn,selectedAns,answer){
   if(locked)return;
 
-  if(board.dataset.correct==="true"){
-    locked=true;
-    correctSound.play();
-    score+=10;
-    document.getElementById("score").textContent=score;
-    showMessage("✅ Correct!","#22c55e");
-    clearObjects();
-    level++;
-    chances=2;
-    setTimeout(loadLevel,1200);
+  if(selectedAns===answer){
+    btn.classList.add("correctFlash");
+    correctNext();
   }else{
-    wrongSound.play();
-    chances--;
-    document.getElementById("chances").textContent=chances;
-
-    if(chances>0){
-      showMessage("❌ Wrong! Boards coming again.","#ef4444");
-      setTimeout(spawnBoards,800);
-    }else{
-      locked=true;
-      showMessage("Correct Answer Highlighted","#ef4444");
-      highlightCorrect();
-      setTimeout(()=>{
-        clearObjects();
-        level++;
-        chances=2;
-        loadLevel();
-      },2500);
-    }
+    btn.classList.add("wrongFlash");
+    setTimeout(()=>btn.classList.remove("wrongFlash"),500);
+    wrong(answer);
   }
 }
 
-function highlightCorrect(){
-  intervals.forEach(i=>clearInterval(i));
-  intervals=[];
+function wrong(answer,isSorting=false){
+  wrongSound.play();
+  chances--;
+  updateHUD();
 
-  objects.forEach(o=>{
-    if(o.dataset.correct==="true"){
-      o.classList.add("correctGlow");
-      o.style.right="50%";
-      o.style.bottom="210px";
-      o.style.transform="translateX(50%)";
-    }else{
-      o.remove();
+  if(chances>0){
+    msg("❌ Try Again! Chances left: "+chances,"#ef4444");
+  }else{
+    locked=true;
+    msg("Correct Answer: "+answer,"#ef4444");
+
+    if(isSorting && selected){
+      document.querySelectorAll(".zone").forEach(z=>{
+        if(z.dataset.zone===answer){
+          z.classList.add("correctFlash");
+          moveToZone(z,selected);
+          selected=null;
+        }
+      });
     }
-  });
 
-  objects=objects.filter(o=>o.dataset.correct==="true");
+    level++;
+    setTimeout(loadLevel,2400);
+  }
 }
 
-function moveLeft(){
-  carX-=90;
-  if(carX<0)carX=0;
-  car.style.left=carX+"px";
+function correctNext(addScore=true){
+  if(addScore){
+    score+=10;
+    updateHUD();
+    correctSound.play();
+  }
+
+  locked=true;
+  msg("✅ Door Unlocked!","#22c55e");
+
+  const door=document.querySelector(".door");
+  if(door){
+    door.textContent="🔓";
+    door.classList.add("openDoor");
+  }
+
+  level++;
+  setTimeout(loadLevel,1400);
 }
 
-function moveRight(){
-  carX+=90;
-  if(carX>window.innerWidth-100)carX=window.innerWidth-100;
-  car.style.left=carX+"px";
+function updateHUD(){
+  scoreSpan.textContent=score;
+  chancesSpan.textContent=chances;
 }
 
-document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft")moveLeft();
-  if(e.key==="ArrowRight")moveRight();
-});
-
-function clearObjects(){
-  intervals.forEach(i=>clearInterval(i));
-  intervals=[];
-  objects.forEach(o=>o.remove());
-  objects=[];
-}
-
-function showMessage(text,color){
-  const msg=document.getElementById("message");
-  msg.textContent=text;
-  msg.style.color=color;
+function msg(text,color){
+  const m=document.getElementById("msg");
+  m.textContent=text || "";
+  m.style.color=color || "#111";
 }
 
 function endGame(){
-  clearObjects();
-  clearCountdown();
   clapSound.play();
-  document.getElementById("finalScore").textContent=score;
+  finalScore.textContent=score;
   endScreen.style.display="flex";
 }
 </script>
