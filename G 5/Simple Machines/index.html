@@ -3,124 +3,217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simple Machines Match-Up</title>
+<title>Simple Machines Blueprint Lab</title>
 
 <style>
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:linear-gradient(#dff6ff,#ffffff);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background:#ffffff;
+  color:#0f172a;
   text-align:center;
   overflow-x:hidden;
 }
+
+/* Subtle blueprint layout grids instead of plain color fills */
+body{
+  background-image:
+    linear-gradient(rgba(37,99,235,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(37,99,235,.03) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+
 .screen{
   position:fixed;
   inset:0;
-  background:linear-gradient(#eaf9ff,#fff);
+  background: radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%);
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
   z-index:50;
-  padding:20px;
+  padding:24px;
 }
-.logo{width:min(180px,55vw);margin-bottom:18px}
+
+/* Clean, crisp white integration for the branding asset */
+.logo{
+  width:min(180px,55vw);
+  margin-bottom:24px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.03));
+}
+
 button{
   border:0;
-  border-radius:14px;
-  background:#2563eb;
+  border-radius:50px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color:white;
   font-size:20px;
   font-weight:bold;
-  padding:13px 26px;
+  padding:16px 40px;
   cursor:pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
 }
-h1{font-size:clamp(28px,5vw,46px);color:#1e3a8a}
+button:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+}
+
+h1{
+  font-size:clamp(26px,5vw,40px);
+  color:#1e3a8a;
+  font-weight:800;
+  margin: 24px 0 10px;
+}
+
+/* Redesigned clean HUD panel bar */
 #hud{
   display:flex;
-  justify-content:space-around;
-  flex-wrap:wrap;
-  gap:10px;
-  background:#1e293b;
-  color:white;
-  padding:12px;
-  font-size:clamp(17px,3vw,23px);
-  font-weight:bold;
+  justify-content:center;
+  gap:20px;
+  background: #ffffff;
+  color:#475569;
+  padding:16px;
+  font-size:clamp(15px,3vw,18px);
+  font-weight:700;
+  border-bottom:1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
 }
+
+.hud-pill {
+  background: #f1f5f9;
+  padding: 6px 16px;
+  border-radius: 30px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Interactive Workbench Grid (Replaces old Item Bank quiz bank) */
+#workbench-container {
+  width: min(900px, 94vw);
+  margin: 24px auto 14px auto;
+  text-align: left;
+}
+
+.panel-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #64748b;
+  font-weight: 700;
+  margin-bottom: 8px;
+  padding-left: 6px;
+}
+
 #item-bank{
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
-  gap:10px;
-  background:white;
-  padding:18px;
-  border-radius:20px;
-  width:min(760px,94vw);
-  min-height:90px;
-  margin:18px auto;
-  border:3px dashed #94a3b8;
+  gap:12px;
+  background:#f8fafc;
+  padding:24px;
+  border-radius:24px;
+  min-height:100px;
+  border: 2px dashed #cbd5e1;
 }
+
+/* Items reimagined as tools/components, not options */
 .drag-item{
   background:white;
-  border:3px solid #38bdf8;
-  padding:12px 16px;
-  border-radius:14px;
+  border: 1px solid #e2e8f0;
+  padding:14px 20px;
+  border-radius:16px;
   cursor:pointer;
-  font-size:clamp(16px,3vw,22px);
-  font-weight:bold;
-  box-shadow:0 4px 0 #38bdf8;
+  font-size:clamp(15px,3vw,19px);
+  font-weight:700;
+  color: #334155;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.drag-item:hover {
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+  box-shadow: 0 6px 15px rgba(59, 130, 246, 0.1);
 }
 .drag-item.selected{
-  background:#fef08a;
-  border-color:#f59e0b;
-  transform:scale(1.05);
+  background:#eff6ff;
+  border-color:#3b82f6;
+  color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
+
 #drop-zones{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:12px;
+  gap:16px;
   width:min(900px,96vw);
-  margin:0 auto 20px;
+  margin: 0 auto 30px;
 }
 @media(min-width:700px){
   #drop-zones{grid-template-columns:repeat(3,1fr)}
 }
+
+/* Blueprints replace generic text box categories */
 .zone{
-  background:white;
-  border:3px solid #cbd5e1;
-  border-radius:18px;
-  min-height:130px;
-  padding:10px;
+  background:#ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius:24px;
+  min-height:150px;
+  padding:16px;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .zone h3{
-  margin:4px 0 10px;
-  color:#334155;
-  font-size:clamp(15px,2.5vw,20px);
+  margin:0 0 12px 0;
+  color:#1e293b;
+  font-size:clamp(16px,2.5vw,18px);
+  font-weight: 800;
+  border-bottom: 1px dashed #e2e8f0;
+  padding-bottom: 8px;
 }
-.zone.wrong{animation:shake .4s;background:#fee2e2;border-color:#ef4444}
-.zone.correctFlash{background:#dcfce7;border-color:#22c55e}
+
+.zone.wrong{animation:shake .4s;background:#fef2f2;border-color:#ef4444}
+.zone.correctFlash{background:#f0fdf4;border-color:#22c55e}
+
 .placed-item{
-  background:#dcfce7;
-  border:2px solid #22c55e;
-  border-radius:10px;
-  padding:7px;
-  margin:4px;
-  font-weight:bold;
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+  color: #166534;
+  border-radius:12px;
+  padding:8px 12px;
+  margin:4px 0;
+  font-weight:600;
+  font-size: 15px;
+  text-align: left;
 }
+
 #msg{
-  min-height:35px;
-  font-size:clamp(20px,3vw,30px);
-  font-weight:bold;
-}
-.instructions{
+  min-height:40px;
   font-size:clamp(18px,3vw,24px);
-  line-height:1.6;
-  max-width:760px;
+  font-weight:700;
+  margin-bottom: 10px;
 }
+
+.instructions{
+  font-size:clamp(16px,3vw,20px);
+  line-height:1.7;
+  max-width:680px;
+  color: #475569;
+  background: white;
+  padding: 30px;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+  text-align: left;
+  margin-bottom: 30px;
+}
+.instructions b { color: #0f172a; }
+
 @keyframes shake{
   0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-8px)}
+  25%{transform:translateX(-6px)}
   75%{transform:translateX(8px)}
 }
 </style>
@@ -129,46 +222,51 @@ h1{font-size:clamp(28px,5vw,46px);color:#1e3a8a}
 <body>
 
 <div id="loader" class="screen">
+  <!-- Seamless white background container -->
   <img src="assets/logo.png" class="logo">
-  <h2>Loading Machine Match-Up...</h2>
+  <h2 style="font-weight:600; color:#475569;">Initializing System Blueprint...</h2>
 </div>
 
 <div id="instructions" class="screen" style="display:none">
   <img src="assets/logo.png" class="logo">
-  <h1>⚙️ Machine Match-Up</h1>
+  <h1>⚙️ Machine Blueprint Lab</h1>
   <div class="instructions">
-    <p>Select or drag each object into the correct simple machine group.</p>
-    <p>You get <b>2 chances for each object</b>.</p>
-    <p>After 2 wrong attempts, the correct group will be shown.</p>
+    <p>⚙️ <b>Deploy Components:</b> Drag or select a mechanical component from the tool array assembly below.</p>
+    <p>⚙️ <b>Calibrate Core:</b> Slot it directly into its corresponding structural simple machine schematic.</p>
+    <p>⚙️ <b>System Safety:</b> Each mechanism contains 2 stabilization links before automated routing overrides active parameters.</p>
   </div>
-  <button onclick="startGame()">Start Game</button>
+  <button onclick="startGame()">Open Workbench</button>
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
   <img src="assets/logo.png" class="logo">
-  <h1>🏆 Great Work!</h1>
-  <h2>Your Score: <span id="finalScore"></span></h2>
-  <button onclick="location.reload()">Play Again</button>
+  <h1>🏆 Blueprint Complete</h1>
+  <h2 style="font-weight:600; color:#475569; margin-bottom:30px;">Assembly Efficiency Rating: <span id="finalScore" style="color:#2563eb;"></span></h2>
+  <button onclick="location.reload()">Rebuild Schema</button>
 </div>
 
 <div id="hud">
-  <div>⭐ Score: <span id="score">0</span></div>
-  <div>❤️ Chances: <span id="chances">2</span></div>
-  <div>🔧 Done: <span id="done">0</span>/10</div>
+  <div class="hud-pill">⭐ Core Energy: <span id="score">0</span></div>
+  <div class="hud-pill">❤️ Links: <span id="chances">2</span></div>
+  <div class="hud-pill">🔧 Calibration: <span id="done">0</span>/10</div>
 </div>
 
-<h1>⚙️ Simple Machines Match-Up</h1>
+<h1>⚙️ Simple Machines Assembly Blueprint</h1>
 
-<div id="item-bank"></div>
+<div id="workbench-container">
+  <div class="panel-label">Active Component Toolkit</div>
+  <div id="item-bank"></div>
+</div>
+
 <div id="msg"></div>
 
 <div id="drop-zones">
-  <div class="zone" data-type="lever"><h3>Lever</h3></div>
-  <div class="zone" data-type="pulley"><h3>Pulley</h3></div>
-  <div class="zone" data-type="inclined plane"><h3>Inclined Plane</h3></div>
-  <div class="zone" data-type="wheel and axle"><h3>Wheel & Axle</h3></div>
-  <div class="zone" data-type="wedge"><h3>Wedge</h3></div>
-  <div class="zone" data-type="screw"><h3>Screw</h3></div>
+  <div class="zone" data-type="lever"><h3>Lever Bay</h3></div>
+  <div class="zone" data-type="pulley"><h3>Pulley Array</h3></div>
+  <div class="zone" data-type="inclined plane"><h3>Inclined Schematic</h3></div>
+  <div class="zone" data-type="wheel and axle"><h3>Axle Rig</h3></div>
+  <div class="zone" data-type="wedge"><h3>Wedge Assembly</h3></div>
+  <div class="zone" data-type="screw"><h3>Screw Thread</h3></div>
 </div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
@@ -237,7 +335,7 @@ function setupGame(){
       document.querySelectorAll(".drag-item").forEach(i=>i.classList.remove("selected"));
       div.classList.add("selected");
       updateHUD();
-      showMsg("Now tap the correct machine group.", "#1e3a8a");
+      showMsg("Now route the tool to its installation bay.", "#2563eb");
     };
 
     div.ondragstart=()=>{
@@ -285,7 +383,7 @@ function correctPlacement(zone){
   done++;
   chances=2;
   updateHUD();
-  showMsg("✅ Correct!", "green");
+  showMsg("✅ Placement Calibrated!", "#166534");
 
   if(done>=10){
     setTimeout(endGame,900);
@@ -300,10 +398,10 @@ function wrongPlacement(zone){
   setTimeout(()=>zone.classList.remove("wrong"),500);
 
   if(chances>0){
-    showMsg("❌ Try Again!", "red");
+    showMsg("❌ System Alignment Fault! Recalibrate link.", "#991b1b");
   }else{
     const correctType=selectedEl.dataset.type;
-    showMsg("Correct Answer: "+formatType(correctType), "red");
+    showMsg("Matrix Route Override Action Executed.", "#991b1b");
 
     document.querySelectorAll(".zone").forEach(z=>{
       if(z.dataset.type===correctType){
@@ -326,11 +424,6 @@ function wrongPlacement(zone){
       setTimeout(endGame,1400);
     }
   }
-}
-
-function formatType(type){
-  if(type==="wheel and axle")return "Wheel & Axle";
-  return type.split(" ").map(w=>w[0].toUpperCase()+w.slice(1)).join(" ");
 }
 
 function updateHUD(){
