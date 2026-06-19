@@ -314,6 +314,7 @@ button:active {
 </div>
 
 <div id="startScreen" class="screen" style="display:none">
+  <img src="assets/logo.png" class="logo">
   <h1>🧪 Time and Motion Lab Escape Room</h1>
   <div class="instructions">
     <p>Unlock each room by solving a Time and Motion challenge.</p>
@@ -325,7 +326,7 @@ button:active {
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
-
+  <img src="assets/logo.png" class="logo">
   <h1>🏆 Lab Escaped!</h1>
   <h2>Final Score: <span id="finalScore"></span> / 100</h2>
   <button onclick="location.reload()">Play Again</button>
@@ -347,95 +348,129 @@ button:active {
 <audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
 
 <script>
-const levels=[
-{
-type:"device",
-title:"Ancient Time Room",
-q:"Unlock the room by choosing the device that measures time using sand.",
-answer:"Hourglass",
-options:["Sundial","Hourglass","Obelisk","Candle Clock"]
-},
-{
-type:"build",
-title:"Speed Formula Room",
-q:"Build the correct speed formula.",
-slots:["Speed","=","Distance","÷","Time"],
-tiles:["Time","Speed","Distance","=","÷"],
-answer:"Speed = Distance ÷ Time"
-},
-{
-type:"sort",
-title:"Motion Type Room",
-q:"Sort the examples into the correct motion type.",
-cards:[
-["Train on straight track","Linear Motion"],
-["Swing in park","Oscillatory Motion"],
-["Fan blade","Rotatory Motion"],
-["Stone tied to string moving around","Circular Motion"]
-],
-zones:["Linear Motion","Oscillatory Motion","Rotatory Motion","Circular Motion"]
-},
-{
-type:"dial",
-title:"Speed Dial Room",
-q:"A bus covers 120 km in 4 hours. Set the speed dial correctly.",
-answer:"30 km/h",
-options:["20 km/h","30 km/h","40 km/h","60 km/h"]
-},
-{
-type:"device",
-title:"Vehicle Meter Room",
-q:"Which device shows the total distance travelled by a vehicle?",
-answer:"Odometer",
-options:["Speedometer","Odometer","Thermometer","Compass"]
-},
-{
-type:"sort",
-title:"Uniform Motion Room",
-q:"Sort the situations into Uniform and Non-uniform motion.",
-cards:[
-["Car covers 10 km every 10 minutes","Uniform Motion"],
-["Bus slows and speeds up in traffic","Non-uniform Motion"],
-["Train moves steadily at same speed","Uniform Motion"],
-["Runner changes speed during race","Non-uniform Motion"]
-],
-zones:["Uniform Motion","Non-uniform Motion"]
-},
-{
-type:"pendulum",
-title:"Pendulum Room",
-q:"A pendulum completes one to-and-fro movement. What is it called?",
-answer:"One oscillation",
-options:["One oscillation","One rotation","One revolution","One rest position"]
-},
-{
-type:"graph",
-title:"Graph Reader Room",
-q:"Which distance-time graph shows uniform motion?",
-answer:"Straight Line",
-options:["Straight Line","Horizontal Line","Curved Line"]
-},
-{
-type:"sequence",
-title:"Sea of Time Data Room",
-q:"Arrange these distance-time points in increasing time order.",
-steps:["0 min, 0 km","10 min, 2 km","20 min, 4 km","30 min, 6 km"]
-},
-{
-type:"sort",
-title:"Clock Technology Room",
-q:"Sort each clock/device into Ancient or Modern.",
-cards:[
-["Sundial","Ancient"],
-["Hourglass","Ancient"],
-["Quartz Watch","Modern"],
-["Atomic Clock","Modern"]
-],
-zones:["Ancient","Modern"]
-}
+const allLevels=[
+  {
+    type:"device",
+    title:"Ancient Time Room",
+    q:"Unlock the room by choosing the device that measures time using sand.",
+    answer:"Hourglass",
+    options:["Sundial","Hourglass","Obelisk","Candle Clock"]
+  },
+  {
+    type:"build",
+    title:"Speed Formula Room",
+    q:"Build the correct speed formula.",
+    slots:["Speed","=","Distance","÷","Time"],
+    tiles:["Time","Speed","Distance","=","÷"],
+    answer:"Speed = Distance ÷ Time"
+  },
+  {
+    type:"sort",
+    title:"Motion Type Room",
+    q:"Sort the examples into the correct motion type.",
+    cards:[
+      ["Train on straight track","Linear Motion"],
+      ["Swing in park","Oscillatory Motion"],
+      ["Fan blade","Rotatory Motion"],
+      ["Stone tied to string moving around","Circular Motion"]
+    ],
+    zones:["Linear Motion","Oscillatory Motion","Rotatory Motion","Circular Motion"]
+  },
+  {
+    type:"dial",
+    title:"Speed Dial Room",
+    q:"A bus covers 120 km in 4 hours. Set the speed dial correctly.",
+    answer:"30 km/h",
+    options:["20 km/h","30 km/h","40 km/h","60 km/h"]
+  },
+  {
+    type:"device",
+    title:"Vehicle Meter Room",
+    q:"Which device shows the total distance travelled by a vehicle?",
+    answer:"Odometer",
+    options:["Speedometer","Odometer","Thermometer","Compass"]
+  },
+  {
+    type:"sort",
+    title:"Uniform Motion Room",
+    q:"Sort the situations into Uniform and Non-uniform motion.",
+    cards:[
+      ["Car covers 10 km every 10 minutes","Uniform Motion"],
+      ["Bus slows and speeds up in traffic","Non-uniform Motion"],
+      ["Train moves steadily at same speed","Uniform Motion"],
+      ["Runner changes speed during race","Non-uniform Motion"]
+    ],
+    zones:["Uniform Motion","Non-uniform Motion"]
+  },
+  {
+    type:"pendulum",
+    title:"Pendulum Room",
+    q:"A pendulum completes one to-and-fro movement. What is it called?",
+    answer:"One oscillation",
+    options:["One oscillation","One rotation","One revolution","One rest position"]
+  },
+  {
+    type:"graph",
+    title:"Graph Reader Room",
+    q:"Which distance-time graph shows uniform motion?",
+    answer:"Straight Line",
+    options:["Straight Line","Horizontal Line","Curved Line"]
+  },
+  {
+    type:"sequence",
+    title:"Sea of Time Data Room",
+    q:"Arrange these distance-time points in increasing time order.",
+    steps:["0 min, 0 km","10 min, 2 km","20 min, 4 km","30 min, 6 km"]
+  },
+  {
+    type:"sort",
+    title:"Clock Technology Room",
+    q:"Sort each clock/device into Ancient or Modern.",
+    cards:[
+      ["Sundial","Ancient"],
+      ["Hourglass","Ancient"],
+      ["Quartz Watch","Modern"],
+      ["Atomic Clock","Modern"]
+    ],
+    zones:["Ancient","Modern"]
+  },
+  {
+    type:"device",
+    title:"Unit Master Room",
+    q:"Select the standard SI unit of speed.",
+    answer:"m/s",
+    options:["km/h","m/s","m/min","cm/s"]
+  },
+  {
+    type:"dial",
+    title:"Calculated Journey Room",
+    q:"A car travels at 60 km/h for 2 hours. Find total distance.",
+    answer:"120 km",
+    options:["30 km","80 km","120 km","160 km"]
+  },
+  {
+    type:"graph",
+    title:"Stationary Body Room",
+    q:"Which line graph shows an object at completely zero speed (rest)?",
+    answer:"Horizontal Line",
+    options:["Straight Line","Horizontal Line","Curved Line"]
+  },
+  {
+    type:"sequence",
+    title:"Speed Scale Room",
+    q:"Arrange these units of speed from slowest to fastest scale metric.",
+    steps:["cm/s","m/min","m/s","km/h"]
+  },
+  {
+    type:"device",
+    title:"Instantaneous Indicator Room",
+    q:"Which dashboard dial measures instantaneous speed of a running vehicle?",
+    answer:"Speedometer",
+    options:["Odometer","Speedometer","Anemometer","Voltmeter"]
+  }
 ];
 
-let order=[...levels];
+let order=[];
 let level=0;
 let score=0;
 let chances=2;
@@ -460,11 +495,20 @@ window.onload=()=>{
   setTimeout(()=>{
     loader.style.display="none";
     startScreen.style.display="flex";
-  }, 5000); // 5000ms delay holds purely branding window
+  }, 5000); 
 };
 
 function startGame(){
   startScreen.style.display="none";
+  
+  // Choose 10 random unique items out of 15 setup pool
+  let pool=[...allLevels];
+  for(let i=pool.length-1; i>0; i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pool[i], pool[j]]=[pool[j], pool[i]];
+  }
+  order=pool.slice(0, 10);
+  
   loadLevel();
 }
 
@@ -653,7 +697,7 @@ function moveToZone(zone,card){
 function buildDial(item){
   const box=document.createElement("div");
   box.className="labBox";
-  box.textContent="Speed = Distance ÷ Time = 120 ÷ 4";
+  box.textContent="Verify settings or math factors options below:";
 
   const row=document.createElement("div");
   row.className="row";
