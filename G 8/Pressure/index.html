@@ -2,32 +2,200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>G8 Science Ch 2 - Pressure Lab Escape</title>
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#0f172a,#1e3a8a);color:white;text-align:center;overflow-x:hidden}
-.screen{position:fixed;inset:0;background:linear-gradient(#eaf9ff,#fff);color:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;padding:20px}
-.logo{width:min(180px,55vw);margin-bottom:18px}
-button{border:0;border-radius:14px;background:#0ea5e9;color:white;font-size:clamp(16px,2.5vw,22px);font-weight:bold;padding:13px 26px;cursor:pointer;min-height:55px}
-#hud{display:flex;justify-content:space-around;flex-wrap:wrap;gap:10px;background:#020617dd;padding:12px;font-size:clamp(17px,3vw,23px);font-weight:bold}
-#title{font-size:clamp(30px,5vw,48px);margin:14px 0 6px}
-#questionBox{width:min(950px,94vw);margin:10px auto;background:white;color:#0f172a;border:4px solid #38bdf8;border-radius:18px;padding:16px;font-size:clamp(22px,3.5vw,34px);font-weight:bold;min-height:90px}
-#gameArea{width:min(1000px,96vw);min-height:min(520px,68vh);margin:12px auto;background:linear-gradient(#1e293b,#0f172a);border:5px solid #38bdf8;border-radius:22px;padding:20px;box-shadow:0 0 25px rgba(56,189,248,.35)}
-.row{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin:18px auto}
-.card,.tile,.zone,.slot,.object,.seqCard{background:white;color:#111;border:4px solid #38bdf8;border-radius:16px;padding:14px;min-width:160px;min-height:72px;font-size:clamp(18px,3vw,26px);font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.card.selected,.tile.selected{background:#fef08a;border-color:#f59e0b;transform:scale(1.05)}
-.zone,.slot{background:#e0f2fe;border-style:dashed;min-height:130px;flex-direction:column}
-.placed{background:#dcfce7;border:2px solid #22c55e;border-radius:10px;padding:8px;margin:6px;font-size:clamp(16px,2.5vw,21px)}
-.correctFlash{background:#dcfce7!important;border-color:#22c55e!important}
-.wrongFlash{background:#fee2e2!important;border-color:#ef4444!important;animation:shake .35s}
-#msg{font-size:clamp(22px,3.5vw,34px);font-weight:bold;min-height:42px}
-.instructions{font-size:clamp(18px,3vw,24px);line-height:1.6;max-width:760px}
-.labBox{background:white;color:#111;border:4px solid #38bdf8;border-radius:18px;padding:16px;margin:14px auto;width:min(760px,92vw);font-size:clamp(22px,4vw,36px);font-weight:bold}
-.tank{width:260px;height:330px;border:6px solid white;border-radius:18px;margin:15px auto;position:relative;background:#0ea5e966}
-.hole{position:absolute;left:100px;width:60px;height:45px;background:white;color:#111;border:3px solid #111;border-radius:12px;font-weight:bold;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.h1{top:45px}.h2{top:145px}.h3{top:245px}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(#0f172a,#1e3a8a);
+  color:white;
+  text-align:center;
+  overflow:hidden; /* Prevents screen jumping and double-scroll issues */
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.screen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#eaf9ff,#ffffff);
+  color:#0f172a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+.logo{
+  width:min(180px,55vw);
+  margin-bottom:18px;
+}
+button{
+  border:0;
+  border-radius:14px;
+  background:#0ea5e9;
+  color:white;
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:bold;
+  padding:13px 26px;
+  cursor:pointer;
+  min-height:55px;
+  box-shadow: 0 4px 0 #0369a1;
+}
+button:active{
+  transform:translateY(2px);
+  box-shadow: 0 2px 0 #0369a1;
+}
+#hud{
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:10px;
+  background:#020617dd;
+  padding:12px;
+  font-size:clamp(17px,3vw,23px);
+  font-weight:bold;
+}
+#title{
+  font-size:clamp(24px,4vw,36px);
+  margin:10px 0 4px;
+}
+#questionBox{
+  width:min(950px,94vw);
+  margin:4px auto;
+  background:white;
+  color:#0f172a;
+  border:4px solid #38bdf8;
+  border-radius:18px;
+  padding:12px;
+  font-size:clamp(18px,2.8vw,26px);
+  font-weight:bold;
+  min-height:75px;
+}
+#gameArea{
+  width:min(1050px,96vw);
+  margin:8px auto;
+  background:linear-gradient(#1e293b,#0f172a);
+  border:5px solid #38bdf8;
+  border-radius:22px;
+  padding:15px;
+  box-shadow:0 0 25px rgba(56,189,248,.35);
+  position:relative;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;
+}
+.row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:10px auto;
+  width:100%;
+}
+.card,.tile,.zone,.slot,.object,.seqCard{
+  background:white;
+  color:#111;
+  border:4px solid #38bdf8;
+  border-radius:16px;
+  padding:10px;
+  min-width:140px;
+  min-height:65px;
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.card.selected,.tile.selected{
+  background:#fef08a;
+  border-color:#f59e0b;
+  transform:scale(1.05);
+}
+.zone,.slot{
+  background:#e0f2fe;
+  border-style:dashed;
+  min-height:110px;
+  flex-direction:column;
+  width:min(280px,44vw);
+}
+.placed{
+  background:#dcfce7;
+  border:2px solid #22c55e;
+  border-radius:10px;
+  padding:6px;
+  margin:4px;
+  font-size:clamp(14px,2.2vw,19px);
+  color:#111;
+  width:95%;
+}
+.correctFlash{
+  background:#dcfce7!important;
+  border-color:#22c55e!important;
+  color:#111!important;
+}
+.wrongFlash{
+  background:#fee2e2!important;
+  border-color:#ef4444!important;
+  animation:shake .35s;
+}
+#msg{
+  font-size:clamp(18px,3vw,26px);
+  font-weight:bold;
+  min-height:36px;
+  margin-bottom:5px;
+}
+.instructions{
+  font-size:clamp(16px,2.5vw,22px);
+  line-height:1.6;
+  max-width:760px;
+  color:#334155;
+}
+.labBox{
+  background:white;
+  color:#111;
+  border:4px solid #38bdf8;
+  border-radius:18px;
+  padding:12px;
+  margin:4px auto;
+  width:min(740px,92vw);
+  font-size:clamp(18px,3vw,28px);
+  font-weight:bold;
+}
+.tank{
+  width:240px;
+  height:300px;
+  border:6px solid white;
+  border-radius:18px;
+  margin:10px auto;
+  position:relative;
+  background:#0ea5e966;
+}
+.hole{
+  position:absolute;
+  left:85px;
+  width:70px;
+  height:45px;
+  background:white;
+  color:#111;
+  border:3px solid #111;
+  border-radius:12px;
+  font-weight:bold;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow: 0 3px 0 #1e293b;
+}
+.h1{top:30px}.h2{top:120px}.h3{top:210px}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 </style>
 </head>
@@ -40,21 +208,20 @@ button{border:0;border-radius:14px;background:#0ea5e9;color:white;font-size:clam
 </div>
 
 <div id="instructions" class="screen" style="display:none">
-  <img src="assets/logo.png" class="logo">
+ 
   <h1>🧪 Pressure Lab Escape</h1>
   <div class="instructions">
-    <p>Complete pressure lab challenges.</p>
-    <p>No typing. Only tap, sort, arrange, and build.</p>
-    <p><b>Sorting levels:</b> first tap one card. It becomes yellow. Then tap the correct zone.</p>
-    <p>You get <b>2 chances</b>. After that, the correct answer is shown.</p>
+    <p>Complete fluid and atmospheric pressure laboratory challenges.</p>
+    <p>No typing required. Only tap, sort, arrange, and construct engineering components.</p>
+    <p><b>Sorting matrix levels:</b> first tap a dataset card to highlight it yellow, then tap its correct target system zone.</p>
+    <p>You get exactly <b>2 simulation chances</b> before system overrides reveal solutions.</p>
   </div>
   <button onclick="startGame()">Start Lab</button>
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
-  <img src="assets/logo.png" class="logo">
   <h1>🏆 Pressure Lab Complete!</h1>
-  <h2>Your Score: <span id="finalScore"></span></h2>
+  <h2>Your Calibration Score: <span id="finalScore"></span> / 100</h2>
   <button onclick="location.reload()">Play Again</button>
 </div>
 
@@ -75,19 +242,19 @@ button{border:0;border-radius:14px;background:#0ea5e9;color:white;font-size:clam
 
 <script>
 const levels=[
-{type:"formula",title:"Formula Builder",q:"Build the pressure formula correctly. Tap a tile first, then tap the correct step box.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
-{type:"formula",title:"Unit Builder",q:"Build the unit relation correctly. Tap a tile first, then tap the correct step box.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
-{type:"sort",title:"Area and Pressure",q:"Sorting task: Tap one situation card first. Then tap High Pressure or Low Pressure.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
-{type:"tank",title:"Liquid Pressure Tank",q:"Tap the hole where pressure is greatest.",answer:"Bottom"},
-{type:"sequence",title:"Syringe Pressure Sequence",q:"Tap the steps in correct order.",steps:["Pull plunger","Volume inside increases","Pressure inside decreases","Liquid enters syringe"]},
-{type:"sort",title:"Fluid Pressure Facts",q:"Sorting task: Tap one statement card first. Then tap True or False.",cards:[["Liquids and gases are fluids","True"],["Liquid pressure increases with depth","True"],["Liquids exert pressure only downward","False"],["Denser liquids exert less pressure","False"]],zones:["True","False"]},
-{type:"balance",title:"Buoyant Force Balance",q:"Tap the condition in which an object floats.",answer:"Buoyant force > Weight"},
-{type:"sort",title:"Pressure Applications",q:"Sorting task: Tap one example card first. Then tap Area Increased or Area Reduced.",cards:[["Truck has many tyres","Area Increased"],["Sharp blade cuts object","Area Reduced"],["Caterpillar tracks of tank","Area Increased"],["Pointed nail pierces wood","Area Reduced"]],zones:["Area Increased","Area Reduced"]},
-{type:"sequence",title:"Crushing Can Experiment",q:"Tap the steps in correct order.",steps:["Heat can","Air expands and escapes","Invert in cold water","Outside pressure crushes can"]},
-{type:"sort",title:"Atmospheric or Liquid Pressure",q:"Sorting task: Tap one example card first. Then tap Atmospheric Pressure or Liquid Pressure.",cards:[["Suction cup sticks to wall","Atmospheric Pressure"],["Dam wall is thicker at bottom","Liquid Pressure"],["Barometer measures air pressure","Atmospheric Pressure"],["Scuba diver feels pressure at depth","Liquid Pressure"]],zones:["Atmospheric Pressure","Liquid Pressure"]}
+  {type:"formula",title:"Formula Builder",q:"Build the pressure formula correctly. Tap a tile first, then tap the correct step box.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
+  {type:"formula",title:"Unit Builder",q:"Build the unit relation correctly. Tap a tile first, then tap the correct step box.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
+  {type:"sort",title:"Area and Pressure",q:"Sorting task: Tap one situation card first. Then tap High Pressure or Low Pressure.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
+  {type:"tank",title:"Liquid Pressure Tank",q:"Tap the hole where Hydrostatic fluid pressure is greatest.",answer:"Bottom"},
+  {type:"sequence",title:"Syringe Pressure Sequence",q:"Tap the structural mechanical steps in correct mechanical order.",steps:["Pull plunger","Volume inside increases","Pressure inside decreases","Liquid enters syringe"]},
+  {type:"sort",title:"Fluid Pressure Facts",q:"Sorting task: Tap one statement card first. Then tap True or False.",cards:[["Liquids and gases are fluids","True"],["Liquid pressure increases with depth","True"],["Liquids exert pressure only downward","False"],["Denser liquids exert less pressure","False"]],zones:["True","False"]},
+  {type:"balance",title:"Buoyant Force Balance",q:"Tap the balance condition in which an object floats within fluid fields.",answer:"Buoyant force > Weight"},
+  {type:"sort",title:"Pressure Applications",q:"Sorting task: Tap one example card first. Then tap Area Increased or Area Reduced.",cards:[["Truck has many tyres","Area Increased"],["Sharp blade cuts object","Area Reduced"],["Caterpillar tracks of tank","Area Increased"],["Pointed nail pierces wood","Area Reduced"]],zones:["Area Increased","Area Reduced"]},
+  {type:"sequence",title:"Crushing Can Experiment",q:"Tap the experimental pressure steps in correct physical order.",steps:["Heat can","Air expands and escapes","Invert in cold water","Outside pressure crushes can"]},
+  {type:"sort",title:"Atmospheric or Liquid Pressure",q:"Sorting task: Tap one example card first. Then tap Atmospheric Pressure or Liquid Pressure.",cards:[["Suction cup sticks to wall","Atmospheric Pressure"],["Dam wall is thicker at bottom","Liquid Pressure"],["Barometer measures air pressure","Atmospheric Pressure"],["Scuba diver feels pressure at depth","Liquid Pressure"]],zones:["Atmospheric Pressure","Liquid Pressure"]}
 ];
 
-let order=[...levels].sort(()=>Math.random()-0.5);
+let order=[];
 let level=0,score=0,chances=2,locked=false,selected=null,placed=0,seqIndex=0,formulaBuilt=[];
 
 const loader=document.getElementById("loader");
@@ -106,7 +273,22 @@ const endScreen=document.getElementById("endScreen");
 
 window.onload=()=>setTimeout(()=>{loader.style.display="none";instructions.style.display="flex"},1200);
 
-function startGame(){instructions.style.display="none";loadLevel()}
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function startGame(){
+  instructions.style.display="none";
+  order = [...levels];
+  shuffleArray(order); // Unbiased shuffling of full game layout index
+  level=0;
+  score=0;
+  scoreEl();
+  loadLevel();
+}
 
 function loadLevel(){
   locked=false;selected=null;placed=0;seqIndex=0;formulaBuilt=[];chances=2;
@@ -117,6 +299,7 @@ function loadLevel(){
   levelNo.textContent=level+1;
   title.textContent="🧪 "+item.title;
   questionBox.textContent="Level "+(level+1)+". "+item.q;
+  
   if(item.type==="formula")buildFormula(item);
   if(item.type==="sort")buildSort(item);
   if(item.type==="tank")buildTank(item);
@@ -133,7 +316,10 @@ function buildFormula(item){
   });
 
   let tileRow=document.createElement("div");tileRow.className="row";
-  item.tiles.sort(()=>Math.random()-0.5).forEach(t=>{
+  let randomizedTiles = [...item.tiles];
+  shuffleArray(randomizedTiles);
+  
+  randomizedTiles.forEach(t=>{
     let tile=document.createElement("div");tile.className="tile";tile.textContent=t;
     tile.onclick=()=>{
       if(locked)return;
@@ -154,18 +340,19 @@ function placeFormula(slot){
   if(selected.textContent===slot.dataset.expected){
     slot.textContent=selected.textContent;
     slot.dataset.filled="yes";
+    slot.classList.remove("wrongFlash");
     slot.classList.add("correctFlash");
     formulaBuilt.push(selected.textContent);
     selected.remove();
     selected=null;
-    score+=5;
+    score+=4;
     scoreEl();
 
     if(formulaBuilt.length===order[level].slots.length){
-      correctNext(false);
+      correctNext(true, 0); // No extra flat bonus, incremental score added dynamically
     }
   }else{
-    wrong(order[level].answer);
+    wrong(order[level].answer, false);
   }
 }
 
@@ -178,7 +365,10 @@ function buildSort(item){
   let row=document.createElement("div");
   row.className="row";
 
-  item.cards.sort(()=>Math.random()-0.5).forEach(c=>{
+  let randomizedCards = [...item.cards];
+  shuffleArray(randomizedCards);
+
+  randomizedCards.forEach(c=>{
     let card=document.createElement("div");
     card.className="card";
     card.textContent=c[0];
@@ -188,7 +378,7 @@ function buildSort(item){
       selected=card;
       document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
       card.classList.add("selected");
-      msg("Selected: "+card.textContent+". Now tap: "+card.dataset.answer,"#38bdf8");
+      msg("Selected card. Now tap target zone: "+card.dataset.answer,"#38bdf8");
     };
     row.appendChild(card);
   });
@@ -215,16 +405,16 @@ function checkZone(zone,total){
     moveCardToZone(zone,selected);
     selected=null;
     placed++;
-    score+=5;
+    score+=3;
     scoreEl();
     correctSound.play();
-    msg("✅ Correct!","#22c55e");
+    msg("✅ Correct Zone Assignment!","#22c55e");
 
-    if(placed===total)correctNext(false);
+    if(placed===total)correctNext(true, 0);
   }else{
     zone.classList.add("wrongFlash");
     setTimeout(()=>zone.classList.remove("wrongFlash"),500);
-    wrong(selected.dataset.answer,true);
+    handleWrongSorting(selected.dataset.answer, total);
   }
 }
 
@@ -239,11 +429,21 @@ function moveCardToZone(zone,card){
 function buildTank(item){
   let tank=document.createElement("div");tank.className="tank";
 
-  [["Top","h1"],["Middle","h2"],["Bottom","h3"]].forEach(x=>{
+  let internalHoles = [["Top","h1"],["Middle","h2"],["Bottom","h3"]];
+  internalHoles.forEach(x=>{
     let h=document.createElement("div");
     h.className="hole "+x[1];
     h.textContent=x[0];
-    h.onclick=()=>x[0]===item.answer?correctNext():wrong(item.answer+" hole");
+    h.onclick=()=>{
+      if(locked) return;
+      if(x[0]===item.answer) {
+        correctNext(true, 10);
+      } else {
+        h.classList.add("wrongFlash");
+        setTimeout(()=>h.classList.remove("wrongFlash"),500);
+        wrong(item.answer+" hole", false);
+      }
+    };
     tank.appendChild(h);
   });
 
@@ -253,12 +453,15 @@ function buildTank(item){
 function buildSequence(item){
   let instruction=document.createElement("div");
   instruction.className="labBox";
-  instruction.textContent="Tap the steps one by one in the correct order.";
+  instruction.textContent="Tap the items one by one in the correct logical sequence flow.";
   gameArea.appendChild(instruction);
 
   let row=document.createElement("div");row.className="row";
 
-  item.steps.sort(()=>Math.random()-0.5).forEach(step=>{
+  let randomizedSteps = [...item.steps];
+  shuffleArray(randomizedSteps);
+
+  randomizedSteps.forEach(step=>{
     let c=document.createElement("div");
     c.className="seqCard";
     c.textContent=step;
@@ -269,15 +472,17 @@ function buildSequence(item){
         c.classList.add("correctFlash");
         c.style.pointerEvents="none";
         seqIndex++;
-        score+=5;
+        score+=3;
         scoreEl();
         correctSound.play();
 
         if(seqIndex===item.steps.length){
-          correctNext(false);
+          correctNext(true, 0);
         }
       }else{
-        wrong(item.steps.join(" → "));
+        c.classList.add("wrongFlash");
+        setTimeout(()=>c.classList.remove("wrongFlash"),500);
+        wrong(item.steps.join(" → "), false);
       }
     };
     row.appendChild(c);
@@ -289,56 +494,85 @@ function buildSequence(item){
 function buildBalance(item){
   let box=document.createElement("div");
   box.className="labBox";
-  box.textContent="⬆️ Buoyant Force     ⬇️ Weight";
+  box.textContent="⬆️ Buoyant Force     ⬇️ Weight Gravity";
 
   let row=document.createElement("div");
   row.className="row";
 
-  ["Buoyant force > Weight","Buoyant force < Weight","Buoyant force = 0"].forEach(x=>{
+  let structures = ["Buoyant force > Weight","Buoyant force < Weight","Buoyant force = 0"];
+  shuffleArray(structures);
+
+  structures.forEach(x=>{
     let b=document.createElement("div");
     b.className="object";
     b.textContent=x;
-    b.onclick=()=>x===item.answer?correctNext():wrong(item.answer);
+    b.onclick=()=>{
+      if(locked) return;
+      if(x===item.answer) {
+        correctNext(true, 10);
+      } else {
+        b.classList.add("wrongFlash");
+        setTimeout(()=>b.classList.remove("wrongFlash"),500);
+        wrong(item.answer, false);
+      }
+    };
     row.appendChild(b);
   });
 
   gameArea.append(box,row);
 }
 
-function wrong(ans,isSorting=false){
+function wrong(ans, isSorting=false){
   wrongSound.play();
   chances--;
   chancesEl();
 
   if(chances>0){
-    msg("❌ Try Again! Chances left: "+chances,"#ef4444");
+    msg("❌ Incorrect Parameter! Retrying Simulation...","#ef4444");
   }else{
     locked=true;
-    msg("Correct Answer: "+ans,"#ef4444");
-
-    if(isSorting && selected){
-      document.querySelectorAll(".zone").forEach(z=>{
-        if(z.dataset.zone===ans){
-          z.classList.add("correctFlash");
-          moveCardToZone(z,selected);
-          selected=null;
-        }
-      });
-    }
-
+    msg("Correct Matrix Sequence: "+ans,"#ef4444");
     level++;
-    setTimeout(loadLevel,2400);
+    setTimeout(loadLevel,2500);
   }
 }
 
-function correctNext(addScore=true){
+function handleWrongSorting(correctAnswerStr, totalCardsCount) {
+  wrongSound.play();
+  chances--;
+  chancesEl();
+
+  if(chances>0){
+    msg("❌ Incorrect Parameter! Retrying Simulation...","#ef4444");
+  } else {
+    locked=true;
+    msg("Correct Field: "+correctAnswerStr,"#ef4444");
+    
+    // Auto-solver fallback matrix for sorting card structures
+    if(selected){
+      document.querySelectorAll(".zone").forEach(z=>{
+        if(z.dataset.zone===correctAnswerStr){
+          z.classList.add("correctFlash");
+          moveCardToZone(z, selected);
+        }
+      });
+      selected=null;
+      placed++;
+    }
+    
+    level++;
+    setTimeout(loadLevel,2500);
+  }
+}
+
+function correctNext(addScore=true, scorePoints=10){
   if(addScore){
-    score+=10;
+    score+=scorePoints;
     scoreEl();
     correctSound.play();
   }
   locked=true;
-  msg("✅ Correct!","#22c55e");
+  msg("✅ Verification Successful!","#22c55e");
   level++;
   setTimeout(loadLevel,1300);
 }
