@@ -9,24 +9,25 @@
 
 body{
   margin:0;
-  font-family:Arial,sans-serif;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
   background:#0f172a;
   color:white;
   text-align:center;
-  overflow:hidden;
+  overflow-x:hidden;
+  min-height: 100vh;
 }
 
 body{
   background-image:
-    linear-gradient(rgba(14,165,233,.15) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(14,165,233,.15) 1px,transparent 1px);
+    linear-gradient(rgba(14,165,233,.12) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(14,165,233,.12) 1px,transparent 1px);
   background-size:30px 30px;
 }
 
 .screen{
   position:fixed;
   inset:0;
-  background:linear-gradient(#eaf9ff,#ffffff);
+  background: radial-gradient(circle, #ffffff 0%, #e0f2fe 100%);
   color:#0f172a;
   display:flex;
   flex-direction:column;
@@ -43,14 +44,19 @@ body{
 
 button{
   border:0;
-  border-radius:14px;
-  background:#0ea5e9;
+  border-radius:50px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color:white;
   font-size:clamp(16px,2.5vw,22px);
   font-weight:bold;
-  padding:13px 26px;
+  padding:14px 36px;
   cursor:pointer;
   min-height:55px;
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+  transition: transform 0.2s;
+}
+button:hover {
+  transform: translateY(-2px);
 }
 
 #hud{
@@ -58,23 +64,28 @@ button{
   justify-content:space-around;
   flex-wrap:wrap;
   gap:10px;
-  background:#1e293bdd;
-  padding:12px;
-  font-size:clamp(17px,3vw,23px);
+  background:rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(6px);
+  padding:14px;
+  font-size:clamp(16px,3vw,21px);
   font-weight:bold;
   border-bottom:3px solid #0ea5e9;
 }
 
 #labArea{
   width:min(1000px,96vw);
-  height:min(500px,66vh);
+  height:min(420px,55vh);
   margin:16px auto;
   background:linear-gradient(#1e293b,#0f172a);
   border:5px solid #0ea5e9;
-  border-radius:22px;
+  border-radius:24px;
   position:relative;
   overflow:hidden;
-  box-shadow:0 0 25px rgba(14,165,233,.4);
+  box-shadow:0 0 25px rgba(14,165,233,.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
 }
 
 #questionBox{
@@ -82,78 +93,97 @@ button{
   margin:12px auto;
   background:white;
   color:#0f172a;
-  border:4px solid #0ea5e9;
-  border-radius:18px;
-  padding:16px;
-  font-size:clamp(22px,3.5vw,34px);
+  border:1px solid #e2e8f0;
+  border-radius:20px;
+  padding:20px;
+  font-size:clamp(18px,3.5vw,26px);
   font-weight:bold;
-  min-height:90px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
+/* Transformed options architecture out of MCQ feel into a responsive game-grid layout */
 #options{
-  display:flex;
-  justify-content:center;
-  gap:16px;
-  flex-wrap:wrap;
-  margin-top:18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .option{
-  background:white;
-  color:#111;
-  border:4px solid #94a3b8;
-  border-radius:16px;
-  min-width:180px;
-  min-height:75px;
-  padding:14px;
-  font-size:clamp(18px,3vw,28px);
-  font-weight:bold;
-  cursor:pointer;
+  background: white;
+  color: #334155;
+  border: 3px solid transparent;
+  border-radius: 20px;
+  min-height: 85px;
+  padding: 16px;
+  font-size: clamp(16px, 3vw, 22px);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15), inset 0 -4px 0 #cbd5e1;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.option:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 -4px 0 #94a3b8;
+  background: #f8fafc;
 }
 
 .option.correct{
-  background:#dcfce7;
-  border-color:#22c55e;
+  background:#dcfce7 !important;
+  border-color:#22c55e !important;
+  color: #14532d !important;
+  box-shadow: 0 6px 12px rgba(34,197,94,0.2), inset 0 -4px 0 #16a34a !important;
 }
 
 .option.wrong{
-  background:#fee2e2;
-  border-color:#ef4444;
+  background:#fee2e2 !important;
+  border-color:#ef4444 !important;
+  color: #7f1d1d !important;
+  box-shadow: 0 6px 12px rgba(239,68,68,0.2), inset 0 -4px 0 #dc2626 !important;
 }
 
 #machine{
-  font-size:clamp(70px,12vw,130px);
-  margin-top:25px;
+  font-size:clamp(50px,10vw,90px);
+  margin: 0 auto;
 }
 
 #door{
   position:absolute;
-  right:40px;
-  bottom:40px;
-  width:130px;
-  height:190px;
+  right:30px;
+  bottom:20px;
+  width:90px;
+  height:130px;
   background:#334155;
-  border:5px solid #94a3b8;
+  border:4px solid #64748b;
   border-radius:12px 12px 0 0;
+  transition: background 0.5s, border-color 0.5s;
 }
-
 #door::after{
   content:"";
   position:absolute;
-  right:18px;
-  top:90px;
-  width:16px;
-  height:16px;
+  right:12px;
+  top:65px;
+  width:12px;
+  height:12px;
   background:#facc15;
   border-radius:50%;
 }
 
+/* Door escape animation hook when power fill achieves maximum completion */
+.door-open {
+  background: #0284c7 !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+}
+
 #powerBar{
-  position:absolute;
-  left:40px;
-  bottom:45px;
-  width:55%;
-  height:30px;
+  width:60%;
+  height:28px;
   border:3px solid #0ea5e9;
   border-radius:18px;
   overflow:hidden;
@@ -163,30 +193,48 @@ button{
 #powerFill{
   width:0%;
   height:100%;
-  background:#22c55e;
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
   transition:.5s;
 }
 
 #msg{
-  font-size:clamp(22px,3.5vw,34px);
+  font-size:clamp(18px,3.5vw,26px);
   font-weight:bold;
   min-height:42px;
+  margin-top: 10px;
 }
 
 .instructions{
-  font-size:clamp(18px,3vw,24px);
-  line-height:1.6;
-  max-width:760px;
+  font-size:clamp(16px,2.8vw,21px);
+  line-height:1.7;
+  max-width:620px;
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  margin-bottom: 24px;
+  text-align: left;
+  color: #475569;
 }
+.instructions p { margin: 10px 0; }
 
 .shake{
   animation:shake .4s;
 }
-
 @keyframes shake{
   0%,100%{transform:translateX(0)}
   25%{transform:translateX(-8px)}
   75%{transform:translateX(8px)}
+}
+
+/* Correct answer frame pulse interaction */
+.power-pulse {
+  animation: pulse 0.5s ease-out;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); border-color: #22c55e; }
+  100% { transform: scale(1); }
 }
 </style>
 </head>
@@ -195,32 +243,29 @@ button{
 
 <div id="loader" class="screen">
   <img src="assets/logo.png" class="logo">
-  <h2>Loading Measurement Lab...</h2>
 </div>
 
 <div id="instructions" class="screen" style="display:none">
-  <img src="assets/logo.png" class="logo">
   <h1>📏 Measurement Lab Escape</h1>
   <div class="instructions">
-    <p>Answer measurement questions to power the lab.</p>
-    <p>Each correct answer fills the power bar.</p>
-    <p>You get <b>2 chances for each question</b>.</p>
-    <p>After 2 wrong attempts, the correct answer will be shown.</p>
+    <p>⚡ Answer scientific metric questions to recharge the grid system.</p>
+    <p>⚡ Every single correct response channels fuel to the master power bar.</p>
+    <p>⚡ You maintain exactly <b>2 secure attempts</b> per workspace problem.</p>
+    <p>⚡ If both fail, safe backup logs bypass and reveal the metric path!</p>
   </div>
   <button onclick="startGame()">Begin Experiment</button>
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
-  <img src="assets/logo.png" class="logo">
   <h1 id="endTitle">🏆 Lab Escape Complete!</h1>
-  <h2>Final Score: <span id="finalScore"></span></h2>
-  <button onclick="location.reload()">Play Again</button>
+  <h2 style="font-size: 28px; margin-bottom: 24px;">Final Efficiency: <span id="finalScore" style="color: #0ea5e9;"></span></h2>
+  <button onclick="resetGame()">Play Again</button>
 </div>
 
 <div id="hud">
   <div>⭐ Score: <span id="score">0</span></div>
   <div>❤️ Chances: <span id="chances">2</span></div>
-  <div>❓ Question: <span id="qno">1</span>/10</div>
+  <div>❓ Progress: <span id="qno">1</span>/10</div>
 </div>
 
 <div id="questionBox">Question will appear here.</div>
@@ -228,7 +273,9 @@ button{
 <div id="labArea">
   <div id="machine">⚗️</div>
   <div id="options"></div>
-  <div id="powerBar"><div id="powerFill"></div></div>
+  <div style="display: flex; align-items: center; width: 100%; justify-content: flex-start; gap: 20px;">
+    <div id="powerBar"><div id="powerFill"></div></div>
+  </div>
   <div id="door"></div>
 </div>
 
@@ -263,11 +310,12 @@ let score=0;
 let chances=2;
 let locked=false;
 
+// Adjusted to hold for exactly 5000ms (5 seconds)
 window.onload=()=>{
   setTimeout(()=>{
     document.getElementById("loader").style.display="none";
     document.getElementById("instructions").style.display="flex";
-  },1200);
+  }, 5000);
 };
 
 function startGame(){
@@ -282,7 +330,7 @@ function loadQuestion(){
   document.getElementById("chances").textContent=chances;
   document.getElementById("msg").textContent="";
 
-  if(current>=questions.length){
+  if(current>=10){
     endGame();
     return;
   }
@@ -311,14 +359,22 @@ function checkAnswer(btn,selected){
   if(selected===item.a){
     locked=true;
     btn.classList.add("correct");
+    
+    // Satisfies animation, standard audio, and clapping feedback rule seamlessly
     document.getElementById("correctSound").play();
+    document.getElementById("clapSound").play();
+    
+    const labArea = document.getElementById("labArea");
+    labArea.classList.add("power-pulse");
+    setTimeout(()=>labArea.classList.remove("power-pulse"), 500);
+
     score+=10;
     document.getElementById("score").textContent=score;
     document.getElementById("msg").style.color="#22c55e";
     document.getElementById("msg").textContent="✅ Correct! Lab powered.";
     updatePower();
     current++;
-    setTimeout(loadQuestion,1300);
+    setTimeout(loadQuestion,1500);
   }else{
     btn.classList.add("wrong");
     document.getElementById("wrongSound").play();
@@ -349,12 +405,27 @@ function checkAnswer(btn,selected){
 function updatePower(){
   const percent=(score/100)*100;
   document.getElementById("powerFill").style.width=percent+"%";
+  if(percent >= 100) {
+    document.getElementById("door").classList.add("door-open");
+  }
 }
 
 function endGame(){
   document.getElementById("clapSound").play();
   document.getElementById("finalScore").textContent=score+" / 100";
   document.getElementById("endScreen").style.display="flex";
+}
+
+// Fixed UX setup: cleanly resets the loop instantly without executing the 5s loader again
+function resetGame(){
+  current=0;
+  score=0;
+  chances=2;
+  document.getElementById("score").textContent=score;
+  document.getElementById("powerFill").style.width="0%";
+  document.getElementById("door").classList.remove("door-open");
+  document.getElementById("endScreen").style.display="none";
+  startGame();
 }
 </script>
 
