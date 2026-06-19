@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Motion Lab Escape Room</title>
 
 <style>
@@ -13,8 +13,11 @@ body{
   font-family:Arial,sans-serif;
   background:linear-gradient(#dbeafe,#eff6ff);
   text-align:center;
-  overflow-x:hidden;
+  overflow:hidden; /* Strictly prevents viewport scrolling */
   color:#111;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .screen{
@@ -45,6 +48,11 @@ button{
   cursor:pointer;
   min-height:55px;
   margin:8px;
+  box-shadow: 0 4px 0 #1e40af;
+}
+button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1e40af;
 }
 
 #hud{
@@ -60,41 +68,46 @@ button{
 }
 
 #title{
-  font-size:clamp(30px,5vw,48px);
-  margin:14px 0 6px;
+  font-size:clamp(24px,4vw,36px);
+  margin:10px 0 4px;
   color:#1e3a8a;
 }
 
 #questionBox{
   width:min(950px,94vw);
-  margin:10px auto;
+  margin:4px auto;
   background:white;
   border:4px solid #2563eb;
   border-radius:18px;
-  padding:16px;
-  font-size:clamp(22px,3.5vw,34px);
+  padding:12px;
+  font-size:clamp(18px,2.8vw,26px);
   font-weight:bold;
-  min-height:90px;
+  min-height:75px;
 }
 
 #room{
   width:min(1050px,96vw);
-  min-height:min(540px,68vh);
-  margin:12px auto;
+  margin:8px auto;
   background:linear-gradient(#bfdbfe,#eff6ff);
   border:6px solid #1e40af;
   border-radius:24px;
-  padding:20px;
+  padding:15px;
   box-shadow:0 0 20px rgba(37,99,235,.35);
   position:relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .row{
   display:flex;
   justify-content:center;
   flex-wrap:wrap;
-  gap:16px;
-  margin:18px auto;
+  gap:12px;
+  margin:10px auto;
+  width: 100%;
 }
 
 .tile,.slot,.zone,.object,.dialOption,.graphCard{
@@ -102,16 +115,17 @@ button{
   color:#111;
   border:4px solid #2563eb;
   border-radius:16px;
-  padding:14px;
-  min-width:160px;
-  min-height:75px;
-  font-size:clamp(18px,3vw,26px);
+  padding:10px;
+  min-width:140px;
+  min-height:65px;
+  font-size:clamp(16px,2.5vw,22px);
   font-weight:bold;
   cursor:pointer;
   display:flex;
   justify-content:center;
   align-items:center;
   text-align:center;
+  box-shadow: 0 4px 0 #bfdbfe;
 }
 
 .tile.selected{
@@ -123,7 +137,7 @@ button{
 .slot,.zone{
   background:#dbeafe;
   border-style:dashed;
-  min-height:120px;
+  min-height:100px;
   flex-direction:column;
 }
 
@@ -131,9 +145,9 @@ button{
   background:#dcfce7;
   border:2px solid #22c55e;
   border-radius:10px;
-  padding:8px;
-  margin:6px;
-  font-size:clamp(16px,2.5vw,21px);
+  padding:6px;
+  margin:4px;
+  font-size:clamp(14px,2.2vw,19px);
 }
 
 .correctFlash{
@@ -151,37 +165,39 @@ button{
   background:white;
   border:4px solid #2563eb;
   border-radius:18px;
-  padding:16px;
-  margin:14px auto;
+  padding:10px;
+  margin:4px auto;
   width:min(780px,92vw);
-  font-size:clamp(22px,4vw,36px);
+  font-size:clamp(16px,3vw,26px);
   font-weight:bold;
 }
 
 #msg{
-  font-size:clamp(22px,3.5vw,34px);
+  font-size:clamp(18px,3vw,26px);
   font-weight:bold;
-  min-height:42px;
+  min-height:36px;
+  margin-bottom: 5px;
 }
 
 .instructions{
-  font-size:clamp(18px,3vw,24px);
+  font-size:clamp(16px,2.5vw,22px);
   line-height:1.6;
   max-width:780px;
+  color: #334155;
 }
 
 .door{
-  width:190px;
-  height:250px;
+  width:140px;
+  height:180px;
   background:#7c2d12;
-  border:8px solid #451a03;
-  border-radius:90px 90px 12px 12px;
-  margin:20px auto;
+  border:6px solid #451a03;
+  border-radius:70px 70px 12px 12px;
+  margin:10px auto;
   color:white;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:60px;
+  font-size:45px;
 }
 
 .openDoor{
@@ -196,19 +212,19 @@ button{
 }
 
 .pendulum{
-  width:260px;
-  height:250px;
-  margin:20px auto;
+  width:220px;
+  height:180px;
+  margin:10px auto;
   position:relative;
-  border-top:8px solid #111;
+  border-top:6px solid #111;
 }
 
 .string{
   position:absolute;
   top:0;
-  left:125px;
-  width:5px;
-  height:150px;
+  left:107px;
+  width:4px;
+  height:110px;
   background:#111;
   transform-origin:top;
   animation:swing 2s infinite ease-in-out;
@@ -216,10 +232,10 @@ button{
 
 .bob{
   position:absolute;
-  bottom:-35px;
-  left:-28px;
-  width:60px;
-  height:60px;
+  bottom:-25px;
+  left:-20px;
+  width:45px;
+  height:45px;
   background:#f97316;
   border-radius:50%;
   border:4px solid #111;
@@ -232,8 +248,8 @@ button{
 }
 
 .graph{
-  width:220px;
-  height:160px;
+  width:160px;
+  height:120px;
   background:white;
   border:4px solid #111;
   position:relative;
@@ -243,9 +259,9 @@ button{
 .graph::before{
   content:"";
   position:absolute;
-  left:25px;
-  bottom:25px;
-  width:165px;
+  left:20px;
+  bottom:20px;
+  width:120px;
   height:4px;
   background:#111;
 }
@@ -253,19 +269,19 @@ button{
 .graph::after{
   content:"";
   position:absolute;
-  left:25px;
-  bottom:25px;
+  left:20px;
+  bottom:20px;
   width:4px;
-  height:110px;
+  height:80px;
   background:#111;
 }
 
 .lineStraight,.lineFlat,.lineCurve{
   position:absolute;
-  left:40px;
-  bottom:40px;
-  width:130px;
-  height:70px;
+  left:30px;
+  bottom:30px;
+  width:90px;
+  height:50px;
 }
 
 .lineStraight{
@@ -295,7 +311,6 @@ button{
 
 <div id="loader" class="screen">
   <img src="assets/logo.png" class="logo">
-  <h2>Loading Motion Lab Escape Room...</h2>
 </div>
 
 <div id="startScreen" class="screen" style="display:none">
@@ -313,7 +328,7 @@ button{
 <div id="endScreen" class="screen" style="display:none">
   <img src="assets/logo.png" class="logo">
   <h1>🏆 Lab Escaped!</h1>
-  <h2>Final Score: <span id="finalScore"></span></h2>
+  <h2>Final Score: <span id="finalScore"></span> / 100</h2>
   <button onclick="location.reload()">Play Again</button>
 </div>
 
@@ -446,7 +461,7 @@ window.onload=()=>{
   setTimeout(()=>{
     loader.style.display="none";
     startScreen.style.display="flex";
-  },1200);
+  }, 5000); // 5000ms delay holds purely branding window
 };
 
 function startGame(){
@@ -493,7 +508,7 @@ function buildDevice(item){
   const row=document.createElement("div");
   row.className="row";
 
-  item.options.sort(()=>Math.random()-0.5).forEach(opt=>{
+  [...item.options].sort(()=>Math.random()-0.5).forEach(opt=>{
     const card=document.createElement("div");
     card.className="object";
     card.textContent=opt;
@@ -528,7 +543,7 @@ function buildFormula(item){
   const tileRow=document.createElement("div");
   tileRow.className="row";
 
-  item.tiles.sort(()=>Math.random()-0.5).forEach(t=>{
+  [...item.tiles].sort(()=>Math.random()-0.5).forEach(t=>{
     const tile=document.createElement("div");
     tile.className="tile";
     tile.textContent=t;
@@ -574,7 +589,7 @@ function buildSort(item){
   const cardRow=document.createElement("div");
   cardRow.className="row";
 
-  item.cards.sort(()=>Math.random()-0.5).forEach(c=>{
+  [...item.cards].sort(()=>Math.random()-0.5).forEach(c=>{
     const card=document.createElement("div");
     card.className="tile";
     card.textContent=c[0];
@@ -585,7 +600,7 @@ function buildSort(item){
       selected=card;
       document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));
       card.classList.add("selected");
-      msg("Selected: "+card.textContent+". Now tap: "+card.dataset.answer,"#2563eb");
+      msg("Selected: "+card.textContent+". Now tap its zone.","#2563eb");
     };
 
     cardRow.appendChild(card);
@@ -615,7 +630,7 @@ function checkZone(zone,total){
     placed++;
     score+=5;
     updateHUD();
-    correctSound.play();
+    document.getElementById("correctSound").play();
     msg("✅ Correct!","#22c55e");
 
     if(placed===total){
@@ -717,7 +732,7 @@ function buildSequence(item){
   const row=document.createElement("div");
   row.className="row";
 
-  item.steps.sort(()=>Math.random()-0.5).forEach(step=>{
+  [...item.steps].sort(()=>Math.random()-0.5).forEach(step=>{
     const card=document.createElement("div");
     card.className="object";
     card.textContent=step;
@@ -731,7 +746,7 @@ function buildSequence(item){
         seqIndex++;
         score+=5;
         updateHUD();
-        correctSound.play();
+        document.getElementById("correctSound").play();
 
         if(seqIndex===item.steps.length){
           correctNext(false);
@@ -761,7 +776,7 @@ function checkSimple(btn,selectedAns,answer){
 }
 
 function wrong(answer,isSorting=false){
-  wrongSound.play();
+  document.getElementById("wrongSound").play();
   chances--;
   updateHUD();
 
@@ -790,7 +805,7 @@ function correctNext(addScore=true){
   if(addScore){
     score+=10;
     updateHUD();
-    correctSound.play();
+    document.getElementById("correctSound").play();
   }
 
   locked=true;
@@ -818,7 +833,7 @@ function msg(text,color){
 }
 
 function endGame(){
-  clapSound.play();
+  document.getElementById("clapSound").play();
   finalScore.textContent=score;
   endScreen.style.display="flex";
 }
