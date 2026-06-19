@@ -10,133 +10,215 @@
 
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:linear-gradient(#87ceeb,#e0f2fe);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle, #f0fdf4 0%, #dbeafe 100%);
+  min-height: 100vh;
   text-align:center;
-  overflow:hidden;
+  overflow-x:hidden;
+  color: #1e293b;
 }
 
 .screen{
   position:fixed;
   inset:0;
-  background:linear-gradient(#eaf9ff,#ffffff);
+  background: radial-gradient(circle, #ffffff 0%, #e0f2fe 100%);
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   z-index:50;
-  padding:20px;
+  padding:24px;
 }
 
 .logo{
-  width:min(180px,55vw);
-  margin-bottom:18px;
+  width:min(200px,60vw);
+  margin-bottom:24px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+h1 {
+  font-size: clamp(26px, 5vw, 42px);
+  color: #1e3a8a;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 button{
   border:0;
-  border-radius:14px;
-  padding:13px 24px;
-  font-size:clamp(16px,2.5vw,22px);
+  border-radius:50px;
+  padding:16px 40px;
+  font-size:clamp(18px,2.5vw,24px);
   font-weight:bold;
-  background:#2563eb;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color:white;
   cursor:pointer;
-  min-height:55px;
+  min-height:60px;
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.4);
+  transition: all 0.2s ease;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(29, 78, 216, 0.5);
+}
+button:active {
+  transform: translateY(0);
 }
 
 #dashboard{
-  width:100%;
-  background:#1e293b;
-  color:white;
-  padding:12px;
-  display:flex;
-  justify-content:space-around;
-  flex-wrap:wrap;
-  gap:10px;
-  font-size:clamp(17px,3vw,23px);
-  font-weight:bold;
+  width: 100%;
+  max-width: 900px;
+  margin: 20px auto 0 auto;
+  background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 16px 28px;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 20px;
+  gap: 10px;
+  font-size: clamp(16px, 3vw, 20px);
+  font-weight: bold;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.dash-stat {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 8px 18px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #track{
   width:min(900px,94vw);
-  height:120px;
-  background:#475569;
-  margin:20px auto;
-  border-radius:60px;
+  height:140px;
+  background: linear-gradient(180deg, #1e293b 0%, #475569 100%);
+  margin:25px auto;
+  border-radius:70px;
   position:relative;
   overflow:hidden;
+  border: 6px solid #f1f5f9;
+  box-shadow: inset 0 6px 12px rgba(0,0,0,0.4), 0 12px 24px rgba(0,0,0,0.15);
 }
 
 #track::before{
   content:"";
   position:absolute;
   width:100%;
-  height:4px;
-  border-top:4px dashed rgba(255,255,255,.6);
-  top:55px;
+  height:0;
+  border-top:5px dashed rgba(255,255,255,0.4);
+  top:67px;
   left:0;
 }
 
 #finish-line{
   position:absolute;
-  right:35px;
-  width:20px;
+  right:50px;
+  width:26px;
   height:100%;
-  background:repeating-linear-gradient(45deg,#fff 0 10px,#000 10px 20px);
+  background:repeating-linear-gradient(45deg,#fff 0 12px,#000 12px 24px);
+  box-shadow: -4px 0 10px rgba(0,0,0,0.3);
 }
 
 #car{
   position:absolute;
   left:20px;
-  top:36px;
-  font-size:44px;
+  top:30px;
+  font-size:56px;
   transform:scaleX(-1);
-  transition:left .5s;
+  transition: left 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index:3;
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,0.25));
 }
 
 #game-card{
-  background:white;
-  width:min(650px,92vw);
-  margin:10px auto;
-  padding:22px;
-  border-radius:20px;
-  box-shadow:0 8px 18px rgba(0,0,0,.18);
+  background: transparent;
+  width: min(900px, 94vw);
+  margin: 10px auto 40px auto;
+  padding: 10px;
+}
+
+#question-box {
+  background: white;
+  padding: 30px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  margin-bottom: 25px;
+  border: 1px solid rgba(255,255,255,0.8);
 }
 
 #question-text{
-  font-size:clamp(22px,4vw,34px);
+  font-size:clamp(22px, 4vw, 30px);
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+/* Grid layout transforms the feel completely away from an MCQ list */
+#options-container{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .option-btn{
-  display:block;
-  width:100%;
-  padding:14px;
-  margin:10px 0;
-  border:3px solid #cbd5e1;
-  border-radius:14px;
-  background:white;
-  color:#111;
-  font-size:clamp(17px,3vw,24px);
-  font-weight:bold;
-  cursor:pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+  padding: 20px;
+  border: 3px solid transparent;
+  border-radius: 24px;
+  background: white;
+  color: #334155;
+  font-size: clamp(16px, 2.8vw, 20px);
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04), inset 0 -4px 0 #cbd5e1;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.option-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08), inset 0 -4px 0 #94a3b8;
 }
 
-.correct{background:#dcfce7!important;border-color:#22c55e}
-.wrong{background:#fee2e2!important;border-color:#ef4444}
+.correct{
+  background: #bbf7d0 !important;
+  border-color: #22c55e !important;
+  color: #14532d !important;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3), inset 0 -4px 0 #16a34a !important;
+  transform: translateY(-2px);
+}
+.wrong{
+  background: #fecaca !important;
+  border-color: #ef4444 !important;
+  color: #7f1d1d !important;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3), inset 0 -4px 0 #dc2626 !important;
+  transform: translateY(0);
+}
 
 #feedback-msg{
-  font-size:clamp(20px,3vw,28px);
-  font-weight:bold;
-  min-height:36px;
+  font-size: clamp(20px, 3.2vw, 26px);
+  font-weight: 800;
+  min-height: 40px;
+  margin-top: 10px;
 }
 
 .instructions{
-  font-size:clamp(18px,3vw,24px);
-  line-height:1.6;
-  max-width:720px;
+  font-size:clamp(17px,2.8vw,21px);
+  line-height:1.7;
+  max-width:600px;
+  background: white;
+  padding: 30px;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+  text-align: left;
+  color: #475569;
 }
+.instructions p { margin: 12px 0; }
 
 .shake{animation:shake .4s}
 @keyframes shake{
@@ -145,11 +227,10 @@ button{
   75%{transform:translateX(10px)}
 }
 
-/* Celebration bounce for correct answers */
 .bounce{animation:bounce 0.6s ease}
 @keyframes bounce{
   0%,100%{transform:scale(1) scaleX(-1)}
-  50%{transform:scale(1.2) scaleX(-1);color:#eab308}
+  50%{transform:scale(1.3) scaleX(-1)}
 }
 </style>
 </head>
@@ -164,25 +245,25 @@ button{
   <img src="assets/logo.png" class="logo">
   <h1>🚗 Science Mission: Forward Dash</h1>
   <div class="instructions">
-    <p>Read the science question carefully.</p>
-    <p>Choose the correct answer to move the car forward.</p>
-    <p>You get <b>2 chances per question</b>.</p>
-    <p>After 2 wrong attempts, the correct answer will be revealed.</p>
+    <p>⚡ <b>Read your engine readout</b> at the top card.</p>
+    <p>⚡ <b>Select an Action Tile</b> to boost your race car forward.</p>
+    <p>⚡ You have exactly <b>2 attempts</b> per power station.</p>
+    <p>⚡ If both fail, your emergency navigation automatically corrects your course!</p>
   </div>
-  <button onclick="startGame()">Start Mission</button>
+  <button onclick="startGame()">Launch Game</button>
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
   <img src="assets/logo.png" class="logo">
   <h1 id="endTitle">Mission Complete!</h1>
-  <h2>Final Score: <span id="finalScore"></span></h2>
-  <button onclick="resetGame()">Play Again</button>
+  <h2 style="font-size: 32px; margin-bottom:28px;">Final Efficiency: <span id="finalScore" style="color:#2563eb;"></span></h2>
+  <button onclick="resetGame()">Restart Mission</button>
 </div>
 
 <div id="dashboard">
-  <span>🏆 Score: <span id="score">0</span></span>
-  <span>❤️ Chances: <span id="chances">2</span></span>
-  <span>❓ Question: <span id="qno">1</span>/<span id="qtotal">15</span></span>
+  <span class="dash-stat">🏆 Score: <span id="score">0</span></span>
+  <span class="dash-stat">❤️ Shields: <span id="chances">2</span></span>
+  <span class="dash-stat">🏁 Progress: <span id="qno">1</span>/10</span>
 </div>
 
 <div id="track">
@@ -191,7 +272,9 @@ button{
 </div>
 
 <main id="game-card">
-  <h2 id="question-text">Question will appear here.</h2>
+  <div id="question-box">
+    <h2 id="question-text">Loading Dashboard readout...</h2>
+  </div>
   <div id="options-container"></div>
   <p id="feedback-msg"></p>
 </main>
@@ -201,7 +284,6 @@ button{
 <audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
 
 <script>
-// Expanded question pool containing 15 distinct application-based science questions (Grade 4-6 Level)
 const bank=[
   {q:"What is a force?", o:["Energy","A push or pull","Motion","Mass"], a:"A push or pull"},
   {q:"Which force pulls objects towards Earth?", o:["Friction","Gravity","Magnetism","Electric force"], a:"Gravity"},
@@ -217,8 +299,7 @@ const bank=[
   {q:"What energy transformation happens when a flashlight is turned on?", o:["Chemical to Light","Kinetic to Sound","Solar to Heat","Nuclear to Kinetic"], a:"Chemical to Light"},
   {q:"An apple falling from a tree displays what energy conversion?", o:["Kinetic to Potential","Potential to Kinetic","Electrical to Thermal","Chemical to Light"], a:"Potential to Kinetic"},
   {q:"Which of the following is an example of an unbalanced force?", o:["A book sitting still on a desk","A car accelerating down the street","A house frame holding up a roof","A rock resting on the ground"], a:"A car accelerating down the street"},
-  {q:"What tool is used to measure the weight or gravitational pull on an object?", o:["Thermometer","Ruler","Spring Balance","Anemometer"], a://Spring Balance
-  "Spring Balance"}
+  {q:"What tool is used to measure the weight or gravitational pull on an object?", o:["Thermometer","Ruler","Spring Balance","Anemometer"], a:"Spring Balance"}
 ];
 
 let questions=[];
@@ -228,7 +309,6 @@ let chances=2;
 let carPos=20;
 let locked=false;
 
-// Corrected to exactly 5000ms (5 seconds) with logo only visible
 window.onload=()=>{
   setTimeout(()=>{
     document.getElementById("loader").style.display="none";
@@ -238,8 +318,7 @@ window.onload=()=>{
 
 function startGame(){
   document.getElementById("instructions").style.display="none";
-  questions=[...bank].sort(()=>Math.random()-0.5);
-  document.getElementById("qtotal").textContent=questions.length;
+  questions=[...bank].sort(()=>Math.random()-0.5).slice(0, 10);
   loadQuestion();
 }
 
@@ -249,7 +328,7 @@ function loadQuestion() {
   document.getElementById("chances").textContent=chances;
   document.getElementById("feedback-msg").textContent="";
 
-  if(current>=questions.length){
+  if(current>=10){
     endGame();
     return;
   }
@@ -272,26 +351,22 @@ function loadQuestion() {
 
 function checkAnswer(btn,selected){
   if(locked)return;
-
   const q=questions[current];
 
   if(selected===q.a){
     locked=true;
     btn.classList.add("correct");
-    
-    // Play both Audio feedbacks as per instruction guidelines
     document.getElementById("correctSound").play();
     document.getElementById("clapSound").play();
     
-    // Add visual car celebration animation
     const car = document.getElementById("car");
     car.classList.add("bounce");
     setTimeout(()=>car.classList.remove("bounce"), 600);
 
     score+=10;
     document.getElementById("score").textContent=score;
-    document.getElementById("feedback-msg").style.color="green";
-    document.getElementById("feedback-msg").textContent="✅ Correct!";
+    document.getElementById("feedback-msg").style.color="#16a34a";
+    document.getElementById("feedback-msg").textContent="🚀 Speed Boost Activated!";
     moveCarForward();
     current++;
     setTimeout(loadQuestion,1500);
@@ -304,13 +379,13 @@ function checkAnswer(btn,selected){
     setTimeout(()=>document.body.classList.remove("shake"),400);
 
     if(chances>0){
-      document.getElementById("feedback-msg").style.color="red";
-      document.getElementById("feedback-msg").textContent="❌ Try Again!";
+      document.getElementById("feedback-msg").style.color="#dc2626";
+      document.getElementById("feedback-msg").textContent="💥 Engine sputtering! Recalibrate and try again.";
       setTimeout(()=>btn.classList.remove("wrong"),700);
     }else{
       locked=true;
-      document.getElementById("feedback-msg").style.color="red";
-      document.getElementById("feedback-msg").textContent="Correct Answer: "+q.a;
+      document.getElementById("feedback-msg").style.color="#dc2626";
+      document.getElementById("feedback-msg").textContent="Auto-Pilot Target: "+q.a;
 
       document.querySelectorAll(".option-btn").forEach(b=>{
         if(b.textContent===q.a)b.classList.add("correct");
@@ -324,8 +399,7 @@ function checkAnswer(btn,selected){
 
 function moveCarForward(){
   const trackWidth=document.getElementById("track").offsetWidth;
-  // Dynamic step scale based on the updated question pool array size
-  const steps = (trackWidth - 140) / questions.length;
+  const steps = (trackWidth - 140) / 10;
   carPos+=Math.floor(steps);
   carPos=Math.min(carPos,trackWidth-100);
   document.getElementById("car").style.left=carPos+"px";
@@ -333,8 +407,8 @@ function moveCarForward(){
 
 function endGame(){
   document.getElementById("clapSound").play();
-  document.getElementById("finalScore").textContent=score+" / "+(questions.length*10);
-  document.getElementById("endTitle").textContent="🏁 Mission Complete!";
+  document.getElementById("finalScore").textContent=score+" / 100";
+  document.getElementById("endTitle").textContent="🏁 Checkered Flag! Race Complete!";
   document.getElementById("endScreen").style.display="flex";
 }
 
