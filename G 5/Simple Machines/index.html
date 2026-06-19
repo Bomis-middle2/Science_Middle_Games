@@ -124,6 +124,13 @@ h1{font-size:clamp(20px,4vw,32px);color:#1e3a8a;margin:8px 0 4px 0;}
   font-weight:bold;
   margin-bottom: 4px;
 }
+.instructions{
+  font-size:clamp(16px,2.8vw,22px);
+  line-height:1.6;
+  max-width:600px;
+  color:#334155;
+  margin-bottom: 10px;
+}
 @keyframes shake{
   0%,100%{transform:translateX(0)}
   25%{transform:translateX(-6px)}
@@ -140,6 +147,12 @@ h1{font-size:clamp(20px,4vw,32px);color:#1e3a8a;margin:8px 0 4px 0;}
 
 <div id="instructions" class="screen" style="display:none">
   <img src="assets/logo.png" class="logo">
+  <h1>⚙️ Simple Machines Match-Up</h1>
+  <div class="instructions">
+    <p>Select or drag each object into the correct simple machine group.</p>
+    <p>You get <b>2 chances for each object</b>.</p>
+    <p>After 2 wrong attempts, the correct group will be shown.</p>
+  </div>
   <button onclick="startGame()">Start Game</button>
 </div>
 
@@ -201,7 +214,7 @@ let done=0;
 let chances=2;
 let currentWrongItem=null;
 
-// Holds the loader view for exactly 5000ms
+// Holds the loader view for exactly 5000ms, then loads instructions
 window.onload=()=>{
   setTimeout(()=>{
     document.getElementById("loader").style.display="none";
