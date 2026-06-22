@@ -39,6 +39,15 @@ button{
   padding:12px 24px;
   cursor:pointer;
   margin-top: 15px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+button:hover{
+  background:#1d4ed8;
+  transform: translateY(-2px);
+}
+button:active{
+  transform: translateY(0);
 }
 h1{font-size:clamp(20px,4vw,32px);color:#1e3a8a;margin:8px 0 4px 0;}
 #hud{
@@ -131,10 +140,76 @@ h1{font-size:clamp(20px,4vw,32px);color:#1e3a8a;margin:8px 0 4px 0;}
   color:#334155;
   margin-bottom: 10px;
 }
+
+/* Beautiful End Screen Styles */
+#endScreen {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.end-card {
+  background: white;
+  padding: 35px 25px;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  max-width: 420px;
+  width: 90%;
+  transform: scale(0.9);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.end-title {
+  font-size: 28px;
+  color: #1e3a8a;
+  margin: 0 0 10px 0;
+  font-weight: 800;
+}
+.end-feedback {
+  font-size: 18px;
+  color: #64748b;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+.score-badge {
+  background: linear-gradient(135deg, #fef08a 0%, #fef9c3 100%);
+  border: 3px solid #eab308;
+  padding: 15px 25px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 16px rgba(234, 179, 8, 0.15);
+}
+.score-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #854d0e;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+#finalScore {
+  font-size: 42px;
+  font-weight: 900;
+  color: #854d0e;
+}
+.btn-replay {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  width: 100%;
+  padding: 14px;
+  margin-top: 5px;
+}
+.btn-replay:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
 @keyframes shake{
   0%,100%{transform:translateX(0)}
   25%{transform:translateX(-6px)}
   75%{transform:translateX(8px)}
+}
+@keyframes popIn {
+  to { transform: scale(1); }
 }
 </style>
 </head>
@@ -146,7 +221,6 @@ h1{font-size:clamp(20px,4vw,32px);color:#1e3a8a;margin:8px 0 4px 0;}
 </div>
 
 <div id="instructions" class="screen" style="display:none">
- 
   <h1>⚙️ Simple Machines Match-Up</h1>
   <div class="instructions">
     <p>Select or drag each object into the correct simple machine group.</p>
@@ -157,9 +231,17 @@ h1{font-size:clamp(20px,4vw,32px);color:#1e3a8a;margin:8px 0 4px 0;}
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
-
-  <h2 style="color:#1e3a8a; margin: 10px 0;">Final Score: <span id="finalScore"></span></h2>
-  <button onclick="location.reload()">Play Again</button>
+  <div class="end-card">
+    <div class="end-title">🎉 Game Completed!</div>
+    <div id="endFeedback" class="end-feedback">Amazing job completing the match-up!</div>
+    
+    <div class="score-badge">
+      <div class="score-label">Final Score</div>
+      <div id="finalScore">0 / 100</div>
+    </div>
+    
+    <button class="btn-replay" onclick="location.reload()">Play Again 🔄</button>
+  </div>
 </div>
 
 <div id="hud">
@@ -214,7 +296,6 @@ let done=0;
 let chances=2;
 let currentWrongItem=null;
 
-// Holds the loader view for exactly 5000ms, then loads instructions
 window.onload=()=>{
   setTimeout(()=>{
     document.getElementById("loader").style.display="none";
@@ -359,6 +440,17 @@ function showMsg(text,color){
 
 function endGame(){
   document.getElementById("clapSound").play();
+  
+  // Set custom dynamic feedback messages based on performance
+  const feedbackEl = document.getElementById("endFeedback");
+  if(score === 100) {
+    feedbackEl.textContent = "Perfect Score! You're a Simple Machines Master! 🌟";
+  } else if(score >= 70) {
+    feedbackEl.textContent = "Great job! Excellent understanding of physics! 💪";
+  } else {
+    feedbackEl.textContent = "Good effort! Practice makes perfect. Try again! ⚙️";
+  }
+
   document.getElementById("finalScore").textContent=score+" / 100";
   document.getElementById("endScreen").style.display="flex";
 }
