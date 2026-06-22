@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>G8 Science Ch 1 - Force Field Lab</title>
+<title>Force Field</title>
 
 <style>
 *{box-sizing:border-box}
@@ -49,6 +49,7 @@ button{
   cursor:pointer;
   min-height:55px;
   box-shadow: 0 4px 0 #1e40af;
+  transition: all 0.15s ease;
 }
 button:active {
   transform: translateY(2px);
@@ -215,10 +216,80 @@ button:active {
   font-weight:bold;
 }
 
+/* Beautiful End Screen Style Upgrade */
+#endScreen {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 58, 138, 0.95));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+}
+.end-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px 30px;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 480px;
+  width: 92%;
+  transform: scale(0.9);
+  animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.end-title {
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+  background: linear-gradient(to right, #38bdf8, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.end-feedback {
+  font-size: clamp(15px, 2.2vw, 19px);
+  color: #cbd5e1;
+  margin-bottom: 25px;
+  line-height: 1.4;
+}
+.score-badge {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 3px solid #38bdf8;
+  padding: 20px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 30px;
+  min-width: 220px;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+}
+.score-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+#finalScore {
+  font-size: 48px;
+  font-weight: 900;
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+.btn-replay {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  width: 100%;
+  border-radius: 16px;
+}
+.btn-replay:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  transform: translateY(-2px);
+}
+
 @keyframes shake{
   0%,100%{transform:translateX(0)}
   25%{transform:translateX(-8px)}
   75%{transform:translateX(8px)}
+}
+@keyframes popIn {
+  to { transform: scale(1); }
 }
 </style>
 </head>
@@ -227,12 +298,10 @@ button:active {
 
 <div id="loader" class="screen">
   <img src="assets/logo.png" class="logo">
-
 </div>
 
 <div id="instructions" class="screen" style="display:none">
-  
-  <h1>⚡ Force Field Lab</h1>
+  <h1>⚡ Force Field</h1>
   <div class="instructions">
     <p>Complete force-based lab challenges to unlock levels.</p>
     <p><b>Sorting levels:</b> first tap a card, then tap the correct target group box.</p>
@@ -243,10 +312,17 @@ button:active {
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
- 
-  <h1>🏆 Force Lab Complete!</h1>
-  <h2>Your Final Score: <span id="finalScore"></span> / 100</h2>
-  <button onclick="location.reload()">Play Again</button>
+  <div class="end-card">
+    <div class="end-title">🏆Evaluation Complete</div>
+    <div id="endFeedback" class="end-feedback">You have successfully navigated through the engineering fields!</div>
+    
+    <div class="score-badge">
+      <div class="score-label">Total Performance</div>
+      <div id="finalScore">0</div>
+    </div>
+    
+    <button class="btn-replay" onclick="location.reload()">Run Lab Again 🔄</button>
+  </div>
 </div>
 
 <div id="hud">
@@ -342,7 +418,7 @@ const allLevels=[
     type:"choice",
     title:"Mass and Weight",
     q:"Which cosmic gravitational mass statement is scientifically correct?",
-    visual:"🌍 Earth     🌕 Moon",
+    visual:"🌍 Earth      🌕 Moon",
     options:["Mass changes from place to place","Weight changes with gravity","Mass is measured in newton"],
     ans:"Weight changes with gravity"
   },
@@ -400,11 +476,11 @@ const allLevels=[
   },
   {
     type:"choice",
-    title:"Tension Force Field",
-    q:"When a heavy rock is suspended steadily by a thick rope, what force opposes gravity inside the rope?",
-    visual:"🪨 Suspended Rock Apparatus",
-    options:["Tension forcefield","Magnetic forcefield","Frictional resistance"],
-    ans:"Tension forcefield"
+    title:"Magnetism Field Force Lab",
+    q:"An elegant magnetic cabinet door mechanism snaps tightly shut on its own when closed near its frame. What non-contact force is responsible?",
+    visual:"🗄️ Cabinet Magnet Mechanism",
+    options:["Magnetic Force","Electrostatic Force","Frictional Resistance"],
+    ans:"Magnetic Force"
   }
 ];
 
@@ -414,6 +490,7 @@ let score=0;
 let chances=2;
 let selectedCard=null;
 let correctPlaced=0;
+let cardsInLevel=0;
 let locked=false;
 
 window.onload=()=>{
@@ -433,7 +510,6 @@ function shuffleArray(arr) {
 function startGame(){
   document.getElementById("instructions").style.display="none";
   
-  // Choose 10 random unique force levels out of our 15 force pool
   let pool = [...allLevels];
   shuffleArray(pool);
   order = pool.slice(0, 10);
@@ -462,11 +538,13 @@ function loadLevel(){
   const item=order[level];
   document.getElementById("levelNo").textContent=level+1;
   document.getElementById("title").textContent="⚡ "+item.title;
-  document.getElementById("questionBox").textContent="Level "+(level+1)+". "+item.q;
+  document.getElementById("questionBox").textContent=item.q;
 
   if(item.type==="sort"){
+    cardsInLevel = item.cards.length;
     buildSortLevel(item);
   } else {
+    cardsInLevel = 0;
     buildChoiceLevel(item);
   }
 }
@@ -517,11 +595,13 @@ function checkSort(zone){
     moveCardToZone(zone, selectedCard);
     selectedCard=null;
     correctPlaced++;
-    score+=5;
-    document.getElementById("score").textContent=score;
+    
+    // Proportional increment (2.5 pts per correctly sorted item across 4 items = 10 pts max per level)
+    score+=2.5; 
+    document.getElementById("score").textContent=Math.round(score);
     showMsg("✅ Correct!","#22c55e");
 
-    if(correctPlaced>=order[level].cards.length){
+    if(correctPlaced >= cardsInLevel){
       level++;
       setTimeout(loadLevel,1200);
     }
@@ -572,7 +652,7 @@ function checkChoice(btn,selected,answer){
     btn.classList.add("correctFlash");
     document.getElementById("correctSound").play();
     score+=10;
-    document.getElementById("score").textContent=score;
+    document.getElementById("score").textContent=Math.round(score);
     showMsg("✅ Correct!","#22c55e");
     level++;
     setTimeout(loadLevel,1200);
@@ -598,8 +678,10 @@ function handleWrong(answer, isSortingField=false){
       document.querySelectorAll(".option").forEach(o=>{
         if(o.textContent===answer) o.classList.add("correctFlash");
       });
+      level++;
+      setTimeout(loadLevel,2200);
     } else {
-      // Auto sorting helper fallback when structural chances drop out
+      // Auto sorting helper fallback when structural chances run out
       if(selectedCard) {
         const correctTargetZoneStr = selectedCard.dataset.answer;
         document.querySelectorAll(".zone").forEach(z=>{
@@ -610,10 +692,21 @@ function handleWrong(answer, isSortingField=false){
         });
         selectedCard = null;
       }
+      
+      // Auto-clear remaining card sets seamlessly to avoid progression blockages
+      setTimeout(() => {
+        const remainingCards = document.querySelectorAll(".card");
+        if(remainingCards.length > 0) {
+          chances = 2;
+          document.getElementById("chances").textContent = chances;
+          locked = false;
+          showMsg("Resolve remaining fields!", "#38bdf8");
+        } else {
+          level++;
+          loadLevel();
+        }
+      }, 1200);
     }
-
-    level++;
-    setTimeout(loadLevel,2200);
   }
 }
 
@@ -625,7 +718,18 @@ function showMsg(text,color){
 
 function endGame(){
   document.getElementById("clapSound").play();
-  document.getElementById("finalScore").textContent=score;
+  const calculatedFinal = Math.round(score);
+  document.getElementById("finalScore").textContent = calculatedFinal + " / 100";
+  
+  const feedback = document.getElementById("endFeedback");
+  if(calculatedFinal >= 90) {
+    feedback.textContent = "Spectacular! Master Elite Status Unlocked. Force Fields fully regulated! 🌟";
+  } else if(calculatedFinal >= 60) {
+    feedback.textContent = "Great work! Solid mechanical analysis across core physical environments. 👍";
+  } else {
+    feedback.textContent = "Lab finished. Review foundational mechanics and run laboratory simulation diagnostics again! 🔧";
+  }
+  
   document.getElementById("endScreen").style.display="flex";
 }
 </script>
