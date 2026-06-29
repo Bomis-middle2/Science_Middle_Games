@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electricity & Circuits Lab Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a24;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #gameContainer {
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background-color: #252538;
+        }
+        .instructions {
+            margin-top: 15px;
+            max-width: 700px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #a0a0c0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="550"></canvas>
+    </div>
+
+    <div class="instructions">
+        <strong>Game Rules:</strong> Complete the path from the Cell's Positive (+) to Negative (-) terminal[cite: 346]. Drag a material slot to bridge the connection. Select a <strong>Conductor</strong> to successfully light up the bulb[cite: 421]! Choosing an <strong>Insulator</strong> breaks the path. Avoid a Short Circuit[cite: 391]!
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game State Engine
+        let gameState = 'TITLE'; // TITLE, PLAYING, GAME_OVER_WIN, GAME_OVER_LOSE
+        let score = 0;
+        let lives = 3;
+        let selectedMaterial = null;
+
+        // Sound Synthesis Engine via Web Audio API (No files required)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'success') {
+                // High-pitch pleasant double chime for complete circuit
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // A5
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'fail') {
+                // Low harsh buzz for incomplete / short circuit
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'click') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            }
+        }
+
+        // Materials database structured directly from Chapter rules [cite: 422, 423]
+        const materials = [
+            { name: 'Copper Wire', isConductor: true, color: '#b87333' },
+            { name: 'Aluminium Foil', isConductor: true, color: '#d1d5db' },
+            { name: 'Steel Spoon', isConductor: true, color: '#9ca3af' },
+            { name: 'Plastic Ruler', isConductor: false, color: '#3b82f6' },
+            { name: 'Wooden Block', isConductor: false, color: '#854d0e' },
+            { name: 'Rubber Eraser', isConductor: false, color: '#f43f5e' }
+        ];
+
+        // Object coordinates layout
+        let materialPool = [];
+        const targetSlot = { x: 360, y: 350, width: 90, height: 40, occupant: null };
+        const switchButton = { x: 355, y: 440, width: 100, height: 40, isOpen: true };
+
+        function initLevel() {
+            materialPool = [];
+            // Shuffle and allocate position coordinates
+            let items = [...materials].sort(() => Math.random() - 0.5);
+            for(let i = 0; i < 3; i++) {
+                materialPool.push({
+                    info: items[i],
+                    x: 180 + (i * 180),
+                    y: 130,
+                    originX: 180 + (i * 180),
+                    originY: 130,
+                    width: 110,
+                    height: 45,
+                    isPlaced: false
+                });
+            }
+            targetSlot.occupant = null;
+            switchButton.isOpen = true;
+        }
+
+        // Draw custom vector logo on title screen [cite: 720]
+        function drawLogo(x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Shield/Circuit Badge border
+            ctx.strokeStyle = '#eab308';
+            ctx.lineWidth = 5;
+            ctx.fillStyle = '#1e1b4b';
+            ctx.beginPath();
+            ctx.arc(0, 0, 60, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Render Lightning Symbol Inside Logo [cite: 722]
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.moveTo(-10, -35);
+            ctx.lineTo(20, -5);
+            ctx.lineTo(5, 5);
+            ctx.lineTo(15, 35);
+            ctx.lineTo(-15, 5);
+            ctx.lineTo(0, -5);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Main Rendering Loops
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (gameState === 'TITLE') {
+                // Title Text Screen
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 32px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('CIRCUIT LAB CHALLENGE', canvas.width / 2, 80);
+                
+                ctx.font = '18px sans-serif';
+                ctx.fillStyle = '#60a5fa';
+                ctx.fillText('Grade 6 Science: Fundamentals of Electricity', canvas.width / 2, 115);
+
+                // Draw the dynamic game logo
+                drawLogo(canvas.width / 2, 230, 1.3);
+
+                // Instructions box
+                ctx.fillStyle = '#2e2e48';
+                ctx.fillRect(150, 330, 500, 110);
+                ctx.strokeStyle = '#4b5563';
+                ctx.strokeRect(150, 330, 500, 110);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('Mission Rules:', 170, 355);
+                ctx.font = '14px sans-serif';
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillText('1. Drag a material option into the missing circuit wire gap.', 170, 380);
+                ctx.fillText('2. Close the circuit switch to evaluate functionality.', 170, 405);
+                ctx.fillText('3. Conductors will light the bulb; Insulators fail the circuit.', 170, 430);
+
+                // Start prompt button
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(300, 470, 200, 45);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('START LAB', canvas.width / 2, 498);
+
+            } else if (gameState === 'PLAYING') {
+                // Status Header HUD
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '16px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Score: ${score} / 3 Complete`, 30, 40);
+                ctx.textAlign = 'right';
+                ctx.fillText(`System Integrity (Lives): ${lives}`, canvas.width - 30, 40);
+
+                // Instructions panel label
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '15px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('DRAG A TEST MATERIAL ELEMENT DOWN INTO THE CIRCUIT GAP:', canvas.width / 2, 85);
+
+                // Draw Circuit schematic diagram foundations [cite: 471]
+                ctx.lineWidth = 6;
+                ctx.strokeStyle = '#4b5563'; // Unpowered dark wire look
+                
+                // If switch closed and a conductor is in place, glow the path yellow [cite: 398, 409]
+                let isCircuitGlowing = (!switchButton.isOpen && targetSlot.occupant && targetSlot.occupant.info.isConductor);
+                if (isCircuitGlowing) ctx.strokeStyle = '#fbbf24';
+
+                // Schematic Path tracing lines
+                ctx.beginPath();
+                // From battery left through bulb to slot entry
+                ctx.moveTo(200, 370);
+                ctx.lineTo(120, 370);
+                ctx.lineTo(120, 280);
+                ctx.lineTo(360, 280); // To bulb base entry point
+                ctx.stroke();
+
+                ctx.beginPath();
+                // From bulb output across to right edge down to switch mechanism
+                ctx.moveTo(450, 280);
+                ctx.lineTo(680, 280);
+                ctx.lineTo(680, 370);
+                ctx.lineTo(450, 370); // Right side wire connection to target slot
+                ctx.stroke();
+
+                // Draw Switch Wiring Paths [cite: 404]
+                ctx.beginPath();
+                ctx.moveTo(200, 370);
+                ctx.lineTo(200, 460);
+                ctx.lineTo(355, 460);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(455, 460);
+                ctx.lineTo(600, 460);
+                ctx.lineTo(600, 370);
+                ctx.stroke();
+
+                // Component Render 1: The Dry Cell / Battery [cite: 357, 594]
+                ctx.save();
+                ctx.translate(500, 350);
+                ctx.fillStyle = '#dc2626'; // Red cell body [cite: 573]
+                ctx.fillRect(0, 0, 100, 40);
+                ctx.fillStyle = '#d1d5db'; // Metallic positive cap tip [cite: 569]
+                ctx.fillRect(100, 10, 8, 20);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('DRY CELL', 15, 25);
+                ctx.fillText('+', 85, 25); // Positive side [cite: 543]
+                ctx.fillText('-', 5, 25);  // Negative side [cite: 543]
+                ctx.restore();
+
+                // Component Render 2: The Torch Light Bulb Element [cite: 599]
+                ctx.save();
+                ctx.translate(360, 240);
+                // Glow radius path effect if activated successfully [cite: 374]
+                if (isCircuitGlowing) {
+                    let gradient = ctx.createRadialGradient(45, 25, 5, 45, 25, 45);
+                    gradient.addColorStop(0, 'rgba(253, 224, 71, 0.8)');
+                    gradient.addColorStop(1, 'rgba(253, 224, 71, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(45, 25, 45, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                // Outer glass shell container [cite: 600]
+                ctx.strokeStyle = '#9ca3af';
+                ctx.fillStyle = isCircuitGlowing ? '#fef08a' : '#4b5563';
+                ctx.beginPath();
+                ctx.arc(45, 25, 25, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                // Metal screw contact casing base ring [cite: 607]
+                ctx.fillStyle = '#78716c';
+                ctx.fillRect(33, 45, 24, 15);
+                ctx.restore();
+
+                // Component Render 3: Target Bridge Evaluation Wire Slot
+                ctx.fillStyle = 'rgba(255,255,255,0.05)';
+                ctx.fillRect(targetSlot.x, targetSlot.y, targetSlot.width, targetSlot.height);
+                ctx.strokeStyle = '#eab308';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(targetSlot.x, targetSlot.y, targetSlot.width, targetSlot.height);
+                ctx.setLineDash([]); // Reset line dash styling
+                
+                ctx.fillStyle = '#a1a1aa';
+                ctx.font = '11px sans-serif';
+                ctx.fillText('INSERT MATERIAL', targetSlot.x + 45, targetSlot.y + 24);
+
+                // Component Render 4: Control Circuit Switch [cite: 631]
+                ctx.fillStyle = switchButton.isOpen ? '#ef4444' : '#10b981';
+                ctx.fillRect(switchButton.x, switchButton.y, switchButton.width, switchButton.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.fillText(switchButton.isOpen ? 'SWITCH: OPEN' : 'SWITCH: CLOSED', switchButton.x + 50, switchButton.y + 24);
+
+                // Render pool of selectable material block cards
+                materialPool.forEach(item => {
+                    if (!item.isPlaced || selectedMaterial === item) {
+                        ctx.fillStyle = item.info.color;
+                        ctx.fillRect(item.x - item.width/2, item.y - item.height/2, item.width, item.height);
+                        
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = selectedMaterial === item ? 3 : 1;
+                        ctx.strokeRect(item.x - item.width/2, item.y - item.height/2, item.width, item.height);
+                        
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '13px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(item.info.name, item.x, item.y + 5);
+                    }
+                });
+
+            } else if (gameState === 'GAME_OVER_WIN') {
+                // Game Ends: Win State Terminal Screen
+                ctx.fillStyle = '#10b981';
+                ctx.font = 'bold 40px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('LAB MISSION COMPLETED!', canvas.width / 2, 180);
+
+                drawLogo(canvas.width / 2, 290, 1.0);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '18px sans-serif';
+                ctx.fillText(`Final Lab Score Score: ${score} Successfully Connected Circuits!`, canvas.width / 2, 390);
+                ctx.font = '15px sans-serif';
+                ctx.fillStyle = '#9ca3af';
+                ctx.fillText('Excellent. You correctly classified Conductors vs Insulators!', canvas.width / 2, 420);
+
+                // Replay selection interface button
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(300, 460, 200, 45);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('ANALYSE AGAIN', canvas.width / 2, 488);
+
+            } else if (gameState === 'GAME_OVER_LOSE') {
+                // Game Ends: Lose State Terminal Screen
+                ctx.fillStyle = '#ef4444';
+                ctx.font = 'bold 40px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('CIRCUIT SYSTEM FAILURE', canvas.width / 2, 180);
+
+                // Skull warning icon indicator placeholder [cite: 720]
+                ctx.fillStyle = '#f59e0b';
+                ctx.font = '54px sans-serif';
+                ctx.fillText('⚠️', canvas.width / 2, 290);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '18px sans-serif';
+                ctx.fillText('The system suffered critical short circuits or insulation blocks.', canvas.width / 2, 370);
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('Remember: Metals pass electrical charge; wood, plastics, and rubber block it[cite: 422, 423].', canvas.width / 2, 400);
+
+                // Retry execution frame block button
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(300, 450, 200, 45);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('RESTART SYSTEM', canvas.width / 2, 478);
+            }
+        }
+
+        // Mouse Drag / Drop Interaction Coordinates tracking mechanics
+        window.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (gameState === 'TITLE') {
+                if (mouseX >= 300 && mouseX <= 500 && mouseY >= 470 && mouseY <= 515) {
+                    playSound('click');
+                    gameState = 'PLAYING';
+                    score = 0;
+                    lives = 3;
+                    initLevel();
+                }
+            } else if (gameState === 'PLAYING') {
+                // Check if user clicked a material item
+                materialPool.forEach(item => {
+                    if (mouseX >= item.x - item.width/2 && mouseX <= item.x + item.width/2 &&
+                        mouseY >= item.y - item.height/2 && mouseY <= item.y + item.height/2) {
+                        selectedMaterial = item;
+                        playSound('click');
+                    }
+                });
+
+                // Check click interaction with switch interface block [cite: 633]
+                if (mouseX >= switchButton.x && mouseX <= switchButton.x + switchButton.width &&
+                    mouseY >= switchButton.y && mouseY <= switchButton.y + switchButton.height) {
+                    
+                    if (targetSlot.occupant) {
+                        switchButton.isOpen = !switchButton.isOpen;
+                        playSound('click');
+                        
+                        // Rule Assessment Phase
+                        if (!switchButton.isOpen) {
+                            if (targetSlot.occupant.info.isConductor) {
+                                // Success condition sequence [cite: 409]
+                                playSound('success');
+                                score++;
+                                setTimeout(() => {
+                                    if (score >= 3) {
+                                        gameState = 'GAME_OVER_WIN';
+                                    } else {
+                                        initLevel();
+                                    }
+                                }, 1200);
+                            } else {
+                                // Open loop insulation breakdown condition [cite: 411]
+                                playSound('fail');
+                                lives--;
+                                setTimeout(() => {
+                                    if (lives <= 0) {
+                                        gameState = 'GAME_OVER_LOSE';
+                                    } else {
+                                        // Reset element positions back to pools
+                                        switchButton.isOpen = true;
+                                        if (targetSlot.occupant) {
+                                            targetSlot.occupant.x = targetSlot.occupant.originX;
+                                            targetSlot.occupant.y = targetSlot.occupant.originY;
+                                            targetSlot.occupant.isPlaced = false;
+                                            targetSlot.occupant = null;
+                                        }
+                                    }
+                                }, 1000);
+                            }
+                        }
+                    } else {
+                        // Empty slot exception sound alert [cite: 386]
+                        playSound('fail');
+                    }
+                }
+            } else if (gameState === 'GAME_OVER_WIN' || gameState === 'GAME_OVER_LOSE') {
+                if (mouseX >= 300 && mouseX <= 500 && mouseY >= 450 && mouseY <= 510) {
+                    playSound('click');
+                    gameState = 'PLAYING';
+                    score = 0;
+                    lives = 3;
+                    initLevel();
+                }
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!selectedMaterial || gameState !== 'PLAYING') return;
+            const rect = canvas.getBoundingClientRect();
+            selectedMaterial.x = e.clientX - rect.left;
+            selectedMaterial.y = e.clientY - rect.top;
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!selectedMaterial || gameState !== 'PLAYING') return;
+
+            // Check if item was dropped close to the target circuit bridge gap
+            let centerX = targetSlot.x + targetSlot.width/2;
+            let centerY = targetSlot.y + targetSlot.height/2;
+            let distance = Math.hypot(selectedMaterial.x - centerX, selectedMaterial.y - centerY);
+
+            if (distance < 70 && !targetSlot.occupant) {
+                // Securely anchor node card inside target perimeter alignment slot bounds
+                selectedMaterial.x = centerX;
+                selectedMaterial.y = centerY;
+                selectedMaterial.isPlaced = true;
+                targetSlot.occupant = selectedMaterial;
+                playSound('click');
+            } else {
+                // Snap back element item cards to starting location vectors
+                selectedMaterial.x = selectedMaterial.originX;
+                selectedMaterial.y = selectedMaterial.originY;
+                selectedMaterial.isPlaced = false;
+                if (targetSlot.occupant === selectedMaterial) {
+                    targetSlot.occupant = null;
+                }
+            }
+            selectedMaterial = null;
+        });
+
+        // Loop engine activation runtime configuration
+        function gameLoop() {
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start initialization execution sequence
+        gameLoop();
+    </script>
+</body>
+</html>
