@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 6 Science: Cosmic Observatory Simulator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #030712;
+            color: #f3f4f6;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #canvasFrame {
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 4px solid #1f2937;
+            background-color: #0b0f19;
+        }
+        canvas {
+            display: block;
+            background-color: #0b0f19;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvasFrame">
+        <canvas id="observatoryCanvas" width="900" height="600"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('observatoryCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // GAME ENGINE STATES: 'SPLASH', 'INSTRUCTIONS', 'PLAYING', 'GAME_OVER'
+        let currentGameState = 'SPLASH';
+        let splashTimeMarker = Date.now();
+        const SPLASH_LOCK_PERIOD = 5000; // Mandatory 5 Seconds Lock
+
+        // Academic State Trackers
+        let randomizedActiveTasks = [];
+        let indexPointer = 0;
+        let runningScore = 0;
+        let structuralHP = 3;
+        let itemAttempts = 2;
+        let hintDisplayTrigger = false;
+        let operationalHint = "";
+        let availableChoiceCards = [];
+        let grabbedObject = null;
+        let globalPulseCounter = 0;
+
+        // Interactive View Zones
+        const telescopeTargetLens = { x: 375, y: 310, width: 150, height: 70, itemSlotted: null };
+        const analyzeDataBtn = { x: 360, y: 465, width: 180, height: 45, isEngaged: false };
+
+        // Programmatic Web Audio Sound Synthesis Engine
+        const SoundFX = {
+            ctx: null,
+            prepareCtx() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+            playClick() {
+                this.prepareCtx();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(640, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.06);
+            },
+            playError() {
+                this.prepareCtx();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.35);
+            },
+            playSuccessChime() {
+                this.prepareCtx();
+                // Sequence pitch 1
+                let osc1 = this.ctx.createOscillator();
+                let gain1 = this.ctx.createGain();
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(587.33, this.ctx.currentTime); // D5
+                gain1.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+                osc1.connect(gain1);
+                gain1.connect(this.ctx.destination);
+                osc1.start();
+                osc1.stop(this.ctx.currentTime + 0.25);
+
+                // Sequence pitch 2 (harmonized delay)
+                let osc2 = this.ctx.createOscillator();
+                let gain2 = this.ctx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(698.46, this.ctx.currentTime + 0.1); // F#5
+                gain2.gain.setValueAtTime(0.12, this.ctx.currentTime + 0.1);
+                gain2.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+                osc2.connect(gain2);
+                gain2.connect(this.ctx.destination);
+                osc2.start();
+                osc2.stop(this.ctx.currentTime + 0.35);
+
+                this.generateApplauseClaps();
+            },
+            generateApplauseClaps() {
+                try {
+                    let sampleLen = this.ctx.sampleRate * 0.25;
+                    let buf = this.ctx.createBuffer(1, sampleLen, this.ctx.sampleRate);
+                    let channelData = buf.getChannelData(0);
+                    for (let i = 0; i < sampleLen; i++) {
+                        channelData[i] = Math.random() * 2 - 1;
+                    }
+                    for (let burst = 0; burst < 3; burst++) {
+                        let node = this.ctx.createBufferSource();
+                        node.buffer = buf;
+                        let bandpassFilter = this.ctx.createBiquadFilter();
+                        bandpassFilter.type = 'bandpass';
+                        bandpassFilter.frequency.value = 1000 + (burst * 120);
+                        let gainNode = this.ctx.createGain();
+                        let playbackTime = this.ctx.currentTime + (burst * 0.08);
+                        gainNode.gain.setValueAtTime(0.04, playbackTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, playbackTime + 0.18);
+                        node.connect(bandpassFilter);
+                        bandpassFilter.connect(gainNode);
+                        gainNode.connect(this.ctx.destination);
+                        node.start(playbackTime);
+                    }
+                } catch(err) {}
+            }
+        };
+
+        // Complete Grade 6 Universe Science Syllabus Database Layer (12 Items)
+        const universeSyllabusItems = [
+            { id: "U1", name: "Big Dipper Core", category: "Constellation", cardColor: "#2563eb", prompt: "Identify the prominent pattern of stars forming part of Ursa Major used to find the Pole Star.", hint: "Constellations are recognizable shapes or figures formed by patterns of stars." },
+            { id: "U2", name: "High-Power Telescope", category: "Viewing Instrument", cardColor: "#4b5563", prompt: "Select the specialized optical instrument designed to magnify distant galaxies.", hint: "Telescopes magnify images of distant celestial objects to enhance our vision." },
+            { id: "U3", name: "Icy Comet Probe", category: "Celestial Body", cardColor: "#0ea5e9", prompt: "Track the icy body that releases a brilliant glowing coma and tail when approaching the Sun.", hint: "Comets are icy bodies that sublimate and form long tails near solar heat." },
+            { id: "U4", name: "Orion the Hunter", category: "Constellation", cardColor: "#1d4ed8", prompt: "Locate the starry constellation famous for its prominent three-star central belt line.", hint: "Orion is a world-famous winter night constellation mapping a hunter figure." },
+            { id: "U5", name: "Rocky Asteroid Belt", category: "Debris Field", cardColor: "#78350f", prompt: "Find the small rocky bodies orbiting primarily in a gap between Mars and Jupiter.", hint: "Asteroids are rocky remnants located inside the vast belt behind Mars." },
+            { id: "U6", name: "Atmospheric Meteor", category: "Phenomenon", cardColor: "#475569", prompt: "Detect the bright streak of light caused by space particles burning up in Earth's atmosphere.", hint: "Meteors are friction-heated streaks popularly called shooting stars." },
+            { id: "U7", name: "Milky Way Matrix", category: "Galaxy", cardColor: "#6d28d9", prompt: "Identify the huge spiral galaxy structure that houses our home Solar System.", hint: "The Milky Way appears as a cloudy band of white light traversing across the dark sky." },
+            { id: "U8", name: "Exoplanet Scanner", category: "Celestial Body", cardColor: "#059669", prompt: "Search for an external planet orbiting a star entirely outside our local Solar System.", hint: "Exoplanets are planetary structures residing around distant star networks." },
+            { id: "U9", name: "Shielded Streetlight", category: "Pollution Control", cardColor: "#b45309", prompt: "Deploy a design fix to block excessive artificial light from ruining sky visibility.", hint: "Light pollution is excessive artificial lighting that interferes with stargazing." },
+            { id: "U10", name: "Compact Binoculars", category: "Viewing Instrument", cardColor: "#374151", prompt: "Pick the handheld optical device with twin lenses providing a wide field of view.", hint: "Binoculars are portable dual-lens structures perfect for beginner star watchers." },
+            { id: "U11", name: "Glowing North Star", category: "Celestial Body", cardColor: "#b45309", prompt: "Locate the steady pointer star aligned over Earth's axis found via the Little Dipper.", hint: "The Pole Star, or Polaris, remains fixed and serves as a reliable directional guide." },
+            { id: "U12", name: "The Sun's Solar Hub", category: "Solar System", cardColor: "#dc2626", prompt: "Isolate the massive central star that binds all planets and comets via gravitational pull.", hint: "The Sun sits directly at the center axis point of our localized solar system." }
+        ];
+
+        function startupLabSession() {
+            indexPointer = 0;
+            runningScore = 0;
+            structuralHP = 3;
+            randomizedActiveTasks = [...universeSyllabusItems].sort(() => Math.random() - 0.5).slice(0, 10);
+            assembleTaskStage();
+        }
+
+        function assembleTaskStage() {
+            itemAttempts = 2;
+            hintDisplayTrigger = false;
+            telescopeTargetLens.itemSlotted = null;
+            analyzeDataBtn.isEngaged = false;
+            globalPulseCounter = 0;
+
+            const targetQuestion = randomizedActiveTasks[indexPointer];
+            operationalHint = targetQuestion.hint;
+
+            let wrongChoicesPool = universeSyllabusItems.filter(x => x.id !== targetQuestion.id);
+            wrongChoicesPool.sort(() => Math.random() - 0.5);
+
+            let compiledChoices = [targetQuestion, wrongChoicesPool[0], wrongChoicesPool[1]];
+            compiledChoices.sort(() => Math.random() - 0.5);
+
+            availableChoiceCards = [];
+            for (let i = 0; i < 3; i++) {
+                availableChoiceCards.push({
+                    data: compiledChoices[i],
+                    x: 210 + (i * 240),
+                    y: 165,
+                    startX: 210 + (i * 240),
+                    startY: 165,
+                    width: 195,
+                    height: 52,
+                    isLocked: false
+                });
+            }
+        }
+
+        // Custom Vector Brand Engine
+        function renderInnovineLogo(x, y, multiplier) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(multiplier, multiplier);
+
+            // Technical Outer Hexagon Linkage
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                let rotRad = (Math.PI / 3) * i;
+                let hx = 75 * Math.cos(rotRad);
+                let hy = 75 * Math.sin(rotRad);
+                if (i === 0) ctx.moveTo(hx, hy);
+                else ctx.lineTo(hx, hy);
+            }
+            ctx.closePath();
+            ctx.stroke();
+
+            // Core Concentric Node
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(0, 0, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Intersecting Data Strands
+            ctx.strokeStyle = '#22d3ee';
+            ctx.lineWidth = 4;
+            for (let j = 0; j < 3; j++) {
+                let nodeAngle = (Math.PI / 1.5) * j + 0.3;
+                ctx.beginPath();
+                ctx.moveTo(22 * Math.cos(nodeAngle), 22 * Math.sin(nodeAngle));
+                ctx.lineTo(62 * Math.cos(nodeAngle), 62 * Math.sin(nodeAngle));
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(62 * Math.cos(nodeAngle), 62 * Math.sin(nodeAngle), 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        // Central Graphics Render Loop
+        function executeLabRenderTick() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (currentGameState === 'SPLASH') {
+                // Strict 5-Second Locked Branding Splash
+                ctx.fillStyle = '#030712';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                renderInnovineLogo(canvas.width / 2, canvas.height / 2 - 40, 1.2);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 44px sans-serif';
+                ctx.letterSpacing = "5px";
+                ctx.textAlign = 'center';
+                ctx.fillText('INNOVINE', canvas.width / 2, canvas.height / 2 + 90);
+                ctx.letterSpacing = "0px";
+
+                ctx.fillStyle = '#374151';
+                ctx.font = '600 13px sans-serif';
+                ctx.fillText('SPACE SCIENCE SIMULATION & OBSERVATORY LAB', canvas.width / 2, canvas.height / 2 + 135);
+
+                if (Date.now() - splashTimeMarker > SPLASH_LOCK_PERIOD) {
+                    currentGameState = 'INSTRUCTIONS';
+                }
+
+            } else if (currentGameState === 'INSTRUCTIONS') {
+                // Instructive Setup View (rendered ONLY after splash expiration)
+                ctx.fillStyle = '#030712';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#f9fafb';
+                ctx.font = 'bold 30px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('OBSERVATORY MISSION PROTOCOLS', canvas.width / 2, 90);
+
+                ctx.fillStyle = '#4b5563';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText('ASTRONOMY UNIT EXERCISE  |  GRADE 6 PHYSICS', canvas.width / 2, 125);
+
+                // Instructions Display Board Panel
+                ctx.fillStyle = '#0b0f19';
+                ctx.fillRect(80, 175, 740, 260);
+                ctx.strokeStyle = '#1f2937';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(80, 175, 740, 260);
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#2563eb';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('CORE RESEARCH MISSION:', 125, 220);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('Analyze the cosmic scan description. Correctly identify the target celestial body,', 125, 245);
+                ctx.fillText('constellation cluster, optical tool, or light pollution mitigation item.', 125, 270);
+
+                ctx.fillStyle = '#d97706';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('OPERATIONAL GUIDELINES:', 125, 320);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('1. Drag element data blocks directly into the central Telescope Target Lens.', 125, 345);
+                ctx.fillText('2. Engage the data analyzer panel to evaluate your coordinate match.', 125, 370);
+                ctx.fillText('3. Missing a task twice unlocks a context-rich astronomy textbook hint.', 125, 395);
+
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(310, 485, 280, 50);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('INITIALIZE SYSTEM SENSORS', canvas.width / 2, 516);
+
+            } else if (currentGameState === 'PLAYING') {
+                const currentQuestionObj = randomizedActiveTasks[indexPointer];
+
+                // Secure Top HUD Layout (Explicitly Separated X positions to avoid text collisions)
+                ctx.fillStyle = '#030712';
+                ctx.fillRect(0, 0, canvas.width, 65);
+                ctx.strokeStyle = '#1f2937';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, 0, canvas.width, 65);
+
+                ctx.font = 'bold 15px sans-serif';
+                
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillText(`TARGET TARGET SCAN: ${indexPointer + 1} / 10`, 35, 38);
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#f3f4f6';
+                ctx.fillText(`EARNED VALUE: ${runningScore} Pts`, 325, 38);
+                
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText(`SENSOR INTEGRITY: ${structuralHP} HP`, 585, 38);
+
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#4b5563';
+                ctx.fillText('CHAPTER 13 LAB', canvas.width - 35, 38);
+
+                // Prompt Question Card
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(40, 85, 820, 46);
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = '600 15px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`OBSERVATORY DATA LOG: "${currentQuestionObj.prompt}"`, canvas.width / 2, 113);
+
+                // Graphical Telescope Vector Art Representation
+                let evaluationPassed = (analyzeDataBtn.isEngaged && telescopeTargetLens.itemSlotted && telescopeTargetLens.itemSlotted.data.id === currentQuestionObj.id);
+                globalPulseCounter++;
+
+                ctx.save();
+                ctx.translate(450, 275);
+                
+                if (evaluationPassed) {
+                    ctx.lineWidth = 3;
+                    for (let w = 1; w <= 3; w++) {
+                        ctx.strokeStyle = `rgba(34, 211, 238, ${0.7 - (w * 0.2)})`;
+                        let pulseRadius = 50 + w * 16 + Math.sin(globalPulseCounter * 0.2) * 6;
+                        ctx.beginPath();
+                        ctx.arc(0, -10, pulseRadius, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                }
+
+                // Telescope Body Mount
+                ctx.fillStyle = '#1f2937';
+                ctx.fillRect(-25, 20, 50, 25);
+                ctx.strokeStyle = '#374151';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(-20, 45); ctx.lineTo(-45, 85);
+                ctx.moveTo(20, 45); ctx.lineTo(45, 85);
+                ctx.stroke();
+
+                // Diagonal Barrel
+                ctx.fillStyle = evaluationPassed ? '#1e1b4b' : '#374151';
+                ctx.fillRect(-65, -35, 130, 55);
+                ctx.fillStyle = '#4b5563';
+                ctx.fillRect(-75, -40, 10, 65);
+                ctx.fillRect(65, -40, 10, 65);
+                ctx.restore();
+
+                // Telescope Drop Lens Zone Bound Base
+                ctx.fillStyle = 'rgba(3, 7, 18, 0.85)';
+                ctx.fillRect(telescopeTargetLens.x, telescopeTargetLens.y, telescopeTargetLens.width, telescopeTargetLens.height);
+                ctx.strokeStyle = '#0ea5e9';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([6, 4]);
+                ctx.strokeRect(telescopeTargetLens.x, telescopeTargetLens.y, telescopeTargetLens.width, telescopeTargetLens.height);
+                ctx.setLineDash([]);
+                
+                ctx.fillStyle = '#4b5563';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                if (!telescopeTargetLens.itemSlotted) {
+                    ctx.fillText('SLOT FOCUS MATRIX', telescopeTargetLens.x + telescopeTargetLens.width / 2, telescopeTargetLens.y + 40);
+                }
+
+                // Interactive Analyzer Trigger Panel Switch
+                ctx.fillStyle = analyzeDataBtn.isEngaged ? '#10b981' : '#dc2626';
+                ctx.fillRect(analyzeDataBtn.x, analyzeDataBtn.y, analyzeDataBtn.width, analyzeDataBtn.height);
+                ctx.strokeStyle = '#1f2937';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(analyzeDataBtn.x, analyzeDataBtn.y, analyzeDataBtn.width, analyzeDataBtn.height);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.fillText(analyzeDataBtn.isEngaged ? 'FOCUS LOCK VALID' : 'LOCK SCAN COORDINATES', analyzeDataBtn.x + analyzeDataBtn.width / 2, analyzeDataBtn.y + 27);
+
+                // Option Choice Matrix Layout Cards
+                availableChoiceCards.forEach(card => {
+                    if (!card.isLocked || grabbedObject === card) {
+                        ctx.fillStyle = card.data.cardColor;
+                        ctx.fillRect(card.x - card.width / 2, card.y - card.height / 2, card.width, card.height);
+                        ctx.strokeStyle = grabbedObject === card ? '#facc15' : '#1f2937';
+                        ctx.lineWidth = grabbedObject === card ? 3.5 : 2;
+                        ctx.strokeRect(card.x - card.width / 2, card.y - card.height / 2, card.width, card.height);
+
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(card.data.name, card.x, card.y + 5);
+                    }
+                });
+
+                // Dual-Attempt Scaffolding Informative Hint Bar
+                if (hintDisplayTrigger) {
+                    ctx.fillStyle = '#1e1b4b';
+                    ctx.fillRect(60, 530, 780, 46);
+                    ctx.strokeStyle = '#d97706';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(60, 530, 780, 46);
+
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.font = 'italic 13.5px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`OBSERVATORY TEXTBOOK HINT: ${operationalHint}`, canvas.width / 2, 558);
+                }
+
+            } else if (currentGameState === 'GAME_OVER') {
+                // Summary Terminal Evaluation Card
+                ctx.fillStyle = '#030712';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                let evaluationSuccess = (structuralHP > 0 && runningScore >= 7);
+
+                ctx.fillStyle = evaluationSuccess ? '#10b981' : '#ef4444';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(evaluationSuccess ? 'COSMIC CERTIFICATION EARNED' : 'OBSERVATORY TRIAL INCOMPLETE', canvas.width / 2, 175);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.fillText(`Target System Scan Accuracy: ${runningScore} / 10 Coordinates Logged`, canvas.width / 2, 250);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '15px sans-serif';
+                if (evaluationSuccess) {
+                    ctx.fillText('Excellent tracking skills. Core concepts of deep-space matrices and constellations mastered.', canvas.width / 2, 310);
+                } else {
+                    ctx.fillText('Incomplete diagnostic records. Review astronomical definitions and field view tools to rerun analysis.', canvas.width / 2, 310);
+                }
+
+                // Restart Trigger Button
+                ctx.fillStyle = '#2563eb';
+                ctx.fillRect(350, 395, 200, 52);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('RELAUNCH CORES', canvas.width / 2, 427);
+            }
+        }
+
+        // Pointer Translation Mapping Utilities
+        function processPointerCoordinates(e) {
+            const boundingBox = canvas.getBoundingClientRect();
+            let rawX = e.clientX;
+            let rawY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                rawX = e.touches[0].clientX;
+                rawY = e.touches[0].clientY;
+            }
+            return {
+                x: rawX - boundingBox.left,
+                y: rawY - boundingBox.top
+            };
+        }
+
+        function triggerPointerDownAction(coords) {
+            const ptrX = coords.x;
+            const ptrY = coords.y;
+
+            if (currentGameState === 'INSTRUCTIONS') {
+                if (ptrX >= 310 && ptrX <= 590 && ptrY >= 485 && ptrY <= 535) {
+                    SoundFX.playClick();
+                    startupLabSession();
+                    currentGameState = 'PLAYING';
+                }
+            } else if (currentGameState === 'PLAYING') {
+                // Loop check to handle choice cards selections
+                availableChoiceCards.forEach(card => {
+                    if (ptrX >= card.x - card.width / 2 && ptrX <= card.x + card.width / 2 &&
+                        ptrY >= card.y - card.height / 2 && ptrY <= card.y + card.height / 2) {
+                        grabbedObject = card;
+                        SoundFX.playClick();
+                    }
+                });
+
+                // Operational Lock Sensor Verification Processing Bounds
+                if (ptrX >= analyzeDataBtn.x && ptrX <= analyzeDataBtn.x + analyzeDataBtn.width &&
+                    ptrY >= analyzeDataBtn.y && ptrY <= analyzeDataBtn.y + analyzeDataBtn.height) {
+                    
+                    if (telescopeTargetLens.itemSlotted && !analyzeDataBtn.isEngaged) {
+                        analyzeDataBtn.isEngaged = true;
+                        SoundFX.playClick();
+
+                        let keyQuestion = randomizedActiveTasks[indexPointer];
+                        if (telescopeTargetLens.itemSlotted.data.id === keyQuestion.id) {
+                            // Perfect Match Route Sequence
+                            SoundFX.playSuccessChime();
+                            runningScore++;
+                            setTimeout(() => {
+                                indexPointer++;
+                                if (indexPointer >= 10) {
+                                    currentGameState = 'GAME_OVER';
+                                } else {
+                                    assembleTaskStage();
+                                }
+                            }, 1900);
+                        } else {
+                            // Incorrect Match Loop Path
+                            SoundFX.playError();
+                            structuralHP--;
+                            itemAttempts--;
+
+                            setTimeout(() => {
+                                if (structuralHP <= 0) {
+                                    currentGameState = 'GAME_OVER';
+                                } else {
+                                    analyzeDataBtn.isEngaged = false;
+                                    if (itemAttempts <= 0) {
+                                        hintDisplayTrigger = true;
+                                    }
+                                    // Smooth elastic return reset to initial coordinates
+                                    if (telescopeTargetLens.itemSlotted) {
+                                        telescopeTargetLens.itemSlotted.x = telescopeTargetLens.itemSlotted.startX;
+                                        telescopeTargetLens.itemSlotted.y = telescopeTargetLens.itemSlotted.startY;
+                                        telescopeTargetLens.itemSlotted.isLocked = false;
+                                        telescopeTargetLens.itemSlotted = null;
+                                    }
+                                }
+                            }, 1300);
+                        }
+                    } else if (!telescopeTargetLens.itemSlotted) {
+                        SoundFX.playError();
+                    }
+                }
+            } else if (currentGameState === 'GAME_OVER') {
+                if (ptrX >= 350 && ptrX <= 550 && ptrY >= 395 && ptrY <= 447) {
+                    SoundFX.playClick();
+                    startupLabSession();
+                    currentGameState = 'PLAYING';
+                }
+            }
+        }
+
+        function triggerPointerMoveAction(coords) {
+            if (!grabbedObject || currentGameState !== 'PLAYING') return;
+            grabbedObject.x = coords.x;
+            grabbedObject.y = coords.y;
+        }
+
+        function triggerPointerUpAction() {
+            if (!grabbedObject || currentGameState !== 'PLAYING') return;
+
+            let centerLensX = telescopeTargetLens.x + telescopeTargetLens.width / 2;
+            let centerLensY = telescopeTargetLens.y + telescopeTargetLens.height / 2;
+            let spatialGap = Math.hypot(grabbedObject.x - centerLensX, grabbedObject.y - centerLensY);
+
+            // Distance snapping verification bounds rule check
+            if (spatialGap < 95 && !telescopeTargetLens.itemSlotted) {
+                grabbedObject.x = centerLensX;
+                grabbedObject.y = centerLensY;
+                grabbedObject.isLocked = true;
+                telescopeTargetLens.itemSlotted = grabbedObject;
+                SoundFX.playClick();
+            } else {
+                grabbedObject.x = grabbedObject.startX;
+                grabbedObject.y = grabbedObject.startY;
+                grabbedObject.isLocked = false;
+                if (telescopeTargetLens.itemSlotted === grabbedObject) {
+                    telescopeTargetLens.itemSlotted = null;
+                }
+            }
+            grabbedObject = null;
+        }
+
+        // Setup Modern Unified Input Listeners 
+        window.addEventListener('mousedown', (e) => triggerPointerDownAction(processPointerCoordinates(e)));
+        window.addEventListener('mousemove', (e) => triggerPointerMoveAction(processPointerCoordinates(e)));
+        window.addEventListener('mouseup', () => triggerPointerUpAction());
+
+        window.addEventListener('touchstart', (e) => { e.preventDefault(); triggerPointerDownAction(processPointerCoordinates(e)); }, {passive: false});
+        window.addEventListener('touchmove', (e) => { e.preventDefault(); triggerPointerMoveAction(processPointerCoordinates(e)); }, {passive: false});
+        window.addEventListener('touchend', () => triggerPointerUpAction());
+
+        // Core System Driver Automation
+        function processFrameTick() {
+            executeLabRenderTick();
+            requestAnimationFrame(processFrameTick);
+        }
+
+        processFrameTick();
+    </script>
+</body>
+</html>
