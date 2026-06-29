@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 6 Physics: Magnetism & Force Field </title>
+    <title>Grade 6 Physics: Magnetism & Force Field</title>
     <style>
         body {
             margin: 0;
@@ -211,13 +211,13 @@
         }
 
         // Custom Vector Icon Brand Engine
-        function drawInnovineVectorLogo(x, y, scale) {
+        function drawInnovineVectorLogo(x, y, scale, isSplash) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
 
             // Technical Outer Hexagon
-            ctx.strokeStyle = '#2563eb';
+            ctx.strokeStyle = isSplash ? '#1e3a8a' : '#2563eb'; // Deeper royal blue for contrast on light background
             ctx.lineWidth = 5;
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
@@ -231,13 +231,13 @@
             ctx.stroke();
 
             // Core Circular Node
-            ctx.fillStyle = '#60a5fa';
+            ctx.fillStyle = isSplash ? '#2563eb' : '#60a5fa'; // Enhanced circular core visibility
             ctx.beginPath();
             ctx.arc(0, 0, 24, 0, Math.PI * 2);
             ctx.fill();
 
             // Circuit Node Links
-            ctx.strokeStyle = '#38bdf8';
+            ctx.strokeStyle = isSplash ? '#0284c7' : '#38bdf8';
             ctx.lineWidth = 4;
             for (let j = 0; j < 3; j++) {
                 let lAngle = (Math.PI / 1.5) * j + 0.4;
@@ -246,7 +246,7 @@
                 ctx.lineTo(64 * Math.cos(lAngle), 64 * Math.sin(lAngle));
                 ctx.stroke();
 
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = isSplash ? '#1e293b' : '#ffffff';
                 ctx.beginPath();
                 ctx.arc(64 * Math.cos(lAngle), 64 * Math.sin(lAngle), 6, 0, Math.PI * 2);
                 ctx.fill();
@@ -259,21 +259,21 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (currentState === 'SPLASH') {
-                // Strict Dark Child-Friendly Branding Splash Screen Lock
-                ctx.fillStyle = '#090d16';
+                // Strict Clean White Screen Branding Splash Screen Lock
+                ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                drawInnovineVectorLogo(canvas.width / 2, canvas.height / 2 - 40, 1.2);
+                drawInnovineVectorLogo(canvas.width / 2, canvas.height / 2 - 40, 1.2, true);
 
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#0f172a'; // Deep Navy slate for high readability on white
                 ctx.font = 'bold 44px sans-serif';
                 ctx.letterSpacing = "5px";
                 ctx.textAlign = 'center';
                 ctx.fillText('INNOVINE', canvas.width / 2, canvas.height / 2 + 90);
                 ctx.letterSpacing = "0px";
 
-                ctx.fillStyle = '#475569';
-                ctx.font = '600 13px sans-serif';
+                ctx.fillStyle = '#64748b'; // Muted dark slate subtitle
+                ctx.font = 'bold 13px sans-serif';
                 ctx.fillText('PHYSICS LABORATORY SIMULATION HARDWARE', canvas.width / 2, canvas.height / 2 + 135);
 
                 if (Date.now() - splashStartTime > SPLASH_LOCK_DURATION) {
