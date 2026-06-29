@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 6 Science: Motion & Measurement Calibration Lab</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #05070c;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #simulationContainer {
+            position: relative;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 4px solid #1e293b;
+            background-color: #0f172a;
+        }
+        canvas {
+            display: block;
+            background-color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="simulationContainer">
+        <canvas id="motionLabCanvas" width="900" height="600"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('motionLabCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // GAME FLOW STATE CONTROLLER: 'SPLASH', 'INSTRUCTIONS', 'PLAYING', 'GAME_OVER'
+        let currentSystemState = 'SPLASH';
+        let splashTimerStart = Date.now();
+        const SPLASH_LOCK_MS = 5000; // Mandatory 5 Seconds Lock
+
+        // Academic Score Trackers
+        let curriculumTasks = [];
+        let taskPointerIndex = 0;
+        let labScore = 0;
+        let systemHP = 3;
+        let questionAttemptsLeft = 2;
+        let baselineHintActive = false;
+        let currentTextbookHint = "";
+        let displayedOptionCards = [];
+        let activeSelectedObject = null;
+        let kineticPulseCount = 0;
+
+        // Interactive Testing Hotspots
+        const diagnosticTestingBay = { x: 375, y: 330, width: 150, height: 60, slottedItem: null };
+        const diagnosticRunBtn = { x: 350, y: 460, width: 200, height: 46, activeEngaged: false };
+
+        // Programmatic Web Audio FX Engine
+        const SoundFXEngine = {
+            audioCtx: null,
+            wakeContext() {
+                if (!this.audioCtx) {
+                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            },
+            playTick() {
+                this.wakeContext();
+                let osc = this.audioCtx.createOscillator();
+                let gain = this.audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(540, this.audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.06, this.audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.07);
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                osc.start();
+                osc.stop(this.audioCtx.currentTime + 0.07);
+            },
+            playBuzzer() {
+                this.wakeContext();
+                let osc = this.audioCtx.createOscillator();
+                let gain = this.audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(130, this.audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, this.audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                osc.start();
+                osc.stop(this.audioCtx.currentTime + 0.4);
+            },
+            playSuccessFanfare() {
+                this.wakeContext();
+                let notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+                notes.forEach((freq, idx) => {
+                    let osc = this.audioCtx.createOscillator();
+                    let gain = this.audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime + (idx * 0.09));
+                    gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime + (idx * 0.09));
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + (idx * 0.09) + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.start(this.audioCtx.currentTime + (idx * 0.09));
+                    osc.stop(this.audioCtx.currentTime + (idx * 0.09) + 0.25);
+                });
+                this.triggerSimulatedClaps();
+            },
+            triggerSimulatedClaps() {
+                try {
+                    let sampleRateSize = this.audioCtx.sampleRate * 0.25;
+                    let buf = this.audioCtx.createBuffer(1, sampleRateSize, this.audioCtx.sampleRate);
+                    let channelBuf = buf.getChannelData(0);
+                    for (let i = 0; i < sampleRateSize; i++) {
+                        channelBuf[i] = Math.random() * 2 - 1;
+                    }
+                    for (let b = 0; b < 3; b++) {
+                        let srcNode = this.audioCtx.createBufferSource();
+                        srcNode.buffer = buf;
+                        let filterNode = this.audioCtx.createBiquadFilter();
+                        filterNode.type = 'bandpass';
+                        filterNode.frequency.value = 1050 + (b * 90);
+                        let gainNode = this.audioCtx.createGain();
+                        let timeOffset = this.audioCtx.currentTime + (b * 0.1);
+                        gainNode.gain.setValueAtTime(0.04, timeOffset);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, timeOffset + 0.16);
+                        srcNode.connect(filterNode);
+                        filterNode.connect(gainNode);
+                        gainNode.connect(this.audioCtx.destination);
+                        srcNode.start(timeOffset);
+                    }
+                } catch(e) {}
+            }
+        };
+
+        // Complete Grade 6 Measurement & Motion Chapter Database (12 Structured Items)
+        const measurementChapterPool = [
+            { id: "M1", name: "Standard Ruler", category: "Device", color: "#1e3a8a", query: "Select a rigid standard device to determine the precise length of a straight box line in cm.", hint: "Rulers are straight, flat standard tools used to evaluate straight lines precisely." },
+            { id: "M2", name: "Ancient Pace Step", category: "Ancient Unit", color: "#b45309", query: "Pick the historical body-derived unit used long ago to count steps across large crop fields.", hint: "Ancient people used the distance of a step, known as a pace, for long distances." },
+            { id: "M3", name: "Oscillatory Swing", category: "Motion", color: "#047857", query: "Identify the type of motion observed when a playground swing moves to and fro about its central rest position.", hint: "Oscillatory motion features a body moving back and forth about a mean rest position." },
+            { id: "M4", name: "Rectilinear Arrow", category: "Motion", color: "#0369a1", query: "Determine the motion of an arrow shot from a bow moving strictly forward along a straight path.", hint: "Rectilinear motion describes an object moving along a straight line vector." },
+            { id: "M5", name: "Flexible Measuring Tape", category: "Device", color: "#1d4ed8", query: "Choose the optimal flexible tool an expert tailor needs to evaluate a curved waistline girth.", hint: "A flexible measuring tape contours along curves to solve non-linear distances." },
+            { id: "M6", name: "Rotatory Fan Blades", category: "Motion", color: "#6d28d9", query: "Identify the specific motion configuration when ceiling fan blades spin around a fixed central axis.", hint: "Rotatory motion has all points moving about a fixed internal central pivot axis." },
+            { id: "M7", name: "Curvilinear Car", category: "Motion", color: "#475569", query: "Classify the motion state of a vehicle steering smoothly through a looping circular curved turn.", hint: "Curvilinear motion happens when an object travels along a distinctly curved trajectory path." },
+            { id: "M8", name: "Ancient Finger Width", category: "Ancient Unit", color: "#78350f", query: "Select the small ancient unit historically chosen to approximate table widths using hand digits.", hint: "For small measurements, ancient civilizations relied on the standard width of a finger." },
+            { id: "M9", name: "Periodic Pendulum", category: "Motion", color: "#a21caf", query: "Classify a clock pendulum that repeats its exact operational motion cycle at equal intervals of time.", hint: "Periodic motion occurs when an action repeats itself perfectly over equal intervals of time." },
+            { id: "M10", name: "Uniform Motion", category: "Motion", color: "#0f766e", query: "Name the state where an object covers perfectly equal distances during identical consecutive intervals of time.", hint: "Uniform motion is achieved when a body covers equal distances in equal time spans." },
+            { id: "M11", name: "Circular Satellite", category: "Motion", color: "#312e81", query: "Track the motion of a mechanical probe orbiting a spherical planet in a perfect continuous loop track.", hint: "Circular motion involves a body traveling through a continuous circular path layout." },
+            { id: "M12", name: "International SI Units", category: "System", color: "#dc2626", query: "Identify the globally accepted system of units created to ensure uniform metrics worldwide.", hint: "The International System of Units (S.I. Units) provides a globally accepted metric baseline." }
+        ];
+
+        function initSimulationSuite() {
+            taskPointerIndex = 0;
+            labScore = 0;
+            systemHP = 3;
+            curriculumTasks = [...measurementChapterPool].sort(() => Math.random() - 0.5).slice(0, 10);
+            arrangeLabEnvironment();
+        }
+
+        function arrangeLabEnvironment() {
+            questionAttemptsLeft = 2;
+            baselineHintActive = false;
+            diagnosticTestingBay.slottedItem = null;
+            diagnosticRunBtn.activeEngaged = false;
+            kineticPulseCount = 0;
+
+            const targetQuestion = curriculumTasks[taskPointerIndex];
+            currentTextbookHint = targetQuestion.hint;
+
+            let wrongDistractors = measurementChapterPool.filter(item => item.id !== targetQuestion.id);
+            wrongDistractors.sort(() => Math.random() - 0.5);
+
+            let mixedOptions = [targetQuestion, wrongDistractors[0], wrongDistractors[1]];
+            mixedOptions.sort(() => Math.random() - 0.5);
+
+            displayedOptionCards = [];
+            for (let i = 0; i < 3; i++) {
+                displayedOptionCards.push({
+                    data: mixedOptions[i],
+                    x: 210 + (i * 240),
+                    y: 165,
+                    originX: 210 + (i * 240),
+                    originY: 165,
+                    width: 195,
+                    height: 52,
+                    isSlotted: false
+                });
+            }
+        }
+
+        // Custom Vector Brand Rendering System
+        function drawInnovineIdentityLogo(x, y, multiplier) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(multiplier, multiplier);
+
+            // Technical Outer Structural Hexagon
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                let rotRad = (Math.PI / 3) * i;
+                let hx = 75 * Math.cos(rotRad);
+                let hy = 75 * Math.sin(rotRad);
+                if (i === 0) ctx.moveTo(hx, hy);
+                else ctx.lineTo(hx, hy);
+            }
+            ctx.closePath();
+            ctx.stroke();
+
+            // Central Concentric Data core
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(0, 0, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Intersecting Node Channels
+            ctx.strokeStyle = '#22d3ee';
+            ctx.lineWidth = 4;
+            for (let j = 0; j < 3; j++) {
+                let linkAngle = (Math.PI / 1.5) * j + 0.3;
+                ctx.beginPath();
+                ctx.moveTo(22 * Math.cos(linkAngle), 22 * Math.sin(linkAngle));
+                ctx.lineTo(62 * Math.cos(linkAngle), 62 * Math.sin(linkAngle));
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(62 * Math.cos(linkAngle), 62 * Math.sin(linkAngle), 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        // Master Animation Loop Painter
+        function renderLabTick() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (currentSystemState === 'SPLASH') {
+                // Strict 5-Second Locked Tech Splash Screen
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                drawInnovineIdentityLogo(canvas.width / 2, canvas.height / 2 - 40, 1.25);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 44px sans-serif';
+                ctx.letterSpacing = "5px";
+                ctx.textAlign = 'center';
+                ctx.fillText('INNOVINE', canvas.width / 2, canvas.height / 2 + 90);
+                ctx.letterSpacing = "0px";
+
+                ctx.fillStyle = '#475569';
+                ctx.font = '600 13px sans-serif';
+                ctx.fillText('METRIC METROLOGY & MOTION SIMULATION LABORATORY', canvas.width / 2, canvas.height / 2 + 135);
+
+                if (Date.now() - splashTimerStart > SPLASH_LOCK_MS) {
+                    currentSystemState = 'INSTRUCTIONS';
+                }
+
+            } else if (currentSystemState === 'INSTRUCTIONS') {
+                // Decoupled Post-Splash Instructions Matrix
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = 'bold 30px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('METROLOGY LABORATORY PROTOCOLS', canvas.width / 2, 90);
+
+                ctx.fillStyle = '#4b5563';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText('MOTION AND DISTANCE MEASUREMENT  |  GRADE 6 PHYSICS', canvas.width / 2, 125);
+
+                // Textbook Core Guidelines Container Frame
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(80, 175, 740, 260);
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(80, 175, 740, 260);
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#2563eb';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('CORE ACADEMIC CRITERIA:', 125, 220);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('Analyze the operational diagnostic task. Differentiate between ancient non-standard units,', 125, 245);
+                ctx.fillText('uniform metric SI devices, and physics behaviors describing forms of mechanical motion.', 125, 270);
+
+                ctx.fillStyle = '#d97706';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('LAB SYSTEM APPLICATION HANDLING:', 125, 320);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('1. Drag data elements with mouse or touch input into the diagnostic testing bay.', 125, 345);
+                ctx.fillText('2. Engage the calibration analyzer switch loop to compute metric validation logs.', 125, 370);
+                ctx.fillText('3. Missing a calculation twice triggers a contextual Chapter textbook hint.', 125, 395);
+
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(310, 485, 280, 50);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('ENGAGE LABORATORY APPARATUS', canvas.width / 2, 516);
+
+            } else if (currentSystemState === 'PLAYING') {
+                const activeQuestionObj = curriculumTasks[taskPointerIndex];
+
+                // Regulated Scoreboard HUD (Hardcoded X Spacers Prevent Any Text Overlaps)
+                ctx.fillStyle = '#05070c';
+                ctx.fillRect(0, 0, canvas.width, 65);
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, 0, canvas.width, 65);
+
+                ctx.font = 'bold 15px sans-serif';
+                
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillText(`SYSTEM STAGE: ${taskPointerIndex + 1} / 10`, 35, 38);
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillText(`SCORE INTEGRITY: ${labScore} Pts`, 320, 38);
+                
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText(`HARDWARE HP: ${systemHP} LIFE`, 580, 38);
+
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#4b5563';
+                ctx.fillText('CHAPTER 7 PHYSICAL LAB', canvas.width - 35, 38);
+
+                // Active Scenario Prompt Core Block
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(40, 85, 820, 46);
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = '600 15px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`DIAGNOSTIC TASK: "${activeQuestionObj.query}"`, canvas.width / 2, 113);
+
+                // Interactive Physics Vector Mechanical Art (Simulating a Pendulum System)
+                let computationValidated = (diagnosticRunBtn.activeEngaged && diagnosticTestingBay.slottedItem && diagnosticTestingBay.slottedItem.data.id === activeQuestionObj.id);
+                kineticPulseCount++;
+
+                ctx.save();
+                ctx.translate(450, 260);
+                
+                // Active Pulse Rings if answer is locked and correct
+                if (computationValidated) {
+                    ctx.lineWidth = 2.5;
+                    for (let p = 1; p <= 3; p++) {
+                        ctx.strokeStyle = `rgba(34, 211, 238, ${0.7 - (p * 0.2)})`;
+                        let activeRadius = 35 + p * 15 + Math.sin(kineticPulseCount * 0.18) * 5;
+                        ctx.beginPath();
+                        ctx.arc(Math.sin(kineticPulseCount * 0.05) * 50, 45, activeRadius, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                }
+
+                // Lab Frame Support Rig
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(-60, -10, 120, 8);
+                
+                // Swing Cord Line
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(0, -2);
+                // Swing line pivots dynamically on successful validation
+                let arcOffset = computationValidated ? Math.sin(kineticPulseCount * 0.05) * 50 : 0;
+                ctx.lineTo(arcOffset, 45);
+                ctx.stroke();
+
+                // Bob Mass Head
+                ctx.fillStyle = computationValidated ? '#10b981' : '#475569';
+                ctx.beginPath();
+                ctx.arc(arcOffset, 45, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                // Testing Drop Target Frame Base Bounds
+                ctx.fillStyle = 'rgba(5, 7, 12, 0.9)';
+                ctx.fillRect(diagnosticTestingBay.x, diagnosticTestingBay.y, diagnosticTestingBay.width, diagnosticTestingBay.height);
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([6, 4]);
+                ctx.strokeRect(diagnosticTestingBay.x, diagnosticTestingBay.y, diagnosticTestingBay.width, diagnosticTestingBay.height);
+                ctx.setLineDash([]);
+                
+                ctx.fillStyle = '#4b5563';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                if (!diagnosticTestingBay.slottedItem) {
+                    ctx.fillText('SLOT VALID APPARATUS', diagnosticTestingBay.x + diagnosticTestingBay.width / 2, diagnosticTestingBay.y + 36);
+                }
+
+                // Interactive Analyzer Calibration Trigger Switch Lever
+                ctx.fillStyle = diagnosticRunBtn.activeEngaged ? '#10b981' : '#dc2626';
+                ctx.fillRect(diagnosticRunBtn.x, diagnosticRunBtn.y, diagnosticRunBtn.width, diagnosticRunBtn.height);
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(diagnosticRunBtn.x, diagnosticRunBtn.y, diagnosticRunBtn.width, diagnosticRunBtn.height);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.fillText(diagnosticRunBtn.activeEngaged ? 'CALIBRATION VALID' : 'RUN LOG ANALYSIS', diagnosticRunBtn.x + diagnosticRunBtn.width / 2, diagnosticRunBtn.y + 28);
+
+                // Option Target Elements Cards Engine Loop
+                displayedOptionCards.forEach(card => {
+                    if (!card.isSlotted || activeSelectedObject === card) {
+                        ctx.fillStyle = card.data.color;
+                        ctx.fillRect(card.x - card.width / 2, card.y - card.height / 2, card.width, card.height);
+                        ctx.strokeStyle = activeSelectedObject === card ? '#facc15' : '#1e293b';
+                        ctx.lineWidth = activeSelectedObject === card ? 3.5 : 2;
+                        ctx.strokeRect(card.x - card.width / 2, card.y - card.height / 2, card.width, card.height);
+
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(card.data.name, card.x, card.y + 5);
+                    }
+                });
+
+                // Contextual Scaffold Chapter Hint Drawer Banner
+                if (baselineHintActive) {
+                    ctx.fillStyle = '#1e1b4b';
+                    ctx.fillRect(60, 526, 780, 48);
+                    ctx.strokeStyle = '#d97706';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(60, 526, 780, 48);
+
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.font = 'italic 13.5px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`TEXTBOOK SCROLL HINT: ${currentTextbookHint}`, canvas.width / 2, 555);
+                }
+
+            } else if (currentSystemState === 'GAME_OVER') {
+                // Final Performance Certification Board Summary
+                ctx.fillStyle = '#05070c';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                let labPassedSuccessful = (systemHP > 0 && labScore >= 7);
+
+                ctx.fillStyle = labPassedSuccessful ? '#10b981' : '#ef4444';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(labPassedSuccessful ? 'METROLOGY LAB PASSED' : 'LAB CALIBRATION FAILURE', canvas.width / 2, 175);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.fillText(`Verified Core Task Accuracy: ${labScore} / 10 Elements Balanced`, canvas.width / 2, 250);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '15px sans-serif';
+                if (labPassedSuccessful) {
+                    ctx.fillText('Excellent proficiency logs. Core criteria of SI standard systems and motion mechanics achieved.', canvas.width / 2, 310);
+                } else {
+                    ctx.fillText('Incomplete metrics recorded. Re-examineancient non-standard variances and motion states to retry.', canvas.width / 2, 310);
+                }
+
+                // Interactive Reset Execution Handle
+                ctx.fillStyle = '#2563eb';
+                ctx.fillRect(350, 395, 200, 52);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('RESTART SYSTEM CORES', canvas.width / 2, 427);
+            }
+        }
+
+        // Cross-Platform Event Interface Translation Coordinate Mappers
+        function getUnifiedPointerOffsets(e) {
+            const boundingBoxRect = canvas.getBoundingClientRect();
+            let clickX = e.clientX;
+            let clickY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clickX = e.touches[0].clientX;
+                clickY = e.touches[0].clientY;
+            }
+            return {
+                x: clickX - boundingBoxRect.left,
+                y: clickY - boundingBoxRect.top
+            };
+        }
+
+        function executePointerDownRouting(coords) {
+            const mouseX = coords.x;
+            const mouseY = coords.y;
+
+            if (currentSystemState === 'INSTRUCTIONS') {
+                if (mouseX >= 310 && mouseX <= 590 && mouseY >= 485 && mouseY <= 535) {
+                    SoundFXEngine.playTick();
+                    initSimulationSuite();
+                    currentSystemState = 'PLAYING';
+                }
+            } else if (currentSystemState === 'PLAYING') {
+                // Iterative scan check across selectable card parameters
+                displayedOptionCards.forEach(card => {
+                    if (mouseX >= card.x - card.width / 2 && mouseX <= card.x + card.width / 2 &&
+                        mouseY >= card.y - card.height / 2 && mouseY <= card.y + card.height / 2) {
+                        activeSelectedObject = card;
+                        SoundFXEngine.playTick();
+                    }
+                });
+
+                // System Calibration Button Operational Boundary Check
+                if (mouseX >= diagnosticRunBtn.x && mouseX <= diagnosticRunBtn.x + diagnosticRunBtn.width &&
+                    mouseY >= diagnosticRunBtn.y && mouseY <= diagnosticRunBtn.y + diagnosticRunBtn.height) {
+                    
+                    if (diagnosticTestingBay.slottedItem && !diagnosticRunBtn.activeEngaged) {
+                        diagnosticRunBtn.activeEngaged = true;
+                        SoundFXEngine.playTick();
+
+                        let targetValidationObj = curriculumTasks[taskPointerIndex];
+                        if (diagnosticTestingBay.slottedItem.data.id === targetValidationObj.id) {
+                            // Correct Calibration Route Pathway Sequence
+                            SoundFXEngine.playSuccessFanfare();
+                            labScore++;
+                            setTimeout(() => {
+                                taskPointerIndex++;
+                                if (taskPointerIndex >= 10) {
+                                    currentSystemState = 'GAME_OVER';
+                                } else {
+                                    arrangeLabEnvironment();
+                                }
+                            }, 1900);
+                        } else {
+                            // Incorrect Evaluation Entry Sequence
+                            SoundFXEngine.playBuzzer();
+                            systemHP--;
+                            questionAttemptsLeft--;
+
+                            setTimeout(() => {
+                                if (systemHP <= 0) {
+                                    currentSystemState = 'GAME_OVER';
+                                } else {
+                                    diagnosticRunBtn.activeEngaged = false;
+                                    if (questionAttemptsLeft <= 0) {
+                                        baselineHintActive = true;
+                                    }
+                                    // Elastic spring reset execution back to card starting coordinates
+                                    if (diagnosticTestingBay.slottedItem) {
+                                        diagnosticTestingBay.slottedItem.x = diagnosticTestingBay.slottedItem.originX;
+                                        diagnosticTestingBay.slottedItem.y = diagnosticTestingBay.slottedItem.originY;
+                                        diagnosticTestingBay.slottedItem.isSlotted = false;
+                                        diagnosticTestingBay.slottedItem = null;
+                                    }
+                                }
+                            }, 1300);
+                        }
+                    } else if (!diagnosticTestingBay.slottedItem) {
+                        SoundFXEngine.playBuzzer();
+                    }
+                }
+            } else if (currentSystemState === 'GAME_OVER') {
+                if (mouseX >= 350 && mouseX <= 550 && mouseY >= 395 && mouseY <= 447) {
+                    SoundFXEngine.playTick();
+                    initSimulationSuite();
+                    currentSystemState = 'PLAYING';
+                }
+            }
+        }
+
+        function executePointerMoveRouting(coords) {
+            if (!activeSelectedObject || currentSystemState !== 'PLAYING') return;
+            activeSelectedObject.x = coords.x;
+            activeSelectedObject.y = coords.y;
+        }
+
+        function executePointerUpRouting() {
+            if (!activeSelectedObject || currentSystemState !== 'PLAYING') return;
+
+            let targetCenterPointX = diagnosticTestingBay.x + diagnosticTestingBay.width / 2;
+            let targetCenterPointY = diagnosticTestingBay.y + diagnosticTestingBay.height / 2;
+            let separationDistance = Math.hypot(activeSelectedObject.x - targetCenterPointX, activeSelectedObject.y - targetCenterPointY);
+
+            // Snapping spatial range logic validation check
+            if (separationDistance < 95 && !diagnosticTestingBay.slottedItem) {
+                activeSelectedObject.x = targetCenterPointX;
+                activeSelectedObject.y = targetCenterPointY;
+                activeSelectedObject.isSlotted = true;
+                diagnosticTestingBay.slottedItem = activeSelectedObject;
+                SoundFXEngine.playTick();
+            } else {
+                activeSelectedObject.x = activeSelectedObject.originX;
+                activeSelectedObject.y = activeSelectedObject.originY;
+                activeSelectedObject.isSlotted = false;
+                if (diagnosticTestingBay.slottedItem === activeSelectedObject) {
+                    diagnosticTestingBay.slottedItem = null;
+                }
+            }
+            activeSelectedObject = null;
+        }
+
+        // Multi-Platform Core Hardware Event Binding Channels
+        window.addEventListener('mousedown', (e) => executePointerDownRouting(getUnifiedPointerOffsets(e)));
+        window.addEventListener('mousemove', (e) => executePointerMoveRouting(getUnifiedPointerOffsets(e)));
+        window.addEventListener('mouseup', () => executePointerUpRouting());
+
+        window.addEventListener('touchstart', (e) => { e.preventDefault(); executePointerDownRouting(getUnifiedPointerOffsets(e)); }, {passive: false});
+        window.addEventListener('touchmove', (e) => { e.preventDefault(); executePointerMoveRouting(getUnifiedPointerOffsets(e)); }, {passive: false});
+        window.addEventListener('touchend', () => executePointerUpRouting());
+
+        // Master Engine Driver Core Loop automation
+        function masterDriveAnimationController() {
+            renderLabTick();
+            requestAnimationFrame(masterDriveAnimationController);
+        }
+
+        masterDriveAnimationController();
+    </script>
+</body>
+</html>
