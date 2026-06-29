@@ -210,14 +210,14 @@
             }
         }
 
-        // Custom Vector Icon Brand Engine
+        // Programmatic HTML5 Vector Core Engine Replacement for Assets/Logo.png
         function drawInnovineVectorLogo(x, y, scale, isSplash) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
 
             // Technical Outer Hexagon
-            ctx.strokeStyle = isSplash ? '#1e3a8a' : '#2563eb'; // Deeper royal blue for contrast on light background
+            ctx.strokeStyle = isSplash ? '#1e3a8a' : '#2563eb'; 
             ctx.lineWidth = 5;
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
@@ -231,7 +231,7 @@
             ctx.stroke();
 
             // Core Circular Node
-            ctx.fillStyle = isSplash ? '#2563eb' : '#60a5fa'; // Enhanced circular core visibility
+            ctx.fillStyle = isSplash ? '#2563eb' : '#60a5fa'; 
             ctx.beginPath();
             ctx.arc(0, 0, 24, 0, Math.PI * 2);
             ctx.fill();
