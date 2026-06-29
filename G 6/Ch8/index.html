@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electricity & Circuits Lab Game</title>
+    <title>Grade 6 Science: Fundamentals of Electricity & Circuits Lab</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #1a1a24;
-            color: #ffffff;
+            background-color: #090d16;
+            color: #f8fafc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
@@ -17,496 +17,657 @@
             justify-content: center;
             min-height: 100vh;
             overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
         #gameContainer {
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border-radius: 8px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
             overflow: hidden;
+            border: 4px solid #1e293b;
+            background-color: #0f172a;
         }
         canvas {
             display: block;
-            background-color: #252538;
-        }
-        .instructions {
-            margin-top: 15px;
-            max-width: 700px;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #a0a0c0;
-            text-align: center;
+            background-color: #0f172a;
         }
     </style>
 </head>
 <body>
 
     <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="550"></canvas>
-    </div>
-
-    <div class="instructions">
-        <strong>Game Rules:</strong> Complete the path from the Cell's Positive (+) to Negative (-) terminal[cite: 346]. Drag a material slot to bridge the connection. Select a <strong>Conductor</strong> to successfully light up the bulb[cite: 421]! Choosing an <strong>Insulator</strong> breaks the path. Avoid a Short Circuit[cite: 391]!
+        <canvas id="circuitLabCanvas" width="900" height="600"></canvas>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('circuitLabCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Game State Engine
-        let gameState = 'TITLE'; // TITLE, PLAYING, GAME_OVER_WIN, GAME_OVER_LOSE
+        // GAME STATES: 'SPLASH', 'INSTRUCTIONS', 'PLAYING', 'GAME_OVER'
+        let currentState = 'SPLASH';
+        let splashStartTime = Date.now();
+        const SPLASH_DURATION = 5000; // Mandatory 5 Seconds Lock
+
+        // Session Performance & State Metrics
+        let activeQuestions = [];
+        let currentQuestionIndex = 0;
         let score = 0;
-        let lives = 3;
-        let selectedMaterial = null;
+        let healthPoints = 3; // Game Over occurs if system integrity falls to 0
+        let attemptsLeft = 2;
+        let currentInstanceHint = "";
+        let displayHintBanner = false;
+        let activeOptions = [];
+        let selectedObject = null;
+        let successGlowTicks = 0;
 
-        // Sound Synthesis Engine via Web Audio API (No files required)
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Interactive Component Anchors
+        const testSlotZone = { x: 400, y: 350, width: 100, height: 48, occupiedBy: null };
+        const knifeSwitchControl = { x: 375, y: 460, width: 150, height: 42, isEngaged: false };
 
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            if (type === 'success') {
-                // High-pitch pleasant double chime for complete circuit
+        // Programmatic Web Audio Synthesis Engine (Eliminates External Asset Failures)
+        const AudioEngine = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+            playClick() {
+                this.init();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // A5
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.frequency.setValueAtTime(580, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.4);
-            } else if (type === 'fail') {
-                // Low harsh buzz for incomplete / short circuit
+                osc.stop(this.ctx.currentTime + 0.08);
+            },
+            playBuzzer() {
+                this.init();
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.45);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.5);
-            } else if (type === 'click') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.1);
-            }
-        }
+                osc.stop(this.ctx.currentTime + 0.45);
+            },
+            playSuccess() {
+                this.init();
+                // Bell Chime 1 (C5)
+                let osc1 = this.ctx.createOscillator();
+                let gain1 = this.ctx.createGain();
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(523.25, this.ctx.currentTime);
+                gain1.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+                osc1.connect(gain1);
+                gain1.connect(this.ctx.destination);
+                osc1.start();
+                osc1.stop(this.ctx.currentTime + 0.35);
 
-        // Materials database structured directly from Chapter rules [cite: 422, 423]
-        const materials = [
-            { name: 'Copper Wire', isConductor: true, color: '#b87333' },
-            { name: 'Aluminium Foil', isConductor: true, color: '#d1d5db' },
-            { name: 'Steel Spoon', isConductor: true, color: '#9ca3af' },
-            { name: 'Plastic Ruler', isConductor: false, color: '#3b82f6' },
-            { name: 'Wooden Block', isConductor: false, color: '#854d0e' },
-            { name: 'Rubber Eraser', isConductor: false, color: '#f43f5e' }
+                // Bell Chime 2 (E5) delayed
+                let osc2 = this.ctx.createOscillator();
+                let gain2 = this.ctx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.12);
+                gain2.gain.setValueAtTime(0.15, this.ctx.currentTime + 0.12);
+                gain2.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.47);
+                osc2.connect(gain2);
+                gain2.connect(this.ctx.destination);
+                osc2.start();
+                osc2.stop(this.ctx.currentTime + 0.47);
+
+                this.triggerClappingEffect();
+            },
+            triggerClappingEffect() {
+                // Generates high-quality physical white noise bursts to simulate enthusiastic clapping
+                try {
+                    let bufSize = this.ctx.sampleRate * 0.35;
+                    let buffer = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+                    let data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+                    for (let burst = 0; burst < 3; burst++) {
+                        let src = this.ctx.createBufferSource();
+                        src.buffer = buffer;
+                        let filter = this.ctx.createBiquadFilter();
+                        filter.type = 'bandpass';
+                        filter.frequency.value = 950 + (burst * 100);
+                        let burstGain = this.ctx.createGain();
+                        let timeDelay = this.ctx.currentTime + (burst * 0.12);
+                        burstGain.gain.setValueAtTime(0.06, timeDelay);
+                        burstGain.gain.exponentialRampToValueAtTime(0.001, timeDelay + 0.22);
+                        src.connect(filter);
+                        filter.connect(burstGain);
+                        burstGain.connect(this.ctx.destination);
+                        src.start(timeDelay);
+                    }
+                } catch (e) { console.warn("Audio Context restrictions matched: ", e); }
+            }
+        };
+
+        // Textbook Database Layer: 12 Rigorous Application Tasks 
+        const masterItemPool = [
+            { id: "M1", name: "Copper Wire Strip", isConductor: true, label: "COPPER", color: "#b87333", desc: "Complete the connection link to safely transmit power from the plant network.", hint: "Metals like copper allow electric current to pass through freely." },
+            { id: "M2", name: "Thick Plastic Jacket", isConductor: false, label: "PLASTIC", color: "#2563eb", desc: "Insulate the bare handle grips of the electrician's pliers to prevent high-voltage hazard shock.", hint: "Plastic behaves as an insulator, blocking electrical current flows." },
+            { id: "M3", name: "Aluminium Foil Plate", isConductor: true, label: "ALUMINIUM", color: "#94a3b8", desc: "Bridge a damaged operational trace loop inside a standard electronic circuit board channel.", hint: "Aluminium is a functional metal element used widely for electric cables." },
+            { id: "M4", name: "Soft Rubber Tape", isConductor: false, label: "RUBBER", color: "#db2777", desc: "Wrap around a structural copper wire junction splice to seal it cleanly from touch hazards.", hint: "Rubber prevents electrical charges from moving out of the circuit loop." },
+            { id: "M5", name: "Steel Safety Pin", isConductor: true, label: "STEEL PIN", color: "#cbd5e1", desc: "Act as an emergency alternative temporary switch mechanism inside a classroom project board.", hint: "Steel is a durable carbon-iron alloy and represents a powerful conductor." },
+            { id: "M6", name: "Dry Wooden Block", isConductor: false, label: "DRY WOOD", color: "#78350f", desc: "Isolate a high-power control switch backing panel frame safely from moist grounding lines.", hint: "Dry wood does not allow electric charges to travel through its matrix." },
+            { id: "M7", name: "Graphite Electrode", isConductor: true, label: "GRAPHITE", color: "#475569", desc: "Test an alternative mineral structure capable of conducting current despite being non-metallic.", hint: "Graphite is a non-metal form of carbon that conducts current effectively." },
+            { id: "M8", name: "Glazed Porcelain Rim", isConductor: false, label: "PORCELAIN", color: "#e2e8f0", desc: "Mount a structural overhead high-voltage cable separation hook safely away from utility poles.", hint: "Ceramic porcelain acts as a premium insulator protecting high-voltage infrastructure." },
+            { id: "M9", name: "Iron Construction Nail", isConductor: true, label: "IRON NAIL", color: "#64748b", desc: "Repair a physical gap break detected across an industrial battery bay bracket track terminal.", hint: "Iron objects complete circuits reliably by acting as strong conductors." },
+            { id: "M10", name: "Heavy Cardboard Sheeting", isConductor: false, label: "CARDBOARD", color: "#a1a1aa", desc: "Insert a physical safety separator partition barrier inside a tabletop lamp terminal housing box.", hint: "Paper products lack free charge carriers, classifying them clearly as insulators." },
+            { id: "M11", name: "Polished Brass Skeleton Key", isConductor: true, label: "BRASS KEY", color: "#eab308", desc: "Form a solid mechanical jumper connection directly across two bare electrical terminal blocks.", hint: "Brass is a robust alloy containing copper, making it a reliable conductor." },
+            { id: "M12", name: "Thick Glass Rod Spacer", isConductor: false, label: "GLASS SPACER", color: "#38bdf8", desc: "Construct a physical safety brace bar designed to stop live current leaking into adjacent housing.", hint: "Glass offers very high resistance and handles properties as an expert insulator." }
         ];
 
-        // Object coordinates layout
-        let materialPool = [];
-        const targetSlot = { x: 360, y: 350, width: 90, height: 40, occupant: null };
-        const switchButton = { x: 355, y: 440, width: 100, height: 40, isOpen: true };
-
-        function initLevel() {
-            materialPool = [];
-            // Shuffle and allocate position coordinates
-            let items = [...materials].sort(() => Math.random() - 0.5);
-            for(let i = 0; i < 3; i++) {
-                materialPool.push({
-                    info: items[i],
-                    x: 180 + (i * 180),
-                    y: 130,
-                    originX: 180 + (i * 180),
-                    originY: 130,
-                    width: 110,
-                    height: 45,
-                    isPlaced: false
-                });
-            }
-            targetSlot.occupant = null;
-            switchButton.isOpen = true;
+        // Initialization Routine: Populates exactly 10 non-repetitive dynamic tasks
+        function initializeLaboratorySession() {
+            currentQuestionIndex = 0;
+            score = 0;
+            healthPoints = 3;
+            activeQuestions = [...masterItemPool].sort(() => Math.random() - 0.5).slice(0, 10);
+            assembleActiveQuestionInstance();
         }
 
-        // Draw custom vector logo on title screen [cite: 720]
-        function drawLogo(x, y, scale) {
+        // Configures choices and coordinates for the active question slide
+        function assembleActiveQuestionInstance() {
+            attemptsLeft = 2;
+            displayHintBanner = false;
+            testSlotZone.occupiedBy = null;
+            knifeSwitchControl.isEngaged = false;
+            successGlowTicks = 0;
+
+            const targetTask = activeQuestions[currentQuestionIndex];
+            currentInstanceHint = targetTask.hint;
+
+            // Generate alternative choices from remaining data items
+            let distractionPool = masterItemPool.filter(item => item.id !== targetTask.id);
+            distractionPool.sort(() => Math.random() - 0.5);
+
+            // Exactly 3 unique selectable choice options per prompt
+            let activeChoices = [targetTask, distractionPool[0], distractionPool[1]];
+            activeChoices.sort(() => Math.random() - 0.5);
+
+            activeOptions = [];
+            for (let i = 0; i < 3; i++) {
+                activeOptions.push({
+                    data: activeChoices[i],
+                    x: 200 + (i * 250),
+                    y: 150,
+                    originX: 200 + (i * 250),
+                    originY: 150,
+                    width: 180,
+                    height: 50,
+                    isDocked: false
+                });
+            }
+        }
+
+        // Custom Vector Branding Renderer (Zero-White Layout Safeguard)
+        function drawInnovineVectorBranding(x, y, multiplier) {
             ctx.save();
             ctx.translate(x, y);
-            ctx.scale(scale, scale);
+            ctx.scale(multiplier, multiplier);
 
-            // Shield/Circuit Badge border
-            ctx.strokeStyle = '#eab308';
+            // External Geometrical Techno Hexagon Ring
+            ctx.strokeStyle = '#0ea5e9';
             ctx.lineWidth = 5;
-            ctx.fillStyle = '#1e1b4b';
             ctx.beginPath();
-            ctx.arc(0, 0, 60, 0, Math.PI * 2);
-            ctx.fill();
+            for (let i = 0; i < 6; i++) {
+                let rotAngle = (Math.PI / 3) * i;
+                let hx = 75 * Math.cos(rotAngle);
+                let hy = 75 * Math.sin(rotAngle);
+                if (i === 0) ctx.moveTo(hx, hy);
+                else ctx.lineTo(hx, hy);
+            }
+            ctx.closePath();
             ctx.stroke();
 
-            // Render Lightning Symbol Inside Logo [cite: 722]
-            ctx.fillStyle = '#facc15';
+            // Internal Central Core Energy Node
+            ctx.fillStyle = '#38bdf8';
             ctx.beginPath();
-            ctx.moveTo(-10, -35);
-            ctx.lineTo(20, -5);
-            ctx.lineTo(5, 5);
-            ctx.lineTo(15, 35);
-            ctx.lineTo(-15, 5);
-            ctx.lineTo(0, -5);
-            ctx.closePath();
+            ctx.arc(0, 0, 22, 0, Math.PI * 2);
             ctx.fill();
 
+            // Trace Network Grid Triggers
+            ctx.strokeStyle = '#67e8f9';
+            ctx.lineWidth = 4;
+            for (let j = 0; j < 3; j++) {
+                let segmentAngle = (Math.PI / 1.5) * j + 0.3;
+                ctx.beginPath();
+                ctx.moveTo(22 * Math.cos(segmentAngle), 22 * Math.sin(segmentAngle));
+                ctx.lineTo(62 * Math.cos(segmentAngle), 62 * Math.sin(segmentAngle));
+                ctx.stroke();
+
+                // Distributed Node Junctions
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(62 * Math.cos(segmentAngle), 62 * Math.sin(segmentAngle), 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
             ctx.restore();
         }
 
-        // Main Rendering Loops
-        function draw() {
+        // Central Canvas Evaluation & Render Engine
+        function paintLaboratoryTick() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (gameState === 'TITLE') {
-                // Title Text Screen
+            if (currentState === 'SPLASH') {
+                // Strict Dark Splash Screen
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                drawInnovineVectorBranding(canvas.width / 2, canvas.height / 2 - 40, 1.25);
+
                 ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 42px sans-serif';
+                ctx.letterSpacing = "4px";
+                ctx.textAlign = 'center';
+                ctx.fillText('INNOVINE', canvas.width / 2, canvas.height / 2 + 85);
+                ctx.letterSpacing = "0px";
+
+                ctx.fillStyle = '#475569';
+                ctx.font = '600 14px sans-serif';
+                ctx.fillText('VIRTUAL LABORATORY SIMULATION ENVIRONMENT', canvas.width / 2, canvas.height / 2 + 130);
+
+                // Evaluation Route for 5-Second Threshold
+                if (Date.now() - splashStartTime > SPLASH_DURATION) {
+                    currentState = 'INSTRUCTIONS';
+                }
+
+            } else if (currentState === 'INSTRUCTIONS') {
+                // Instruction Board (Rendered ONLY after Splash Phase terminates)
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#f8fafc';
                 ctx.font = 'bold 32px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('CIRCUIT LAB CHALLENGE', canvas.width / 2, 80);
-                
-                ctx.font = '18px sans-serif';
-                ctx.fillStyle = '#60a5fa';
-                ctx.fillText('Grade 6 Science: Fundamentals of Electricity', canvas.width / 2, 115);
+                ctx.fillText('LAB PROTOCOLS & CIRCUIT DIAGRAM INSTRUCTIONS', canvas.width / 2, 85);
 
-                // Draw the dynamic game logo
-                drawLogo(canvas.width / 2, 230, 1.3);
-
-                // Instructions box
-                ctx.fillStyle = '#2e2e48';
-                ctx.fillRect(150, 330, 500, 110);
-                ctx.strokeStyle = '#4b5563';
-                ctx.strokeRect(150, 330, 500, 110);
-
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#64748b';
                 ctx.font = 'bold 15px sans-serif';
-                ctx.textAlign = 'left';
-                ctx.fillText('Mission Rules:', 170, 355);
-                ctx.font = '14px sans-serif';
-                ctx.fillStyle = '#cbd5e1';
-                ctx.fillText('1. Drag a material option into the missing circuit wire gap.', 170, 380);
-                ctx.fillText('2. Close the circuit switch to evaluate functionality.', 170, 405);
-                ctx.fillText('3. Conductors will light the bulb; Insulators fail the circuit.', 170, 430);
+                ctx.fillText('SCIENCE CURRICULUM LEVEL VI  |  CHAPTER 8: ELECTRICITY', canvas.width / 2, 120);
 
-                // Start prompt button
+                // Central Instructions Panel Box
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(80, 160, 740, 290);
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(80, 160, 740, 290);
+
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('CORE SCIENTIFIC OBJECTIVE:', 120, 205);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('Read the laboratory requirement. Analyze whether the scenario calls for a', 120, 230);
+                ctx.fillText('Conductor (allows current) or an Insulator (blocks current) to complete the tasks safely.', 120, 255);
+
+                ctx.fillStyle = '#facc15';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('LABORATORY WORKFLOW CONTROLS:', 120, 310);
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('1. Drag items using your pointer directly into the dashed test slot circuit junction.', 120, 335);
+                ctx.fillText('2. Click on the knife switch lever down to pass current verification tests.', 120, 360);
+                ctx.fillText('3. Each prompt permits 2 distinct attempt loops before generating contextual hints.', 120, 385);
+                ctx.fillText('4. Preserve system health metrics. Completing 10 questions routes to the evaluation card.', 120, 410);
+
+                // Clickable Action Trigger
                 ctx.fillStyle = '#10b981';
-                ctx.fillRect(300, 470, 200, 45);
+                ctx.fillRect(320, 490, 260, 50);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 16px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('START LAB', canvas.width / 2, 498);
+                ctx.fillText('INITIALIZE LABORATORY SUITE', canvas.width / 2, 521);
 
-            } else if (gameState === 'PLAYING') {
-                // Status Header HUD
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '16px sans-serif';
+            } else if (currentState === 'PLAYING') {
+                const targetTask = activeQuestions[currentQuestionIndex];
+
+                // Continuous Scoreboard Header
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, canvas.width, 65);
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, 0, canvas.width, 65);
+
                 ctx.textAlign = 'left';
-                ctx.fillText(`Score: ${score} / 3 Complete`, 30, 40);
-                ctx.textAlign = 'right';
-                ctx.fillText(`System Integrity (Lives): ${lives}`, canvas.width - 30, 40);
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText(`CURRENT TASK: ${currentQuestionIndex + 1} / 10`, 30, 38);
 
-                // Instructions panel label
-                ctx.fillStyle = '#9ca3af';
-                ctx.font = '15px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('DRAG A TEST MATERIAL ELEMENT DOWN INTO THE CIRCUIT GAP:', canvas.width / 2, 85);
-
-                // Draw Circuit schematic diagram foundations [cite: 471]
-                ctx.lineWidth = 6;
-                ctx.strokeStyle = '#4b5563'; // Unpowered dark wire look
-                
-                // If switch closed and a conductor is in place, glow the path yellow [cite: 398, 409]
-                let isCircuitGlowing = (!switchButton.isOpen && targetSlot.occupant && targetSlot.occupant.info.isConductor);
-                if (isCircuitGlowing) ctx.strokeStyle = '#fbbf24';
-
-                // Schematic Path tracing lines
-                ctx.beginPath();
-                // From battery left through bulb to slot entry
-                ctx.moveTo(200, 370);
-                ctx.lineTo(120, 370);
-                ctx.lineTo(120, 280);
-                ctx.lineTo(360, 280); // To bulb base entry point
-                ctx.stroke();
-
-                ctx.beginPath();
-                // From bulb output across to right edge down to switch mechanism
-                ctx.moveTo(450, 280);
-                ctx.lineTo(680, 280);
-                ctx.lineTo(680, 370);
-                ctx.lineTo(450, 370); // Right side wire connection to target slot
-                ctx.stroke();
-
-                // Draw Switch Wiring Paths [cite: 404]
-                ctx.beginPath();
-                ctx.moveTo(200, 370);
-                ctx.lineTo(200, 460);
-                ctx.lineTo(355, 460);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(455, 460);
-                ctx.lineTo(600, 460);
-                ctx.lineTo(600, 370);
-                ctx.stroke();
-
-                // Component Render 1: The Dry Cell / Battery [cite: 357, 594]
-                ctx.save();
-                ctx.translate(500, 350);
-                ctx.fillStyle = '#dc2626'; // Red cell body [cite: 573]
-                ctx.fillRect(0, 0, 100, 40);
-                ctx.fillStyle = '#d1d5db'; // Metallic positive cap tip [cite: 569]
-                ctx.fillRect(100, 10, 8, 20);
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 12px sans-serif';
-                ctx.fillText('DRY CELL', 15, 25);
-                ctx.fillText('+', 85, 25); // Positive side [cite: 543]
-                ctx.fillText('-', 5, 25);  // Negative side [cite: 543]
+                ctx.fillText(`METRIC ACCURACY: ${score} Pts`, canvas.width / 2 - 80, 38);
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText(`SYSTEM INTEGRITY: ${healthPoints} HP`, canvas.width / 2 + 100, 38);
+
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#475569';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText('CHAPTER 8 CORE LAB', canvas.width - 30, 38);
+
+                // Objective Banner Frame
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(40, 85, 820, 45);
+                ctx.fillStyle = '#facc15';
+                ctx.font = '600 15px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`SCENARIO TARGET: "${targetTask.desc}"`, canvas.width / 2, 113);
+
+                // Blueprint Circuit Path Vector Drawings [cite: 374, 375, 376]
+                let systemClosedSuccessfully = (knifeSwitchControl.isEngaged && testSlotZone.occupiedBy && testSlotZone.occupiedBy.data.id === targetTask.id);
+                ctx.lineWidth = 7;
+                ctx.strokeStyle = systemClosedSuccessfully ? '#facc15' : '#334155';
+
+                // Core loop layout lines
+                ctx.beginPath();
+                ctx.moveTo(250, 374);
+                ctx.lineTo(160, 374);
+                ctx.lineTo(160, 280);
+                ctx.lineTo(400, 280);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(500, 280);
+                ctx.lineTo(740, 280);
+                ctx.lineTo(740, 374);
+                ctx.lineTo(500, 374);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(250, 374);
+                ctx.lineTo(250, 480);
+                ctx.lineTo(375, 480);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(525, 480);
+                ctx.lineTo(650, 480);
+                ctx.lineTo(650, 374);
+                ctx.stroke();
+
+                // Component 1: The Dry Chemical Power Cell [cite: 357, 359, 365]
+                ctx.save();
+                ctx.translate(540, 350);
+                ctx.fillStyle = '#ef4444'; // Non-white child-friendly primary element colors
+                ctx.fillRect(0, 0, 110, 48);
+                ctx.fillStyle = '#64748b';
+                ctx.fillRect(110, 14, 8, 20);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('DRY CELL', 55, 29);
+                ctx.font = 'bold 18px sans-serif';
+                ctx.fillText('+', 100, 31);
+                ctx.fillText('-', 15, 31);
                 ctx.restore();
 
-                // Component Render 2: The Torch Light Bulb Element [cite: 599]
+                // Component 2: Filament Light Bulb Housing [cite: 378, 380, 384]
                 ctx.save();
-                ctx.translate(360, 240);
-                // Glow radius path effect if activated successfully [cite: 374]
-                if (isCircuitGlowing) {
-                    let gradient = ctx.createRadialGradient(45, 25, 5, 45, 25, 45);
-                    gradient.addColorStop(0, 'rgba(253, 224, 71, 0.8)');
-                    gradient.addColorStop(1, 'rgba(253, 224, 71, 0)');
-                    ctx.fillStyle = gradient;
+                ctx.translate(405, 230);
+                if (systemClosedSuccessfully) {
+                    successGlowTicks++;
+                    let pulsingGlow = ctx.createRadialGradient(45, 25, 5, 45, 25, 45 + Math.sin(successGlowTicks * 0.15) * 6);
+                    pulsingGlow.addColorStop(0, 'rgba(254, 240, 138, 1)');
+                    pulsingGlow.addColorStop(0.5, 'rgba(234, 179, 8, 0.4)');
+                    pulsingGlow.addColorStop(1, 'rgba(234, 179, 8, 0)');
+                    ctx.fillStyle = pulsingGlow;
                     ctx.beginPath();
-                    ctx.arc(45, 25, 45, 0, Math.PI * 2);
+                    ctx.arc(45, 25, 50, 0, Math.PI * 2);
                     ctx.fill();
                 }
-                // Outer glass shell container [cite: 600]
-                ctx.strokeStyle = '#9ca3af';
-                ctx.fillStyle = isCircuitGlowing ? '#fef08a' : '#4b5563';
+                ctx.fillStyle = systemClosedSuccessfully ? '#fef08a' : '#1e293b';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 3;
                 ctx.beginPath();
                 ctx.arc(45, 25, 25, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
-                // Metal screw contact casing base ring [cite: 607]
-                ctx.fillStyle = '#78716c';
-                ctx.fillRect(33, 45, 24, 15);
+                // Filament thread element representation inside glass case [cite: 378, 380]
+                ctx.strokeStyle = systemClosedSuccessfully ? '#ea580c' : '#475569';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(35, 30);
+                ctx.lineTo(40, 15);
+                ctx.lineTo(50, 15);
+                ctx.lineTo(55, 30);
+                ctx.stroke();
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(32, 49, 26, 12);
                 ctx.restore();
 
-                // Component Render 3: Target Bridge Evaluation Wire Slot
-                ctx.fillStyle = 'rgba(255,255,255,0.05)';
-                ctx.fillRect(targetSlot.x, targetSlot.y, targetSlot.width, targetSlot.height);
-                ctx.strokeStyle = '#eab308';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([4, 4]);
-                ctx.strokeRect(targetSlot.x, targetSlot.y, targetSlot.width, targetSlot.height);
-                ctx.setLineDash([]); // Reset line dash styling
-                
-                ctx.fillStyle = '#a1a1aa';
-                ctx.font = '11px sans-serif';
-                ctx.fillText('INSERT MATERIAL', targetSlot.x + 45, targetSlot.y + 24);
+                // Target Circuit Disconnect Testing Slot Area
+                ctx.fillStyle = 'rgba(9, 13, 22, 0.8)';
+                ctx.fillRect(testSlotZone.x, testSlotZone.y, testSlotZone.width, testSlotZone.height);
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([6, 4]);
+                ctx.strokeRect(testSlotZone.x, testSlotZone.y, testSlotZone.width, testSlotZone.height);
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#475569';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                if (!testSlotZone.occupiedBy) {
+                    ctx.fillText('INSERT ELEMENT', testSlotZone.x + testSlotZone.width / 2, testSlotZone.y + 28);
+                }
 
-                // Component Render 4: Control Circuit Switch [cite: 631]
-                ctx.fillStyle = switchButton.isOpen ? '#ef4444' : '#10b981';
-                ctx.fillRect(switchButton.x, switchButton.y, switchButton.width, switchButton.height);
+                // Interactive Circuit Control Knife Switch [cite: 395, 396]
+                ctx.fillStyle = knifeSwitchControl.isEngaged ? '#10b981' : '#dc2626';
+                ctx.fillRect(knifeSwitchControl.x, knifeSwitchControl.y, knifeSwitchControl.width, knifeSwitchControl.height);
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(knifeSwitchControl.x, knifeSwitchControl.y, knifeSwitchControl.width, knifeSwitchControl.height);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 13px sans-serif';
-                ctx.fillText(switchButton.isOpen ? 'SWITCH: OPEN' : 'SWITCH: CLOSED', switchButton.x + 50, switchButton.y + 24);
+                ctx.fillText(knifeSwitchControl.isEngaged ? 'SWITCH CLOSED' : 'ENGAGE SWITCH', knifeSwitchControl.x + knifeSwitchControl.width / 2, knifeSwitchControl.y + 26);
 
-                // Render pool of selectable material block cards
-                materialPool.forEach(item => {
-                    if (!item.isPlaced || selectedMaterial === item) {
-                        ctx.fillStyle = item.info.color;
-                        ctx.fillRect(item.x - item.width/2, item.y - item.height/2, item.width, item.height);
-                        
-                        ctx.strokeStyle = '#ffffff';
-                        ctx.lineWidth = selectedMaterial === item ? 3 : 1;
-                        ctx.strokeRect(item.x - item.width/2, item.y - item.height/2, item.width, item.height);
-                        
+                // Option Block List Element Layout Cards
+                activeOptions.forEach(opt => {
+                    if (!opt.isDocked || selectedObject === opt) {
+                        ctx.fillStyle = opt.data.color;
+                        ctx.fillRect(opt.x - opt.width / 2, opt.y - opt.height / 2, opt.width, opt.height);
+                        ctx.strokeStyle = selectedObject === opt ? '#facc15' : '#334155';
+                        ctx.lineWidth = selectedObject === opt ? 3.5 : 2;
+                        ctx.strokeRect(opt.x - opt.width / 2, opt.y - opt.height / 2, opt.width, opt.height);
+
                         ctx.fillStyle = '#ffffff';
-                        ctx.font = '13px sans-serif';
+                        ctx.font = 'bold 13px sans-serif';
                         ctx.textAlign = 'center';
-                        ctx.fillText(item.info.name, item.x, item.y + 5);
+                        ctx.fillText(opt.data.name, opt.x, opt.y + 5);
                     }
                 });
 
-            } else if (gameState === 'GAME_OVER_WIN') {
-                // Game Ends: Win State Terminal Screen
-                ctx.fillStyle = '#10b981';
-                ctx.font = 'bold 40px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('LAB MISSION COMPLETED!', canvas.width / 2, 180);
+                // Automated Contextual Remedial Hint System Box
+                if (displayHintBanner) {
+                    ctx.fillStyle = '#1e1b4b';
+                    ctx.fillRect(60, 525, 780, 48);
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(60, 525, 780, 48);
 
-                drawLogo(canvas.width / 2, 290, 1.0);
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.font = 'italic 14px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`SCIENTIFIC CONCEPT HINT: ${currentInstanceHint}`, canvas.width / 2, 554);
+                }
+
+            } else if (currentState === 'GAME_OVER') {
+                // Completed Terminal Summary Card
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                let testPassed = (healthPoints > 0 && score >= 7);
+
+                ctx.fillStyle = testPassed ? '#10b981' : '#ef4444';
+                ctx.font = 'bold 38px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(testPassed ? 'LAB EVALUATION SUCCESSFUL' : 'LAB CERTIFICATION INCOMPLETE', canvas.width / 2, 170);
 
                 ctx.fillStyle = '#ffffff';
-                ctx.font = '18px sans-serif';
-                ctx.fillText(`Final Lab Score Score: ${score} Successfully Connected Circuits!`, canvas.width / 2, 390);
-                ctx.font = '15px sans-serif';
-                ctx.fillStyle = '#9ca3af';
-                ctx.fillText('Excellent. You correctly classified Conductors vs Insulators!', canvas.width / 2, 420);
+                ctx.font = 'bold 20px sans-serif';
+                ctx.fillText(`Operational Calibration Accuracy: ${score} / 10 Tasks Matched`, canvas.width / 2, 245);
 
-                // Replay selection interface button
-                ctx.fillStyle = '#3b82f6';
-                ctx.fillRect(300, 460, 200, 45);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '15px sans-serif';
+                if (testPassed) {
+                    ctx.fillText('Excellent proficiency. Core principles of conductive loops and insulator barriers mastered.', canvas.width / 2, 300);
+                } else {
+                    ctx.fillText('Required proficiency threshold not fulfilled. Re-examine the material charts and try again.', canvas.width / 2, 300);
+                }
+
+                // Interactive Session Reset Mechanism
+                ctx.fillStyle = '#2563eb';
+                ctx.fillRect(350, 380, 200, 52);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('ANALYSE AGAIN', canvas.width / 2, 488);
-
-            } else if (gameState === 'GAME_OVER_LOSE') {
-                // Game Ends: Lose State Terminal Screen
-                ctx.fillStyle = '#ef4444';
-                ctx.font = 'bold 40px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('CIRCUIT SYSTEM FAILURE', canvas.width / 2, 180);
-
-                // Skull warning icon indicator placeholder [cite: 720]
-                ctx.fillStyle = '#f59e0b';
-                ctx.font = '54px sans-serif';
-                ctx.fillText('⚠️', canvas.width / 2, 290);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '18px sans-serif';
-                ctx.fillText('The system suffered critical short circuits or insulation blocks.', canvas.width / 2, 370);
-                ctx.fillStyle = '#9ca3af';
-                ctx.font = '15px sans-serif';
-                ctx.fillText('Remember: Metals pass electrical charge; wood, plastics, and rubber block it[cite: 422, 423].', canvas.width / 2, 400);
-
-                // Retry execution frame block button
-                ctx.fillStyle = '#3b82f6';
-                ctx.fillRect(300, 450, 200, 45);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('RESTART SYSTEM', canvas.width / 2, 478);
+                ctx.fillText('RUN NEW TRIAL', canvas.width / 2, 412);
             }
         }
 
-        // Mouse Drag / Drop Interaction Coordinates tracking mechanics
+        // Pointer Click & Interaction Interception Event Management
         window.addEventListener('mousedown', (e) => {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
 
-            if (gameState === 'TITLE') {
-                if (mouseX >= 300 && mouseX <= 500 && mouseY >= 470 && mouseY <= 515) {
-                    playSound('click');
-                    gameState = 'PLAYING';
-                    score = 0;
-                    lives = 3;
-                    initLevel();
+            if (currentState === 'INSTRUCTIONS') {
+                // Check start lab coordinates bounds engagement
+                if (mouseX >= 320 && mouseX <= 580 && mouseY >= 490 && mouseY <= 540) {
+                    AudioEngine.playClick();
+                    initializeLaboratorySession();
+                    currentState = 'PLAYING';
                 }
-            } else if (gameState === 'PLAYING') {
-                // Check if user clicked a material item
-                materialPool.forEach(item => {
-                    if (mouseX >= item.x - item.width/2 && mouseX <= item.x + item.width/2 &&
-                        mouseY >= item.y - item.height/2 && mouseY <= item.y + item.height/2) {
-                        selectedMaterial = item;
-                        playSound('click');
+            } else if (currentState === 'PLAYING') {
+                // Scan list array inputs for intersecting choice objects
+                activeOptions.forEach(opt => {
+                    if (mouseX >= opt.x - opt.width / 2 && mouseX <= opt.x + opt.width / 2 &&
+                        mouseY >= opt.y - opt.height / 2 && mouseY <= opt.y + opt.height / 2) {
+                        selectedObject = opt;
+                        AudioEngine.playClick();
                     }
                 });
 
-                // Check click interaction with switch interface block [cite: 633]
-                if (mouseX >= switchButton.x && mouseX <= switchButton.x + switchButton.width &&
-                    mouseY >= switchButton.y && mouseY <= switchButton.y + switchButton.height) {
+                // Switch Trigger Verification System Controls
+                if (mouseX >= knifeSwitchControl.x && mouseX <= knifeSwitchControl.x + knifeSwitchControl.width &&
+                    mouseY >= knifeSwitchControl.y && mouseY <= knifeSwitchControl.y + knifeSwitchControl.height) {
                     
-                    if (targetSlot.occupant) {
-                        switchButton.isOpen = !switchButton.isOpen;
-                        playSound('click');
-                        
-                        // Rule Assessment Phase
-                        if (!switchButton.isOpen) {
-                            if (targetSlot.occupant.info.isConductor) {
-                                // Success condition sequence [cite: 409]
-                                playSound('success');
-                                score++;
-                                setTimeout(() => {
-                                    if (score >= 3) {
-                                        gameState = 'GAME_OVER_WIN';
-                                    } else {
-                                        initLevel();
+                    if (testSlotZone.occupiedBy && !knifeSwitchControl.isEngaged) {
+                        knifeSwitchControl.isEngaged = true;
+                        AudioEngine.playClick();
+
+                        let targetObject = activeQuestions[currentQuestionIndex];
+                        if (testSlotZone.occupiedBy.data.id === targetObject.id) {
+                            // Validation Loop Succeeded Pathway
+                            AudioEngine.playSuccess();
+                            score++;
+                            setTimeout(() => {
+                                currentQuestionIndex++;
+                                if (currentQuestionIndex >= 10) {
+                                    currentState = 'GAME_OVER'; // Route exactly to absolute end state
+                                } else {
+                                    assembleActiveQuestionInstance();
+                                }
+                            }, 1900);
+                        } else {
+                            // Validation Loop Failed Pathway
+                            AudioEngine.playBuzzer();
+                            healthPoints--;
+                            attemptsLeft--;
+
+                            setTimeout(() => {
+                                if (healthPoints <= 0) {
+                                    currentState = 'GAME_OVER';
+                                } else {
+                                    knifeSwitchControl.isEngaged = false;
+                                    if (attemptsLeft <= 0) {
+                                        displayHintBanner = true; // Auto display hint text block asset
                                     }
-                                }, 1200);
-                            } else {
-                                // Open loop insulation breakdown condition [cite: 411]
-                                playSound('fail');
-                                lives--;
-                                setTimeout(() => {
-                                    if (lives <= 0) {
-                                        gameState = 'GAME_OVER_LOSE';
-                                    } else {
-                                        // Reset element positions back to pools
-                                        switchButton.isOpen = true;
-                                        if (targetSlot.occupant) {
-                                            targetSlot.occupant.x = targetSlot.occupant.originX;
-                                            targetSlot.occupant.y = targetSlot.occupant.originY;
-                                            targetSlot.occupant.isPlaced = false;
-                                            targetSlot.occupant = null;
-                                        }
+                                    // Elastic Snap Return to Starting Coordinates Positions
+                                    if (testSlotZone.occupiedBy) {
+                                        testSlotZone.occupiedBy.x = testSlotZone.occupiedBy.originX;
+                                        testSlotZone.occupiedBy.y = testSlotZone.occupiedBy.originY;
+                                        testSlotZone.occupiedBy.isDocked = false;
+                                        testSlotZone.occupiedBy = null;
                                     }
-                                }, 1000);
-                            }
+                                }
+                            }, 1300);
                         }
-                    } else {
-                        // Empty slot exception sound alert [cite: 386]
-                        playSound('fail');
+                    } else if (!testSlotZone.occupiedBy) {
+                        AudioEngine.playBuzzer();
                     }
                 }
-            } else if (gameState === 'GAME_OVER_WIN' || gameState === 'GAME_OVER_LOSE') {
-                if (mouseX >= 300 && mouseX <= 500 && mouseY >= 450 && mouseY <= 510) {
-                    playSound('click');
-                    gameState = 'PLAYING';
-                    score = 0;
-                    lives = 3;
-                    initLevel();
+            } else if (currentState === 'GAME_OVER') {
+                // Process request for running new test evaluation session cycles
+                if (mouseX >= 350 && mouseX <= 550 && mouseY >= 380 && mouseY <= 432) {
+                    AudioEngine.playClick();
+                    initializeLaboratorySession();
+                    currentState = 'PLAYING';
                 }
             }
         });
 
+        // Pointer Live-Motion Event Tracker Coordinates Updates
         window.addEventListener('mousemove', (e) => {
-            if (!selectedMaterial || gameState !== 'PLAYING') return;
+            if (!selectedObject || currentState !== 'PLAYING') return;
             const rect = canvas.getBoundingClientRect();
-            selectedMaterial.x = e.clientX - rect.left;
-            selectedMaterial.y = e.clientY - rect.top;
+            selectedObject.x = e.clientX - rect.left;
+            selectedObject.y = e.clientY - rect.top;
         });
 
-        window.addEventListener('mouseup', (e) => {
-            if (!selectedMaterial || gameState !== 'PLAYING') return;
+        // Pointer Release Evaluation Event Framework Handler Rules
+        window.addEventListener('mouseup', () => {
+            if (!selectedObject || currentState !== 'PLAYING') return;
 
-            // Check if item was dropped close to the target circuit bridge gap
-            let centerX = targetSlot.x + targetSlot.width/2;
-            let centerY = targetSlot.y + targetSlot.height/2;
-            let distance = Math.hypot(selectedMaterial.x - centerX, selectedMaterial.y - centerY);
+            let dropZoneCenterX = testSlotZone.x + testSlotZone.width / 2;
+            let dropZoneCenterY = testSlotZone.y + testSlotZone.height / 2;
+            let spatialDistance = Math.hypot(selectedObject.x - dropZoneCenterX, selectedObject.y - dropZoneCenterY);
 
-            if (distance < 70 && !targetSlot.occupant) {
-                // Securely anchor node card inside target perimeter alignment slot bounds
-                selectedMaterial.x = centerX;
-                selectedMaterial.y = centerY;
-                selectedMaterial.isPlaced = true;
-                targetSlot.occupant = selectedMaterial;
-                playSound('click');
+            // Snapping capture lock geometry check rules
+            if (spatialDistance < 90 && !testSlotZone.occupiedBy) {
+                selectedObject.x = dropZoneCenterX;
+                selectedObject.y = dropZoneCenterY;
+                selectedObject.isDocked = true;
+                testSlotZone.occupiedBy = selectedObject;
+                AudioEngine.playClick();
             } else {
-                // Snap back element item cards to starting location vectors
-                selectedMaterial.x = selectedMaterial.originX;
-                selectedMaterial.y = selectedMaterial.originY;
-                selectedMaterial.isPlaced = false;
-                if (targetSlot.occupant === selectedMaterial) {
-                    targetSlot.occupant = null;
+                // Elastic failure bounce back to card list decks configuration points
+                selectedObject.x = selectedObject.originX;
+                selectedObject.y = selectedObject.originY;
+                selectedObject.isDocked = false;
+                if (testSlotZone.occupiedBy === selectedObject) {
+                    testSlotZone.occupiedBy = null;
                 }
             }
-            selectedMaterial = null;
+            selectedObject = null;
         });
 
-        // Loop engine activation runtime configuration
-        function gameLoop() {
-            draw();
-            requestAnimationFrame(gameLoop);
+        // Continuous Main Cycle Render Routine Execution Driver 
+        function frameTickController() {
+            paintLaboratoryTick();
+            requestAnimationFrame(frameTickController);
         }
 
-        // Start initialization execution sequence
-        gameLoop();
+        // Engage continuous cycle engine runtime execution immediately
+        frameTickController();
     </script>
 </body>
 </html>
