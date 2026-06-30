@@ -80,19 +80,9 @@
 
         .header { 
             display: flex; 
-            justify-content: space-between; 
+            justify-content: flex-end; 
             align-items: center; 
             margin-bottom: 15px; 
-        }
-        
-        .level-badge { 
-            background: var(--primary-blue); 
-            color: white; 
-            padding: 6px 14px; 
-            border-radius: 20px; 
-            font-weight: 800; 
-            font-size: 0.8rem; 
-            letter-spacing: 1px; 
         }
 
         .hud-box { 
@@ -294,14 +284,13 @@
         <p style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 25px;">Spatial Physics Calibration Unit</p>
         
         <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: left; border: 1px solid #243b55; font-size: 0.92rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 30px;">
-            Welcome to the Engineering Analyzer console. Operate physical metrics, adjust slider variables, and capture motion tracking profiles on the live viewport desk instead of using static multi-choice tests.
+            Welcome to the Engineering Analyzer console. Operate physical metrics, adjust slider variables, and capture motion tracking profiles on the live viewport desk.
         </div>
         <button id="engage-btn" style="width:100%; padding:16px; background:var(--primary-blue); color:white; border:none; border-radius:50px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow: 0 4px 14px rgba(0,114,255,0.4);">POWER UP MONITOR</button>
     </div>
 
     <div id="quiz-view" class="view-frame hidden">
         <div class="header">
-            <div class="level-badge" id="level-indicator">METRICS CALIBRATION</div>
             <div class="hud-box">WORKSTATION: <span id="node-progress">1/5</span></div>
         </div>
         
@@ -340,10 +329,9 @@
 </div>
 
 <script>
-    // Master pools with randomized layouts
+    // Master Array Pools expanded with 5 additional variations each (6 per type, 30 total)
     const rawToggleUnitsPool = [
         {
-            level: "METRICS CONFIG",
             q: "Task 01: Calibrate the switchboard panel to isolate only Uniform Standard Units of distance. Turn off body-part units.",
             taskType: "TOGGLE_UNITS",
             switches: ["Metre & Kilometre", "Handspan & Cubit", "Pace & Arm-span"],
@@ -351,56 +339,134 @@
             expl: "Standard S.I. units (Metre, Kilometre) remain uniform globally, whereas body measurements (handspan, cubit) vary with every individual."
         },
         {
-            level: "METRICS CONFIG",
             q: "Task 01: Isolate globally unified industrial protocols. Deactivate any historical variable human metrics.",
             taskType: "TOGGLE_UNITS",
             switches: ["Footstep & Yard", "Centimetre & Millimetre", "Angstrom & Inch"],
             targetStates: [false, true, false],
-            expl: "Centimetre and Millimetre form rigid, internationally structured S.I. benchmarks that prevent trading disputes caused by regional anatomical variations."
+            expl: "Centimetre and Millimetre form rigid, internationally structured S.I. benchmarks that prevent trading disputes caused by regional variations."
+        },
+        {
+            q: "Task 01: Filter out early ancient body estimation frameworks. Retain only official Metric System protocols.",
+            taskType: "TOGGLE_UNITS",
+            switches: ["Fathom & Digit", "Millimetre & Metre", "Pace & Cubit"],
+            targetStates: [false, true, false],
+            expl: "Millimetre and Metre are independent of any anatomical anomalies, ensuring reliable shared engineering definitions anywhere on Earth."
+        },
+        {
+            q: "Task 01: Turn ON the standard international standard length metric components. Keep non-standard tools offline.",
+            taskType: "TOGGLE_UNITS",
+            switches: ["Kilometre & Metre", "Finger-width & Handspan", "Cubit & Yard"],
+            targetStates: [true, false, false],
+            expl: "Kilometre and Metre maintain consistent scaling dimensions across global industrial trade routes."
+        },
+        {
+            q: "Task 01: Flag and preserve uniform standardized dimensions while setting unstable personal body metrics to inactive.",
+            taskType: "TOGGLE_UNITS",
+            switches: ["Pace & Step-length", "Arm-span & Fathom", "Centimetre & Kilometre"],
+            targetStates: [false, false, true],
+            expl: "Centimetre and Kilometre rely on fixed base physics values instead of human skeleton proportions."
+        },
+        {
+            q: "Task 01: Select items that provide an identical length assessment no matter who conducts the measurement.",
+            taskType: "TOGGLE_UNITS",
+            switches: ["Metre & Centimetre", "Cubit & Handspan", "Footstep & Digit"],
+            targetStates: [true, false, false],
+            expl: "Standardized metric blocks do not shift or scale, matching a baseline consensus worldwide."
         }
     ];
 
     const rawSliderRulerPool = [
         {
-            level: "METRICS CONFIG",
-            q: "Task 02: Adjust the calibration marker on the broken ruler (missing its first 2cm) to compute the true length of the beam.",
+            q: "Task 02: Adjust the calibration slider to calculate the true length of the beam shown on the broken ruler (starting at 2cm and ending at 7cm).",
             taskType: "SLIDER_RULER",
             minRulerVal: 2,
-            maxRulerVal: 7, // Fixed to align directly from 2cm to 7cm marker
-            targetAnswer: 5.0, // 7 - 2 = 5cm true length
+            maxRulerVal: 7, 
+            targetAnswer: 5.0, 
             expl: "True Length = End Position (7cm) minus Start Position (2cm). Discarding the broken 0-2cm dead space gives exactly 5.0 cm."
         },
         {
-            level: "METRICS CONFIG",
-            q: "Task 02: Tune the tracking slider to map the net length of a block measuring from the 3cm line up to the 9.5cm marker.",
+            q: "Task 02: A block sits on a chipped ruler measuring from the 3cm marker line up to the 8cm line. Tune the slider to its actual net length.",
             taskType: "SLIDER_RULER",
             minRulerVal: 3,
-            maxRulerVal: 9.5,
-            targetAnswer: 6.5,
-            expl: "Subtracting the starting offset alignment coordinate (3cm) from the absolute tip reading (9.5cm) computes to exactly 6.5 cm."
+            maxRulerVal: 8,
+            targetAnswer: 5.0,
+            expl: "Subtracting the 3cm start position offset from the 8cm absolute endpoint calculation results in exactly 5.0 cm."
+        },
+        {
+            q: "Task 02: An object begins at the 4cm point on a broken metric edge tool and lines up with the 9cm marker. Input the true value.",
+            taskType: "SLIDER_RULER",
+            minRulerVal: 4,
+            maxRulerVal: 9,
+            targetAnswer: 5.0,
+            expl: "9cm minus the initial 4cm damaged margin equals a final clean block space calculation of 5.0 cm."
+        },
+        {
+            q: "Task 02: Calibrate the monitoring interface to read the true structural length of an element positioned between 5cm and 10cm.",
+            taskType: "SLIDER_RULER",
+            minRulerVal: 5,
+            maxRulerVal: 10,
+            targetAnswer: 5.0,
+            expl: "10cm minus 5cm equals 5.0 cm. Always strip away zero calibration offsets when using a damaged measuring layout."
+        },
+        {
+            q: "Task 02: Deduct the starting tool damage error on a scale tracking from 6cm to 11cm. Set the slider to the true dimensions.",
+            taskType: "SLIDER_RULER",
+            minRulerVal: 6,
+            maxRulerVal: 11,
+            targetAnswer: 5.0,
+            expl: "Evaluating an endpoint reading of 11cm when starting from a 6cm reference mark yields a net physical space of 5.0 cm."
+        },
+        {
+            q: "Task 02: Find the true physical length value of an component resting between the 2.5cm line and the 7.5cm line.",
+            taskType: "SLIDER_RULER",
+            minRulerVal: 2.5,
+            maxRulerVal: 7.5,
+            targetAnswer: 5.0,
+            expl: "Subtracting 2.5cm from 7.5cm gives exactly 5.0 cm, verifying the target coordinate scale."
         }
     ];
 
     const rawTapTimingPool = [
         {
-            level: "KINEMATICS RUN",
-            q: "Task 03: The pendulum simulation is running. Click the live viewport at the exact instant the tracking pattern shifts to pure Oscillatory Motion.",
+            q: "Task 03: The mechanical simulation is running. Click the live viewport at the exact instant the tracking pattern shifts to pure Oscillatory Motion.",
             taskType: "TAP_TIMING",
             targetMotion: "Oscillatory",
             expl: "To-and-fro periodic repetitions tracing paths symmetrically around a steady central rest coordinate correctly specify clean Oscillatory Motion."
         },
         {
-            level: "KINEMATICS RUN",
-            q: "Task 03: Analyze the live terminal feeds. Tap inside the visual grid whenever the trajectory matrix matches standard non-periodic Circular paths.",
+            q: "Task 03: Monitor the tracking cycles. Click inside the viewport when the object shifts its profile to run in regular Circular motion loop patterns.",
             taskType: "TAP_TIMING",
             targetMotion: "Circular",
-            expl: "Continuous spinning vectors locking coordinate groups around a central fixed point mark pure Circular rotation states."
+            expl: "Continuous rotation tracking an object at a fixed radial boundary distance from a core axis defines Circular Motion."
+        },
+        {
+            q: "Task 03: Synchronize data collection systems. Press the display window only when you observe a to-and-fro periodic swing phase.",
+            taskType: "TAP_TIMING",
+            targetMotion: "Oscillatory",
+            expl: "A classic swinging pendulum follows a regular path to-and-fro across its centerline, confirming an Oscillatory state."
+        },
+        {
+            q: "Task 03: Tap the display layout when the path traces a full orbital perimeter instead of a rhythmic swinging curve arc.",
+            taskType: "TAP_TIMING",
+            targetMotion: "Circular",
+            expl: "Orbital loops around a single center point indicate a Circular motion framework."
+        },
+        {
+            q: "Task 03: Register a timing hit inside the tracking boundary the moment the moving body executes a rhythmic balancing swing.",
+            taskType: "TAP_TIMING",
+            targetMotion: "Oscillatory",
+            expl: "Rhythmic back-and-forth swing states match the criteria for standard Oscillatory tracking."
+        },
+        {
+            q: "Task 03: Tap the active workspace frame immediately when the motion path locks into a continuous spinning axle configuration.",
+            taskType: "TAP_TIMING",
+            targetMotion: "Circular",
+            expl: "Spinning paths that do not reverse direction around a central axis line track as pure Circular motion."
         }
     ];
 
     const rawToggleMotionPool = [
         {
-            level: "KINEMATICS RUN",
             q: "Task 04: Toggle the calibration profile below to match the current motion of the spinning ceiling fan blades.",
             taskType: "TOGGLE_MOTION",
             switches: ["Circular Path", "Rectilinear Path", "Oscillatory Arc"],
@@ -408,29 +474,78 @@
             expl: "Points on the spinning blades travel along uniform paths positioned consistently around a locked central axis pivot, producing Circular Motion."
         },
         {
-            level: "KINEMATICS RUN",
             q: "Task 04: Synchronize telemetry inputs with a high-speed projectile path traveling locked directly down a flat straight-line rail vector.",
             taskType: "TOGGLE_MOTION",
             switches: ["Oscillatory Arc", "Rectilinear Path", "Circular Path"],
             targetStates: [false, true, false],
             expl: "Whenever an engineering load shifts uniformly along a completely flat, straight line vector, its motion profile is strictly Rectilinear."
+        },
+        {
+            q: "Task 04: Configure the tracking system to classify a standard heavy stone plummet falling vertically straight down an internal testing chute.",
+            taskType: "TOGGLE_MOTION",
+            switches: ["Rectilinear Path", "Circular Path", "Oscillatory Arc"],
+            targetStates: [true, false, false],
+            expl: "Gravity drops that track down a single straight vertical axis represent true Rectilinear motion."
+        },
+        {
+            q: "Task 04: Adjust your inputs to categorize a merry-go-round amusement ride carousel wheel spinning at a constant velocity.",
+            taskType: "TOGGLE_MOTION",
+            switches: ["Rectilinear Path", "Oscillatory Arc", "Circular Path"],
+            targetStates: [false, false, true],
+            expl: "A carousel spins in a continuous horizontal path around a central anchor column, validating a Circular path profile."
+        },
+        {
+            q: "Task 04: Program the motion tracking profile for a metal coin sliding across an ultra-low friction linear laboratory workbench surface.",
+            taskType: "TOGGLE_MOTION",
+            switches: ["Circular Path", "Rectilinear Path", "Oscillatory Arc"],
+            targetStates: [false, true, false],
+            expl: "Objects sliding smoothly across flat planes follow a straight trajectory line, which classifies as Rectilinear motion."
+        },
+        {
+            q: "Task 04: Match the profile of a heavy freight train car cruising along a completely flat, uncurved horizontal railway section.",
+            taskType: "TOGGLE_MOTION",
+            switches: ["Oscillatory Arc", "Circular Path", "Rectilinear Path"],
+            targetStates: [false, false, true],
+            expl: "Straight track segments constrain the train's motion to a single linear vector, designating it as Rectilinear."
         }
     ];
 
     const rawTapTimingRectPool = [
         {
-            level: "KINEMATICS RUN",
             q: "Task 05: Track the vehicle model moving inside the grid lane. Click the viewport when it matches a pure Rectilinear path profile.",
             taskType: "TAP_TIMING_RECT",
             targetMotion: "Rectilinear",
             expl: "Linear transitions over regular vectors mapping zero lateral curvature establish clean Rectilinear tracking logs."
         },
         {
-            level: "KINEMATICS RUN",
             q: "Task 05: Intercept the automated laboratory load carriage at the microsecond its path log drifts into Curvilinear path profiles.",
             taskType: "TAP_TIMING_RECT",
             targetMotion: "Curvilinear",
             expl: "Whenever an object shifts tracking coordinates along a non-linear or wavy track profile, it exits straight lines into Curvilinear paths."
+        },
+        {
+            q: "Task 05: Log data for the vehicle model at the exact moment its tracking coordinates map into an uncurved straight vector path.",
+            taskType: "TAP_TIMING_RECT",
+            targetMotion: "Rectilinear",
+            expl: "Uncurved horizontal path tracking marks the presence of basic Rectilinear physics mechanics."
+        },
+        {
+            q: "Task 05: Trigger the data collection interceptor whenever the vehicle body begins to sway along an oscillating or wavy line route.",
+            taskType: "TAP_TIMING_RECT",
+            targetMotion: "Curvilinear",
+            expl: "Wavy path tracking introduces changing coordinate curves, moving the system into a Curvilinear state."
+        },
+        {
+            q: "Task 05: Press the display screen when the active tracking trace shows perfectly straight line motion.",
+            taskType: "TAP_TIMING_RECT",
+            targetMotion: "Rectilinear",
+            expl: "Straight paths keep the acceleration profile along a single dimension, classifying it as Rectilinear."
+        },
+        {
+            q: "Task 05: Tap the tracking container window when the target carriage path begins tracking along a continuous curved arc route.",
+            taskType: "TAP_TIMING_RECT",
+            targetMotion: "Curvilinear",
+            expl: "Arced and curved non-linear tracks change vector direction, indicating Curvilinear motion."
         }
     ];
 
@@ -443,7 +558,6 @@
     let canvasAnimationId = null;
     let animTick = 0;
 
-    let interactiveSliderX = 250; 
     let currentMotionMode = "Circular"; 
 
     const sndCorrect = new Audio('assets/correct.mp3');
@@ -499,7 +613,6 @@
         
         const data = labDataset[currentStep];
         document.getElementById('node-progress').innerText = `${currentStep + 1} / ${labDataset.length}`;
-        document.getElementById('level-indicator').innerText = data.level;
         document.getElementById('prompt-msg').innerText = data.q;
         
         const controlArea = document.getElementById('dynamic-switches');
@@ -529,21 +642,16 @@
             row.innerHTML = `
                 <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem;">
                     <span>Calculated Length Vector:</span>
-                    <span id="slider-readout" style="color:var(--neon-cyan); font-weight:bold;">5.0 cm</span>
+                    <span id="slider-readout" style="color:var(--neon-cyan); font-weight:bold;">1.0 cm</span>
                 </div>
-                <input type="range" id="metric-slider" min="1.0" max="9.0" step="0.5" value="5.0" style="width:100%; height:6px; background:#334155; border-radius:3px; outline:none;">
+                <input type="range" id="metric-slider" min="1.0" max="9.0" step="0.5" value="1.0" style="width:100%; height:6px; background:#334155; border-radius:3px; outline:none;">
             `;
             controlArea.appendChild(row);
             
             document.getElementById('metric-slider').addEventListener('input', (e) => {
                 let val = parseFloat(e.target.value);
                 document.getElementById('slider-readout').innerText = val.toFixed(1) + " cm";
-                let originStartOffset = 60 + ((data.minRulerVal - 2) * 32);
-                interactiveSliderX = originStartOffset + (val * 32); 
             });
-            let initialVal = parseFloat(document.getElementById('metric-slider').value);
-            let originStartOffset = 60 + ((data.minRulerVal - 2) * 32);
-            interactiveSliderX = originStartOffset + (initialVal * 32);
         } 
         else if (data.taskType === "TAP_TIMING" || data.taskType === "TAP_TIMING_RECT") {
             document.getElementById('rack-title').innerText = "Telemetry Analyzer Feed";
@@ -615,18 +723,26 @@
                 }
             }
 
+            // Lock structural positions on screen to match real dimensions
             let startBeamX = 60 + ((data.minRulerVal - 2) * 32);
             let endBeamX = 60 + ((data.maxRulerVal - 2) * 32);
 
             ctx.fillStyle = "rgba(0, 242, 254, 0.25)";
             ctx.fillRect(startBeamX, 110, (endBeamX - startBeamX), 12);
             
+            // Render vector tracking lines at a fixed length of 5.0cm
+            let fixedVectorWidth = 5.0 * 32; 
             ctx.strokeStyle = varColor('--neon-cyan');
             ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(startBeamX, 42); ctx.lineTo(interactiveSliderX, 42); ctx.stroke();
+            ctx.beginPath(); 
+            ctx.moveTo(startBeamX, 42); 
+            ctx.lineTo(startBeamX + fixedVectorWidth, 42); 
+            ctx.stroke();
             
             ctx.fillStyle = varColor('--neon-cyan');
-            ctx.beginPath(); ctx.arc(interactiveSliderX, 42, 6, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); 
+            ctx.arc(startBeamX + fixedVectorWidth, 42, 6, 0, Math.PI*2); 
+            ctx.fill();
         } 
         else if (data.taskType === "TAP_TIMING") {
             let centerPos = canvas.width / 2;
@@ -650,10 +766,6 @@
                 ctx.fillStyle = varColor('--error-red');
                 ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.fill();
             }
-            
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "bold 11px monospace";
-            ctx.fillText(`CURRENT MONITOR STATE: ${currentMotionMode.toUpperCase()}`, 200, 155);
         } 
         else if (data.taskType === "TOGGLE_MOTION") {
             let originX = canvas.width / 2;
@@ -669,9 +781,6 @@
                 let angle = spinRotation + (b * (Math.PI * 2 / 3));
                 ctx.beginPath(); ctx.moveTo(originX, originY); ctx.lineTo(originX + Math.cos(angle)*60, originY + Math.sin(angle)*60); ctx.stroke();
             }
-            ctx.fillStyle = varColor('--neon-cyan');
-            ctx.font = "bold 11px monospace";
-            ctx.fillText("LIVE PROFILE SPIN VECTOR DETECTED", 200, 155);
         } 
         else if (data.taskType === "TAP_TIMING_RECT") {
             let trackY = canvas.height / 2;
@@ -679,25 +788,17 @@
             ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(30, trackY); ctx.lineTo(370, trackY); ctx.stroke();
 
-            let stateLabel = "Rectilinear";
             let carX;
-
             if (animTick % 200 < 100) {
                 carX = 40 + ((animTick % 100) * 3.2);
                 ctx.fillStyle = varColor('--success-green');
                 ctx.fillRect(carX, trackY - 12, 28, 16);
-                stateLabel = "Rectilinear";
             } else {
                 carX = 40 + ((animTick % 100) * 3.2);
                 let carY = trackY + Math.sin(animTick * 0.2) * 25;
                 ctx.fillStyle = varColor('--error-red');
                 ctx.fillRect(carX, carY - 12, 28, 16);
-                stateLabel = "Curvilinear";
             }
-
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "bold 11px monospace";
-            ctx.fillText(`PATH LOG PROFILE: ${stateLabel.toUpperCase()}`, 200, 155);
         }
     }
 
