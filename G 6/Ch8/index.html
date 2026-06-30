@@ -2,395 +2,634 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Innovine: Grade 6 Magnetism Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuit Runner: Pro Edition</title>
     <style>
-        :root {
-            --primary-blue: #4361ee;
-            --electric-yellow: #ffd60a;
-            --success-green: #2ec4b6;
-            --error-red: #e71d36;
-            --light-bg: #f0f2f5;
-            --text-dark: #2b2d42;
-            --panel-white: #ffffff;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
-            color: var(--text-dark);
-            margin: 0;
+            background-color: #1a1a2e;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 12px;
-        }
-
-        #app-container {
-            width: 100%;
-            max-width: 480px;
-            background: var(--panel-white);
-            border-radius: 28px;
-            padding: 25px;
-            margin: 10px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
-            position: relative;
+            height: 100vh;
+            color: #fff;
             overflow: hidden;
-            min-height: 600px;
-            border-top: 10px solid var(--primary-blue);
-            display: flex;
-            flex-direction: column;
         }
 
-        /* --- STABLE 5-SECOND SPLASH SHIELD LAYER --- */
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: #162447;
+            border: 4px solid #0f3460;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- SCREEN 1: SPLASH SCREEN --- */
         #splash-screen {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #ffffff;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out;
+            z-index: 100;
+            transition: opacity 0.5s ease;
         }
 
-        .splash-logo {
-            max-width: 200px;
+        #logo-img {
+            max-width: 350px;
             max-height: 200px;
             object-fit: contain;
-            margin-bottom: 15px;
+            animation: pulse 2s infinite ease-in-out;
         }
 
-        .splash-brand-title {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: var(--primary-blue);
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        @keyframes pulse {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(0.95); }
         }
 
-        /* --- ARCHITECTURE COMPONENTS --- */
-        .view-frame {
+        /* --- SCREEN 2: MAIN MENU --- */
+        #menu-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .case-badge { background: var(--primary-blue); color: white; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; }
-        .score-box { font-weight: 800; color: var(--primary-blue); }
-
-        .question-text { font-size: 1.05rem; font-weight: 600; line-height: 1.5; margin-bottom: 18px; color: #1e293b; white-space: pre-line; }
-        
-        /* HIGH-CONTRAST VECTOR ART CANVAS */
-        .image-container { 
-            width: 100%; 
-            margin-bottom: 20px; 
-            border-radius: 16px; 
-            overflow: hidden; 
-            border: 2px dashed #cbd5e1;
-            display: flex; 
-            justify-content: center; 
+            justify-content: center;
             align-items: center;
-            background: #f8fafc; 
-            padding: 15px;
-            min-height: 140px;
+            background: radial-gradient(circle, #1f4068 0%, #162447 100%);
+            z-index: 50;
         }
 
-        /* Pure CSS Graphic Visualizations */
-        .magnet-bar-graphic { display: flex; width: 220px; height: 45px; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #94a3b8; }
-        .magnet-pole { width: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 1.2rem; letter-spacing: 1px; }
-        .magnet-pole.north { background: #ef4444; }
-        .magnet-pole.south { background: #3b82f6; }
-
-        .filings-heap { position: relative; width: 100%; height: 60px; display: flex; justify-content: center; align-items: flex-end; }
-        .filing-dots { width: 140px; height: 35px; background: radial-gradient(circle, #475569 20%, transparent 60%); background-size: 8px 8px; opacity: 0.8; }
-
-        .compass-graphic { position: relative; width: 100px; height: 100px; border: 5px solid #475569; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .compass-needle { position: absolute; width: 8px; height: 80px; display: flex; flex-direction: column; transform: rotate(0deg); transition: transform 0.5s ease; }
-        .needle-half { height: 50%; width: 100%; }
-        .needle-half.north { background: #ef4444; border-top-left-radius: 50% 100%; border-top-right-radius: 50% 100%; }
-        .needle-half.south { background: #cbd5e1; border-bottom-left-radius: 50% 100%; border-bottom-right-radius: 50% 100%; }
-        .compass-label { position: absolute; font-weight: 800; font-size: 0.75rem; color: #64748b; }
-
-        .options-grid { display: grid; gap: 12px; }
-        
-        /* FIX: Ensured word-wrapping and multi-line capacity for option text readability */
-        .opt-btn {
-            background: #fff; border: 2.5px solid #e2e8f0; padding: 16px;
-            border-radius: 15px; text-align: left; font-size: 0.95rem; cursor: pointer; transition: 0.2s;
-            color: var(--text-dark); font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.01);
-            white-space: normal;
-            word-wrap: break-word;
-            line-height: 1.4;
+        h1 {
+            font-size: 3rem;
+            color: #e43f5a;
+            text-shadow: 0 0 10px rgba(228,63,90,0.6);
+            margin-bottom: 10px;
+            text-align: center;
         }
-        .opt-btn:hover:not(:disabled) { border-color: var(--primary-blue); background: #f8fafc; }
-        
-        .opt-btn.correct { background: var(--success-green) !important; color: white !important; border-color: var(--success-green) !important; font-weight: 700; transform: scale(1.01); }
-        .opt-btn.wrong { background: var(--error-red) !important; color: white !important; border-color: var(--error-red) !important; opacity: 0.85; }
 
-        .feedback { margin-top: 20px; padding: 16px; border-radius: 15px; display: none; line-height: 1.5; margin-bottom: 15px; font-size: 0.92rem; }
-        .hint-mode { background: #fffde7; border-left: 5px solid var(--electric-yellow); color: #856404; border-top: 1px solid #fef9e7; border-right: 1px solid #fef9e7; border-bottom: 1px solid #fef9e7; }
-        .expl-mode { background: #ecfdf5; border-left: 5px solid var(--success-green); color: #065f46; border-top: 1px solid #d1fae5; border-right: 1px solid #d1fae5; border-bottom: 1px solid #d1fae5; }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #00fff0;
+            margin-bottom: 40px;
+        }
 
-        #action-btn { 
-            width: 100%; margin-top: auto; padding: 18px; 
-            background: var(--primary-blue); color: white; 
-            border: none; border-radius: 16px; font-weight: 800; 
-            font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.25);
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #e43f5a;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
             transition: all 0.2s;
+            box-shadow: 0 5px 15px rgba(228,63,90,0.4);
         }
-        #action-btn:hover { background: #314ecc; }
 
-        .hidden { display: none !important; }
+        .btn:hover {
+            background-color: #ff4d6d;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(228,63,90,0.6);
+        }
+
+        /* --- SCREEN 3: ACTUAL GAMEPLAY --- */
+        #gameplay-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        #hud {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            font-weight: bold;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: rgba(15, 52, 96, 0.9);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid #00fff0;
+        }
+
+        #target-box {
+            color: #ffea00;
+            border-color: #ffea00;
+            max-width: 440px;
+            text-align: center;
+        }
+
+        #level-box {
+            color: #ff4d6d;
+            border-color: #ff4d6d;
+        }
+
+        canvas {
+            display: block;
+            background: #121214;
+        }
+
+        /* --- SCREEN 4: INTERMEDIATE SUCCESS SCREEN --- */
+        #level-clear-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(22, 36, 71, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 55;
+            display: none;
+            border: 4px solid #00fff0;
+            border-radius: 8px;
+        }
+
+        .clear-title {
+            font-size: 3.5rem;
+            color: #00fff0;
+            text-shadow: 0 0 15px rgba(0,255,240,0.4);
+            margin-bottom: 20px;
+        }
+
+        /* --- SCREEN 5: GAME OVER / WIN --- */
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 26, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 60;
+            display: none;
+        }
+
+        #game-over-title {
+            font-size: 3.2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #game-over-msg {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 550px;
+            text-align: center;
+            color: #ccc;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
 
-<div id="app-container">
-    <div id="splash-screen">
-        <img src="assets/logo.png" alt="Innovine Logo" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').style.display='block';">
-        <div id="fallback-logo-text" class="splash-brand-title" style="display:none; margin-bottom:10px;">INNOVINE</div>
-        <div style="font-size: 0.85rem; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Grade 6 Magnetism Lab</div>
-    </div>
-
-    <div id="intro-view" class="view-frame hidden" style="text-align: center; justify-content: center;">
-        <div style="margin-bottom: 15px;">
-            <img src="assets/logo.png" alt="Innovine Logo" style="max-height: 55px; object-fit: contain;">
-        </div>
-        <h1 style="color: var(--primary-blue); margin: 0; font-weight: 800; font-size: 1.65rem;">Magnetism Control</h1>
-        <p style="color: #64748b; margin-top: 4px; margin-bottom: 20px; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;">Competency Testing System</p>
+    <div id="game-container">
         
-        <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin: 15px 0 25px 0; text-align: left; border: 2px dashed #cbd5e1; font-size: 0.95rem; line-height: 1.5; color: #475569;">
-            Welcome to Optical & Magnetism Mission Control. Ready to evaluate magnet arrays, chart polar vectors, and manage storage parameters? You have up to <b>2 active attempts</b> per critical framework node.
+        <div id="splash-screen">
+            <img id="logo-img" src="assets/logo.png" alt="Innovine Logo">
         </div>
-        <button id="start-btn" style="width:100%; padding:18px; background:var(--primary-blue); color:white; border:none; border-radius:50px; font-weight:bold; font-size:1.05rem; cursor:pointer; box-shadow: 0 4px 14px rgba(67, 97, 238, 0.3);">ENGAGE SYSTEM</button>
-    </div>
 
-    <div id="quiz-view" class="view-frame hidden">
-        <div class="header">
-            <div class="case-badge">NODE #<span id="q-num">1</span></div>
-            <div class="score-box">LUMENS: <span id="score-val">0</span> lm</div>
+        <div id="menu-screen">
+            <h1>CIRCUIT RUNNER</h1>
+            <p class="subtitle">Electricity, Circuits & Symbols</p>
+            <button class="btn" id="start-btn">START GAME</button>
         </div>
-        <div id="q-text" class="question-text"></div>
-        <div id="image-area"></div>
-        <div id="options-area" class="options-grid"></div>
-        <div id="feedback-box" class="feedback"></div>
-        <button id="action-btn" class="hidden">CONTINUE →</button>
+
+        <div id="gameplay-screen">
+            <div id="hud">
+                <div class="hud-item" id="level-box">Level: 1</div>
+                <div class="hud-item" id="score-box">Score: 0 / 5</div>
+                <div class="hud-item" id="target-box">Collect: CONDUCTORS!</div>
+                <div class="hud-item" id="lives-box">⚡ Lives: 3</div>
+            </div>
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <div id="level-clear-screen">
+            <h2 class="clear-title">⚡ LEVEL 1 COMPLETED ⚡</h2>
+            <p id="level-clear-msg" style="font-size:1.2rem; max-width:550px; text-align:center; margin-bottom:35px; line-height:1.6; color:#e0e0e0;">
+                Excellent! You successfully verified the electrical conductors like spoons, keys, and mineral-dense water while isolating harmful insulators.
+            </p>
+            <button class="btn" id="next-level-btn" style="background-color:#00fff0; color:#121214; box-shadow: 0 5px 15px rgba(0,255,240,0.3);">ADVANCE TO LEVEL 2</button>
+        </div>
+
+        <div id="game-over-screen">
+            <h2 id="game-over-title">Game Over</h2>
+            <p id="game-over-msg">Your circuit broke down!</p>
+            <button class="btn" id="restart-btn">Play Again</button>
+        </div>
+
     </div>
 
-    <div id="result-view" class="view-frame hidden" style="text-align:center; justify-content: center;">
-        <div id="result-icon" style="font-size: 4.5rem; margin-bottom: 5px;">🏆</div>
-        <h2 style="color: var(--primary-blue); margin: 5px 0 10px 0; font-size: 1.5rem;">Mission Report</h2>
-        <div style="font-size: 3.8rem; font-weight: 900; color: var(--text-dark); margin: 10px 0;"><span id="final-pts">0</span> / 500</div>
-        <p id="result-msg" style="color:#64748b; margin-bottom:30px; line-height: 1.5; font-size: 0.95rem; padding: 0 10px;"></p>
-        <button onclick="location.reload()" style="width:100%; padding:18px; background:var(--primary-blue); color:white; border:none; border-radius:16px; font-weight:700; cursor:pointer; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);">REBOOT SYSTEM</button>
-    </div>
-</div>
+    <script>
+        const splashScreen = document.getElementById('splash-screen');
+        const menuScreen = document.getElementById('menu-screen');
+        const gameplayScreen = document.getElementById('gameplay-screen');
+        const levelClearScreen = document.getElementById('level-clear-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startBtn = document.getElementById('start-btn');
+        const nextLevelBtn = document.getElementById('next-level-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        const levelBox = document.getElementById('level-box');
+        const scoreBox = document.getElementById('score-box');
+        const targetBox = document.getElementById('target-box');
+        const livesBox = document.getElementById('lives-box');
+        const gameOverTitle = document.getElementById('game-over-title');
+        const gameOverMsg = document.getElementById('game-over-msg');
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-<script>
-    // Master Database Pool for Grade 6 Magnetism Framework
-    const questionsPool = [
-        { 
-            q: "Case Analysis:\nJoy dips a classic bar magnet directly into a large heap of iron filings and pulls it out. He notices that the iron filings do not coat the magnet evenly.", 
-            renderKey: "POLE_CANVAS",
-            opts: ["Only right in the exact middle of the bar magnet.", "Concentrated heavily at the two opposite ends (poles).", "Spread completely uniformly along the entire surface.", "No filings will stick because iron is non-magnetic."], 
-            ans: 1, 
-            hint: "Identify the localized sections of a permanent magnet that maintain the maximum force field density.", 
-            expl: "Poles are the specific regions of a magnet where the magnetic strength is the strongest. Therefore, iron filings cluster heavily around the North and South poles." 
-        },
-        { 
-            q: "Real-world Application:\nRaveena accidentally spills a container of iron filings into a sandbox. She needs to separate the mixture of sand and iron filings quickly without ruining either material.", 
-            opts: [
-                "Pouring water into the mixture so the sand floats up and the iron filings sink down.", 
-                "Picking out every single individual filing by hand one by one.", 
-                "Passing a magnet through the mixture so the magnetic iron filings stick to it.", 
-                "Heating the sand until the iron completely melts into liquid form."
-            ], 
-            ans: 2, 
-            hint: "Differentiate between magnetic substances and non-magnetic materials like sand.", 
-            expl: "Iron is a magnetic material attracted to magnets, while sand is non-magnetic. Using a magnet separates them quickly and safely without changing their structural properties." 
-        },
-        { 
-            q: "Laboratory Safety Scenario:\nIn a school laboratory, Rohan accidentally drops a permanent bar magnet several times from a high platform, and then leaves it sitting directly over a hot Bunsen burner flame.", 
-            opts: ["Its magnetic force will get stronger because heat charges it up.", "It will completely lose its magnetic properties (demagnetize).", "It will magically turn from an artificial magnet into a natural lodestone.", "Nothing will change; permanent magnets can never lose their strength."], 
-            ans: 1, 
-            hint: "Consider how physical shocks and high thermal energy affect internal magnetic alignments.", 
-            expl: "Permanent magnets can lose their magnetism (demagnetize) if they are dropped from heights, hammered, or heated to extreme temperatures." 
-        },
-        { 
-            q: "Navigation Checkpoint:\nYou are on a wilderness navigation exercise and lose your bearings. You hold a magnetic compass flat in your hand. The needle settles, and its red-painted tip points directly ahead of you.", 
-            renderKey: "COMPASS_CANVAS",
-            opts: ["Shake the compass continuously so the needle spins in circles.", "Assume the red needle points towards the Geographical South Pole.", "Rotate the physical compass casing until the 'N' mark aligns perfectly with the red-tipped needle.", "Turn your back away from the compass because it only functions near oceans."], 
-            ans: 2, 
-            hint: "Recall how to interpret the directional orientation of a freely suspended magnetic vector tracking the Earth's field.", 
-            expl: "To use a compass, wait for the needle to settle towards magnetic north under Earth's magnetic field influence. Then, rotate the outer casing until the 'N' alignment mark matches the red needle to read all cardinal directions accurately." 
-        },
-        { 
-            q: "Asset Maintenance Problem:\nYou are tasked with organizing school science kits. You need to safely store a pair of bar magnets so they do not accidentally demagnetize each other over a long winter break.", 
-            opts: ["Stack them directly on top of each other with like poles (N-N) matching tightly.", "Store them in pairs side-by-side with unlike poles (N-S) on the same side, separated by wood.", "Throw them directly into a box full of active smartphones and computers.", "Break them into halves to eliminate their poles completely before storing."], 
-            ans: 1, 
-            hint: "Determine the correct layout path for shielding magnetic flux loop linkages when storing permanent magnets.", 
-            expl: "Bar magnets should be stored in pairs with their unlike poles facing the same side, separated by a piece of wood. They must also be kept away from electronic devices to avoid data corruption." 
-        }
-    ];
+        // Game State Variables
+        let currentLevel = 1;
+        let score = 0;
+        let lives = 3;
+        let gameActive = false;
+        let items = [];
+        let player = { x: 360, y: 510, width: 110, height: 40, speed: 10 };
+        let keys = {};
+        let spawnTimer = 0;
+        const targetScorePerLevel = 5;
 
-    let current = 0, score = 0, attempts = 0;
-    
-    // Core Audio Nodes
-    const sndC = new Audio('assets/correct.mp3');
-    const sndW = new Audio('assets/wrong.mp3');
-    const sndF = new Audio('assets/freesound_community-claps-44774.mp3');
+        // Level 2 Target Pool Questions Tracker
+        let currentLevel2Question = null;
 
-    // Strict 5-Second Brand Shield Transition Execution Loop
-    window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            splash.style.opacity = '0';
+        // Level 1 Random Generator Dynamic Elements (Updated with Spoon, Key, Water variants)
+        const itemPrefixes = ["Shiny", "Metal", "Old", "Pure", "Heavy", "Standard", "Polished", "Cold"];
+        const conductorBases = [
+            { name: "Steel Spoon", color: "#b8bcbe" },
+            { name: "Brass Key", color: "#d4af37" },
+            { name: "Tap Water Container", color: "#4cc9f0" },
+            { name: "Salt Water Beaker", color: "#4361ee" },
+            { name: "Copper Wire Segment", color: "#b87333" },
+            { name: "Iron Nail Pin", color: "#aaa9ad" }
+        ];
+        const insulatorBases = [
+            { name: "Distilled Pure Water", color: "#a8dadc" },
+            { name: "Plastic Ruler Shield", color: "#e63946" },
+            { name: "Rubber Eraser Pad", color: "#ffb703" },
+            { name: "Wooden Cooking Spoon", color: "#9c6644" },
+            { name: "Glass Key Ring", color: "#ddbea9" }
+        ];
+
+        // Level 2 Archetype Pool
+        const level2Pool = [
+            { label: "Cell", type: "cell", color: "#1f4068" },
+            { label: "Battery", type: "battery", color: "#1f4068" },
+            { label: "Electric Bulb", type: "bulb", color: "#1f4068" },
+            { label: "Switch (ON)", type: "switch_on", color: "#1f4068" },
+            { label: "Switch (OFF)", type: "switch_off", color: "#1f4068" },
+            { label: "Wire Line", type: "wire", color: "#1f4068" }
+        ];
+
+        // --- TIMERS & SCENE TRANSITIONS ---
+        window.addEventListener('DOMContentLoaded', () => {
+            menuScreen.style.display = 'none';
             setTimeout(() => {
-                splash.style.display = 'none';
-                document.getElementById('intro-view').classList.remove('hidden');
-            }, 500);
-        }, 5000);
-    });
-
-    // Dual-Level Shuffle Engine (Fisher-Yates)
-    function shuffleData(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-
-    document.getElementById('start-btn').onclick = () => {
-        shuffleData(questionsPool); // Master Level Randomization: Shuffles question sequence
-        document.getElementById('intro-view').classList.add('hidden');
-        document.getElementById('quiz-view').classList.remove('hidden');
-        loadQuestion();
-    };
-
-    function loadQuestion() {
-        attempts = 0;
-        const q = questionsPool[current];
-        document.getElementById('feedback-box').style.display = 'none';
-        document.getElementById('action-btn').classList.add('hidden');
-        document.getElementById('q-num').innerText = current + 1;
-        document.getElementById('q-text').innerText = q.q;
-        
-        const imgArea = document.getElementById('image-area');
-        imgArea.innerHTML = "";
-        
-        // Native Dynamic Graphic Vector Engine
-        if (q.renderKey) {
-            imgArea.className = "image-container";
-            if (q.renderKey === "POLE_CANVAS") {
-                imgArea.innerHTML = `
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-                        <div class="magnet-bar-graphic">
-                            <div class="magnet-pole north">N</div>
-                            <div class="magnet-pole south">S</div>
-                        </div>
-                        <div class="filings-heap"><div class="filing-dots"></div></div>
-                    </div>
-                `;
-            } else if (q.renderKey === "COMPASS_CANVAS") {
-                imgArea.innerHTML = `
-                    <div class="compass-graphic">
-                        <div class="compass-label" style="top:5px;">N</div>
-                        <div class="compass-label" style="bottom:5px;">S</div>
-                        <div class="compass-label" style="left:8px;">W</div>
-                        <div class="compass-label" style="right:8px;">E</div>
-                        <div class="compass-needle">
-                            <div class="needle-half north"></div>
-                            <div class="needle-half south"></div>
-                        </div>
-                    </div>
-                `;
-            }
-        } else {
-            imgArea.className = "";
-        }
-        
-        const area = document.getElementById('options-area');
-        area.innerHTML = "";
-
-        // Choice Randomization Anchor Map Tracking
-        const textTargetAnchor = q.opts[q.ans];
-        shuffleData(q.opts); // Option collection position randomizer
-        const resolvedCorrectIndex = q.opts.indexOf(textTargetAnchor);
-        
-        q.opts.forEach((o, i) => {
-            const b = document.createElement('button');
-            b.className = 'opt-btn';
-            b.innerText = o;
-            b.onclick = () => handleChoice(i, resolvedCorrectIndex, b);
-            area.appendChild(b);
+                splashScreen.style.opacity = '0';
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    menuScreen.style.display = 'flex';
+                }, 500);
+            }, 5000); 
         });
-    }
 
-    function handleChoice(clickedIdx, correctIdx, btnNode) {
-        if(clickedIdx === correctIdx) {
-            btnNode.classList.add('correct');
-            score += 100;
-            document.getElementById('score-val').innerText = score;
-            sndC.currentTime = 0;
-            sndC.play().catch(e => console.log("Audio node context buffered"));
-            endTurn(correctIdx);
-        } else {
-            attempts++;
-            btnNode.classList.add('wrong');
-            btnNode.disabled = true;
-            sndW.currentTime = 0;
-            sndW.play().catch(e => console.log("Audio node context buffered"));
+        startBtn.addEventListener('click', () => startNewGame(1));
+        nextLevelBtn.addEventListener('click', () => {
+            levelClearScreen.style.display = 'none';
+            startNewGame(2);
+        });
+        restartBtn.addEventListener('click', () => startNewGame(1));
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function generateLevel2Question() {
+            const randomPick = level2Pool[Math.floor(Math.random() * level2Pool.length)];
+            currentLevel2Question = randomPick.type;
+            updateHUD();
+        }
+
+        function startNewGame(lvl) {
+            menuScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            levelClearScreen.style.display = 'none';
+            gameplayScreen.style.display = 'block';
             
-            if(attempts === 1) {
-                const f = document.getElementById('feedback-box');
-                f.className = 'feedback hint-mode';
-                f.innerHTML = "🔍 <b>DIAGNOSTIC HINT:</b> " + questionsPool[current].hint;
-                f.style.display = 'block';
+            currentLevel = lvl;
+            score = 0;
+            if(lvl === 1) lives = 3; 
+            items = [];
+            player.x = canvas.width / 2 - player.width / 2;
+            gameActive = true;
+            spawnTimer = 0;
+            
+            if (currentLevel === 2) {
+                generateLevel2Question();
             } else {
-                endTurn(correctIdx);
+                updateHUD();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateHUD() {
+            levelBox.innerText = `Level: ${currentLevel}`;
+            scoreBox.innerText = `Score: ${score} / ${targetScorePerLevel}`;
+            livesBox.innerText = `⚡ Lives: ${"❤️".repeat(lives)}`;
+            
+            if (currentLevel === 1) {
+                targetBox.innerText = "Collect: CONDUCTORS (Spoon, Key, Salt/Tap Water)!";
+                targetBox.style.borderColor = "#ffea00";
+                targetBox.style.color = "#ffea00";
+            } else {
+                let textLabel = level2Pool.find(p => p.type === currentLevel2Question)?.label || "";
+                targetBox.innerText = `🚨 INTERCEPT SYMBOL: ${textLabel.toUpperCase()} 🚨`;
+                targetBox.style.borderColor = "#00fff0";
+                targetBox.style.color = "#00fff0";
             }
         }
-    }
 
-    function endTurn(correctIdx) {
-        document.querySelectorAll('.opt-btn').forEach(btn => btn.disabled = true);
-        document.querySelectorAll('.opt-btn')[correctIdx].classList.add('correct');
-        
-        const f = document.getElementById('feedback-box');
-        f.className = 'feedback expl-mode';
-        f.innerHTML = "📋 <b>LEARNING HUB:</b> " + questionsPool[current].expl;
-        f.style.display = 'block';
-        document.getElementById('action-btn').classList.remove('hidden');
-    }
+        // Custom Schematic Symbols Renderer
+        function drawCircuitSymbol(ctx, type, x, y, w, h) {
+            ctx.strokeStyle = "#00fff0";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            let cx = x + w / 2;
+            let cy = y + h / 2;
 
-    document.getElementById('action-btn').onclick = () => {
-        current++;
-        if(current < questionsPool.length) {
-            loadQuestion();
-        } else {
-            showResults();
+            if (type === "cell") {
+                ctx.moveTo(cx - 15, cy); ctx.lineTo(cx - 5, cy);
+                ctx.moveTo(cx - 5, cy - 18); ctx.lineTo(cx - 5, cy + 18); 
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.lineWidth = 6;
+                ctx.moveTo(cx + 5, cy - 10); ctx.lineTo(cx + 5, cy + 10); 
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.moveTo(cx + 5, cy); ctx.lineTo(cx + 15, cy);
+            } 
+            else if (type === "battery") {
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
+                ctx.moveTo(cx - 15, cy - 15); ctx.lineTo(cx - 15, cy + 15);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 5;
+                ctx.moveTo(cx - 8, cy - 8); ctx.lineTo(cx - 8, cy + 8);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 1; ctx.setLineDash([2, 2]); 
+                ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 6, cy);
+                ctx.stroke();
+                ctx.setLineDash([]); 
+                
+                ctx.beginPath(); ctx.lineWidth = 3;
+                ctx.moveTo(cx + 6, cy - 15); ctx.lineTo(cx + 6, cy + 15);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 5;
+                ctx.moveTo(cx + 14, cy - 8); ctx.lineTo(cx + 14, cy + 8);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 3;
+                ctx.moveTo(cx + 14, cy); ctx.lineTo(cx + 25, cy);
+            } 
+            else if (type === "bulb") {
+                ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 12, cy);
+                ctx.moveTo(cx + 12, cy); ctx.lineTo(cx + 25, cy);
+                ctx.moveTo(cx - 6, cy + 4);
+                ctx.lineTo(cx - 3, cy - 4);
+                ctx.lineTo(cx, cy + 2);
+                ctx.lineTo(cx + 3, cy - 4);
+                ctx.lineTo(cx + 6, cy + 4);
+            } 
+            else if (type === "switch_on") {
+                ctx.arc(cx - 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.arc(cx + 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx - 12, cy); ctx.lineTo(cx + 12, cy);
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
+                ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
+            } 
+            else if (type === "switch_off") {
+                ctx.arc(cx - 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.arc(cx + 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx - 13, cy); ctx.lineTo(cx + 5, cy - 14); 
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
+                ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
+            }
+            else if (type === "wire") {
+                ctx.moveTo(cx - 30, cy); ctx.lineTo(cx + 30, cy);
+            }
+            ctx.stroke();
         }
-    };
 
-    function showResults() {
-        document.getElementById('quiz-view').classList.add('hidden');
-        document.getElementById('result-view').classList.remove('hidden');
-        document.getElementById('final-pts').innerText = score;
-        
-        sndF.currentTime = 0;
-        sndF.play().catch(e => console.log("Audio environment context held"));
-        
-        const msg = document.getElementById('result-msg');
-        if(score >= 400) msg.innerText = "Exceptional performance! Your directional vectors, handling principles, and storage systems are operating optimally.";
-        else if(score >= 300) msg.innerText = "System parameters normalized. Field configurations matched expectations successfully.";
-        else msg.innerText = "Anomalous output fields. Re-evaluate textbook tracking logs, demagnetization factors, and storage safety codes.";
-    }
-</script>
+        function spawnItem() {
+            if (currentLevel === 1) {
+                const isConductor = Math.random() > 0.45;
+                const basePool = isConductor ? conductorBases : insulatorBases;
+                const selectedBase = basePool[Math.floor(Math.random() * basePool.length)];
+                const selectedPrefix = itemPrefixes[Math.floor(Math.random() * itemPrefixes.length)];
+                
+                items.push({
+                    x: Math.random() * (canvas.width - 170) + 15,
+                    y: -50,
+                    width: 165,
+                    height: 42,
+                    name: `${selectedPrefix} ${selectedBase.name}`,
+                    matchesTarget: isConductor,
+                    symbolType: null,
+                    color: selectedBase.color,
+                    speed: Math.random() * 1.5 + 2.5
+                });
+            } else {
+                const archetype = level2Pool[Math.floor(Math.random() * level2Pool.length)];
+                items.push({
+                    x: Math.random() * (canvas.width - 140) + 20,
+                    y: -90,
+                    width: 130,
+                    height: 80, 
+                    name: archetype.label,
+                    matchesTarget: (archetype.type === currentLevel2Question),
+                    symbolType: archetype.type,
+                    color: archetype.color,
+                    speed: Math.random() * 1.0 + 3.0
+                });
+            }
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Tech Grid background lines
+            ctx.strokeStyle = '#1f4068';
+            ctx.lineWidth = 1;
+            for(let g = 100; g < canvas.width; g += 200) {
+                ctx.beginPath(); ctx.moveTo(g, 0); ctx.lineTo(g, canvas.height); ctx.stroke();
+            }
+
+            // Character movement
+            if ((keys['ArrowLeft'] || keys['KeyA']) && player.x > 0) player.x -= player.speed;
+            if ((keys['ArrowRight'] || keys['KeyD']) && player.x < canvas.width - player.width) player.x += player.speed;
+
+            // Render Player Tester Tray
+            ctx.fillStyle = currentLevel === 1 ? '#ffea00' : '#00fff0';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.strokeStyle = '#fff';
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            
+            ctx.fillStyle = '#0f3460';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText(currentLevel === 1 ? "🔬 TESTER TRAY" : "⚡ SCHEMATIC SLOT", player.x + 8, player.y + 24);
+
+            // Spawner clock cycle
+            spawnTimer++;
+            if (spawnTimer % 65 === 0) spawnItem();
+
+            // Process item arrays
+            for (let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
+                item.y += item.speed;
+
+                // Render bounding background cards
+                ctx.fillStyle = item.color;
+                ctx.fillRect(item.x, item.y, item.width, item.height);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(item.x, item.y, item.width, item.height);
+
+                if (currentLevel === 1) {
+                    ctx.fillStyle = '#121214';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 25);
+                } else {
+                    drawCircuitSymbol(ctx, item.symbolType, item.x, item.y, item.width, item.height - 24);
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(item.x + 2, item.y + item.height - 22, item.width - 4, 20);
+                    
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + item.height - 7);
+                }
+                ctx.textAlign = 'left'; 
+
+                // Check collision intersection points
+                if (item.x < player.x + player.width &&
+                    item.x + item.width > player.x &&
+                    item.y < player.y + player.height &&
+                    item.y + item.height > player.y) {
+                    
+                    if (currentLevel === 1) {
+                        if (item.matchesTarget) {
+                            score++;
+                            if (score >= targetScorePerLevel) {
+                                gameActive = false;
+                                gameplayScreen.style.display = 'block'; 
+                                levelClearScreen.style.display = 'flex';
+                            }
+                        } else {
+                            lives--;
+                            if (lives <= 0) { endGame(false); return; }
+                        }
+                    } else {
+                        if (item.symbolType === currentLevel2Question) {
+                            score++;
+                            if (score >= targetScorePerLevel) {
+                                endGame(true); 
+                                return;
+                            } else {
+                                generateLevel2Question();
+                            }
+                        } else {
+                            lives--;
+                            if (lives <= 0) { endGame(false); return; }
+                        }
+                    }
+                    
+                    updateHUD();
+                    items.splice(i, 1);
+                    continue;
+                }
+
+                if (item.y > canvas.height) {
+                    items.splice(i, 1);
+                }
+            }
+
+            if (gameActive) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function endGame(isWin) {
+            gameActive = false;
+            gameplayScreen.style.display = 'none';
+            levelClearScreen.style.display = 'none';
+            gameOverScreen.style.display = 'flex';
+
+            if (isWin) {
+                gameOverTitle.innerText = "🏆 MASTER ELECTROMECHANIC!";
+                gameOverTitle.style.color = "#00fff0";
+                gameOverMsg.innerHTML = "Sensational job! You passed all validation checks for Grade 6 Electricity and Circuits!<br><br><b>Level 1 Mastered:</b> You accurately matched metallic conductors (spoons, keys) and ionic fluid solutions.<br><b>Level 2 Mastered:</b> You successfully decoded multi-step diagram questions using official schematic symbols!";
+            } else {
+                gameOverTitle.innerText = "💥 CIRCUIT BREAKER BLOWN";
+                gameOverTitle.style.color = "#e43f5a";
+                if(currentLevel === 1) {
+                    gameOverMsg.innerHTML = "An insulator entered the loop! Remember: Materials like wood, plastic, rubber, and <b>Distilled Pure Water</b> resist current because they lack freely moving electric charges.";
+                } else {
+                    gameOverMsg.innerHTML = "Incorrect symbol captured! Double-check your diagram schematics:<br>• <b>Cell:</b> One long line (+), one short thick line (-)<br>• <b>Battery:</b> Multiple integrated cells connected in series.";
+                }
+            }
+        }
+    </script>
 </body>
 </html>
