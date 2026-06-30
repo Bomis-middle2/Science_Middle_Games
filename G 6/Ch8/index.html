@@ -375,7 +375,7 @@
             livesBox.innerText = `⚡ Lives: ${"❤️".repeat(lives)}`;
             
             if (currentLevel === 1) {
-                targetBox.innerText = "Collect: CONDUCTORS (Spoon, Key, Salt/Tap Water)!";
+                targetBox.innerText = "Collect: CONDUCTORS !";
                 targetBox.style.borderColor = "#ffea00";
                 targetBox.style.color = "#ffea00";
             } else {
@@ -526,7 +526,7 @@
             
             ctx.fillStyle = '#0f3460';
             ctx.font = 'bold 12px sans-serif';
-            ctx.fillText(currentLevel === 1 ? "🔬 TESTER TRAY" : "⚡ SCHEMATIC SLOT", player.x + 8, player.y + 24);
+            ctx.fillText(currentLevel === 1 ? "🔬 TESTER TRAY" : "⚡Symbol", player.x + 8, player.y + 24);
 
             // Spawner clock cycle
             spawnTimer++;
