@@ -207,8 +207,6 @@
                 ctx.letterSpacing = "0px";
                 ctx.fillStyle = '#64748b';
                 ctx.font = 'bold 13px sans-serif';
-                ctx.fillText('INTERACTIVE PHYSICS MODULES', canvas.width / 2, canvas.height / 2 + 130);
-
                 if (Date.now() - splashStartTime > SPLASH_DURATION) {
                     currentState = 'STORY_INTRO';
                 }
@@ -224,8 +222,6 @@
 
                 ctx.fillStyle = '#475569';
                 ctx.font = '600 14px sans-serif';
-                ctx.fillText('AN INTERACTIVE PHYSICAL WORKBENCH', canvas.width / 2, 155);
-
                 // Guide Book text
                 ctx.fillStyle = '#1e293b';
                 ctx.fillRect(120, 200, 710, 220);
