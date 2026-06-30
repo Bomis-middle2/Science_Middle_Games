@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Magnetic Run: Arctic Chase</title>
+<title>Magnetic Run: Polar Overdrive</title>
 <style>
 :root {
-    --primary-blue: #1e3a8a;
+    --panel-bg: #0b0f19;
+    --card-bg: #1e293b;
+    --text-light: #f8fafc;
     --neon-cyan: #06b6d4;
     --pole-north: #ef4444;
     --pole-south: #3b82f6;
-    --panel-bg: #0f172a;
-    --text-light: #f8fafc;
-    --card-bg: #1e293b;
 }
 
 * {
@@ -24,7 +23,7 @@
 }
 
 body {
-    background: #020617;
+    background: #02040a;
     color: var(--text-light);
     display: flex;
     justify-content: center;
@@ -37,12 +36,13 @@ body {
     width: 100%;
     max-width: 440px;
     height: 95vh;
-    max-height: 700px;
+    max-height: 750px;
     background: var(--panel-bg);
-    border-radius: 20px;
+    border-radius: 24px;
     position: relative;
     overflow: hidden;
-    border: 2px solid #334155;
+    border: 2px solid #1e293b;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     display: flex;
     flex-direction: column;
 }
@@ -54,7 +54,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 20px;
+    padding: 24px;
     flex-direction: column;
 }
 
@@ -62,508 +62,580 @@ body {
     display: flex;
 }
 
-/* TYPOGRAPHY & BUTTONS */
-h1 { font-size: 1.8rem; text-align: center; margin-bottom: 10px; color: #fff; }
-p { color: #94a3b8; font-size: 0.9rem; line-height: 1.4; text-align: center; }
-
-button {
-    padding: 14px 20px;
-    font-size: 1rem;
-    font-weight: 700;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(45deg, var(--primary-blue), var(--neon-cyan));
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
-    transition: transform 0.1s;
+h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    text-align: center;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
 }
-button:active { transform: scale(0.98); }
 
-/* HUD SYSTEM */
-.hud {
+/* DASHBOARD HUD */
+.hud-layout {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    right: 15px;
+    top: 16px;
+    left: 16px;
+    right: 16px;
     display: flex;
     justify-content: space-between;
     z-index: 10;
     pointer-events: none;
 }
-.badge {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid #475569;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    backdrop-filter: blur(4px);
-}
-#timer-display { color: #f43f5e; }
-#score-display { color: var(--neon-cyan); }
 
-/* RUNNER INTERFACE */
+.hud-chip {
+    background: rgba(11, 15, 25, 0.8);
+    border: 1px solid #334155;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+#hud-score { color: #eab308; }
+#hud-timer { color: #f43f5e; }
+
+/* POLARITY ACTION BUTTONS (DURING RUNNING) */
+.polarity-trigger-deck {
+    position: absolute;
+    bottom: 30px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    border-radius: 16px;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    transition: transform 0.1s, filter 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.action-btn:active { transform: scale(0.96); }
+
+.btn-north { background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+.btn-south { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+.action-btn.selected { border: 2px solid white; box-shadow: 0 0 25px currentColor; }
+
+/* CANVAS HOUSINGS */
 #runner-canvas {
-    background: linear-gradient(to bottom, #0b1329 0%, #1c2541 60%, #3a506b 100%);
     width: 100%;
     height: 100%;
+    background: #020617;
     display: block;
 }
-.controls-hint {
-    position: absolute;
-    bottom: 15px;
-    width: 100%;
-    text-align: center;
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.4);
-    pointer-events: none;
-}
 
-/* LAB SCREEN MODALS */
-.lab-workspace {
-    background: #020617;
-    border: 2px solid #334155;
-    border-radius: 14px;
-    margin: 15px 0;
-    position: relative;
+.lab-panel {
+    background: #040711;
+    border: 2px solid #1e293b;
+    border-radius: 16px;
+    margin: 16px 0;
+    overflow: hidden;
 }
-#labCanvas { display: block; background: #040814; border-radius: 12px; touch-action: none; }
+#labCanvas { display: block; background: #010308; }
 
-.control-rack {
+/* REPORT INTERFACE */
+.report-card {
     background: var(--card-bg);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 15px;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin: 20px 0;
 }
-.rack-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 800; margin-bottom: 8px; }
-.input-deck { display: flex; gap: 8px; }
-.pole-btn { flex: 1; padding: 10px; font-weight: bold; border-radius: 8px; border: 2px solid transparent; color: white;}
-.pole-btn.n { background: var(--pole-north); }
-.pole-btn.s { background: var(--pole-south); }
-.pole-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
-.feedback-terminal {
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    margin-bottom: 15px;
-    display: none;
+button.menu-btn {
+    padding: 16px 24px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
 }
-.correct-box { background: #064e3b; border-left: 4px solid #10b981; color: #a7f3d0; }
-.wrong-box { background: #2d2011; border-left: 4px solid #f59e0b; color: #fef08a; }
 </style>
 </head>
 <body>
 
 <div id="game-container">
 
-    <div id="screen-menu" class="screen active" style="justify-content: center; align-items: center; gap: 15px;">
-        <div style="font-size: 4rem;">🏃‍♂️🧲</div>
-        <h1>Magnetic Run:<br>Arctic Chase</h1>
-        <p style="max-width: 280px; margin-bottom: 15px;">
-            Sprint forward down lanes pulling gold coins automatically with your industrial electromagnet! Avoid obstacles for 60 seconds to reach the Core Safety Lab gate.
+    <div id="scr-menu" class="screen active" style="justify-content: center; align-items: center; gap: 20px; text-align: center;">
+        <div style="font-size: 4.5rem; filter: drop-shadow(0 10px 15px rgba(6,182,212,0.3));">🏃‍♂️🧲</div>
+        <h1>MAGNETIC RUN<br><span style="color:var(--neon-cyan); font-size:1.5rem;">Polar Overdrive</span></h1>
+        <p style="max-width: 300px; margin-bottom: 10px; color: #94a3b8;">
+            Race down a high-velocity electromagnetic track. Collect items by matching polarities or push hazards away using dynamic magnetic forces!
         </p>
-        <button onclick="startRunnerLevel()" style="width: 80%;">START EXPEDITION</button>
-    </div>
-
-    <div id="screen-runner" class="screen" style="padding:0;">
-        <div class="hud">
-            <div class="badge" id="score-display">GOLD COINS: 0</div>
-            <div class="badge" id="timer-display">GATE LOCKS: 60s</div>
+        <div style="background: rgba(30,41,59,0.5); padding: 12px; border-radius: 12px; font-size: 0.8rem; text-align: left; border: 1px solid #334155;">
+            💡 <b>How to Play:</b><br>
+            • <b>Tap Left/Right halves</b> of the screen to switch lanes.<br>
+            • Use the bottom buttons to change your magnet's pole!<br>
+            • Match opposite poles to <b>attract coins</b>, or match identical poles to <b>repel hazards</b> away!
         </div>
-        <canvas id="runner-canvas"></canvas>
-        <div class="controls-hint">TAP LEFT/RIGHT MARGINS OR USE ARROW KEYS TO SWITCH LANES</div>
+        <button class="menu-btn" onclick="initiateRunnerExpedition()" style="width: 85%;">LAUNCH SYSTEM</button>
     </div>
 
-    <div id="screen-lab" class="screen" style="background: var(--panel-bg);">
-        <h2 style="font-size: 1.2rem; text-align: center; color: var(--neon-cyan);">⚠️ SECURITY MATRIX ENCRYPTED</h2>
-        <p id="lab-prompt" style="font-size:0.85rem; margin: 8px 0; font-weight: 500;"></p>
+    <div id="scr-runner" class="screen" style="padding: 0;">
+        <div class="hud-layout">
+            <div class="hud-chip" id="hud-score">ENERGY: 0</div>
+            <div class="hud-chip" id="hud-timer">LAB APPROACH: 60s</div>
+        </div>
         
-        <div class="lab-workspace">
-            <canvas id="labCanvas" width="396" height="180"></canvas>
+        <canvas id="runner-canvas"></canvas>
+
+        <div class="polarity-trigger-deck">
+            <button class="action-btn btn-north selected" id="run-pole-n" onclick="setRunPolarity('NORTH', event)">North (N)</button>
+            <button class="action-btn btn-south" id="run-pole-s" onclick="setRunPolarity('SOUTH', event)">South (S)</button>
         </div>
-
-        <div class="control-rack">
-            <div class="rack-title" id="rack-label">Module Modulation</div>
-            <div id="rack-inputs" class="input-deck"></div>
-        </div>
-
-        <div id="lab-terminal" class="feedback-terminal"></div>
-
-        <button id="action-btn" onclick="verifyLabAnswer()" style="margin-top:auto; width:100%;">ENGAGE ELECTROMAGNETIC PULSE</button>
     </div>
 
-    <div id="screen-end" class="screen" style="justify-content: center; align-items: center; text-align: center; gap: 15px;">
-        <div id="end-icon" style="font-size: 4.5rem;">🌌</div>
-        <h1 id="end-title">Mission Evaluation</h1>
-        <div id="end-report" style="background: var(--card-bg); padding: 15px; border-radius: 12px; font-size: 0.9rem; text-align: left; line-height: 1.5; border: 1px solid #334155; width: 100%;"></div>
-        <button onclick="location.reload()" style="width: 100%; margin-top: 10px;">REDEPLOY EXPEDITION</button>
+    <div id="scr-lab" class="screen" style="justify-content: center;">
+        <h2 style="font-size: 1.3rem; text-align: center; color: var(--neon-cyan); letter-spacing: 0.5px;">⚠️ CRITICAL SECURITY ENCRYPT</h2>
+        <p id="lab-instructions" style="font-size: 0.85rem; margin: 8px 0; color: #94a3b8;"></p>
+        
+        <div class="lab-panel">
+            <canvas id="labCanvas" width="388" height="190"></canvas>
+        </div>
+
+        <div class="polarity-trigger-deck" style="position: static; margin-bottom: 20px;">
+            <button class="action-btn btn-north selected" id="lab-pole-n" onclick="setLabPolarity('NORTH')">EMIT NORTH</button>
+            <button class="action-btn btn-south" id="lab-pole-s" onclick="setLabPolarity('SOUTH')">EMIT SOUTH</button>
+        </div>
+
+        <button class="menu-btn" id="lab-verify-btn" onclick="processLabVerification()" style="width: 100%;">ENGAGE QUANTUM FLUX</button>
+    </div>
+
+    <div id="scr-end" class="screen" style="justify-content: center; align-items: center; text-align: center; gap: 15px;">
+        <div id="end-badge" style="font-size: 4.5rem;">📡</div>
+        <h2 id="end-headline" style="font-size: 1.6rem;">Mission Complete</h2>
+        <div class="report-card" id="end-summary"></div>
+        <button class="menu-btn" onclick="location.reload()" style="width: 100%;">REBOOT SIMULATOR</button>
     </div>
 
 </div>
 
 <script>
-// Global State Storage
-let currentScore = 0;
-let timeRemaining = 60;
-let runLoopId = null;
-let countdownTimer = null;
+// Game State Systems
+let score = 0;
+let timeClock = 60;
+let runFrameId = null;
+let clockIntervalId = null;
 
-// Audio context placeholder or physical parameters
-const runnerCanvas = document.getElementById("runner-canvas");
-const rCtx = runnerCanvas.getContext("2d");
+const rCanvas = document.getElementById("runner-canvas");
+const rCtx = rCanvas.getContext("2d");
 
-// Runner Entity Variables
-let playerLane = 1; // 0: Left, 1: Center, 2: Right
-let targetLaneX = 200;
-let playerActualX = 200;
-let speedFactor = 5;
-let lanePositions = [70, 200, 330];
+// Physics-Runner Metrics
+let playerLane = 1; 
+let currentX = 220;
+let targetX = 220;
+let lanes = [];
+let activePolarity = "NORTH"; // Player's current active pole
 
-let laneObjects = []; // Obstacles and gold tokens
-let gameTicks = 0;
+let entities = [];
+let visualParticles = [];
+let gameTickCounter = 0;
 
-// Setup Canvas scaling constraints
-function resizeGameCanvases() {
-    runnerCanvas.width = gameContainerWidth();
-    runnerCanvas.height = 600;
-    lanePositions = [runnerCanvas.width * 0.2, runnerCanvas.width * 0.5, runnerCanvas.width * 0.8];
-    playerActualX = lanePositions[playerLane];
-    targetLaneX = lanePositions[playerLane];
-}
-function gameContainerWidth() {
-    return Math.min(window.innerWidth, 440);
+function setupViewport() {
+    rCanvas.width = Math.min(window.innerWidth, 440);
+    rCanvas.height = window.innerHeight > 750 ? 750 : window.innerHeight;
+    lanes = [rCanvas.width * 0.2, rCanvas.width * 0.5, rCanvas.width * 0.8];
+    currentX = lanes[playerLane];
+    targetX = lanes[playerLane];
 }
 
-// Lane-switching handlers
+// Lane Switching Movement Hook
+rCanvas.addEventListener("touchstart", (e) => {
+    // Check if touch is on the bottom interface buttons to avoid crossing interaction vectors
+    const touchY = e.touches[0].clientY - rCanvas.getBoundingClientRect().top;
+    if (touchY > rCanvas.height - 100) return;
+
+    const touchX = e.touches[0].clientX - rCanvas.getBoundingClientRect().left;
+    if (touchX < rCanvas.width / 2 && playerLane > 0) playerLane--;
+    else if (touchX >= rCanvas.width / 2 && playerLane < 2) playerLane++;
+    
+    targetX = lanes[playerLane];
+});
+
 window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft" && playerLane > 0) { playerLane--; }
-    if (e.key === "ArrowRight" && playerLane < 2) { playerLane++; }
-    targetLaneX = lanePositions[playerLane];
+    if (e.key === "ArrowLeft" && playerLane > 0) playerLane--;
+    if (e.key === "ArrowRight" && playerLane < 2) playerLane++;
+    targetX = lanes[playerLane];
 });
 
-runnerCanvas.addEventListener("touchstart", (e) => {
-    const clickX = e.touches[0].clientX - runnerCanvas.getBoundingClientRect().left;
-    if (clickX < runnerCanvas.width / 2 && playerLane > 0) { playerLane--; }
-    else if (clickX >= runnerCanvas.width / 2 && playerLane < 2) { playerLane++; }
-    targetLaneX = lanePositions[playerLane];
-});
+function setRunPolarity(pole, event) {
+    if(event) event.stopPropagation(); // Avoid lane shifting triggers
+    activePolarity = pole;
+    document.getElementById("run-pole-n").classList.toggle("selected", pole === "NORTH");
+    document.getElementById("run-pole-s").classList.toggle("selected", pole === "SOUTH");
+}
 
-function startRunnerLevel() {
-    document.getElementById("screen-menu").classList.remove("active");
-    document.getElementById("screen-runner").classList.add("active");
-    resizeGameCanvases();
+/* START LEVEL 1 RUNNER */
+function initiateRunnerExpedition() {
+    document.getElementById("scr-menu").classList.remove("active");
+    document.getElementById("scr-runner").classList.add("active");
     
-    // Spawn initial entities
-    laneObjects = [];
-    currentScore = 0;
-    timeRemaining = 60;
-    
-    countdownTimer = setInterval(() => {
-        timeRemaining--;
-        document.getElementById("timer-display").innerText = `GATE LOCKS: ${timeRemaining}s`;
-        if (timeRemaining <= 0) {
-            transitionToLabChallenge();
-        }
+    setupViewport();
+    entities = [];
+    visualParticles = [];
+    score = 0;
+    timeClock = 60;
+
+    clockIntervalId = setInterval(() => {
+        timeClock--;
+        document.getElementById("hud-timer").innerText = `LAB APPROACH: ${timeClock}s`;
+        if (timeClock <= 0) enterTerminalSecurityLab();
     }, 1000);
 
-    runLoop();
+    executeRunnerEngine();
 }
 
-function runLoop() {
-    gameTicks++;
-    updateRunnerPhysics();
-    drawRunnerScene();
+function executeRunnerEngine() {
+    gameTickCounter++;
+    evaluatePhysicsEngine();
+    renderRunnerGraphics();
     
-    if (timeRemaining > 0) {
-        runLoopId = requestAnimationFrame(runLoop);
+    if (timeClock > 0) {
+        runFrameId = requestAnimationFrame(executeRunnerEngine);
     }
 }
 
-function updateRunnerPhysics() {
-    // Smooth Lane Interpolation (Lerp)
-    playerActualX += (targetLaneX - playerActualX) * 0.25;
+function evaluatePhysicsEngine() {
+    // Smooth lane changes
+    currentX += (targetX - currentX) * 0.22;
 
-    // Spawn items rhythmically
-    if (gameTicks % 25 === 0) {
-        let rngLane = Math.floor(Math.random() * 3);
-        let isObstacle = Math.random() < 0.35;
-        laneObjects.push({
-            lane: rngLane,
-            y: -40,
-            type: isObstacle ? "ICE_WALL" : "COIN",
-            pulled: false
-        });
+    // Spawning algorithms with alternating physics attributes
+    if (gameTickCounter % 22 === 0) {
+        let spawnLane = Math.floor(Math.random() * 3);
+        let rollType = Math.random();
+        
+        if (rollType < 0.5) {
+            // Spawn a Core Element (Needs Opposite Pole to Attract)
+            entities.push({
+                lane: spawnLane, x: lanes[spawnLane], y: -30,
+                type: "CHARGED_COIN", pole: Math.random() < 0.5 ? "NORTH" : "SOUTH",
+                radius: 12, forceApplied: false
+            });
+        } else {
+            // Spawn an Unstable Anomaly (Needs Same Pole to Deflect/Repel)
+            entities.push({
+                lane: spawnLane, x: lanes[spawnLane], y: -30,
+                type: "ANOMALY_BARRIER", pole: Math.random() < 0.5 ? "NORTH" : "SOUTH",
+                width: 35, height: 18, forceApplied: false
+            });
+        }
     }
 
-    // Advance and evaluate spawned item configurations
-    for (let i = laneObjects.length - 1; i >= 0; i--) {
-        let obj = laneObjects[i];
-        obj.y += speedFactor;
+    // Process Entities Physics
+    for (let i = entities.length - 1; i >= 0; i--) {
+        let ent = entities[i];
+        ent.y += 6.5; // Constant forward speed
 
-        let itemTargetX = lanePositions[obj.lane];
-
-        // Core Attraction Principle: If it's a coin and enters the magnetic field radius, activate pull tracking
-        if (obj.type === "COIN" && obj.y > 220 && obj.y < 490) {
-            obj.pulled = true;
-        }
-
-        if (obj.pulled && obj.type === "COIN") {
-            // Pull the coins dynamically towards the holding player character coordinates
-            let dx = playerActualX - itemTargetX;
-            let dy = 470 - obj.y;
-            itemTargetX += dx * 0.25;
-            obj.y += dy * 0.15;
-        }
-
-        // Hit Detection Thresholds
-        if (obj.y > 450 && obj.y < 500 && Math.abs(playerActualX - itemTargetX) < 25) {
-            if (obj.type === "COIN") {
-                currentScore += 10;
-                document.getElementById("score-display").innerText = `GOLD COINS: ${currentScore}`;
-            } else if (obj.type === "ICE_WALL") {
-                currentScore = Math.max(0, currentScore - 15); // Penalize obstacle hit
-                document.getElementById("score-display").innerText = `GOLD COINS: ${currentScore}`;
+        // MAGNET PHYSICS EVALUATION REGION
+        let distanceToPlayerY = 520 - ent.y;
+        
+        if (distanceToPlayerY > 0 && distanceToPlayerY < 240) {
+            if (ent.type === "CHARGED_COIN") {
+                // OPPOSITES ATTRACT: If your magnet is opposite to the coin, pull it in!
+                if (activePolarity !== ent.pole) {
+                    ent.x += (currentX - ent.x) * 0.18;
+                    ent.y += (520 - ent.y) * 0.12;
+                    ent.forceApplied = true;
+                }
+            } else if (ent.type === "ANOMALY_BARRIER") {
+                // LIKE POLES REPEL: If your magnet matches the barrier, push it out of the lane!
+                if (activePolarity === ent.pole && Math.abs(currentX - ent.x) < 70) {
+                    let pushDirection = ent.x > currentX ? 8 : -8;
+                    ent.x += pushDirection;
+                    ent.forceApplied = true;
+                }
             }
-            laneObjects.splice(i, 1);
+        }
+
+        // Collision Checks
+        let hitY = ent.y >= 500 && ent.y <= 540;
+        let hitX = Math.abs(currentX - ent.x) < 24;
+
+        if (hitY && hitX) {
+            if (ent.type === "CHARGED_COIN") {
+                if (activePolarity !== ent.pole) {
+                    score += 20; // Correct attraction bonus
+                    generateSparkExplosion(ent.x, ent.y, "#eab308");
+                } else {
+                    score = Math.max(0, score - 5); // Incorrect matching repulsion penalty
+                }
+            } else if (ent.type === "ANOMALY_BARRIER") {
+                if (activePolarity === ent.pole) {
+                    // Shield successfully deflected it
+                    score += 10;
+                    generateSparkExplosion(ent.x, ent.y, "#06b6d4");
+                } else {
+                    // Severe impact penalty
+                    score = Math.max(0, score - 30);
+                    generateSparkExplosion(ent.x, ent.y, "#ef4444");
+                }
+            }
+            entities.splice(i, 1);
+            document.getElementById("hud-score").innerText = `ENERGY: ${score}`;
             continue;
         }
 
-        // Clean out dead entities past base barrier
-        if (obj.y > 620) {
-            laneObjects.splice(i, 1);
+        // Prune offscreen items
+        if (ent.y > rCanvas.height + 40) {
+            entities.splice(i, 1);
         }
+    }
+
+    // Process Spark Particles
+    for(let p = visualParticles.length - 1; p >= 0; p--) {
+        let particle = visualParticles[p];
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.life--;
+        if(particle.life <= 0) visualParticles.splice(p, 1);
     }
 }
 
-function drawRunnerScene() {
-    rCtx.clearRect(0, 0, runnerCanvas.width, runnerCanvas.height);
+function generateSparkExplosion(x, y, color) {
+    for(let i=0; i<12; i++) {
+        visualParticles.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8,
+            life: 15 + Math.random() * 10,
+            color: color
+        });
+    }
+}
 
-    // Render perspective vanishing point track visualizers
-    rCtx.fillStyle = "#1e293b";
+function renderRunnerGraphics() {
+    rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+
+    // Hyper-grid corridor lines
+    rCtx.fillStyle = "#090d16";
     rCtx.beginPath();
-    rCtx.moveTo(runnerCanvas.width * 0.45, 0);
-    rCtx.lineTo(runnerCanvas.width * 0.55, 0);
-    rCtx.lineTo(runnerCanvas.width, runnerCanvas.height);
-    rCtx.lineTo(0, runnerCanvas.height);
+    rCtx.moveTo(rCanvas.width * 0.45, 0); rCtx.lineTo(rCanvas.width * 0.55, 0);
+    rCtx.lineTo(rCanvas.width, rCanvas.height); rCtx.lineTo(0, rCanvas.height);
     rCtx.fill();
 
-    // Render lanes
-    rCtx.strokeStyle = "#475569";
+    rCtx.strokeStyle = "#1e293b";
     rCtx.lineWidth = 2;
-    lanePositions.forEach(pos => {
+    lanes.forEach(pos => {
         rCtx.beginPath();
-        rCtx.moveTo(runnerCanvas.width * 0.5, 0);
-        rCtx.lineTo(pos, runnerCanvas.height);
+        rCtx.moveTo(rCanvas.width * 0.5, 0);
+        rCtx.lineTo(pos, rCanvas.height);
         rCtx.stroke();
     });
 
-    // Draw game objects
-    laneObjects.forEach(obj => {
-        let currentX = obj.pulled && obj.type === "COIN" ? playerActualX : lanePositions[obj.lane];
-        // Dynamic scale size based on pseudo-3D height location
-        let computedScale = Math.max(6, (obj.y / runnerCanvas.height) * 26);
-
-        if (obj.type === "COIN") {
+    // Draw active entities on field
+    entities.forEach(ent => {
+        if (ent.type === "CHARGED_COIN") {
+            let clr = ent.pole === "NORTH" ? varColor('--pole-north') : varColor('--pole-south');
             rCtx.fillStyle = "#fbbf24";
-            rCtx.shadowColor = "#f59e0b";
-            rCtx.shadowBlur = 10;
+            rCtx.strokeStyle = clr;
+            rCtx.lineWidth = 3;
             rCtx.beginPath();
-            rCtx.arc(currentX, obj.y, computedScale, 0, Math.PI * 2);
+            rCtx.arc(ent.x, ent.y, ent.radius, 0, Math.PI * 2);
             rCtx.fill();
-            rCtx.shadowBlur = 0; // Reset
-        } else {
-            rCtx.fillStyle = "#38bdf8";
-            rCtx.fillRect(currentX - computedScale, obj.y - computedScale, computedScale * 2, computedScale * 1.5);
+            rCtx.stroke();
+            
+            // Draw internal pole notation signifier
+            rCtx.fillStyle = "#000";
+            rCtx.font = "bold 10px sans-serif";
+            rCtx.textAlign = "center"; rCtx.textBaseline = "middle";
+            rCtx.fillText(ent.pole[0], ent.x, ent.y);
+        } 
+        else if (ent.type === "ANOMALY_BARRIER") {
+            let clr = ent.pole === "NORTH" ? varColor('--pole-north') : varColor('--pole-south');
+            rCtx.fillStyle = clr;
+            rCtx.fillRect(ent.x - ent.width/2, ent.y - ent.height/2, ent.width, ent.height);
             rCtx.strokeStyle = "#ffffff";
-            rCtx.strokeRect(currentX - computedScale, obj.y - computedScale, computedScale * 2, computedScale * 1.5);
+            rCtx.lineWidth = 1;
+            rCtx.strokeRect(ent.x - ent.width/2, ent.y - ent.height/2, ent.width, ent.height);
+
+            rCtx.fillStyle = "#fff";
+            rCtx.font = "9px monospace";
+            rCtx.textAlign = "center"; rCtx.textBaseline = "middle";
+            rCtx.fillText(`HAZARD [${ent.pole[0]}]`, ent.x, ent.y);
         }
     });
 
-    // Draw Player holding the active Magnet Ring Field
-    rCtx.fillStyle = "#e2e8f0";
+    // Draw visual particles
+    visualParticles.forEach(p => {
+        rCtx.fillStyle = p.color;
+        rCtx.fillRect(p.x, p.y, 4, 4);
+    });
+
+    // Render the Runner Unit holding an active magnetic shield
+    let userColor = activePolarity === "NORTH" ? varColor('--pole-north') : varColor('--pole-south');
+    
+    // Core engine aura ring
+    rCtx.strokeStyle = userColor;
+    rCtx.lineWidth = 4;
+    rCtx.shadowColor = userColor; rCtx.shadowBlur = 15;
     rCtx.beginPath();
-    rCtx.arc(playerActualX, 480, 16, 0, Math.PI * 2);
+    rCtx.arc(currentX, 520, 28, 0, Math.PI * 2);
+    rCtx.stroke();
+    rCtx.shadowBlur = 0; // Reset
+
+    // Player craft assembly
+    rCtx.fillStyle = "#f8fafc";
+    rCtx.beginPath();
+    rCtx.moveTo(currentX, 502);
+    rCtx.lineTo(currentX - 16, 532);
+    rCtx.lineTo(currentX + 16, 532);
     rCtx.fill();
 
-    // Draw Character's Industrial Horseshoe Magnet 🧲
-    rCtx.save();
-    rCtx.translate(playerActualX, 455);
-    // Draw dynamic magnetic pulse arc wave lines spreading upstream
-    rCtx.strokeStyle = "rgba(6, 182, 212, " + (0.3 + Math.sin(gameTicks * 0.15) * 0.2) + ")";
-    rCtx.lineWidth = 3;
-    rCtx.beginPath();
-    rCtx.arc(0, -10, 40, -Math.PI * 0.8, -Math.PI * 0.2);
-    rCtx.stroke();
+    // Magnet nodes mounted on the ship's wings
+    rCtx.fillStyle = varColor('--pole-north'); rCtx.fillRect(currentX - 22, 522, 6, 12);
+    rCtx.fillStyle = varColor('--pole-south'); rCtx.fillRect(currentX + 16, 522, 6, 12);
+}
 
-    // Physical magnet casing representation
-    rCtx.fillStyle = "#ef4444"; // North side red
-    rCtx.fillRect(-12, -8, 8, 16);
-    rCtx.fillStyle = "#3b82f6"; // South side blue
-    rCtx.fillRect(4, -8, 8, 16);
-    rCtx.restore();
+function varColor(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 /* ========================================================================
-   LEVEL 2: INTERACTIVE PHYSICAL MAGNET LAB SYSTEM
+   LEVEL 2: FINAL TERMINAL SYSTEM GATEKEEPER
    ======================================================================== */
-const labCanvas = document.getElementById("labCanvas");
-const lCtx = labCanvas.getContext("2d");
+const lCanvas = document.getElementById("labCanvas");
+const lCtx = lCanvas.getContext("2d");
 
-const labNode = {
-    taskType: "PULL_MAINTAIN",
-    q: "Emergency Overdrive Matrix: Fire your custom core magnet module setting to produce a continuous ATTRACT VECTOR to safely trap the heavy floating metal core capsule before time expires!",
-    expl: "As outlined by the foundational Laws of Magnetism, opposite geometric poles (North-South combination clusters) naturally generate active attraction vectors that draw items closer together.",
-    hint: "Identify the polarity of the gate lock anchor on the left, then select the OPPOSITE polarity choice below to lock down the attractive bond."
+const safetyLabTask = {
+    q: "EMERGENCY OVERRIDE DETECTED: The containment core is drifting toward dangerous thermal bounds! You must set your ship's emitter to the correct polarity to REPEL the failing core safely back into its housing before the shield drops!",
+    expl: "Like magnetic poles (North against North, or South against South) always experience an active repulsive magnetic force that pushes them apart.",
+    hint: "Observe the active facing pole of the core stabilizer housing on the left grid. Select the matching identical pole to generate a powerful DEFLECTION/REPULSION field vector!"
 };
 
 let selectedLabPole = "NORTH";
-let labAnimationTicks = 0;
-let labRenderLoopId = null;
+let labTicks = 0;
+let labFrameId = null;
 
-function transitionToLabChallenge() {
-    clearInterval(countdownTimer);
-    if (runLoopId) cancelAnimationFrame(runLoopId);
+function enterTerminalSecurityLab() {
+    clearInterval(clockIntervalId);
+    if (runFrameId) cancelAnimationFrame(runFrameId);
 
-    document.getElementById("screen-runner").classList.remove("active");
-    document.getElementById("screen-lab").classList.add("active");
-
-    document.getElementById("lab-prompt").innerText = labNode.q;
-
-    // Set up interactive terminal interfaces for Level 2 configuration checks
-    const rackInputs = document.getElementById("rack-inputs");
-    document.getElementById("rack-label").innerText = "Electromagnet Core Configuration Module";
-    rackInputs.innerHTML = `
-        <button class="pole-btn n active" id="p-btn-n" onclick="selectLabPolarity('NORTH')">EMIT NORTH (N)</button>
-        <button class="pole-btn s" id="p-btn-s" onclick="selectLabPolarity('SOUTH')">EMIT SOUTH (S)</button>
-    `;
+    document.getElementById("scr-runner").classList.remove("active");
+    document.getElementById("scr-lab").classList.add("active");
+    document.getElementById("lab-instructions").innerText = safetyLabTask.q;
 
     selectedLabPole = "NORTH";
     
-    function renderLabLoop() {
-        labAnimationTicks++;
-        drawLabPhysicsWorkspace();
-        labRenderLoopId = requestAnimationFrame(renderLabLoop);
+    function labRenderLoop() {
+        labTicks++;
+        renderLabPhysicsScreen();
+        labFrameId = requestAnimationFrame(labRenderLoop);
     }
-    renderLabLoop();
+    labRenderLoop();
 }
 
-function selectLabPolarity(pole) {
+function setLabPolarity(pole) {
     selectedLabPole = pole;
-    document.getElementById("p-btn-n").classList.toggle("active", pole === "NORTH");
-    document.getElementById("p-btn-s").classList.toggle("active", pole === "SOUTH");
+    document.getElementById("lab-pole-n").classList.toggle("selected", pole === "NORTH");
+    document.getElementById("lab-pole-s").classList.toggle("selected", pole === "SOUTH");
 }
 
-function drawLabPhysicsWorkspace() {
-    lCtx.clearRect(0, 0, labCanvas.width, labCanvas.height);
-    
-    // Draw sci-fi matrix workspace grid overlays
-    lCtx.strokeStyle = "#0f172a";
+function renderLabPhysicsScreen() {
+    lCtx.clearRect(0, 0, lCanvas.width, lCanvas.height);
+    let midY = lCanvas.height / 2;
+
+    // Grid tracking layer
+    lCtx.strokeStyle = "#090d16";
     lCtx.lineWidth = 1;
-    for(let y=15; y<labCanvas.height; y+=15) {
-        lCtx.beginPath(); lCtx.moveTo(0, y); lCtx.lineTo(labCanvas.width, y); lCtx.stroke();
+    for(let x=15; x<lCanvas.width; x+=20) {
+        lCtx.beginPath(); lCtx.moveTo(x,0); lCtx.lineTo(x, lCanvas.height); lCtx.stroke();
     }
 
-    let midY = labCanvas.height / 2;
+    // LEFT NODE: Unstable Drift Core (Stuck emitting a static NORTH field)
+    lCtx.fillStyle = varColor('--pole-north'); lCtx.fillRect(20, midY - 25, 45, 50); // North face out
+    lCtx.fillStyle = varColor('--pole-south'); lCtx.fillRect(65, midY - 25, 45, 50);
+    lCtx.fillStyle = "#fff"; lCtx.font = "bold 14px sans-serif";
+    lCtx.textAlign = "center"; lCtx.textBaseline = "middle";
+    lCtx.fillText("N", 42, midY); lCtx.fillText("S", 87, midY);
 
-    // LEFT: Sealed Containment Block (Stationary Anchor - SOUTH POLE face)
-    lCtx.fillStyle = "#ef4444"; lCtx.fillRect(20, midY - 25, 40, 50); // N side
-    lCtx.fillStyle = "#3b82f6"; lCtx.fillRect(60, midY - 25, 40, 50); // S side facing out
-    lCtx.fillStyle = "#ffffff";
-    lCtx.font = "bold 14px sans-serif";
-    lCtx.textAlign = "center";
-    lCtx.textBaseline = "middle";
-    lCtx.fillText("N", 40, midY);
-    lCtx.fillText("S", 80, midY);
-    
-    lCtx.fillStyle = "#94a3b8";
-    lCtx.font = "10px monospace";
-    lCtx.fillText("FIXED ANCHOR", 60, midY - 35);
+    lCtx.fillStyle = "#64748b"; lCtx.font = "9px monospace";
+    lCtx.fillText("DRIFT CORE", 65, midY - 35);
 
-    // RIGHT: Player Adjustable Capsule Module
-    let playerPoleIsN = (selectedLabPole === "NORTH");
-    let targetLeftColor = playerPoleIsN ? "#ef4444" : "#3b82f6";
-    let targetRightColor = playerPoleIsN ? "#3b82f6" : "#ef4444";
+    // RIGHT NODE: Player's Control Module Emitter
+    let isN = selectedLabPole === "NORTH";
+    lCtx.fillStyle = isN ? varColor('--pole-north') : varColor('--pole-south'); lCtx.fillRect(270, midY - 25, 45, 50);
+    lCtx.fillStyle = isN ? varColor('--pole-south') : varColor('--pole-north'); lCtx.fillRect(315, midY - 25, 45, 50);
+    lCtx.fillStyle = "#fff";
+    lCtx.fillText(isN ? "N" : "S", 292, midY); lCtx.fillText(isN ? "S" : "N", 337, midY);
+    lCtx.fillStyle = "#64748b";
+    lCtx.fillText("YOUR EMITTER", 310, midY - 35);
 
-    lCtx.fillStyle = targetLeftColor;  lCtx.fillRect(280, midY - 25, 40, 50);
-    lCtx.fillStyle = targetRightColor; lCtx.fillRect(320, midY - 25, 40, 50);
-    lCtx.fillStyle = "#ffffff";
-    lCtx.fillText(playerPoleIsN ? "N" : "S", 300, midY);
-    lCtx.fillText(playerPoleIsN ? "S" : "N", 340, midY);
-    lCtx.fillStyle = "#94a3b8";
-    lCtx.fillText("RUNNER EMITTER", 320, midY - 35);
-
-    // Central Force Vectors: Render continuous animated field streams
+    // Dynamic wave visualization of the magnetic forces at play
     lCtx.lineWidth = 3;
-    if (playerPoleIsN) {
-        // Draw real structural alignment flow arrows confirming attraction loops
-        lCtx.strokeStyle = "#06b6d4";
-        let flowShift = (labAnimationTicks * 0.15) % 30;
-        
+    if (isN) {
+        // True Deflection Repulsion shockwaves crashing in the center
+        lCtx.strokeStyle = "#ef4444";
+        let shockwaveOffset = Math.sin(labTicks * 0.3) * 4;
         lCtx.beginPath();
-        for (let sx = 110 + flowShift; sx < 270; sx += 30) {
-            lCtx.moveTo(sx, midY - 8); lCtx.lineTo(sx - 6, midY - 12);
-            lCtx.moveTo(sx, midY - 8); lCtx.lineTo(sx - 6, midY - 4);
-            lCtx.moveTo(sx, midY + 8); lCtx.lineTo(sx - 6, midY + 4);
-            lCtx.moveTo(sx, midY + 8); lCtx.lineTo(sx - 6, midY + 12);
-        }
+        lCtx.moveTo(160 + shockwaveOffset, midY - 25); lCtx.lineTo(145 + shockwaveOffset, midY); lCtx.lineTo(160 + shockwaveOffset, midY + 25);
+        lCtx.moveTo(220 - shockwaveOffset, midY - 25); lCtx.lineTo(235 - transmissionOffset(0), midY); lCtx.lineTo(220 - shockwaveOffset, midY + 25);
         lCtx.stroke();
     } else {
-        // Draw divergent warning fields confirming total dynamic repelling friction bounds
-        lCtx.strokeStyle = "#f43f5e";
-        let vibration = Math.sin(labAnimationTicks * 0.4) * 3;
+        // Falling attract loops showing a failure to push back the core
+        lCtx.strokeStyle = "#3b82f6";
+        let cycle = (labTicks * 2) % 40;
         lCtx.beginPath();
-        lCtx.moveTo(150 + vibration, midY - 20); lCtx.lineTo(135 + vibration, midY); lCtx.lineTo(150 + vibration, midY + 20);
-        lCtx.moveTo(230 - vibration, midY - 20); lCtx.lineTo(245 - vibration, midY); lCtx.lineTo(230 - vibration, midY + 20);
+        lCtx.moveTo(115 + cycle, midY); lCtx.lineTo(125 + cycle, midY - 6);
+        lCtx.moveTo(115 + cycle, midY); lCtx.lineTo(125 + cycle, midY + 6);
         lCtx.stroke();
     }
 }
+function transmissionOffset(v) { return Math.sin(labTicks * 0.3) * 4; }
 
-function verifyLabAnswer() {
-    if (labRenderLoopId) cancelAnimationFrame(labRenderLoopId);
-
-    const terminalBox = document.getElementById("lab-terminal");
-    const passedValidation = (selectedLabPole === "NORTH"); // N attracts facing S core block
+function processLabVerification() {
+    if (labFrameId) cancelAnimationFrame(labFrameId);
     
-    document.getElementById("action-btn").setAttribute("disabled", "true");
-    terminalBox.style.display = "block";
+    const isCorrectRepulsionSetting = (selectedLabPole === "NORTH"); // N pushes away N core
+    document.getElementById("lab-verify-btn").setAttribute("disabled", "true");
 
-    if (passedValidation) {
-        terminalBox.className = "feedback-terminal correct-box";
-        terminalBox.innerHTML = `<b>⚡ INTEGRITY CRITERIA LOCKED</b><br>${labNode.expl}`;
-        currentScore += 150; // Bonus score reward for safe execution
+    if (isCorrectRepulsionSetting) {
+        score += 200; // Large endgame bonus
+        showFinalMissionReport(true);
     } else {
-        terminalBox.className = "feedback-terminal wrong-box";
-        terminalBox.innerHTML = `<b>❌ FIELD INTEGRITY FAILURE</b><br>Hint Failure: ${labNode.hint}<br><br><small>${labNode.expl}</small>`;
+        showFinalMissionReport(false);
     }
-
-    setTimeout(() => {
-        showFinalReport(passedValidation);
-    }, 4500);
 }
 
-function showFinalReport(passedLab) {
-    document.getElementById("screen-lab").classList.remove("active");
-    document.getElementById("screen-end").classList.add("active");
+function showFinalMissionReport(passedLabGate) {
+    document.getElementById("scr-lab").classList.remove("active");
+    document.getElementById("scr-end").classList.add("active");
 
-    const iconEl = document.getElementById("end-icon");
-    const titleEl = document.getElementById("end-title");
-    const reportEl = document.getElementById("end-report");
+    const badge = document.getElementById("end-badge");
+    const headline = document.getElementById("end-headline");
+    const summary = document.getElementById("end-summary");
 
-    if (passedLab && currentScore >= 250) {
-        iconEl.innerText = "🏆";
-        titleEl.innerText = "Master Magnetic Engineer";
-        reportEl.innerHTML = `<b>Final Matrix Score: ${currentScore}</b><br><br>Superb work! You managed to hold lanes with high control stability, collected vast gold coin treasures via magnetic extraction, and executed perfect vector alignment to safely cross the lab security threshold.`;
-    } else if (passedLab) {
-        iconEl.innerText = "⚡";
-        titleEl.innerText = "Lab Clearance Approved";
-        reportEl.innerHTML = `<b>Final Matrix Score: ${currentScore}</b><br><br>The core vector challenge passed data verification safely! Your runner score was lower, but structural core laws were processed accurately. Try again to maximize coin collection limits!`;
+    if (passedLabGate && score >= 400) {
+        badge.innerText = "🏆";
+        headline.innerText = "Master Magnetic Commander";
+        summary.innerHTML = `<b>Final Cumulative Energy: ${score} Points</b><br><br>Spectacular performance! You skillfully toggled your ship's polarity fields on the fly to vacuum up charged energy modules while repelling fast obstacles. Your flawless application of <b>identical poles to repel</b> saved the security lab from core failure.`;
+    } else if (passedLabGate) {
+        badge.innerText = "⚡";
+        headline.innerText = "Mission Success (Sub-Optimal Score)";
+        summary.innerHTML = `<b>Final Cumulative Energy: ${score} Points</b><br><br>You cleared the lab security terminal successfully by utilizing <b>repulsion forces (North vs North)</b> to stabilize the module. However, your runner collection path could be optimized. Replay to practice matching fields in motion!`;
     } else {
-        iconEl.innerText = "📘";
-        titleEl.innerText = "Expedition Recalibration Needed";
-        reportEl.innerHTML = `<b>Final Matrix Score: ${currentScore}</b><br><br>The lab gate registered a major polarity contradiction. Remember:<br>• <b>Unlike poles attract</b> (North draws South).<br>• Iron elements and gold coin modifications automatically track fields via active <b>magnetic properties</b>.`;
+        badge.innerText = "📘";
+        headline.innerText = "Sector Realignment Recommended";
+        summary.innerHTML = `<b>Final Cumulative Energy: ${score} Points</b><br><br>The lab gate registered a fatal core crash. To prevent future critical system failures, review these core field behaviors:<br><br>• <b>Like Poles Repel:</b> To deflect a North hazard or drift core, your emitter must blast a matching <b>North</b> field.<br>• <b>Unlike Poles Attract:</b> To vacuum up energy items efficiently, deploy the opposite polarity (North draws South).`;
     }
 }
 </script>
