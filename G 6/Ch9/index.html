@@ -44,16 +44,11 @@
             margin-bottom: 25px;
         }
 
-        .logo-placeholder {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
-            color: white;
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 6px;
-            display: inline-block;
+        .logo-img {
+            max-width: 180px;
+            height: auto;
             margin-bottom: 10px;
-            letter-spacing: 1px;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+            border-radius: 6px;
         }
 
         h1 {
@@ -68,7 +63,7 @@
             letter-spacing: 1.5px;
             color: var(--accent-blue);
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 15px;
         }
 
         .narrative {
@@ -79,18 +74,6 @@
             padding: 15px;
             border-left: 4px solid var(--accent-blue);
             border-radius: 4px;
-        }
-
-        .asset-log {
-            font-size: 11px;
-            color: var(--text-muted);
-            background: #0f172a;
-            padding: 5px 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-family: monospace;
-            display: flex;
-            justify-content: space-between;
         }
 
         .form-group {
@@ -188,17 +171,17 @@
 </head>
 <body>
 
+<audio id="audioCorrect" src="correct.mp3" preload="auto"></audio>
+<audio id="audioWrong" src="wrong.mp3" preload="auto"></audio>
+
 <div class="game-container">
     <div class="header">
-        <div class="logo-placeholder">📁 ASSET: logo.png</div>
+        <img src="assets/logo.png" alt="Magnetism Mission Logo" class="logo-img" onerror="this.style.display='none';">
         <h1>THE MAGNETISM MISSION</h1>
     </div>
 
     <div id="stage1" class="stage-pane">
         <div class="stage-title">Stage 1: The Shepherd's Lost Stick</div>
-        <div class="asset-log">
-            <span>🔊 Audio playing: ambient_mountains.mp3</span>
-        </div>
         <div class="narrative">
             You open your eyes and find yourself in ancient Magnesia, Greece. A worried shepherd named Magnes runs up to you.<br><br>
             <em>"Help! My herding stick is stuck flat against a black mountain rock, and I can't pull it away!"</em><br><br>
@@ -214,9 +197,6 @@
 
     <div id="stage2" class="stage-pane hidden">
         <div class="stage-title">Stage 2: The Sorting Gates</div>
-        <div class="asset-log">
-            <span>🔊 Audio playing: gate_creak.mp3</span>
-        </div>
         <div class="narrative">
             The mountain wall slides open, revealing a futuristic laboratory with two large bins:<br>
             <strong>BIN A: MAGNETIC</strong> &nbsp;|&nbsp; <strong>BIN B: NON-MAGNETIC</strong><br><br>
@@ -237,9 +217,6 @@
 
     <div id="stage3" class="stage-pane hidden">
         <div class="stage-title">Stage 3: The Compass Maze</div>
-        <div class="asset-log">
-            <span>🔊 Audio playing: wind_howl.mp3</span>
-        </div>
         <div class="narrative">
             You step forward and find yourself in a thick, misty forest. You cannot see the sun or landmarks.<br><br>
             You take a magnetic navigation compass out of your coat pocket. You hold it flat, and the needle settles down. The red half of the pointer aligns directly toward a giant oak tree in front of you.
@@ -254,9 +231,6 @@
 
     <div id="stage4" class="stage-pane hidden">
         <div class="stage-title">Stage 4: The Weakening Captain</div>
-        <div class="asset-log">
-            <span>🔊 Audio playing: clanging_metal.mp3</span>
-        </div>
         <div class="narrative">
             You arrive at an island control tower. Captain Lily is distressed: <br>
             <em>"Our emergency backup steering system uses a powerful Permanent Bar Magnet, but it has completely lost its magnetism!"</em><br><br>
@@ -278,9 +252,6 @@
 
     <div id="stage5" class="stage-pane hidden">
         <div class="stage-title">Stage 5: The Crane Master</div>
-        <div class="asset-log">
-            <span>🔊 Audio playing: power_hum.mp3</span>
-        </div>
         <div class="narrative">
             To escape the island entirely, you must navigate a massive scrap crane to pick up a huge shipment of iron beams and pack them into your ship. This crane uses a temporary magnet powered by electric current.<br><br>
             You enter the cockpit. A soft iron core is tightly wrapped with copper coils leading to a battery switch. The crane is down over the iron scrap, but nothing sticks.
@@ -300,9 +271,6 @@
     <div id="gameOver" class="stage-pane hidden summary-card">
         <div class="badge">🧲</div>
         <h2 style="color: var(--accent-green);">MISSION ACCOMPLISHED</h2>
-        <div class="asset-log" style="justify-content: center;">
-            <span>🔊 Audio: victory_fanfare.mp3</span>
-        </div>
         <p style="line-height: 1.6; text-align: left; background: #0f172a; padding: 20px; border-radius: 8px;">
             <strong>Rank Awarded:</strong> Master of Magnetism<br><br>
             Congratulations! You successfully bypassed every real-world roadblock by applying key physics concepts:<br>
@@ -317,9 +285,17 @@
 </div>
 
 <script>
-    // Asset Trigger Helpers for Simulation
-    function triggerAudioLog(elementId, text) {
-        document.querySelector(`#${elementId} .asset-log span`).innerText = text;
+    // Audio triggering handlers
+    function playCorrect() {
+        const sound = document.getElementById('audioCorrect');
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("Audio play blocked until interaction"));
+    }
+
+    function playWrong() {
+        const sound = document.getElementById('audioWrong');
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("Audio play blocked until interaction"));
     }
 
     // Stage 1 Verification
@@ -328,15 +304,17 @@
         const fb = document.getElementById('fb1');
         
         if (val === 'magnetite' || val === 'lodestone') {
+            playCorrect();
             fb.className = "feedback correct";
-            fb.innerText = "🔊 [success_chime.mp3] - Correct! Magnetite is a natural magnetic iron ore mineral named after Magnes!";
+            fb.innerText = "Correct! Magnetite is a natural magnetic iron ore mineral named after Magnes!";
             setTimeout(() => {
                 document.getElementById('stage1').classList.add('hidden');
                 document.getElementById('stage2').classList.remove('hidden');
             }, 2000);
         } else {
+            playWrong();
             fb.className = "feedback incorrect";
-            fb.innerText = "🔊 [error_buzz.mp3] - The rock holds tight. Hint: It's a natural magnetic rock named after the region of Magnesia or the shepherd!";
+            fb.innerText = "The rock holds tight. Hint: It's a natural magnetic rock named after the region of Magnesia or the shepherd!";
         }
     }
 
@@ -346,15 +324,17 @@
         const fb = document.getElementById('fb2');
         
         if (val.includes('iron') && val.includes('cobalt')) {
+            playCorrect();
             fb.className = "feedback correct";
-            fb.innerText = "🔊 [success_chime.mp3] - Clink! Iron and Cobalt coins are heavily attracted. Plastic and aluminium are non-magnetic!";
+            fb.innerText = "Clink! Iron and Cobalt coins are heavily attracted. Plastic and aluminium are non-magnetic!";
             setTimeout(() => {
                 document.getElementById('stage2').classList.add('hidden');
                 document.getElementById('stage3').classList.remove('hidden');
             }, 2000);
         } else {
+            playWrong();
             fb.className = "feedback incorrect";
-            fb.innerText = "🔊 [error_buzz.mp3] - The security system sounds! Remember your elements. Aluminium and plastic do not attract to magnetic poles. Try again.";
+            fb.innerText = "The security system sounds! Remember your elements. Aluminium and plastic do not attract to magnetic poles. Try again.";
         }
     }
 
@@ -364,15 +344,17 @@
         const fb = document.getElementById('fb3');
         
         if (val === 'away') {
+            playCorrect();
             fb.className = "feedback correct";
-            fb.innerText = "🔊 [success_chime.mp3] - Exactly! The red needle aligns North. Moving away from North sets your heading straight South!";
+            fb.innerText = "Exactly! The red needle aligns North. Moving away from North sets your heading straight South!";
             setTimeout(() => {
                 document.getElementById('stage3').classList.add('hidden');
                 document.getElementById('stage4').classList.remove('hidden');
             }, 2000);
         } else {
+            playWrong();
             fb.className = "feedback incorrect";
-            fb.innerText = "🔊 [error_buzz.mp3] - Walking toward the tree takes you North, deep into the foggy terrain! Recheck your alignment.";
+            fb.innerText = "Walking toward the tree takes you North, deep into the foggy terrain! Recheck your alignment.";
         }
     }
 
@@ -382,15 +364,17 @@
         const fb = document.getElementById('fb4');
         
         if (val === '2') {
+            playCorrect();
             fb.className = "feedback correct";
-            fb.innerText = "🔊 [success_chime.mp3] - Spot on! Dropping from heights, heating, or hammering alignment breaks down atomic alignment. Storing with magnetic keepers (1) actually preserves magnetism.";
+            fb.innerText = "Spot on! Dropping from heights, heating, or hammering breaks down atomic alignment. Storing with magnetic keepers (1) preserves magnetism.";
             setTimeout(() => {
                 document.getElementById('stage4').classList.add('hidden');
                 document.getElementById('stage5').classList.remove('hidden');
             }, 2000);
         } else {
+            playWrong();
             fb.className = "feedback incorrect";
-            fb.innerText = "🔊 [error_buzz.mp3] - That action keeps magnets safely stored or unbothered. Check which destructive action causes demagnetization.";
+            fb.innerText = "That action keeps magnets safely stored or unbothered. Check which destructive action causes demagnetization.";
         }
     }
 
@@ -401,17 +385,18 @@
         const fb = document.getElementById('fb5');
         
         if (lift.includes('on') && drop.includes('off')) {
+            playCorrect();
             fb.className = "feedback correct";
-            fb.innerText = "🔊 [success_chime.mp3] - Excellent configuration!";
-            triggerAudioLog('stage5', '🔊 Audio playing: victory_fanfare.mp3');
+            fb.innerText = "Excellent configuration! You controlled the electrical field perfectly.";
             
             setTimeout(() => {
                 document.getElementById('stage5').classList.add('hidden');
                 document.getElementById('gameOver').classList.remove('hidden');
             }, 1800);
         } else {
+            playWrong();
             fb.className = "feedback incorrect";
-            fb.innerText = "🔊 [error_buzz.mp3] - The crane failed. An electromagnet depends on active current flow to hold its attraction. It must lose current to let go.";
+            fb.innerText = "The crane failed. An electromagnet depends on active current flow to hold its attraction. It must lose current to let go.";
         }
     }
 
@@ -429,8 +414,6 @@
         document.getElementById('fb3').className = 'feedback';
         document.getElementById('fb4').className = 'feedback';
         document.getElementById('fb5').className = 'feedback';
-        
-        triggerAudioLog('stage5', '🔊 Audio playing: power_hum.mp3');
         
         document.getElementById('gameOver').classList.add('hidden');
         document.getElementById('stage1').classList.remove('hidden');
