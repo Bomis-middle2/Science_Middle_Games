@@ -50,7 +50,7 @@
             flex-direction: column;
         }
 
-        /* --- STABLE 5-SECOND SPLASH SHIELD LAYER --- */
+        /* --- SPLASH SHIELD LAYER --- */
         #splash-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -120,12 +120,14 @@
             flex-direction: column;
             align-items: center;
             padding: 10px;
+            cursor: pointer;
         }
 
         #labCanvas {
             background: #0a0f14;
             border-radius: 8px;
             display: block;
+            touch-action: none;
         }
 
         .prompt-text {
@@ -137,45 +139,110 @@
             text-align: center;
         }
 
-        /* GRID SELECTION INTERACTIVE ENGINE (No MCQ formatting labels) */
-        .interaction-grid { 
-            display: grid; 
-            gap: 10px; 
-            margin-bottom: 15px;
-        }
-
-        .control-btn {
-            background: var(--card-bg); 
-            border: 2px solid #243b55; 
+        /* CONTROL RACK & SWITCHBOARD SLIDERS */
+        .control-rack {
+            background: var(--card-bg);
+            border: 2px solid #243b55;
+            border-radius: 14px;
             padding: 15px;
-            border-radius: 14px; 
-            text-align: center; 
-            font-size: 0.95rem; 
-            cursor: pointer; 
-            transition: 0.2s;
-            color: var(--text-light); 
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rack-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .switchboard-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f171e;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #243b55;
+        }
+
+        .switch-title {
+            font-size: 0.9rem;
             font-weight: 600;
-            white-space: normal;
-            word-wrap: break-word;
-            line-height: 1.4;
+            color: #cbd5e1;
         }
 
-        .control-btn:hover:not(:disabled) { 
-            border-color: var(--neon-cyan); 
-            background: #243b55; 
-        }
-        
-        .control-btn.correct { 
-            background: var(--success-green) !important; 
-            color: #052e16 !important; 
-            border-color: var(--success-green) !important; 
-            font-weight: 700; 
+        /* TOGGLE STYLING */
+        .instrument-toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
         }
 
-        .control-btn.wrong { 
-            background: var(--error-red) !important; 
-            color: white !important; 
-            border-color: var(--error-red) !important; 
+        .instrument-toggle input { display: none; }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider { background-color: var(--primary-blue); }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+        /* ACTION TRIGGERS */
+        .action-deck {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .trigger-btn {
+            flex: 1;
+            padding: 16px;
+            background: #243b55;
+            color: #ffffff;
+            border: 2px solid #334155;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .trigger-btn:hover:not(:disabled) {
+            border-color: var(--neon-cyan);
+            background: #2d4a6e;
+        }
+
+        #submit-action-btn { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(45deg, var(--primary-blue), var(--neon-cyan)); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 800; 
+            font-size: 1rem; 
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
         }
 
         /* CONTEXTUAL TERMINAL FEEDBACK */
@@ -191,20 +258,6 @@
         .hint-style { background: #2c2414; border-left: 4px solid #ffea00; color: #ffeaa7; }
         .expl-style { background: #0c2d1c; border-left: 4px solid var(--success-green); color: #d1fae5; }
 
-        #submit-action-btn { 
-            width: 100%; 
-            margin-top: auto; 
-            padding: 16px; 
-            background: linear-gradient(45deg, var(--primary-blue), var(--neon-cyan)); 
-            color: white; 
-            border: none; 
-            border-radius: 14px; 
-            font-weight: 800; 
-            font-size: 1rem; 
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
-        }
-
         .hidden { display: none !important; }
     </style>
 </head>
@@ -213,88 +266,97 @@
 <div id="game-container">
     <div id="splash-screen">
         <img src="assets/logo.png" alt="Innovine Logo" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').style.display='block';">
-     </div>
+        <div class="splash-brand-title" id="fallback-logo-text" style="display:none; margin-bottom:10px;">INNOVINE</div>
+        <div style="font-size: 0.85rem; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Motion & Measurement Desk</div>
+    </div>
 
     <div id="intro-view" class="view-frame hidden" style="text-align: center; justify-content: center;">
         <div style="margin-bottom: 15px;">
-    
+            <img src="assets/logo.png" alt="Innovine Logo" style="max-height: 60px; object-fit: contain;">
         </div>
         <h1 style="color: var(--neon-cyan); font-weight: 800; font-size: 1.6rem; margin-bottom: 5px;">Lab Meter Pro</h1>
         <p style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 25px;">Spatial Physics Calibration Unit</p>
         
         <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: left; border: 1px solid #243b55; font-size: 0.92rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 30px;">
-            Welcome to the Engineering Analyzer console. Step away from standard item tests and operate a system diagnostic desk interface. Analyze geometric measurement datasets and verify tracking profiles safely.
+            Welcome to the Engineering Analyzer console. Operate physical metrics, adjust slider variables, and capture motion tracking profiles on the live viewport desk instead of using static multi-choice tests.
         </div>
         <button id="engage-btn" style="width:100%; padding:16px; background:var(--primary-blue); color:white; border:none; border-radius:50px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow: 0 4px 14px rgba(0,114,255,0.4);">POWER UP MONITOR</button>
     </div>
 
     <div id="quiz-view" class="view-frame hidden">
         <div class="header">
-            <div class="level-badge" id="level-indicator">LEVEL 1: METRICS CONFIG</div>
-            <div class="hud-box">DESK NODES: <span id="node-progress">1/5</span></div>
+            <div class="level-badge" id="level-indicator">METRICS CALIBRATION</div>
+            <div class="hud-box">WORKSTATION: <span id="node-progress">1/5</span></div>
         </div>
         
         <div id="prompt-msg" class="prompt-text"></div>
         
-        <div class="lab-canvas-container">
-            <canvas id="labCanvas" width="400" height="150"></canvas>
+        <div class="lab-canvas-container" id="canvas-wrap">
+            <canvas id="labCanvas" width="400" height="180"></canvas>
         </div>
 
-        <div id="interactive-options" class="interaction-grid"></div>
+        <div id="control-panel-rack" class="control-rack">
+            <div class="rack-label" id="rack-title">Calibration Inputs</div>
+            <div id="dynamic-switches"></div>
+        </div>
+
         <div id="terminal-feedback" class="terminal-box"></div>
-        <button id="submit-action-btn" class="hidden">PROCEED TO NEXT MATRIX →</button>
+
+        <div class="action-deck">
+            <button id="verify-action-btn" class="trigger-btn">RUN DATA DIAGNOSTIC</button>
+            <button id="submit-action-btn" class="hidden">PROCEED TO NEXT FIELD →</button>
+        </div>
     </div>
 
     <div id="result-view" class="view-frame hidden" style="text-align:center; justify-content: center;">
         <div style="font-size: 4rem; margin-bottom: 10px;">📊</div>
         <h2 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">System Calibration Complete</h2>
         <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: left; border: 1px solid #243b55; font-size: 0.95rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 30px;" id="evaluation-summary"></div>
-        <button onclick="location.reload()" style="width:100%; padding:16px; background:var(--primary-blue); color:white; border:none; border-radius:14px; font-weight:700; cursor:pointer; font-size: 0.95rem;">REBOOT LAB STATION</button>
+        <button onclick="location.reload()" style="width:100%; padding:16px; background:var(--primary-blue); color:white; border:none; border-radius:14px; font-weight:700; cursor:pointer; font-size: 0.95rem;">REBOOT WORKSTATION</button>
     </div>
 </div>
 
 <script>
-    // Unified Grade 6 Mechanics Dataset (Curated completely without options label tags)
+    // Pure physics interaction schema dataset (Zero multi-choice properties)
     const labDataset = [
         {
-            level: 1,
-            q: "Diagnostic Matrix 01:\nSelect the parameter set containing only uniform, universally accepted Standard Units of length tracking.",
-            renderType: "RULER_SCALE",
-            choices: ["Metre, Centimetre, Kilometre", "Handspan, Cubit, Footstep", "Arm-span, Finger-width, Pace", "Yard, Pace, String-length"],
-            correct: 0,
-            expl: "S.I. systems like metres provide static uniform measurements across the globe, unlike human body properties which change from person to person."
+            level: "METRICS CONFIG",
+            q: "Task 01: Calibrate the switchboard panel to isolate only Uniform Standard Units of distance. Turn off body-part units.",
+            taskType: "TOGGLE_UNITS",
+            switches: ["Metre & Kilometre", "Handspan & Cubit", "Pace & Arm-span"],
+            targetStates: [true, false, false],
+            expl: "Standard S.I. units (Metre, Kilometre) remain uniform globally, whereas body measurements (handspan, cubit) vary with every individual."
         },
         {
-            level: 1,
-            q: "Diagnostic Matrix 02:\nAn engineer measures a physical beam using a damaged device missing its zero mark edge. The reading starts from 2.0 cm and checks out at 8.5 cm. Confirm true width.",
-            renderType: "BROKEN_RULER",
-            choices: ["8.5 centimeters", "10.5 centimeters", "6.5 centimeters", "2.0 centimeters"],
-            correct: 2,
-            expl: "True Distance = Final Reading minus Initial Reading. Therefore, 8.5 cm subtracted by 2.0 cm equals exactly 6.5 cm."
+            level: "METRICS CONFIG",
+            q: "Task 02: Adjust the calibration marker on the broken ruler (missing its zero edge) to calculate the true length of the beam.",
+            taskType: "SLIDER_RULER",
+            initialBeamVal: 8.5,
+            brokenEdgeOffset: 2.0,
+            targetAnswer: 6.5,
+            expl: "True Length = End Position minus Start Position. Discarding the broken 0-2cm region gives exactly 6.5 cm."
         },
         {
-            level: 2,
-            q: "Kinematic Profile 03:\nClassify the exact geometric path profile performed by an active heavy clock pendulum inside the matrix field.",
-            renderType: "PENDULUM_ANIM",
-            choices: ["Rectilinear Motion", "Circular Motion", "Oscillatory Motion", "Rotatory Motion"],
-            correct: 2,
-            expl: "An object moving to-and-fro around its central rest position is performing clean Oscillatory Motion."
+            level: "KINEMATICS RUN",
+            q: "Task 03: The pendulum simulation is running. Click the live viewport at the exact instant the tracking pattern shifts to pure Oscillatory Motion.",
+            taskType: "TAP_TIMING",
+            targetMotion: "Oscillatory",
+            expl: "To-and-fro repetitions around a steady central rest coordinate correctly specify clean Oscillatory Motion."
         },
         {
-            level: 2,
-            q: "Kinematic Profile 04:\nIdentify the tracking vector profile of an active ceiling fan blade revolving around its central stationary axle pivot.",
-            renderType: "FAN_ANIM",
-            choices: ["Circular Motion", "Rectilinear Motion", "Oscillatory Motion", "Periodic Translation"],
-            correct: 0,
-            expl: "The fan operates in a fixed loop plane where all points travel paths situated uniformly around a center axis, yielding Circular Motion."
+            level: "KINEMATICS RUN",
+            q: "Task 04: Toggle the calibration profile below to match the current motion of the spinning ceiling fan blades.",
+            taskType: "TOGGLE_MOTION",
+            switches: ["Circular Motion", "Rectilinear Motion", "Oscillatory Motion"],
+            targetStates: [true, false, false],
+            expl: "Points on the spinning blades travel along uniform paths positioned consistently around a locked central axis pivot, producing Circular Motion."
         },
         {
-            level: 2,
-            q: "Kinematic Profile 05:\nAnalyze the motion tracking plot of a heavy test load driving completely straight along a flat highway corridor.",
-            renderType: "STRAIGHT_ANIM",
-            choices: ["Oscillatory Motion", "Circular Motion", "Rectilinear Motion", "Vibratory Motion"],
-            correct: 2,
-            expl: "When a structural body changes position along a linear straight path vector, it undergoes Rectilinear Motion."
+            level: "KINEMATICS RUN",
+            q: "Task 05: Track the vehicle model moving inside the grid lane. Click the viewport when it matches a pure Rectilinear path profile.",
+            taskType: "TAP_TIMING_RECT",
+            targetMotion: "Rectilinear",
+            expl: "Whenever an engineering load shifts uniformly along a flat, straight line vector, its motion profile is strictly Rectilinear."
         }
     ];
 
@@ -304,12 +366,16 @@
     let canvasAnimationId = null;
     let animTick = 0;
 
-    // Local Native Audio Nodes
+    // Interactive Drag / State parameters
+    let interactiveSliderX = 280; 
+    let isDraggingSlider = false;
+    let currentMotionMode = "Circular"; // Dynamic variation switcher for task 3 & 5
+
+    // Native Audio Elements
     const sndCorrect = new Audio('assets/correct.mp3');
     const sndWrong = new Audio('assets/wrong.mp3');
     const sndClaps = new Audio('assets/freesound_community-claps-44774.mp3');
 
-    // Loader mechanism
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
@@ -324,45 +390,89 @@
     document.getElementById('engage-btn').onclick = () => {
         document.getElementById('intro-view').classList.add('hidden');
         document.getElementById('quiz-view').classList.remove('hidden');
-        renderLabNode();
+        initWorkspaceNode();
     };
 
-    function renderLabNode() {
+    function initWorkspaceNode() {
         if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
         
         document.getElementById('terminal-feedback').style.display = 'none';
         document.getElementById('submit-action-btn').classList.add('hidden');
+        document.getElementById('verify-action-btn').classList.remove('hidden');
         
         const data = labDataset[currentStep];
         document.getElementById('node-progress').innerText = `${currentStep + 1} / ${labDataset.length}`;
-        document.getElementById('level-indicator').innerText = data.level === 1 ? "LEVEL 1: METRICS CONFIG" : "LEVEL 2: KINEMATICS PROFILE";
+        document.getElementById('level-indicator').innerText = data.level;
         document.getElementById('prompt-msg').innerText = data.q;
         
-        const optionArea = document.getElementById('interactive-options');
-        optionArea.innerHTML = "";
-        
-        data.choices.forEach((choice, idx) => {
-            const button = document.createElement('button');
-            button.className = 'control-btn';
-            button.innerText = choice;
-            button.onclick = () => evaluateChoice(idx, data.correct, button);
-            optionArea.appendChild(button);
-        });
+        const controlArea = document.getElementById('dynamic-switches');
+        controlArea.innerHTML = "";
 
-        // Frame rendering cycle
-        animTick = 0;
-        function updateTelemetryLoop() {
-            animTick++;
-            drawLabGraphics(data.renderType);
-            canvasAnimationId = requestAnimationFrame(updateTelemetryLoop);
+        // Build native interactive inputs depending on physics objective (No MCQ templates)
+        if (data.taskType === "TOGGLE_UNITS" || data.taskType === "TOGGLE_MOTION") {
+            document.getElementById('rack-title').innerText = "Instrument Toggle Switches";
+            data.switches.forEach((label, idx) => {
+                const row = document.createElement('div');
+                row.className = 'switchboard-row';
+                row.innerHTML = `
+                    <span class="switch-title">${label}</span>
+                    <label class="instrument-toggle">
+                        <input type="checkbox" id="param-toggle-${idx}">
+                        <span class="toggle-slider"></span>
+                    </label>
+                `;
+                controlArea.appendChild(row);
+            });
+        } 
+        else if (data.taskType === "SLIDER_RULER") {
+            document.getElementById('rack-title').innerText = "Fine Calibration Tuning";
+            const row = document.createElement('div');
+            row.className = 'switchboard-row';
+            row.style.flexDirection = 'column';
+            row.style.alignItems = 'stretch';
+            row.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem;">
+                    <span>Calculated Length Vector:</span>
+                    <span id="slider-readout" style="color:var(--neon-cyan); font-weight:bold;">8.5 cm</span>
+                </div>
+                <input type="range" id="metric-slider" min="3.0" max="9.5" step="0.5" value="8.5" style="width:100%; height:6px; background:#334155; border-radius:3px; outline:none;">
+            `;
+            controlArea.appendChild(row);
+            
+            document.getElementById('metric-slider').addEventListener('input', (e) => {
+                let val = parseFloat(e.target.value);
+                document.getElementById('slider-readout').innerText = val.toFixed(1) + " cm";
+                // Tie slider directly to live vector graphics on canvas
+                interactiveSliderX = 60 + ((val) * 32); 
+            });
+            interactiveSliderX = 60 + (8.5 * 32);
+        } 
+        else if (data.taskType === "TAP_TIMING" || data.taskType === "TAP_TIMING_RECT") {
+            document.getElementById('rack-title').innerText = "Telemetry Analyzer Feed";
+            controlArea.innerHTML = `
+                <div style="text-align:center; padding:10px; font-size:0.88rem; color:#a0aec0; font-style:italic;">
+                    🎯 Viewport is active. Tap or click directly on the canvas above at the exact instant the movement conforms to the requested calibration profile.
+                </div>
+            `;
         }
-        updateTelemetryLoop();
+
+        animTick = 0;
+        function workspaceLoop() {
+            animTick++;
+            // Dynamically morph physics models for live capture questions
+            if(animTick % 160 === 0) {
+                currentMotionMode = currentMotionMode === "Circular" ? "Oscillatory" : "Circular";
+            }
+            drawLabGraphics(data.taskType);
+            canvasAnimationId = requestAnimationFrame(workspaceLoop);
+        }
+        workspaceLoop();
     }
 
     function drawLabGraphics(type) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // High contrast grid mapping lines
+        // Matrix grid plotting lines
         ctx.strokeStyle = '#102a43';
         ctx.lineWidth = 1;
         for(let x=20; x<canvas.width; x+=20) {
@@ -372,107 +482,136 @@
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        if (type === "RULER_SCALE") {
+        if (type === "TOGGLE_UNITS") {
             ctx.fillStyle = "#16253b";
-            ctx.fillRect(30, 45, 340, 60);
-            ctx.strokeStyle = varColor('--neon-cyan');
+            ctx.fillRect(40, 50, 320, 80);
+            ctx.strokeStyle = varColor('--primary-blue');
             ctx.lineWidth = 2;
-            ctx.strokeRect(30, 45, 340, 60);
+            ctx.strokeRect(40, 50, 320, 80);
             
-            ctx.strokeStyle = '#ffffff';
-            for (let i = 0; i <= 10; i++) {
-                let xPos = 40 + (i * 32);
-                ctx.beginPath();
-                ctx.moveTo(xPos, 45);
-                ctx.lineTo(xPos, i % 5 === 0 ? 70 : 58);
-                ctx.stroke();
-                if(i % 5 === 0) {
-                    ctx.fillStyle = "#ffffff";
-                    ctx.font = "10px monospace";
-                    ctx.fillText(i + "cm", xPos, 85);
-                }
-            }
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 13px sans-serif";
+            ctx.fillText("STANDARD CONFIGURATION CORE", 200, 75);
+            ctx.fillStyle = varColor('--neon-cyan');
+            ctx.font = "11px monospace";
+            ctx.fillText("SYSTEM STATUS: AWAITING PARAMETERS", 200, 105);
         } 
-        else if (type === "BROKEN_RULER") {
+        else if (type === "SLIDER_RULER") {
+            // Damaged measuring ruler setup
             ctx.fillStyle = "#2c1a1a";
-            ctx.fillRect(30, 45, 340, 60);
+            ctx.fillRect(30, 60, 340, 60);
             ctx.strokeStyle = varColor('--error-red');
             ctx.lineWidth = 2;
-            ctx.strokeRect(30, 45, 340, 60);
+            ctx.strokeRect(30, 60, 340, 60);
             
+            // Broken jagged edge graphic
             ctx.fillStyle = "#0a0f14";
             ctx.beginPath();
-            ctx.moveTo(30, 45);
-            ctx.lineTo(42, 60);
-            ctx.lineTo(32, 75);
-            ctx.lineTo(45, 90);
-            ctx.lineTo(30, 105);
+            ctx.moveTo(30, 60); ctx.lineTo(42, 75); ctx.lineTo(32, 90); ctx.lineTo(45, 105); ctx.lineTo(30, 120);
             ctx.fill();
 
             ctx.strokeStyle = '#ffffff';
-            for (let i = 2; i <= 9; i++) {
-                let xPos = 60 + ((i-2) * 40);
+            for (let i = 2; i <= 10; i++) {
+                let xPos = 60 + ((i-2) * 32);
                 ctx.beginPath();
-                ctx.moveTo(xPos, 45);
-                ctx.lineTo(xPos, 65);
+                ctx.moveTo(xPos, 60);
+                ctx.lineTo(xPos, 78);
                 ctx.stroke();
                 ctx.fillStyle = "#ffffff";
-                ctx.font = "11px monospace";
-                ctx.fillText(i + "cm", xPos, 82);
+                ctx.font = "10px monospace";
+                ctx.fillText(i + "cm", xPos, 95);
             }
             
+            // Render calibration bar adjusted by dynamic slide values
             ctx.strokeStyle = varColor('--neon-cyan');
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(60, 30); ctx.lineTo(320, 30); ctx.stroke();
+            ctx.lineWidth = 4;
+            ctx.beginPath(); 
+            ctx.moveTo(60, 42); 
+            ctx.lineTo(interactiveSliderX, 42); 
+            ctx.stroke();
+            
             ctx.fillStyle = varColor('--neon-cyan');
-            ctx.font = "bold 11px sans-serif";
-            ctx.fillText("OBJECT RADIAL SPAN", 200, 15);
+            ctx.beginPath();
+            ctx.arc(interactiveSliderX, 42, 6, 0, Math.PI*2);
+            ctx.fill();
         } 
-        else if (type === "PENDULUM_ANIM") {
+        else if (type === "TAP_TIMING") {
+            // Dynamic telemetry feedback mode loop
             let centerPos = canvas.width / 2;
-            let sweepAngle = Math.sin(animTick * 0.05) * 0.6;
-            let endX = centerPos + Math.sin(sweepAngle) * 90;
-            let endY = 20 + Math.cos(sweepAngle) * 90;
             
-            ctx.strokeStyle = '#486581';
-            ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(centerPos, 20); ctx.lineTo(endX, endY); ctx.stroke();
+            if (currentMotionMode === "Oscillatory") {
+                let sweepAngle = Math.sin(animTick * 0.06) * 0.7;
+                let endX = centerPos + Math.sin(sweepAngle) * 95;
+                let endY = 20 + Math.cos(sweepAngle) * 95;
+                ctx.strokeStyle = '#486581';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(centerPos, 20); ctx.lineTo(endX, endY); ctx.stroke();
+                ctx.fillStyle = varColor('--primary-blue');
+                ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.fill();
+            } else {
+                // Rotates out of bounds to simulate spinning/circular state
+                let spinAngle = animTick * 0.08;
+                let endX = centerPos + Math.cos(spinAngle) * 45;
+                let endY = 70 + Math.sin(spinAngle) * 45;
+                ctx.strokeStyle = '#486581';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(centerPos, 70); ctx.lineTo(endX, endY); ctx.stroke();
+                ctx.fillStyle = varColor('--error-red');
+                ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.fill();
+            }
             
-            ctx.fillStyle = varColor('--primary-blue');
-            ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.stroke();
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 11px monospace";
+            ctx.fillText(`CURRENT MONITOR STATE: ${currentMotionMode.toUpperCase()}`, 200, 155);
         } 
-        else if (type === "FAN_ANIM") {
+        else if (type === "TOGGLE_MOTION") {
             let originX = canvas.width / 2;
-            let originY = canvas.height / 2;
-            let spinRotation = animTick * 0.06;
+            let originY = canvas.height / 2 - 10;
+            let spinRotation = animTick * 0.07;
             
             ctx.fillStyle = '#243b55';
             ctx.beginPath(); ctx.arc(originX, originY, 12, 0, Math.PI*2); ctx.fill();
             
             ctx.strokeStyle = '#9fb3c8';
             ctx.lineWidth = 8;
-            for(let bladeIdx = 0; bladeIdx < 3; bladeIdx++) {
-                let currentAngle = spinRotation + (bladeIdx * (Math.PI * 2 / 3));
+            for(let b = 0; b < 3; b++) {
+                let angle = spinRotation + (b * (Math.PI * 2 / 3));
                 ctx.beginPath();
                 ctx.moveTo(originX, originY);
-                ctx.lineTo(originX + Math.cos(currentAngle)*55, originY + Math.sin(currentAngle)*55);
+                ctx.lineTo(originX + Math.cos(angle)*60, originY + Math.sin(angle)*60);
                 ctx.stroke();
             }
+            ctx.fillStyle = varColor('--neon-cyan');
+            ctx.font = "bold 11px monospace";
+            ctx.fillText("LIVE PROFILE SPIN VECTOR DETECTED", 200, 155);
         } 
-        else if (type === "STRAIGHT_ANIM") {
-            let trackY = canvas.height / 2 + 10;
+        else if (type === "TAP_TIMING_RECT") {
+            let trackY = canvas.height / 2;
             ctx.strokeStyle = '#486581';
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(40, trackY); ctx.lineTo(360, trackY); ctx.stroke();
-            
-            let carX = 40 + (animTick * 1.5 % 300);
-            ctx.fillStyle = varColor('--success-green');
-            ctx.fillRect(carX, trackY - 18, 32, 18);
-            ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(carX + 7, trackY, 4, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(carX + 25, trackY, 4, 0, Math.PI*2); ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(30, trackY); ctx.lineTo(370, trackY); ctx.stroke();
+
+            let stateLabel = "Rectilinear";
+            let carX;
+
+            if (animTick % 200 < 100) {
+                // Linear flat transition pattern
+                carX = 40 + ((animTick % 100) * 3.2);
+                ctx.fillStyle = varColor('--success-green');
+                ctx.fillRect(carX, trackY - 12, 28, 16);
+                stateLabel = "Rectilinear";
+            } else {
+                // Sinusoidal curved path transition pattern
+                carX = 40 + ((animTick % 100) * 3.2);
+                let carY = trackY + Math.sin(animTick * 0.2) * 25;
+                ctx.fillStyle = varColor('--error-red');
+                ctx.fillRect(carX, carY - 12, 28, 16);
+                stateLabel = "Curvilinear";
+            }
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 11px monospace";
+            ctx.fillText(`PATH LOG PROFILE: ${stateLabel.toUpperCase()}`, 200, 155);
         }
     }
 
@@ -480,24 +619,55 @@
         return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     }
 
-    function evaluateChoice(selected, correct, element) {
-        document.querySelectorAll('.control-btn').forEach(btn => btn.disabled = true);
+    // Viewport Capture Processing Engine
+    document.getElementById('canvas-wrap').onclick = () => {
+        const data = labDataset[currentStep];
+        if (data.taskType === "TAP_TIMING") {
+            evaluateActionPerformance(currentMotionMode === "Oscillatory");
+        } else if (data.taskType === "TAP_TIMING_RECT") {
+            let actualMode = (animTick % 200 < 100) ? "Rectilinear" : "Curvilinear";
+            evaluateActionPerformance(actualMode === "Rectilinear");
+        }
+    };
+
+    document.getElementById('verify-action-btn').onclick = () => {
+        const data = labDataset[currentStep];
+        
+        if (data.taskType === "TOGGLE_UNITS" || data.taskType === "TOGGLE_MOTION") {
+            let completelyValid = true;
+            data.targetStates.forEach((target, idx) => {
+                let box = document.getElementById(`param-toggle-${idx}`);
+                if (box && box.checked !== target) completelyValid = false;
+            });
+            evaluateActionPerformance(completelyValid);
+        } 
+        else if (data.taskType === "SLIDER_RULER") {
+            let currentVal = parseFloat(document.getElementById('metric-slider').value);
+            // Check if calibrated calculation isolates the true span accurately
+            evaluateActionPerformance(Math.abs(currentVal - data.targetAnswer) < 0.2);
+        }
+    };
+
+    function evaluateActionPerformance(isCorrect) {
+        document.getElementById('verify-action-btn').classList.add('hidden');
         const terminal = document.getElementById('terminal-feedback');
         
-        if (selected === correct) {
-            element.classList.add('correct');
+        // Freeze toggle controls
+        document.querySelectorAll('.instrument-toggle input').forEach(input => input.disabled = true);
+        let slider = document.getElementById('metric-slider');
+        if(slider) slider.disabled = true;
+
+        if (isCorrect) {
             terminal.className = "terminal-box expl-style";
-            terminal.innerHTML = "&nbsp;⚙️ <b>TELEMETRY STATUS: OPTIMAL</b><br>" + labDataset[currentStep].expl;
+            terminal.innerHTML = "&nbsp;⚙️ <b>CALIBRATION OPTIMAL</b><br>" + labDataset[currentStep].expl;
             sndCorrect.currentTime = 0;
-            sndCorrect.play().catch(e => console.log('Audio stream ready'));
+            sndCorrect.play().catch(e => {});
         } else {
-            element.classList.add('wrong');
             wrongCount++;
-            document.querySelectorAll('.control-btn')[correct].classList.add('correct');
             terminal.className = "terminal-box hint-style";
-            terminal.innerHTML = "&nbsp;⚠️ <b>TELEMETRY STATUS: DEVIATION DETECTED</b><br>" + labDataset[currentStep].expl;
+            terminal.innerHTML = "&nbsp;⚠️ <b>DIAGNOSTIC DEVIATION DETECTED</b><br>" + labDataset[currentStep].expl;
             sndWrong.currentTime = 0;
-            sndWrong.play().catch(e => console.log('Audio stream ready'));
+            sndWrong.play().catch(e => {});
         }
         
         terminal.style.display = "block";
@@ -507,28 +677,28 @@
     document.getElementById('submit-action-btn').onclick = () => {
         currentStep++;
         if (currentStep < labDataset.length) {
-            renderLabNode();
+            initWorkspaceNode();
         } else {
-            terminateSessionReport();
+            terminateCalibrationSuite();
         }
     };
 
-    function terminateSessionReport() {
+    function terminateCalibrationSuite() {
         if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
         
         document.getElementById('quiz-view').classList.add('hidden');
         document.getElementById('result-view').classList.remove('hidden');
         
         sndClaps.currentTime = 0;
-        sndClaps.play().catch(e => console.log('Summary audio trigger ready'));
+        sndClaps.play().catch(e => {});
         
         const summary = document.getElementById('evaluation-summary');
         if (wrongCount === 0) {
-            summary.innerHTML = "🏆 <b>Status: Optimal Performance</b><br><br>All monitored matrix coordinates and physics tracking profiles matched target specifications with 100% precision score.";
+            summary.innerHTML = "🏆 <b>Status: Master Precision</b><br><br>All simulated spatial datasets and calibration loops were synchronized perfectly at 100% computational integrity.";
         } else if (wrongCount <= 2) {
-            summary.innerHTML = "⚠️ <b>Status: Operational Limits Checked</b><br><br>The workbench logged minor feedback anomalies during tracing execution. Review standard measurement parameters and kinematic structures.";
+            summary.innerHTML = "⚠️ <b>Status: Minor Tolerance Drift</b><br><br>The metrics workstation successfully established parameters but detected isolated timing variances during frame capture.";
         } else {
-            summary.innerHTML = "❌ <b>Status: Full Calibration Required</b><br><br>System registered a critical mismatch. Keep in mind:<br>• Direct linear shifts = <b>Rectilinear</b><br>• Central axis loops = <b>Circular</b><br>• To-and-fro repetitions = <b>Oscillatory</b>";
+            summary.innerHTML = "❌ <b>Status: Complete Station Recalibration Required</b><br><br>Severe telemetry failure reported during kinematic tracking. Keep core rules logged:<br>• <b>S.I. Metrics</b> remain uniform.<br>• <b>Rectilinear</b> tracks absolute lines.<br>• <b>Oscillatory</b> frames a regular to-and-fro arc.";
         }
     }
 </script>
