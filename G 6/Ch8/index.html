@@ -58,7 +58,7 @@
         }
 
         @keyframes pulse {
-            0 { transform: scale(0.95); }
+            0% { transform: scale(0.95); }
             50% { transform: scale(1.02); }
             100% { transform: scale(0.95); }
         }
@@ -145,7 +145,7 @@
         #target-box {
             color: #ffea00;
             border-color: #ffea00;
-            max-width: 420px;
+            max-width: 440px;
             text-align: center;
         }
 
@@ -243,7 +243,7 @@
         <div id="level-clear-screen">
             <h2 class="clear-title">⚡ LEVEL 1 COMPLETED ⚡</h2>
             <p id="level-clear-msg" style="font-size:1.2rem; max-width:550px; text-align:center; margin-bottom:35px; line-height:1.6; color:#e0e0e0;">
-                Excellent! You successfully filtered out the insulators and verified all electrical conductors to complete your baseline testing.
+                Excellent! You successfully verified the electrical conductors like spoons, keys, and mineral-dense water while isolating harmful insulators.
             </p>
             <button class="btn" id="next-level-btn" style="background-color:#00fff0; color:#121214; box-shadow: 0 5px 15px rgba(0,255,240,0.3);">ADVANCE TO LEVEL 2</button>
         </div>
@@ -290,21 +290,22 @@
         // Level 2 Target Pool Questions Tracker
         let currentLevel2Question = null;
 
-        // Level 1 Random Generator Dynamic Elements
-        const itemPrefixes = ["Shiny", "Old", "Pure", "Rusty", "Heavy", "Broken", "Polished", "Coated"];
+        // Level 1 Random Generator Dynamic Elements (Updated with Spoon, Key, Water variants)
+        const itemPrefixes = ["Shiny", "Metal", "Old", "Pure", "Heavy", "Standard", "Polished", "Cold"];
         const conductorBases = [
-            { name: "Copper Wire", color: "#b87333" },
-            { name: "Iron Nail", color: "#aaa9ad" },
-            { name: "Aluminum Foil", color: "#e2e2e2" },
-            { name: "Steel Key", color: "#7f8c8d" },
-            { name: "Brass Coin", color: "#d4af37" }
+            { name: "Steel Spoon", color: "#b8bcbe" },
+            { name: "Brass Key", color: "#d4af37" },
+            { name: "Tap Water Container", color: "#4cc9f0" },
+            { name: "Salt Water Beaker", color: "#4361ee" },
+            { name: "Copper Wire Segment", color: "#b87333" },
+            { name: "Iron Nail Pin", color: "#aaa9ad" }
         ];
         const insulatorBases = [
-            { name: "Plastic Ruler", color: "#e63946" },
-            { name: "Rubber Eraser", color: "#ffb703" },
-            { name: "Wooden Stick", color: "#9c6644" },
-            { name: "Glass Strip", color: "#a8dadc" },
-            { name: "Cotton Ribbon", color: "#ddbea9" }
+            { name: "Distilled Pure Water", color: "#a8dadc" },
+            { name: "Plastic Ruler Shield", color: "#e63946" },
+            { name: "Rubber Eraser Pad", color: "#ffb703" },
+            { name: "Wooden Cooking Spoon", color: "#9c6644" },
+            { name: "Glass Key Ring", color: "#ddbea9" }
         ];
 
         // Level 2 Archetype Pool
@@ -374,7 +375,7 @@
             livesBox.innerText = `⚡ Lives: ${"❤️".repeat(lives)}`;
             
             if (currentLevel === 1) {
-                targetBox.innerText = "Collect: CONDUCTORS!";
+                targetBox.innerText = "Collect: CONDUCTORS (Spoon, Key, Salt/Tap Water)!";
                 targetBox.style.borderColor = "#ffea00";
                 targetBox.style.color = "#ffea00";
             } else {
@@ -469,16 +470,16 @@
 
         function spawnItem() {
             if (currentLevel === 1) {
-                // Determine if item will be conductor vs insulator randomly
+                // Randomly decide conductor vs insulator layout allocation
                 const isConductor = Math.random() > 0.45;
                 const basePool = isConductor ? conductorBases : insulatorBases;
                 const selectedBase = basePool[Math.floor(Math.random() * basePool.length)];
                 const selectedPrefix = itemPrefixes[Math.floor(Math.random() * itemPrefixes.length)];
                 
                 items.push({
-                    x: Math.random() * (canvas.width - 150) + 15,
+                    x: Math.random() * (canvas.width - 170) + 15,
                     y: -50,
-                    width: 145,
+                    width: 165,
                     height: 42,
                     name: `${selectedPrefix} ${selectedBase.name}`,
                     matchesTarget: isConductor,
@@ -487,7 +488,7 @@
                     speed: Math.random() * 1.5 + 2.5
                 });
             } else {
-                // Level 2 Spawning: Build randomized pool variables loop
+                // Level 2 Spawning
                 const archetype = level2Pool[Math.floor(Math.random() * level2Pool.length)];
                 items.push({
                     x: Math.random() * (canvas.width - 140) + 20,
@@ -549,6 +550,7 @@
                     ctx.fillStyle = '#121214';
                     ctx.font = 'bold 11px Arial';
                     ctx.textAlign = 'center';
+                    // Text adjustments for longer chemical titles
                     ctx.fillText(item.name, item.x + item.width / 2, item.y + 25);
                 } else {
                     // Level 2 schematic drawing layout
@@ -570,12 +572,10 @@
                     item.y < player.y + player.height &&
                     item.y + item.height > player.y) {
                     
-                    // Recalculate targets based on matchesTarget properties
                     if (currentLevel === 1) {
                         if (item.matchesTarget) {
                             score++;
                             if (score >= targetScorePerLevel) {
-                                // Trigger proper transitional display
                                 gameActive = false;
                                 gameplayScreen.style.display = 'block'; 
                                 levelClearScreen.style.display = 'flex';
@@ -585,14 +585,13 @@
                             if (lives <= 0) { endGame(false); return; }
                         }
                     } else {
-                        // Level 2 Dynamic Questioning Loop Matcher
+                        // Level 2 Dynamic System verification Matcher
                         if (item.symbolType === currentLevel2Question) {
                             score++;
                             if (score >= targetScorePerLevel) {
                                 endGame(true); 
                                 return;
                             } else {
-                                // Instantly roll a new diagram question to answer
                                 generateLevel2Question();
                             }
                         } else {
@@ -625,12 +624,12 @@
             if (isWin) {
                 gameOverTitle.innerText = "🏆 MASTER ELECTROMECHANIC!";
                 gameOverTitle.style.color = "#00fff0";
-                gameOverMsg.innerHTML = "Sensational job! You passed all validation checks for Grade 6 Electricity and Circuits!<br><br><b>Level 1 Mastered:</b> You separated variable conductors from active insulators.<br><b>Level 2 Mastered:</b> You successfully decoded multi-step diagram questions using official schematic symbols!";
+                gameOverMsg.innerHTML = "Sensational job! You passed all validation checks for Grade 6 Electricity and Circuits!<br><br><b>Level 1 Mastered:</b> You accurately matched metallic conductors (spoons, keys) and ionic fluid solutions.<br><b>Level 2 Mastered:</b> You successfully decoded multi-step diagram questions using official schematic symbols!";
             } else {
                 gameOverTitle.innerText = "💥 CIRCUIT BREAKER BLOWN";
                 gameOverTitle.style.color = "#e43f5a";
                 if(currentLevel === 1) {
-                    gameOverMsg.innerHTML = "An insulator entered the loop! Materials like plastic, wood, glass, and rubber block electric currents because they lack mobile electric charges.";
+                    gameOverMsg.innerHTML = "An insulator entered the loop! Remember: Materials like wood, plastic, rubber, and <b>Distilled Pure Water</b> resist current because they lack freely moving electric charges.";
                 } else {
                     gameOverMsg.innerHTML = "Incorrect symbol captured! Double-check your diagram schematics:<br>• <b>Cell:</b> One long line (+), one short thick line (-)<br>• <b>Battery:</b> Multiple integrated cells connected in series.";
                 }
