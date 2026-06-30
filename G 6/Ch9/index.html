@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Magnetism Mission</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Innovine - The Magnetism Mission</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-blue: #38bdf8;
-            --accent-green: #4ade80;
-            --accent-red: #f87171;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg-color: #0b1329;
+            --card-bg: #1c2541;
+            --accent-blue: #00b4d8;
+            --accent-green: #06d6a0;
+            --accent-red: #ef476f;
+            --text-main: #edf2f4;
+            --text-muted: #8d99ae;
         }
 
         body {
@@ -20,84 +20,101 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .game-outer {
+            width: 100%;
+            max-width: 600px;
+            min-height: 500px;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .game-container {
             background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 650px;
-            padding: 30px;
-            box-sizing: border-box;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            padding: 25px;
+            position: relative;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #334155;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
+        /* Splash Screen styling */
+        #splashScreen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #0b1329;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
         }
 
-        .logo-img {
-            max-width: 180px;
+        .brand-logo {
+            max-width: 220px;
+            width: 80%;
             height: auto;
-            margin-bottom: 10px;
-            border-radius: 6px;
+            animation: pulse 1.5s infinite ease-in-out;
         }
 
-        h1 {
-            margin: 5px 0;
-            font-size: 24px;
-            color: var(--accent-blue);
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
         }
 
-        .stage-title {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--accent-blue);
-            font-weight: bold;
+        /* Top Bar Interface */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #22333b;
+            padding-bottom: 12px;
             margin-bottom: 15px;
+            font-weight: bold;
         }
 
-        .narrative {
-            line-height: 1.6;
-            color: #cbd5e1;
-            margin-bottom: 20px;
-            background-color: #0f172a80;
-            padding: 15px;
+        .score-box { color: var(--accent-green); }
+        .progress-box { color: var(--accent-blue); }
+
+        .narrative-box {
+            background-color: #0b1329a0;
             border-left: 4px solid var(--accent-blue);
-            border-radius: 4px;
+            padding: 15px;
+            border-radius: 6px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 15px;
         }
 
-        .form-group {
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
+        .task-prompt {
             font-weight: 600;
-            color: var(--text-main);
+            margin-bottom: 12px;
+            color: #fff;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            background-color: #0f172a;
-            border: 2px solid #334155;
-            border-radius: 6px;
+            padding: 14px;
+            background-color: #0b1329;
+            border: 2px solid #22333b;
+            border-radius: 8px;
             color: white;
             font-size: 16px;
             box-sizing: border-box;
+            margin-bottom: 15px;
             transition: border-color 0.2s;
-            margin-bottom: 10px;
         }
 
         input[type="text"]:focus {
@@ -108,315 +125,296 @@
         button {
             width: 100%;
             background-color: var(--accent-blue);
-            color: #0f172a;
+            color: #0b1329;
             border: none;
             padding: 14px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        button:hover {
-            background-color: #7dd3fc;
+        button:active {
+            transform: scale(0.98);
         }
 
-        .feedback {
+        .feedback-ui {
             margin-top: 15px;
             padding: 12px;
-            border-radius: 6px;
-            font-weight: 500;
+            border-radius: 8px;
+            font-weight: bold;
             display: none;
-            line-height: 1.4;
-        }
-
-        .feedback.correct {
-            background-color: rgba(74, 222, 128, 0.15);
-            color: var(--accent-green);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            display: block;
-        }
-
-        .feedback.incorrect {
-            background-color: rgba(248, 113, 113, 0.15);
-            color: var(--accent-red);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            display: block;
-        }
-
-        ol {
-            margin: 10px 0;
-            padding-left: 20px;
-            color: #cbd5e1;
-        }
-
-        ol li {
-            margin-bottom: 8px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .summary-card {
             text-align: center;
         }
-        
-        .badge {
-            font-size: 48px;
-            margin-bottom: 15px;
+
+        .feedback-ui.correct-style {
+            background-color: rgba(6, 214, 160, 0.15);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            display: block;
+            animation: celebrate 0.5s ease;
         }
+
+        .feedback-ui.incorrect-style {
+            background-color: rgba(239, 71, 111, 0.15);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+            display: block;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .hidden { display: none !important; }
+
+        /* End screen summary layout */
+        .summary-wrapper {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .medal-icon { font-size: 60px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<audio id="audioCorrect" src="correct.mp3" preload="auto"></audio>
-<audio id="audioWrong" src="wrong.mp3" preload="auto"></audio>
+<audio id="sndCorrect" src="correct.mp3" preload="auto"></audio>
+<audio id="sndWrong" src="wrong.mp3" preload="auto"></audio>
 
-<div class="game-container">
-    <div class="header">
-        <img src="assets/logo.png" alt="Magnetism Mission Logo" class="logo-img" onerror="this.style.display='none';">
-        <h1>THE MAGNETISM MISSION</h1>
-    </div>
+<div class="game-outer">
+    <div class="game-container">
+        
+        <div id="splashScreen">
+            <img src="assets/logo.png" alt="Innovine Logo" class="brand-logo" id="logoImg">
+        </div>
 
-    <div id="stage1" class="stage-pane">
-        <div class="stage-title">Stage 1: The Shepherd's Lost Stick</div>
-        <div class="narrative">
-            You open your eyes and find yourself in ancient Magnesia, Greece. A worried shepherd named Magnes runs up to you.<br><br>
-            <em>"Help! My herding stick is stuck flat against a black mountain rock, and I can't pull it away!"</em><br><br>
-            The tip of his stick is made of iron. The rock is a dark, natural mineral pulling it via natural magnetic forces.
+        <div id="instructionScreen" class="hidden">
+            <h2 style="color: var(--accent-blue); text-align: center; margin-top: 0;">The Magnetism Mission</h2>
+            <div class="narrative-box">
+                <strong>Welcome Explorer!</strong><br><br>
+                Test your alignment across 10 vital core challenges on grade-level magnetism. 
+                There are no multiple-choice safety nets here—you must reason through application tasks using short text strings.
+                <br><br>
+                💡 <em>You have 2 attempts per question before a calibration system structural hint is unlocked!</em>
+            </div>
+            <button onclick="startGame()">Begin Mission</button>
         </div>
-        <div class="form-group">
-            <label for="ans1">What is the scientific name of this natural mineral rock?</label>
-            <input type="text" id="ans1" placeholder="Type your answer here..." autocomplete="off">
-            <button onclick="checkStage1()">Submit Answer</button>
-        </div>
-        <div id="fb1" class="feedback"></div>
-    </div>
 
-    <div id="stage2" class="stage-pane hidden">
-        <div class="stage-title">Stage 2: The Sorting Gates</div>
-        <div class="narrative">
-            The mountain wall slides open, revealing a futuristic laboratory with two large bins:<br>
-            <strong>BIN A: MAGNETIC</strong> &nbsp;|&nbsp; <strong>BIN B: NON-MAGNETIC</strong><br><br>
-            Scattered on the floor are four fallen items: <br>
-            • Plastic Bottle<br>
-            • Iron Nail<br>
-            • Aluminium Foil<br>
-            • Cobalt Coin<br><br>
-            To cross the threshold, you must sort the magnetic items using your stick.
+        <div id="gamePlayScreen" class="hidden" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="top-bar">
+                    <span class="progress-box">Task: <span id="lblProgress">1</span>/10</span>
+                    <span class="score-box">Score: <span id="lblScore">0</span></span>
+                </div>
+                <div class="narrative-box" id="lblNarrative">Scenario text goes here.</div>
+                <div class="task-prompt" id="lblPrompt">Question text goes here.</div>
+                <input type="text" id="txtAnswer" placeholder="Type your observation..." autocomplete="off">
+            </div>
+            <div>
+                <button onclick="processSubmission()" id="btnSubmit">Verify Input</button>
+                <div id="feedbackContainer" class="feedback-ui"></div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="ans2">Which TWO items from the list belong in BIN A (Magnetic)?</label>
-            <input type="text" id="ans2" placeholder="Item 1, Item 2" autocomplete="off">
-            <button onclick="checkStage2()">Submit Answer</button>
-        </div>
-        <div id="fb2" class="feedback"></div>
-    </div>
 
-    <div id="stage3" class="stage-pane hidden">
-        <div class="stage-title">Stage 3: The Compass Maze</div>
-        <div class="narrative">
-            You step forward and find yourself in a thick, misty forest. You cannot see the sun or landmarks.<br><br>
-            You take a magnetic navigation compass out of your coat pocket. You hold it flat, and the needle settles down. The red half of the pointer aligns directly toward a giant oak tree in front of you.
+        <div id="summaryScreen" class="hidden summary-wrapper">
+            <div class="medal-icon">🏆</div>
+            <h2 style="color: var(--accent-green); margin-top: 0;">MISSION ACCOMPLISHED</h2>
+            <p style="font-size: 18px; margin: 15px 0;">Final Score: <strong><span id="lblFinalScore">0</span> / 100</strong></p>
+            <div class="narrative-box" style="text-align: left;">
+                Your competencies in the properties of magnets, temporary electromagnets, navigation arrays, and natural/artificial material variances have been successfully registered.
+            </div>
+            <button onclick="reloadGame()" style="background-color: var(--accent-blue);">Restart Mission</button>
         </div>
-        <div class="form-group">
-            <label for="ans3">If you need to travel directly SOUTH to escape, should you walk 'toward' or 'away' from the giant oak tree?</label>
-            <input type="text" id="ans3" placeholder="toward / away" autocomplete="off">
-            <button onclick="checkStage3()">Submit Answer</button>
-        </div>
-        <div id="fb3" class="feedback"></div>
-    </div>
 
-    <div id="stage4" class="stage-pane hidden">
-        <div class="stage-title">Stage 4: The Weakening Captain</div>
-        <div class="narrative">
-            You arrive at an island control tower. Captain Lily is distressed: <br>
-            <em>"Our emergency backup steering system uses a powerful Permanent Bar Magnet, but it has completely lost its magnetism!"</em><br><br>
-            You read the crew's daily maintenance log:
-            <ol>
-                <li>They wrapped it in wood and kept it in pairs with unlike poles together.</li>
-                <li>They accidentally dropped it from a high balcony onto the metal deck.</li>
-                <li>They wiped it clean with a wet cloth.</li>
-                <li>They left it sitting far away from electronic devices.</li>
-            </ol>
-        </div>
-        <div class="form-group">
-            <label for="ans4">Enter the action number (1, 2, 3, or 4) that ruined the permanent magnet:</label>
-            <input type="text" id="ans4" placeholder="Type the single digit..." autocomplete="off">
-            <button onclick="checkStage4()">Submit Answer</button>
-        </div>
-        <div id="fb4" class="feedback"></div>
-    </div>
-
-    <div id="stage5" class="stage-pane hidden">
-        <div class="stage-title">Stage 5: The Crane Master</div>
-        <div class="narrative">
-            To escape the island entirely, you must navigate a massive scrap crane to pick up a huge shipment of iron beams and pack them into your ship. This crane uses a temporary magnet powered by electric current.<br><br>
-            You enter the cockpit. A soft iron core is tightly wrapped with copper coils leading to a battery switch. The crane is down over the iron scrap, but nothing sticks.
-        </div>
-        <div class="form-group">
-            <label for="ans5a">Step 1: To make the crane act like a magnet and lift the iron, what do you do to the electricity? (e.g., 'switch on' or 'switch off')</label>
-            <input type="text" id="ans5a" placeholder="Action to lift..." autocomplete="off">
-            
-            <label for="ans5b" style="margin-top: 15px;">Step 2: Once hovering safely above your boat, how do you release the iron?</label>
-            <input type="text" id="ans5b" placeholder="Action to drop..." autocomplete="off">
-            
-            <button onclick="checkStage5()" style="margin-top: 10px;">Activate Crane</button>
-        </div>
-        <div id="fb5" class="feedback"></div>
-    </div>
-
-    <div id="gameOver" class="stage-pane hidden summary-card">
-        <div class="badge">🧲</div>
-        <h2 style="color: var(--accent-green);">MISSION ACCOMPLISHED</h2>
-        <p style="line-height: 1.6; text-align: left; background: #0f172a; padding: 20px; border-radius: 8px;">
-            <strong>Rank Awarded:</strong> Master of Magnetism<br><br>
-            Congratulations! You successfully bypassed every real-world roadblock by applying key physics concepts:<br>
-            ✔ Natural materials identification (Magnetite)<br>
-            ✔ Classifying Magnetic Substances (Iron & Cobalt)<br>
-            ✔ Directional mechanics of suspended magnets<br>
-            ✔ Preventing Demagnetization<br>
-            ✔ Operating Electromagnets using electrical current
-        </p>
-        <button onclick="resetGame()" style="background-color: #475569; color: white; margin-top: 15px;">Play Revision Again</button>
     </div>
 </div>
 
 <script>
-    // Audio triggering handlers
-    function playCorrect() {
-        const sound = document.getElementById('audioCorrect');
-        sound.currentTime = 0;
-        sound.play().catch(e => console.log("Audio play blocked until interaction"));
-    }
-
-    function playWrong() {
-        const sound = document.getElementById('audioWrong');
-        sound.currentTime = 0;
-        sound.play().catch(e => console.log("Audio play blocked until interaction"));
-    }
-
-    // Stage 1 Verification
-    function checkStage1() {
-        const val = document.getElementById('ans1').value.trim().toLowerCase();
-        const fb = document.getElementById('fb1');
-        
-        if (val === 'magnetite' || val === 'lodestone') {
-            playCorrect();
-            fb.className = "feedback correct";
-            fb.innerText = "Correct! Magnetite is a natural magnetic iron ore mineral named after Magnes!";
-            setTimeout(() => {
-                document.getElementById('stage1').classList.add('hidden');
-                document.getElementById('stage2').classList.remove('hidden');
-            }, 2000);
-        } else {
-            playWrong();
-            fb.className = "feedback incorrect";
-            fb.innerText = "The rock holds tight. Hint: It's a natural magnetic rock named after the region of Magnesia or the shepherd!";
+    // Comprehensive Data Bank: 10 Core Application Tasks
+    const questionBank = [
+        {
+            narrative: "A rescue technician's tools fell into wet, muddy sand. They have a permanent bar magnet available to extract them quickly.",
+            prompt: "What specialized class of materials (like iron or steel) will be attracted to the magnet?",
+            answers: ["magnetic", "magnetic materials", "magnetic substances", "magnetic substance"],
+            hint: "Think about the general classification terms used for objects that experience a strong attraction to magnetic forces."
+        },
+        {
+            narrative: "You discover a piece of dark, naturally occurring rock in the mountains that pulls iron filings toward itself without any electrical input.",
+            prompt: "What is the scientific name of this natural magnetic mineral?",
+            answers: ["magnetite", "lodestone"],
+            hint: "It shares its etymological origin with the shepherd Magnes from Magnesia, Greece."
+        },
+        {
+            narrative: "A lab container holds a mixture of iron chips and copper wire shavings. You need to segregate them completely without pick-sorting.",
+            prompt: "Which specific substance will stick to a permanent magnet brought near the container?",
+            answers: ["iron", "iron chips"],
+            hint: "Copper is non-magnetic, whereas this transitions easily towards the poles."
+        },
+        {
+            narrative: "A navigation needle is allowed to pivot freely in a zero-friction housing with no external magnetic interference.",
+            prompt: "Along what primary geographic directions will the suspended magnet align itself when resting?",
+            answers: ["north-south", "north south", "n-s", "ns"],
+            hint: "Enter the two balancing polar points separated by a hyphen or space (e.g., North-South)."
+        },
+        {
+            narrative: "An industrial scrapyard sorter uses a specialized crane wrapped in copper wire loops hooked to a direct-current circuit.",
+            prompt: "What temporary setup is created when electricity passes through these coils around an iron core?",
+            answers: ["electromagnet", "an electromagnet"],
+            hint: "It acts exactly like a magnet, but only when the electrical current flows."
+        },
+        {
+            narrative: "Two bar magnets are pushed close together on a desktop tracking line. The two matching North poles are facing each other.",
+            prompt: "What physical force or behavior will occur between these matching poles?",
+            answers: ["repulsion", "repel", "they repel", "magnetic repulsion"],
+            hint: "Remember the universal law: Like poles do this, while unlike poles attract."
+        },
+        {
+            narrative: "You map out a bar magnet and want to spot where its attraction force pulls items with the absolute highest intensity.",
+            prompt: "Where on the physical bar magnet are the magnetic forces strongest?",
+            answers: ["poles", "at the poles", "the poles", "ends", "its poles"],
+            hint: "These regions are located right at the two far ends of the structure."
+        },
+        {
+            narrative: "A ship captain needs to turn off a massive cargo crane electromagnet instantly to drop an iron shipping crate.",
+            prompt: "What action must the operator take regarding the electric current to make it lose its magnetism?",
+            answers: ["switch off", "turn off", "cut off", "disconnect", "stop it", "cut the power", "turn it off"],
+            hint: "An electromagnet functions dynamically; removing this energy component collapses the field."
+        },
+        {
+            narrative: "A heavy permanent bar magnet is repeatedly dropped onto a concrete bunker floor from high balconies.",
+            prompt: "What physical loss of properties happens to a magnet when subjected to harsh dropping or hammering?",
+            answers: ["demagnetization", "demagnetise", "demagnetize", "loss of magnetism", "loses magnetism"],
+            hint: "The structural layout of internal domains is broken down, resulting in the loss of its magnetic pull."
+        },
+        {
+            narrative: "A precision magnetic compass is brought right next to a heavy duty working audio speaker housing.",
+            prompt: "What part of the compass will experience sudden deflection due to the speaker's internal magnet?",
+            answers: ["needle", "the needle", "magnetic needle", "pointer"],
+            hint: "Think about the light, freely pivoting component inside the compass dial."
         }
+    ];
+
+    let randomizedQuestions = [];
+    let currentTaskIdx = 0;
+    let currentAttempts = 0;
+    let userScore = 0;
+
+    // Strict Branding Control Lifecycle
+    window.addEventListener('DOMContentLoaded', () => {
+        // Fallback for visual rendering if image asset is missing locally
+        const logo = document.getElementById('logoImg');
+        logo.onerror = () => {
+            logo.style.display = 'none';
+            const textNode = document.createElement('h2');
+            textNode.innerText = 'INNOVINE';
+            textNode.style.color = 'var(--accent-blue)';
+            document.getElementById('splashScreen').appendChild(textNode);
+        };
+
+        setTimeout(() => {
+            document.getElementById('splashScreen').classList.add('hidden');
+            document.getElementById('instructionScreen').classList.remove('hidden');
+        }, 5000);
+    });
+
+    function startGame() {
+        document.getElementById('instructionScreen').classList.add('hidden');
+        document.getElementById('gamePlayScreen').classList.remove('hidden');
+        
+        // Randomize list presentation order to preserve replay value
+        randomizedQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+        currentTaskIdx = 0;
+        userScore = 0;
+        loadCurrentTask();
     }
 
-    // Stage 2 Verification
-    function checkStage2() {
-        const val = document.getElementById('ans2').value.trim().toLowerCase();
-        const fb = document.getElementById('fb2');
+    function loadCurrentTask() {
+        currentAttempts = 0;
+        const currentData = randomizedQuestions[currentTaskIdx];
         
-        if (val.includes('iron') && val.includes('cobalt')) {
-            playCorrect();
-            fb.className = "feedback correct";
-            fb.innerText = "Clink! Iron and Cobalt coins are heavily attracted. Plastic and aluminium are non-magnetic!";
-            setTimeout(() => {
-                document.getElementById('stage2').classList.add('hidden');
-                document.getElementById('stage3').classList.remove('hidden');
-            }, 2000);
-        } else {
-            playWrong();
-            fb.className = "feedback incorrect";
-            fb.innerText = "The security system sounds! Remember your elements. Aluminium and plastic do not attract to magnetic poles. Try again.";
-        }
+        document.getElementById('lblProgress').innerText = currentTaskIdx + 1;
+        document.getElementById('lblScore').innerText = userScore;
+        document.getElementById('lblNarrative').innerText = currentData.narrative;
+        document.getElementById('lblPrompt').innerText = currentData.prompt;
+        
+        const inputField = document.getElementById('txtAnswer');
+        inputField.value = '';
+        inputField.disabled = false;
+        
+        const fbContainer = document.getElementById('feedbackContainer');
+        fbContainer.className = "feedback-ui";
+        fbContainer.innerText = "";
+        
+        document.getElementById('btnSubmit').classList.remove('hidden');
+        inputField.focus();
     }
 
-    // Stage 3 Verification
-    function checkStage3() {
-        const val = document.getElementById('ans3').value.trim().toLowerCase();
-        const fb = document.getElementById('fb3');
+    function processSubmission() {
+        const userInput = document.getElementById('txtAnswer').value.trim().toLowerCase();
+        const currentData = randomizedQuestions[currentTaskIdx];
+        const fbContainer = document.getElementById('feedbackContainer');
         
-        if (val === 'away') {
-            playCorrect();
-            fb.className = "feedback correct";
-            fb.innerText = "Exactly! The red needle aligns North. Moving away from North sets your heading straight South!";
-            setTimeout(() => {
-                document.getElementById('stage3').classList.add('hidden');
-                document.getElementById('stage4').classList.remove('hidden');
-            }, 2000);
-        } else {
-            playWrong();
-            fb.className = "feedback incorrect";
-            fb.innerText = "Walking toward the tree takes you North, deep into the foggy terrain! Recheck your alignment.";
-        }
-    }
+        if (!userInput) return; // Ignore empty entries
 
-    // Stage 4 Verification
-    function checkStage4() {
-        const val = document.getElementById('ans4').value.trim();
-        const fb = document.getElementById('fb4');
-        
-        if (val === '2') {
-            playCorrect();
-            fb.className = "feedback correct";
-            fb.innerText = "Spot on! Dropping from heights, heating, or hammering breaks down atomic alignment. Storing with magnetic keepers (1) preserves magnetism.";
-            setTimeout(() => {
-                document.getElementById('stage4').classList.add('hidden');
-                document.getElementById('stage5').classList.remove('hidden');
-            }, 2000);
-        } else {
-            playWrong();
-            fb.className = "feedback incorrect";
-            fb.innerText = "That action keeps magnets safely stored or unbothered. Check which destructive action causes demagnetization.";
-        }
-    }
+        currentAttempts++;
 
-    // Stage 5 Verification
-    function checkStage5() {
-        const lift = document.getElementById('ans5a').value.trim().toLowerCase();
-        const drop = document.getElementById('ans5b').value.trim().toLowerCase();
-        const fb = document.getElementById('fb5');
-        
-        if (lift.includes('on') && drop.includes('off')) {
-            playCorrect();
-            fb.className = "feedback correct";
-            fb.innerText = "Excellent configuration! You controlled the electrical field perfectly.";
+        // Evaluate string match criteria
+        if (currentData.answers.includes(userInput)) {
+            // Success Pathway
+            document.getElementById('sndCorrect').play().catch(() => {});
+            userScore += 10;
+            document.getElementById('lblScore').innerText = userScore;
             
+            fbContainer.className = "feedback-ui correct-style";
+            fbContainer.innerHTML = "✨ Correct! Masterfully evaluated.";
+            document.getElementById('btnSubmit').classList.add('hidden');
+            document.getElementById('txtAnswer').disabled = true;
+
             setTimeout(() => {
-                document.getElementById('stage5').classList.add('hidden');
-                document.getElementById('gameOver').classList.remove('hidden');
-            }, 1800);
+                transitionNextStep();
+            }, 2500);
         } else {
-            playWrong();
-            fb.className = "feedback incorrect";
-            fb.innerText = "The crane failed. An electromagnet depends on active current flow to hold its attraction. It must lose current to let go.";
+            // Failure Pathway
+            document.getElementById('sndWrong').play().catch(() => {});
+            
+            if (currentAttempts < 2) {
+                fbContainer.className = "feedback-ui incorrect-style";
+                fbContainer.innerText = "❌ Incorrect observation. Recalibrate and try again!";
+            } else {
+                // Unlock hint structural context after second failed attempt
+                fbContainer.className = "feedback-ui incorrect-style";
+                fbContainer.innerHTML = `❌ Incorrect.<br><small style="color:#fff;">💡 System Hint: ${currentData.hint}</small>`;
+                
+                // Advance automatically after providing exposure time to the hint
+                document.getElementById('btnSubmit').classList.add('hidden');
+                document.getElementById('txtAnswer').disabled = true;
+                setTimeout(() => {
+                    transitionNextStep();
+                }, 6000);
+            }
         }
     }
 
-    // Reset Function
-    function resetGame() {
-        document.getElementById('ans1').value = '';
-        document.getElementById('ans2').value = '';
-        document.getElementById('ans3').value = '';
-        document.getElementById('ans4').value = '';
-        document.getElementById('ans5a').value = '';
-        document.getElementById('ans5b').value = '';
-        
-        document.getElementById('fb1').className = 'feedback';
-        document.getElementById('fb2').className = 'feedback';
-        document.getElementById('fb3').className = 'feedback';
-        document.getElementById('fb4').className = 'feedback';
-        document.getElementById('fb5').className = 'feedback';
-        
-        document.getElementById('gameOver').classList.add('hidden');
-        document.getElementById('stage1').classList.remove('hidden');
+    function transitionNextStep() {
+        currentTaskIdx++;
+        if (currentTaskIdx < randomizedQuestions.length) {
+            loadCurrentTask();
+        } else {
+            // Mission conclusion routing
+            document.getElementById('gamePlayScreen').classList.add('hidden');
+            const summary = document.getElementById('summaryScreen');
+            summary.classList.remove('hidden');
+            document.getElementById('lblFinalScore').innerText = userScore;
+        }
+    }
+
+    function reloadGame() {
+        document.getElementById('summaryScreen').classList.add('hidden');
+        startGame();
     }
 </script>
 
