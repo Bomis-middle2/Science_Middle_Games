@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 6 Physics: Magnetism & Force Field</title>
+    <title>Grade 6 Physics: Magnetism Module</title>
     <style>
         body {
             margin: 0;
@@ -47,7 +47,7 @@
         // STATE ENGINE: 'SPLASH', 'INSTRUCTIONS', 'PLAYING', 'GAME_OVER'
         let currentState = 'SPLASH';
         let splashStartTime = Date.now();
-        const SPLASH_LOCK_DURATION = 5000; // Mandatory 5 Seconds Lock
+        const SPLASH_LOCK_DURATION = 2000; // 2 Seconds for quick debugging/loading
 
         // Session Game Metrics
         let activeTasks = [];
@@ -58,12 +58,11 @@
         let displayHintBanner = false;
         let currentInstanceHint = "";
         let choiceCards = [];
-        let selectedObject = null;
+        let loadedSpecimen = null; // Replaces laboratoryDropZone.occupiedBy
         let animationTicks = 0;
 
-        // Interaction Zones
-        const laboratoryDropZone = { x: 380, y: 340, width: 140, height: 60, occupiedBy: null };
-        const testTriggerButton = { x: 365, y: 460, width: 170, height: 44, isActivated: false };
+        // Interactive Interface Buttons (Non-drag zones)
+        const testTriggerButton = { x: 365, y: 490, width: 170, height: 44, isActivated: false };
 
         // Programmatic Web Audio Synthesis Engine
         const AudioSynth = {
@@ -107,7 +106,7 @@
                 let osc1 = this.audioCtx.createOscillator();
                 let gain1 = this.audioCtx.createGain();
                 osc1.type = 'sine';
-                osc1.frequency.setValueAtTime(523.25, this.audioCtx.currentTime); // C5
+                osc1.frequency.setValueAtTime(523.25, this.audioCtx.currentTime); 
                 gain1.gain.setValueAtTime(0.12, this.audioCtx.currentTime);
                 gain1.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.3);
                 osc1.connect(gain1);
@@ -118,44 +117,17 @@
                 let osc2 = this.audioCtx.createOscillator();
                 let gain2 = this.audioCtx.createGain();
                 osc2.type = 'sine';
-                osc2.frequency.setValueAtTime(659.25, this.audioCtx.currentTime + 0.1); // E5
+                osc2.frequency.setValueAtTime(659.25, this.audioCtx.currentTime + 0.1); 
                 gain2.gain.setValueAtTime(0.12, this.audioCtx.currentTime + 0.1);
                 gain2.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
                 osc2.connect(gain2);
                 gain2.connect(this.audioCtx.destination);
                 osc2.start();
                 osc2.stop(this.audioCtx.currentTime + 0.4);
-
-                this.triggerApplauseClap();
-            },
-            triggerApplauseClap() {
-                try {
-                    let bufSize = this.audioCtx.sampleRate * 0.3;
-                    let buffer = this.audioCtx.createBuffer(1, bufSize, this.audioCtx.sampleRate);
-                    let data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufSize; i++) {
-                        data[i] = Math.random() * 2 - 1;
-                    }
-                    for (let c = 0; c < 3; c++) {
-                        let src = this.audioCtx.createBufferSource();
-                        src.buffer = buffer;
-                        let filter = this.audioCtx.createBiquadFilter();
-                        filter.type = 'bandpass';
-                        filter.frequency.value = 1100 + (c * 80);
-                        let gainNode = this.audioCtx.createGain();
-                        let dTime = this.audioCtx.currentTime + (c * 0.1);
-                        gainNode.gain.setValueAtTime(0.05, dTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.001, dTime + 0.2);
-                        src.connect(filter);
-                        filter.connect(gainNode);
-                        gainNode.connect(this.audioCtx.destination);
-                        src.start(dTime);
-                    }
-                } catch(e) {}
             }
         };
 
-        // Grade 6 Physics Application Database Layer (12 Items Pool)
+        // Grade 6 Physics Application Database Layer
         const magnetismQuestionPool = [
             { id: "Q1", name: "Iron Casing Nail", type: "Magnetic Material", isCorrectGroup: true, hexColor: "#64748b", prompt: "Identify a reliable magnetic material to safely secure structural iron bracket fixtures.", hint: "Iron, Cobalt, and Nickel are classic magnetic substances strongly attracted to magnets." },
             { id: "Q2", name: "Brass Key Ring", type: "Non-Magnetic Material", isCorrectGroup: false, hexColor: "#eab308", prompt: "Select a component that will NOT be attracted when mapping out a copper-alloy security casing.", hint: "Brass and copper are non-ferrous metals and do not display magnetic tracking properties." },
@@ -182,7 +154,7 @@
         function generateTaskEnvironment() {
             attemptsLeft = 2;
             displayHintBanner = false;
-            laboratoryDropZone.occupiedBy = null;
+            loadedSpecimen = null;
             testTriggerButton.isActivated = false;
             animationTicks = 0;
 
@@ -199,24 +171,20 @@
             for (let i = 0; i < 3; i++) {
                 choiceCards.push({
                     data: uniqueSelection[i],
-                    x: 210 + (i * 240),
-                    y: 160,
-                    startX: 210 + (i * 240),
-                    startY: 160,
-                    width: 190,
-                    height: 52,
-                    isDocked: false
+                    x: 180 + (i * 270), // Centered beautifully across width
+                    y: 400,
+                    width: 220,
+                    height: 55,
+                    isSelected: false
                 });
             }
         }
 
-        // Programmatic HTML5 Vector Core Engine Replacement for Assets/Logo.png
         function drawInnovineVectorLogo(x, y, scale, isSplash) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
 
-            // Technical Outer Hexagon
             ctx.strokeStyle = isSplash ? '#1e3a8a' : '#2563eb'; 
             ctx.lineWidth = 5;
             ctx.beginPath();
@@ -230,13 +198,11 @@
             ctx.closePath();
             ctx.stroke();
 
-            // Core Circular Node
             ctx.fillStyle = isSplash ? '#2563eb' : '#60a5fa'; 
             ctx.beginPath();
             ctx.arc(0, 0, 24, 0, Math.PI * 2);
             ctx.fill();
 
-            // Circuit Node Links
             ctx.strokeStyle = isSplash ? '#0284c7' : '#38bdf8';
             ctx.lineWidth = 4;
             for (let j = 0; j < 3; j++) {
@@ -254,25 +220,20 @@
             ctx.restore();
         }
 
-        // Master Frame Animation Controller
         function updateAndRenderCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (currentState === 'SPLASH') {
-                // Strict Clean White Screen Branding Splash Screen Lock
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-
                 drawInnovineVectorLogo(canvas.width / 2, canvas.height / 2 - 40, 1.2, true);
-
-                ctx.fillStyle = '#0f172a'; // Deep Navy slate for high readability on white
+                ctx.fillStyle = '#0f172a'; 
                 ctx.font = 'bold 44px sans-serif';
                 ctx.letterSpacing = "5px";
                 ctx.textAlign = 'center';
                 ctx.fillText('INNOVINE', canvas.width / 2, canvas.height / 2 + 90);
                 ctx.letterSpacing = "0px";
-
-                ctx.fillStyle = '#64748b'; // Muted dark slate subtitle
+                ctx.fillStyle = '#64748b'; 
                 ctx.font = 'bold 13px sans-serif';
                 ctx.fillText('PHYSICS LABORATORY SIMULATION HARDWARE', canvas.width / 2, canvas.height / 2 + 135);
 
@@ -281,7 +242,6 @@
                 }
 
             } else if (currentState === 'INSTRUCTIONS') {
-                // Instruction Sequence (Strictly decoupled from initial splash scene)
                 ctx.fillStyle = '#090d16';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -294,7 +254,6 @@
                 ctx.font = 'bold 15px sans-serif';
                 ctx.fillText('ELEMENTARY COGNITIVE PHYSICS SERIES  |  GRADE 6', canvas.width / 2, 125);
 
-                // Instructions Display Board Container Box
                 ctx.fillStyle = '#111827';
                 ctx.fillRect(80, 170, 740, 270);
                 ctx.strokeStyle = '#1e293b';
@@ -308,30 +267,31 @@
 
                 ctx.fillStyle = '#cbd5e1';
                 ctx.font = '15px sans-serif';
-                ctx.fillText('Analyze the magnetism research task prompt. Correctly distinguish between magnetic', 125, 240);
-                ctx.fillText('substances, active forces of attraction, and fields of repelling polarity vectors.', 125, 265);
+                ctx.fillText('Analyze the magnetism research task prompt. Correctly test individual specimens', 125, 240);
+                ctx.fillText('against dynamic magnet terminals to observe reactive core flux properties.', 125, 265);
 
                 ctx.fillStyle = '#eab308';
                 ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('INTERACTIVE SYSTEM OPERATING RULES:', 125, 315);
+                ctx.fillText('INTERACTIVE CONTROL PANEL RULES:', 125, 315);
 
                 ctx.fillStyle = '#cbd5e1';
                 ctx.font = '15px sans-serif';
-                ctx.fillText('1. Drag items smoothly via mouse or touch pointer into the testing zone.', 125, 340);
-                ctx.fillText('2. Click on the magnetic field generator switch to run flux analysis logs.', 125, 365);
-                ctx.fillText('3. Missing an operation twice reveals a descriptive context hint banner.', 125, 390);
+                ctx.fillText('1. Click or tap directly on any specimen console to load it into the chamber.', 125, 340);
+                ctx.fillText('2. Run the Flux Analysis system to evaluate magnetic field reactions.', 125, 365);
+                ctx.fillText('3. Locked hint scaffolds will unlock dynamically if calibration failures occur.', 125, 390);
 
                 ctx.fillStyle = '#10b981';
                 ctx.fillRect(320, 485, 260, 50);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 16px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('ENGAGE MAGNETISM LOGS', canvas.width / 2, 516);
+                ctx.fillText('ENGAGE MAGNETISM CONSOLE', canvas.width / 2, 516);
 
             } else if (currentState === 'PLAYING') {
                 const currentTask = activeTasks[currentTaskIndex];
+                animationTicks++;
 
-                // Continuous Static Scoreboard HUD (Perfect X-Separation Prevents Text Overlaps)
+                // HUD Scoreboard Header
                 ctx.fillStyle = '#05070c';
                 ctx.fillRect(0, 0, canvas.width, 65);
                 ctx.strokeStyle = '#1e293b';
@@ -339,24 +299,18 @@
                 ctx.strokeRect(0, 0, canvas.width, 65);
 
                 ctx.font = 'bold 15px sans-serif';
-                
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#38bdf8';
                 ctx.fillText(`CURRENT TASK: ${currentTaskIndex + 1} / 10`, 35, 38);
-
-                ctx.textAlign = 'left';
                 ctx.fillStyle = '#f8fafc';
                 ctx.fillText(`EARNED SCORE: ${score} Pts`, 320, 38);
-                
-                ctx.textAlign = 'left';
                 ctx.fillStyle = '#ef4444';
                 ctx.fillText(`SYSTEM HP: ${healthPoints} LIFE`, 590, 38);
-
                 ctx.textAlign = 'right';
                 ctx.fillStyle = '#4b5563';
-                ctx.fillText('MAGNETISM MODULE V1', canvas.width - 35, 38);
+                ctx.fillText('CLICK-MATRIX PANEL V2', canvas.width - 35, 38);
 
-                // Task Card Header Bar
+                // Scenario Prompt Board
                 ctx.fillStyle = '#1f2937';
                 ctx.fillRect(40, 85, 820, 46);
                 ctx.fillStyle = '#fbbf24';
@@ -364,56 +318,109 @@
                 ctx.textAlign = 'center';
                 ctx.fillText(`SCENARIO CRITERIA: "${currentTask.prompt}"`, canvas.width / 2, 113);
 
-                // Custom Graphic Bar Magnet Rig Vector Artwork
-                let taskEvaluatedCorrectly = (testTriggerButton.isActivated && laboratoryDropZone.occupiedBy && laboratoryDropZone.occupiedBy.data.id === currentTask.id);
-                animationTicks++;
-
-                ctx.save();
-                ctx.translate(450, 270);
+                // --- CENTRAL CORE MAGNETIC FLUX CHAMBER ---
+                let chamberX = 450;
+                let chamberY = 220;
                 
-                // Pulsing Magnetic Wave Rings on Success Check
-                if (taskEvaluatedCorrectly) {
+                // Pulsing Wave Ring Logic on Validation Check
+                let isAnswerCorrect = (testTriggerButton.isActivated && loadedSpecimen && loadedSpecimen.data.id === currentTask.id);
+                if (isAnswerCorrect) {
+                    ctx.save();
+                    ctx.translate(chamberX, chamberY);
                     ctx.lineWidth = 3;
                     for (let r = 1; r <= 3; r++) {
-                        ctx.strokeStyle = `rgba(56, 189, 248, ${0.8 - (r * 0.2)})`;
-                        let pulseRadius = 40 + r * 15 + Math.sin(animationTicks * 0.2) * 5;
+                        ctx.strokeStyle = `rgba(16, 185, 129, ${0.8 - (r * 0.2)})`;
+                        let pulseRadius = 50 + r * 20 + Math.sin(animationTicks * 0.25) * 6;
                         ctx.beginPath();
-                        ctx.ellipse(-90, 0, pulseRadius * 0.6, pulseRadius, 0, 0, Math.PI * 2);
-                        ctx.ellipse(90, 0, pulseRadius * 0.6, pulseRadius, 0, 0, Math.PI * 2);
+                        ctx.ellipse(-90, 0, pulseRadius * 0.5, pulseRadius, 0, 0, Math.PI * 2);
+                        ctx.ellipse(90, 0, pulseRadius * 0.5, pulseRadius, 0, 0, Math.PI * 2);
                         ctx.stroke();
                     }
+                    ctx.restore();
                 }
 
-                // Bar Magnet Rendering
-                ctx.fillStyle = '#ef4444'; // North (Red)
-                ctx.fillRect(-100, -20, 100, 40);
-                ctx.fillStyle = '#2563eb'; // South (Blue)
-                ctx.fillRect(0, -20, 100, 40);
-
+                // Render Bar Magnet
+                ctx.save();
+                ctx.translate(chamberX, chamberY - 40);
+                ctx.fillStyle = '#ef4444'; // North
+                ctx.fillRect(-90, -15, 90, 30);
+                ctx.fillStyle = '#2563eb'; // South
+                ctx.fillRect(0, -15, 90, 30);
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 15px sans-serif';
+                ctx.font = 'bold 14px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('N', -50, 6);
-                ctx.fillText('S', 50, 6);
+                ctx.fillText('N', -45, 5);
+                ctx.fillText('S', 45, 5);
                 ctx.restore();
 
-                // Laboratory Core Drop Zone Container Frame
-                ctx.fillStyle = 'rgba(5, 7, 12, 0.8)';
-                ctx.fillRect(laboratoryDropZone.x, laboratoryDropZone.y, laboratoryDropZone.width, laboratoryDropZone.height);
-                ctx.strokeStyle = '#2563eb';
-                ctx.lineWidth = 2.5;
-                ctx.setLineDash([6, 4]);
-                ctx.strokeRect(laboratoryDropZone.x, laboratoryDropZone.y, laboratoryDropZone.width, laboratoryDropZone.height);
-                ctx.setLineDash([]);
-                
-                ctx.fillStyle = '#4b5563';
-                ctx.font = 'bold 11px sans-serif';
-                ctx.textAlign = 'center';
-                if (!laboratoryDropZone.occupiedBy) {
-                    ctx.fillText('ALIGN SPECIMEN', laboratoryDropZone.x + laboratoryDropZone.width / 2, laboratoryDropZone.y + 35);
+                // Specimen Testing Platform Dock Location
+                let dockX = chamberX - 80;
+                let dockY = chamberY + 30;
+                let dockW = 160;
+                let dockH = 50;
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(dockX, dockY, dockW, dockH);
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(dockX, dockY, dockW, dockH);
+
+                // Render currently loaded item inside the test rig
+                if (loadedSpecimen) {
+                    ctx.fillStyle = loadedSpecimen.data.hexColor;
+                    ctx.fillRect(dockX + 10, dockY + 10, dockW - 20, dockH - 20);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(loadedSpecimen.data.name, chamberX, dockY + 30);
+                } else {
+                    ctx.fillStyle = '#4b5563';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('CHAMBER EMPTY', chamberX, dockY + 30);
                 }
 
-                // Interactive Analysis Trigger Lever Switch Block
+                // --- INTERACTIVE SPECIMEN SELECTION MATRIX (CLICK INSTEAD OF DRAG) ---
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(40, 335, 820, 135);
+                ctx.strokeStyle = '#1e293b';
+                ctx.strokeRect(40, 335, 820, 135);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText("AVAILABLE WORKBENCH SPECIMENS (CLICK TO LOAD CHASSIS):", 55, 358);
+
+                choiceCards.forEach(card => {
+                    let cardLeft = card.x - card.width / 2;
+                    let cardTop = card.y - card.height / 2;
+
+                    // Background highlights if selected/loaded
+                    if (loadedSpecimen && loadedSpecimen.data.id === card.data.id) {
+                        ctx.fillStyle = '#1e293b';
+                        ctx.fillRect(cardLeft - 4, cardTop - 4, card.width + 8, card.height + 8);
+                        ctx.strokeStyle = '#facc15'; // Yellow neon glow
+                        ctx.lineWidth = 3;
+                    } else {
+                        ctx.fillStyle = '#111827';
+                        ctx.fillRect(cardLeft, cardTop, card.width, card.height);
+                        ctx.strokeStyle = card.data.hexColor;
+                        ctx.lineWidth = 2;
+                    }
+                    ctx.strokeRect(cardLeft, cardTop, card.width, card.height);
+
+                    // Colored Swatch internal indicator
+                    ctx.fillStyle = card.data.hexColor;
+                    ctx.fillRect(cardLeft + 12, cardTop + 15, 25, 25);
+
+                    // Text String
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 13px sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(card.data.name, cardLeft + 50, card.y + 5);
+                });
+
+                // Analysis Execution Button
                 ctx.fillStyle = testTriggerButton.isActivated ? '#10b981' : '#dc2626';
                 ctx.fillRect(testTriggerButton.x, testTriggerButton.y, testTriggerButton.width, testTriggerButton.height);
                 ctx.strokeStyle = '#374151';
@@ -422,91 +429,54 @@
                 
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 13px sans-serif';
+                ctx.textAlign = 'center';
                 ctx.fillText(testTriggerButton.isActivated ? 'ANALYZING FLUX' : 'RUN FLUX ANALYSIS', testTriggerButton.x + testTriggerButton.width / 2, testTriggerButton.y + 26);
 
-                // Render Interactable Deck Cards Elements
-                choiceCards.forEach(card => {
-                    if (!card.isDocked || selectedObject === card) {
-                        ctx.fillStyle = card.data.hexColor;
-                        ctx.fillRect(card.x - card.width / 2, card.y - card.height / 2, card.width, card.height);
-                        ctx.strokeStyle = selectedObject === card ? '#facc15' : '#374151';
-                        ctx.lineWidth = selectedObject === card ? 3.5 : 2;
-                        ctx.strokeRect(card.x - card.width / 2, card.y - card.height / 2, card.width, card.height);
-
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 13px sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(card.data.name, card.x, card.y + 5);
-                    }
-                });
-
-                // Contextual Concept Scaffold Hint Banner Layer
+                // Concept Scaffold Banner
                 if (displayHintBanner) {
                     ctx.fillStyle = '#1e1b4b';
-                    ctx.fillRect(60, 525, 780, 48);
+                    ctx.fillRect(60, 545, 780, 42);
                     ctx.strokeStyle = '#d97706';
                     ctx.lineWidth = 1.5;
-                    ctx.strokeRect(60, 525, 780, 48);
+                    ctx.strokeRect(60, 545, 780, 42);
 
                     ctx.fillStyle = '#fbbf24';
-                    ctx.font = 'italic 14px sans-serif';
+                    ctx.font = 'italic 13px sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`MAGNETIC HINT: ${currentInstanceHint}`, canvas.width / 2, 554);
+                    ctx.fillText(`MAGNETIC CONTEXT HINT: ${currentInstanceHint}`, canvas.width / 2, 571);
                 }
 
             } else if (currentState === 'GAME_OVER') {
-                // Final Results Metric Screen Card
                 ctx.fillStyle = '#05070c';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 let verifiedPass = (healthPoints > 0 && score >= 7);
-
                 ctx.fillStyle = verifiedPass ? '#10b981' : '#ef4444';
                 ctx.font = 'bold 36px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(verifiedPass ? 'MAGNETISM EXPERIMENT COMPLETE' : 'LAB CERTIFICATION INCOMPLETE', canvas.width / 2, 170);
+                ctx.fillText(verifiedPass ? 'MAGNETISM EXPERIMENT COMPLETE' : 'LAB CERTIFICATION INCOMPLETE', canvas.width / 2, 180);
 
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 20px sans-serif';
-                ctx.fillText(`Final Performance Accuracy Score: ${score} / 10 Units Correct`, canvas.width / 2, 245);
+                ctx.fillText(`Final Performance Accuracy Score: ${score} / 10 Units Correct`, canvas.width / 2, 255);
 
                 ctx.fillStyle = '#94a3b8';
                 ctx.font = '15px sans-serif';
                 if (verifiedPass) {
-                    ctx.fillText('Excellent evaluation. Core knowledge of field poles, ferritic vectors and material limits achieved.', canvas.width / 2, 305);
+                    ctx.fillText('Excellent evaluation. Core knowledge of field poles, ferritic vectors and material limits achieved.', canvas.width / 2, 315);
                 } else {
-                    ctx.fillText('Performance standard below threshold. Re-examine standard ferromagnetic properties and try again.', canvas.width / 2, 305);
+                    ctx.fillText('Performance standard below threshold. Re-examine standard ferromagnetic properties and try again.', canvas.width / 2, 315);
                 }
 
-                // Interactive Session Reset Trigger Action
                 ctx.fillStyle = '#2563eb';
-                ctx.fillRect(350, 390, 200, 52);
+                ctx.fillRect(350, 400, 200, 52);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('RUN NEW TRIAL', canvas.width / 2, 422);
+                ctx.fillText('RUN NEW TRIAL', canvas.width / 2, 432);
             }
         }
 
-        // Cross-Platform Input Translation Helper Functions
-        function capturePointerCoordinates(e) {
-            const boundaryRect = canvas.getBoundingClientRect();
-            let cX = e.clientX;
-            let cY = e.clientY;
-            
-            if (e.touches && e.touches.length > 0) {
-                cX = e.touches[0].clientX;
-                cY = e.touches[0].clientY;
-            }
-            return {
-                x: cX - boundaryRect.left,
-                y: cY - boundaryRect.top
-            };
-        }
-
-        function triggerPointerDown(coords) {
-            const pX = coords.x;
-            const pY = coords.y;
-
+        function handlePointerInterface(pX, pY) {
             if (currentState === 'INSTRUCTIONS') {
                 if (pX >= 320 && pX <= 580 && pY >= 485 && pY <= 535) {
                     AudioSynth.playTap();
@@ -514,26 +484,28 @@
                     currentState = 'PLAYING';
                 }
             } else if (currentState === 'PLAYING') {
-                // Scan array stack loop for card selection match
+                // Loop through selection cards to load them into chamber via clean click
                 choiceCards.forEach(card => {
                     if (pX >= card.x - card.width / 2 && pX <= card.x + card.width / 2 &&
                         pY >= card.y - card.height / 2 && pY <= card.y + card.height / 2) {
-                        selectedObject = card;
-                        AudioSynth.playTap();
+                        
+                        if (!testTriggerButton.isActivated) {
+                            loadedSpecimen = card;
+                            AudioSynth.playTap();
+                        }
                     }
                 });
 
-                // Field Flux Analysis Switch Bounds Trigger Calculation
+                // Core Trigger Evaluation Engine Code
                 if (pX >= testTriggerButton.x && pX <= testTriggerButton.x + testTriggerButton.width &&
                     pY >= testTriggerButton.y && pY <= testTriggerButton.y + testTriggerButton.height) {
                     
-                    if (laboratoryDropZone.occupiedBy && !testTriggerButton.isActivated) {
+                    if (loadedSpecimen && !testTriggerButton.isActivated) {
                         testTriggerButton.isActivated = true;
                         AudioSynth.playTap();
 
                         let correctInstance = activeTasks[currentTaskIndex];
-                        if (laboratoryDropZone.occupiedBy.data.id === correctInstance.id) {
-                            // Succeeded Pathway Logic Sequence
+                        if (loadedSpecimen.data.id === correctInstance.id) {
                             AudioSynth.playChime();
                             score++;
                             setTimeout(() => {
@@ -543,9 +515,8 @@
                                 } else {
                                     generateTaskEnvironment();
                                 }
-                            }, 1900);
+                            }, 1800);
                         } else {
-                            // Failure Pathway Logic Sequence
                             AudioSynth.playBuzzer();
                             healthPoints--;
                             attemptsLeft--;
@@ -558,22 +529,16 @@
                                     if (attemptsLeft <= 0) {
                                         displayHintBanner = true;
                                     }
-                                    // Elastic return action to starting array coordinate offsets
-                                    if (laboratoryDropZone.occupiedBy) {
-                                        laboratoryDropZone.occupiedBy.x = laboratoryDropZone.occupiedBy.startX;
-                                        laboratoryDropZone.occupiedBy.y = laboratoryDropZone.occupiedBy.startY;
-                                        laboratoryDropZone.occupiedBy.isDocked = false;
-                                        laboratoryDropZone.occupiedBy = null;
-                                    }
+                                    loadedSpecimen = null; // Flush incorrect test chamber entry
                                 }
-                            }, 1300);
+                            }, 1400);
                         }
-                    } else if (!laboratoryDropZone.occupiedBy) {
+                    } else if (!loadedSpecimen) {
                         AudioSynth.playBuzzer();
                     }
                 }
             } else if (currentState === 'GAME_OVER') {
-                if (pX >= 350 && pX <= 550 && pY >= 390 && pY <= 442) {
+                if (pX >= 350 && pX <= 550 && pY >= 400 && pY <= 452) {
                     AudioSynth.playTap();
                     startNewSession();
                     currentState = 'PLAYING';
@@ -581,47 +546,29 @@
             }
         }
 
-        function triggerPointerMove(coords) {
-            if (!selectedObject || currentState !== 'PLAYING') return;
-            selectedObject.x = coords.x;
-            selectedObject.y = coords.y;
+        function getMouseCoordinates(e) {
+            const boundaryRect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - boundaryRect.left,
+                y: e.clientY - boundaryRect.top
+            };
         }
 
-        function triggerPointerUp() {
-            if (!selectedObject || currentState !== 'PLAYING') return;
+        window.addEventListener('mousedown', (e) => {
+            let coords = getMouseCoordinates(e);
+            handlePointerInterface(coords.x, coords.y);
+        });
 
-            let zoneCenterX = laboratoryDropZone.x + laboratoryDropZone.width / 2;
-            let zoneCenterY = laboratoryDropZone.y + laboratoryDropZone.height / 2;
-            let deltaRange = Math.hypot(selectedObject.x - zoneCenterX, selectedObject.y - zoneCenterY);
-
-            // Alignment Snapping Evaluation Geometric Bounds Check
-            if (deltaRange < 95 && !laboratoryDropZone.occupiedBy) {
-                selectedObject.x = zoneCenterX;
-                selectedObject.y = zoneCenterY;
-                selectedObject.isDocked = true;
-                laboratoryDropZone.occupiedBy = selectedObject;
-                AudioSynth.playTap();
-            } else {
-                selectedObject.x = selectedObject.startX;
-                selectedObject.y = selectedObject.startY;
-                selectedObject.isDocked = false;
-                if (laboratoryDropZone.occupiedBy === selectedObject) {
-                    laboratoryDropZone.occupiedBy = null;
-                }
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if(e.touches.length > 0) {
+                const boundaryRect = canvas.getBoundingClientRect();
+                let tx = e.touches[0].clientX - boundaryRect.left;
+                let ty = e.touches[0].clientY - boundaryRect.top;
+                handlePointerInterface(tx, ty);
             }
-            selectedObject = null;
-        }
+        }, {passive: false});
 
-        // Standard Unified Events Multiplexer Hook Routine
-        window.addEventListener('mousedown', (e) => triggerPointerDown(capturePointerCoordinates(e)));
-        window.addEventListener('mousemove', (e) => triggerPointerMove(capturePointerCoordinates(e)));
-        window.addEventListener('mouseup', () => triggerPointerUp());
-
-        window.addEventListener('touchstart', (e) => { e.preventDefault(); triggerPointerDown(capturePointerCoordinates(e)); }, {passive: false});
-        window.addEventListener('touchmove', (e) => { e.preventDefault(); triggerPointerMove(capturePointerCoordinates(e)); }, {passive: false});
-        window.addEventListener('touchend', () => triggerPointerUp());
-
-        // Game Loop Automation Core Driver Call
         function executeMasterFrameTick() {
             updateAndRenderCanvas();
             requestAnimationFrame(executeMasterFrameTick);
