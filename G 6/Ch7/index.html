@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Circuit Runner: Conductor Rush</title>
+    <title>Motion & Measurement Master</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,7 +14,7 @@
         }
 
         body {
-            background-color: #1a1a2e;
+            background-color: #111;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -27,11 +27,11 @@
             position: relative;
             width: 800px;
             height: 600px;
-            background: #162447;
-            border: 4px solid #0f3460;
+            background: #141e30;
+            border: 4px solid #243b55;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
 
         /* --- SCREEN 1: SPLASH SCREEN --- */
@@ -41,7 +41,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff; /* Clean white background for the logo */
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -58,9 +58,9 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.95); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(0.95); }
+            0% { transform: scale(0.96); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(0.96); }
         }
 
         /* --- SCREEN 2: MAIN MENU --- */
@@ -74,45 +74,44 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle, #1f4068 0%, #162447 100%);
+            background: radial-gradient(circle, #243b55 0%, #141e30 100%);
             z-index: 50;
-            display: none; /* Controlled by JS */
+            display: none;
         }
 
         h1 {
-            font-size: 3rem;
-            color: #e43f5a;
-            text-shadow: 0 0 10px rgba(228,63,90,0.6);
+            font-size: 2.8rem;
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0,242,254,0.5);
             margin-bottom: 10px;
             text-align: center;
         }
 
         .subtitle {
             font-size: 1.2rem;
-            color: #00fff0;
+            color: #4facfe;
             margin-bottom: 40px;
         }
 
         .btn {
-            padding: 15px 40px;
-            font-size: 1.3rem;
+            padding: 14px 40px;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #fff;
-            background-color: #e43f5a;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
             border: none;
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 5px 15px rgba(228,63,90,0.4);
+            box-shadow: 0 5px 15px rgba(0,114,255,0.4);
         }
 
         .btn:hover {
-            background-color: #ff4d6d;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(228,63,90,0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,114,255,0.6);
         }
 
-        /* --- SCREEN 3: ACTUAL GAMEPLAY --- */
+        /* --- SCREEN 3: GAMEPLAY --- */
         #gameplay-screen {
             position: absolute;
             top: 0;
@@ -122,7 +121,6 @@
             display: none;
         }
 
-        /* HUD Overlay */
         #hud {
             position: absolute;
             top: 15px;
@@ -131,27 +129,34 @@
             padding: 0 20px;
             display: flex;
             justify-content: space-between;
-            font-size: 1.2rem;
+            font-size: 1.05rem;
             font-weight: bold;
             z-index: 10;
             pointer-events: none;
         }
 
         .hud-item {
-            background: rgba(15, 52, 96, 0.85);
-            padding: 8px 15px;
-            border-radius: 8px;
-            border: 1px solid #00fff0;
+            background: rgba(20, 30, 48, 0.9);
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #00f2fe;
         }
 
         #target-box {
             color: #ffea00;
             border-color: #ffea00;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #level-box {
+            color: #00ff87;
+            border-color: #00ff87;
         }
 
         canvas {
             display: block;
-            background: #121214;
+            background: #0f171e;
         }
 
         /* --- SCREEN 4: GAME OVER / WIN --- */
@@ -161,7 +166,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 10, 26, 0.9);
+            background: rgba(10, 15, 30, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -171,14 +176,15 @@
         }
 
         #game-over-title {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         #game-over-msg {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             margin-bottom: 30px;
-            max-width: 500px;
+            max-width: 580px;
             text-align: center;
             color: #ccc;
             line-height: 1.6;
@@ -190,34 +196,34 @@
     <div id="game-container">
         
         <div id="splash-screen">
-            <img id="logo-img" src="assets/logo.png" alt="Innovine Logo">
+            <img id="logo-img" src="image_cc8df7.png" alt="Innovine Logo">
         </div>
 
         <div id="menu-screen">
-            <h1>CIRCUIT RUNNER</h1>
-            <p class="subtitle">Fundamentals of Electricity & Circuits</p>
-            <button class="btn" id="start-btn">START GAME</button>
+            <h1>MOTION & MEASUREMENT QUEST</h1>
+            <p class="subtitle">Grade 6 Science Challenge</p>
+            <button class="btn" id="start-btn">START EXPERIMENT</button>
         </div>
 
         <div id="gameplay-screen">
             <div id="hud">
-                <div class="hud-item" id="score-box">Score: 0 / 10</div>
-                <div class="hud-item" id="target-box">Collect: CONDUCTORS!</div>
-                <div class="hud-item" id="lives-box">🔋 Lives: 3</div>
+                <div class="hud-item" id="level-box">Level: 1</div>
+                <div class="hud-item" id="score-box">Score: 0 / 5</div>
+                <div class="hud-item" id="target-box">Target: Standard SI Units & Tools!</div>
+                <div class="hud-item" id="lives-box">❤️ Lives: 3</div>
             </div>
             <canvas id="gameCanvas" width="800" height="600"></canvas>
         </div>
 
         <div id="game-over-screen">
-            <h2 id="game-over-title">Game Over</h2>
-            <p id="game-over-msg">Your circuit broke down!</p>
-            <button class="btn" id="restart-btn">Play Again</button>
+            <h2 id="game-over-title">Experiment Over</h2>
+            <p id="game-over-msg">Description goes here...</p>
+            <button class="btn" id="restart-btn">Try Again</button>
         </div>
 
     </div>
 
     <script>
-        // DOM Elements
         const splashScreen = document.getElementById('splash-screen');
         const menuScreen = document.getElementById('menu-screen');
         const gameplayScreen = document.getElementById('gameplay-screen');
@@ -225,7 +231,9 @@
         const startBtn = document.getElementById('start-btn');
         const restartBtn = document.getElementById('restart-btn');
         
+        const levelBox = document.getElementById('level-box');
         const scoreBox = document.getElementById('score-box');
+        const targetBox = document.getElementById('target-box');
         const livesBox = document.getElementById('lives-box');
         const gameOverTitle = document.getElementById('game-over-title');
         const gameOverMsg = document.getElementById('game-over-msg');
@@ -233,169 +241,278 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Game State Variables
+        // Game Configuration & State
+        let currentLevel = 1;
         let score = 0;
         let lives = 3;
         let gameActive = false;
         let items = [];
-        let player = { x: 360, y: 500, width: 80, height: 40, speed: 8 };
+        let player = { x: 360, y: 510, width: 100, height: 45, speed: 9, currentMotionMode: "Rectilinear" };
         let keys = {};
         let spawnTimer = 0;
-        const winningScore = 10;
+        let animationTick = 0;
+        const targetScorePerLevel = 5;
 
-        // Educational Database from Chapter 8
-        const pool = [
-            { name: "Copper Wire", type: "conductor", color: "#b87333" },
-            { name: "Iron Nail", type: "conductor", color: "#aaa9ad" },
-            { name: "Aluminum Foil", type: "conductor", color: "#ddd" },
-            { name: "Coin", type: "conductor", color: "#ffd700" },
-            { name: "Plastic Ruler", type: "insulator", color: "#e63946" },
-            { name: "Rubber Eraser", type: "insulator", color: "#ffb703" },
-            { name: "Glass Strip", type: "insulator", color: "#a8dadc" },
-            { name: "Wooden Stick", type: "insulator", color: "#9c6644" }
+        // Level 1 Item Pool: Measurement Types
+        const level1Pool = [
+            { name: "Metre (m)", isCorrect: true, desc: "SI Unit of Length", color: "#2ec4b6" },
+            { name: "Measuring Tape", isCorrect: true, desc: "Standard Tool", color: "#2ec4b6" },
+            { name: "Ruler", isCorrect: true, desc: "Standard Device", color: "#2ec4b6" },
+            { name: "Kilometre (km)", isCorrect: true, desc: "Metric Long Unit", color: "#2ec4b6" },
+            { name: "Handspan", isCorrect: false, desc: "Inaccurate Ancient Unit", color: "#e71d36" },
+            { name: "Pace / Footstep", isCorrect: false, desc: "Varies person to person", color: "#e71d36" },
+            { name: "Finger Width", isCorrect: false, desc: "Non-standard Unit", color: "#e71d36" },
+            { name: "Cubit", isCorrect: false, desc: "Ancient Arm Measure", color: "#e71d36" }
         ];
 
-        // --- TIMERS & SCENE TRANSITIONS ---
-        // Exactly 5 Seconds Splash Screen hold
+        // Level 2 Obstacle Pool: Types of Motion
+        const level2Pool = [
+            { name: "Falling Apple", motionType: "Rectilinear", text: "Rectilinear Motion (Straight Line)", color: "#3a86ff" },
+            { name: "Ceiling Fan", motionType: "Circular", text: "Circular Motion (Fixed Center)", color: "#ff006e" },
+            { name: "Clock Pendulum", motionType: "Oscillatory", text: "Oscillatory Motion (To & Fro)", color: "#8338ec" }
+        ];
+
+        // --- SPLASH SCREEN SYSTEM ---
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 splashScreen.style.opacity = '0';
                 setTimeout(() => {
                     splashScreen.style.display = 'none';
                     menuScreen.style.display = 'flex';
-                }, 500); // Wait for fade transition
-            }, 5000); // 5000ms = 5 Seconds
+                }, 500);
+            }, 5000); // Strict 5-Second hold
         });
 
-        startBtn.addEventListener('click', startGame);
-        restartBtn.addEventListener('click', startGame);
+        startBtn.addEventListener('click', () => startNewGame(1));
+        restartBtn.addEventListener('click', () => startNewGame(1));
 
-        // Input listeners
-        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            // Level 2 controls: Quick switch states using Number keys
+            if (currentLevel === 2 && gameActive) {
+                if (e.code === 'Digit1') player.currentMotionMode = "Rectilinear";
+                if (e.code === 'Digit2') player.currentMotionMode = "Circular";
+                if (e.code === 'Digit3') player.currentMotionMode = "Oscillatory";
+            }
+        });
         window.addEventListener('keyup', e => keys[e.code] = false);
 
-        // --- GAME LOGIC ---
-        function startGame() {
+        function startNewGame(lvl) {
             menuScreen.style.display = 'none';
             gameOverScreen.style.display = 'none';
             gameplayScreen.style.display = 'block';
             
+            currentLevel = lvl;
             score = 0;
-            lives = 3;
+            if (lvl === 1) lives = 3;
             items = [];
             player.x = canvas.width / 2 - player.width / 2;
+            player.currentMotionMode = "Rectilinear";
             gameActive = true;
+            spawnTimer = 0;
             
             updateHUD();
             requestAnimationFrame(gameLoop);
         }
 
         function updateHUD() {
-            scoreBox.innerText = `Score: ${score} / ${winningScore}`;
-            livesBox.innerText = `🔋 Lives: ${"⚡".repeat(lives)}`;
+            levelBox.innerText = `Level: ${currentLevel}`;
+            scoreBox.innerText = `Score: ${score} / ${targetScorePerLevel}`;
+            livesBox.innerText = `❤️ Lives: ${"❤️".repeat(lives)}`;
+            
+            if (currentLevel === 1) {
+                targetBox.innerHTML = "🎯 CATCH: Standard Units & Tools!<br>⚠️ AVOID: Body-part Units!";
+                targetBox.style.borderColor = "#ffea00";
+                targetBox.style.color = "#ffea00";
+            } else {
+                targetBox.innerHTML = "💡 Press [1], [2], or [3] to change your state to match the falling motion type obstacle!";
+                targetBox.style.borderColor = "#00f2fe";
+                targetBox.style.color = "#00f2fe";
+            }
         }
 
         function spawnItem() {
-            const template = pool[Math.floor(Math.random() * pool.length)];
-            items.push({
-                x: Math.random() * (canvas.width - 120) + 20,
-                y: -30,
-                width: 110,
-                height: 35,
-                name: template.name,
-                type: template.type,
-                color: template.color,
-                speed: Math.random() * 2 + 2.5
-            });
+            if (currentLevel === 1) {
+                const template = level1Pool[Math.floor(Math.random() * level1Pool.length)];
+                items.push({
+                    x: Math.random() * (canvas.width - 150) + 25,
+                    y: -40,
+                    width: 140,
+                    height: 40,
+                    name: template.name,
+                    isCorrect: template.isCorrect,
+                    color: "#243b55",
+                    textAccent: template.isCorrect ? "#00ff87" : "#ff4757",
+                    speed: Math.random() * 1.5 + 2.5
+                });
+            } else {
+                // Level 2 Spawning
+                const template = level2Pool[Math.floor(Math.random() * level2Pool.length)];
+                items.push({
+                    x: Math.random() * (canvas.width - 180) + 30,
+                    y: -60,
+                    width: 170,
+                    height: 65,
+                    name: template.name,
+                    motionType: template.motionType,
+                    text: template.text,
+                    color: template.color,
+                    speed: Math.random() * 1.0 + 2.8
+                });
+            }
         }
 
         function gameLoop() {
             if (!gameActive) return;
 
-            // Clear Screen
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            animationTick++;
 
-            // Draw Background Circuit Lines for Sci-Fi vibe
-            ctx.strokeStyle = '#1f4068';
+            // Draw clean grid line elements to hint at spatial measurement
+            ctx.strokeStyle = '#1d2d44';
+            ctx.lineWidth = 1;
+            for (let i = 50; i < canvas.width; i += 50) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+
+            // --- PLAYER CONTROLS & RENDERING ---
+            if ((keys['ArrowLeft'] || keys['KeyA']) && player.x > 0) player.x -= player.speed;
+            if ((keys['ArrowRight'] || keys['KeyD']) && player.x < canvas.width - player.width) player.x += player.speed;
+
+            // Render Player Container
             ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(100, 0); ctx.lineTo(100, canvas.height);
-            ctx.moveTo(700, 0); ctx.lineTo(700, canvas.height);
-            ctx.stroke();
+            if (currentLevel === 1) {
+                ctx.fillStyle = '#00f2fe';
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                ctx.strokeStyle = '#fff';
+                ctx.strokeRect(player.x, player.y, player.width, player.height);
+                
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText("🔬 MEASURE BOT", player.x + 4, player.y + 26);
+            } else {
+                // Level 2 Visual Formats - Changes form based on mode selected
+                ctx.strokeStyle = '#ffffff';
+                if (player.currentMotionMode === "Rectilinear") ctx.fillStyle = "#3a86ff";
+                if (player.currentMotionMode === "Circular") ctx.fillStyle = "#ff006e";
+                if (player.currentMotionMode === "Oscillatory") ctx.fillStyle = "#8338ec";
+                
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                ctx.strokeRect(player.x, player.y, player.width, player.height);
 
-            // Handle Player Movement
-            if ((keys['ArrowLeft'] || keys['KeyA']) && player.x > 0) {
-                player.x -= player.speed;
+                // Quick selector guides on top of player box
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillText(`MODE: ${player.currentMotionMode}`, player.x + 5, player.y + 26);
             }
-            if ((keys['ArrowRight'] || keys['KeyD']) && player.x < canvas.width - player.width) {
-                player.x += player.speed;
+
+            // --- LEVEL 2 CONTROLS ON-SCREEN LEGEND ---
+            if (currentLevel === 2) {
+                ctx.fillStyle = "rgba(0,0,0,0.4)";
+                ctx.fillRect(10, 550, 780, 40);
+                ctx.fillStyle = "#fff";
+                ctx.font = "12px sans-serif";
+                ctx.fillText("Press keys to change mode:  [1] Rectilinear (Blue)   |   [2] Circular (Pink)   |   [3] Oscillatory (Purple)", 20, 574);
             }
 
-            // Draw Terminal/Tester Player (Looks like an Open Circuit clip)
-            ctx.fillStyle = score >= 7 ? '#00fff0' : '#ffea00';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            
-            // Draw Contact Points
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(player.x, player.y - 4, 10, 6);
-            ctx.fillRect(player.x + player.width - 10, player.y - 4, 10, 6);
-            
-            ctx.fillStyle = '#0f3460';
-            ctx.font = '12px sans-serif';
-            ctx.fillText("TESTER", player.x + 18, player.y + 24);
-
-            // Spawning Logic
+            // Spawn Cycle
             spawnTimer++;
-            if (spawnTimer % 90 === 0) {
-                spawnItem();
-            }
+            if (spawnTimer % 90 === 0) spawnItem();
 
-            // Update & Draw Dropping Items
+            // --- PROCESS FALLING ELEMENTS ---
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
                 item.y += item.speed;
 
-                // Draw Item card
+                // Object box container card layout
                 ctx.fillStyle = item.color;
                 ctx.fillRect(item.x, item.y, item.width, item.height);
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#fff';
+                ctx.strokeStyle = '#ffffff';
                 ctx.strokeRect(item.x, item.y, item.width, item.height);
 
-                // Draw Item Text Label
-                ctx.fillStyle = '#000';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(item.name, item.x + item.width/2, item.y + 22);
-                ctx.textAlign = 'left'; // Reset
+                if (currentLevel === 1) {
+                    // Level 1 labels drawing
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 13px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 24);
+                    
+                    // Minor indicator bar decoration
+                    ctx.fillStyle = item.textAccent;
+                    ctx.fillRect(item.x, item.y + item.height - 4, item.width, 4);
+                } else {
+                    // Level 2 special motion pattern visualization
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 24);
+                    
+                    ctx.font = '10px Arial';
+                    ctx.fillStyle = '#dcdde1';
+                    ctx.fillText(item.motionType, item.x + item.width / 2, item.y + 44);
 
-                // Collision Detection with Player Tester
+                    // Dynamic animations inside card to depict the actual physics motion!
+                    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                    ctx.beginPath();
+                    let ox = item.x + 20;
+                    let oy = item.y + item.height - 10;
+                    if (item.motionType === "Rectilinear") {
+                        // Straight horizontal vector lines arrow
+                        ctx.moveTo(ox, oy); ctx.lineTo(ox + 20, oy);
+                        ctx.lineTo(ox + 16, oy - 3); ctx.moveTo(ox + 20, oy); ctx.lineTo(ox + 16, oy + 3);
+                    } else if (item.motionType === "Circular") {
+                        // Small circling spin point loop
+                        let radius = 6;
+                        let angle = (animationTick * 0.1);
+                        ctx.arc(ox + 10, oy, radius, 0, Math.PI * 2);
+                    } else if (item.motionType === "Oscillatory") {
+                        // Swing arc to-and-fro visual cue line
+                        let swing = Math.sin(animationTick * 0.08) * 10;
+                        ctx.moveTo(ox + 10, oy - 8); ctx.lineTo(ox + 10 + swing, oy);
+                    }
+                    ctx.stroke();
+                }
+                ctx.textAlign = 'left'; // Reset formatting defaults
+
+                // Collisions intersection boundary box
                 if (item.x < player.x + player.width &&
                     item.x + item.width > player.x &&
                     item.y < player.y + player.height &&
                     item.y + item.height > player.y) {
                     
-                    // Interaction evaluations
-                    if (item.type === 'conductor') {
-                        score++;
-                        if (score >= winningScore) {
-                            endGame(true);
-                            return;
+                    if (currentLevel === 1) {
+                        if (item.isCorrect) {
+                            score++;
+                            if (score >= targetScorePerLevel) {
+                                score = 0;
+                                currentLevel = 2;
+                                items = [];
+                                updateHUD();
+                                alert("Level 1 Clear! Proceeding to Level 2: Motion Type Matcher challenge!");
+                            }
+                        } else {
+                            lives--;
+                            if (lives <= 0) { endGame(false); return; }
                         }
                     } else {
-                        // Caught an Insulator! Circuit breaks.
-                        lives--;
-                        if (lives <= 0) {
-                            endGame(false);
-                            return;
+                        // Level 2 Rules check matching states transformation condition
+                        if (player.currentMotionMode === item.motionType) {
+                            score++;
+                            if (score >= targetScorePerLevel) {
+                                endGame(true); // Victory!
+                                return;
+                            }
+                        } else {
+                            lives--;
+                            if (lives <= 0) { endGame(false); return; }
                         }
                     }
+                    
                     updateHUD();
                     items.splice(i, 1);
                     continue;
                 }
 
-                // Remove out-of-bounds items
                 if (item.y > canvas.height) {
                     items.splice(i, 1);
                 }
@@ -410,13 +527,17 @@
             gameOverScreen.style.display = 'flex';
 
             if (isWin) {
-                gameOverTitle.innerText = "💡 CIRCUIT COMPLETE!";
-                gameOverTitle.style.color = "#00fff0";
-                gameOverMsg.innerHTML = "Fantastic! You collected all the necessary <b>Conductors</b> to allow electric current to flow through the circuit. The bulb is glowing brightly!";
+                gameOverTitle.innerText = "🏆 SYSTEM CALIBRATED!";
+                gameOverTitle.style.color = "#00ff87";
+                gameOverMsg.innerHTML = "Splendid job! You passed all parts of Grade 6 Measurement & Motion!<br><br><b>Level 1 Mastered:</b> You correctly rejected unreliable non-standard units (handspans/paces) and embraced standard S.I. systems.<br><b>Level 2 Mastered:</b> You dynamically matched straight line vectors (Rectilinear), rotating orbits (Circular), and to-and-fro physics paths (Oscillatory)!";
             } else {
-                gameOverTitle.innerText = "💥 CIRCUIT BROKEN!";
-                gameOverTitle.style.color = "#e43f5a";
-                gameOverMsg.innerHTML = "Oops! You introduced too many <b>Insulators</b> (materials that do not allow electric current to flow). The flow of electrons stopped.";
+                gameOverTitle.innerText = "❌ EXPERIMENT FAILED";
+                gameOverTitle.style.color = "#ff4757";
+                if (currentLevel === 1) {
+                    gameOverMsg.innerHTML = "You collected non-standard ancient body units! Remember, measurements like a handspan or pace vary from person to person and cannot be used for accurate scientific trade or design.";
+                } else {
+                    gameOverMsg.innerHTML = "Mismatch detected! Your state profile did not align with the incoming obstacle's mechanics. Remember:<br>• Apple falling = <b>Rectilinear</b><br>• Fan spinning = <b>Circular</b><br>• Clock pendulum = <b>Oscillatory</b>";
+                }
             }
         }
     </script>
