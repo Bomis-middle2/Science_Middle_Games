@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Innovine - The Magnetism Mission</title>
+    <title>Innovine - Drag and Drop Magnetism Revision</title>
     <style>
         :root {
             --bg-color: #0b1329;
@@ -27,12 +27,13 @@
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .game-outer {
             width: 100%;
             max-width: 600px;
-            min-height: 500px;
+            min-height: 520px;
             padding: 15px;
             box-sizing: border-box;
         }
@@ -43,7 +44,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             padding: 25px;
             position: relative;
-            min-height: 450px;
+            min-height: 480px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -100,26 +101,61 @@
 
         .task-prompt {
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             color: #fff;
         }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 14px;
-            background-color: #0b1329;
-            border: 2px solid #22333b;
+        /* Drag and drop interactive zones */
+        .drop-zone {
+            border: 2px dashed var(--accent-blue);
+            background-color: rgba(0, 180, 216, 0.05);
+            min-height: 55px;
             border-radius: 8px;
-            color: white;
-            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 15px;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
             box-sizing: border-box;
-            margin-bottom: 15px;
-            transition: border-color 0.2s;
+            padding: 5px;
         }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--accent-blue);
+        .drop-zone.dragover {
+            background-color: rgba(0, 180, 216, 0.2);
+            border-color: #fff;
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            min-height: 55px;
+        }
+
+        .drag-item {
+            background-color: #2a3a5c;
+            border: 1px solid #3d527d;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: grab;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: background-color 0.2s;
+            touch-action: none; /* Prevents default scrolling while dragging on mobile */
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            background-color: #3d527d;
+        }
+
+        .drag-item.dragging {
+            opacity: 0.5;
         }
 
         button {
@@ -172,7 +208,6 @@
 
         .hidden { display: none !important; }
 
-        /* End screen summary layout */
         .summary-wrapper {
             text-align: center;
             padding: 20px 0;
@@ -196,10 +231,10 @@
             <h2 style="color: var(--accent-blue); text-align: center; margin-top: 0;">The Magnetism Mission</h2>
             <div class="narrative-box">
                 <strong>Welcome Explorer!</strong><br><br>
-                Test your alignment across 10 vital core challenges on grade-level magnetism. 
-                There are no multiple-choice safety nets here—you must reason through application tasks using short text strings.
+                Test your alignment across 10 vital application challenges on grade-level magnetism. 
+                Read the scenario, then **drag the correct answer block** from the options pool and drop it right into the blank field to lock it in!
                 <br><br>
-                💡 <em>You have 2 attempts per question before a calibration system structural hint is unlocked!</em>
+                💡 <em>You have 2 attempts per scenario before our validation system displays a targeted hint!</em>
             </div>
             <button onclick="startGame()">Begin Mission</button>
         </div>
@@ -212,10 +247,13 @@
                 </div>
                 <div class="narrative-box" id="lblNarrative">Scenario text goes here.</div>
                 <div class="task-prompt" id="lblPrompt">Question text goes here.</div>
-                <input type="text" id="txtAnswer" placeholder="Type your observation..." autocomplete="off">
+                
+                <div class="drop-zone" id="mainDropZone">[ Drop Answer Box Here ]</div>
+                
+                <div class="options-container" id="optionsPool"></div>
             </div>
             <div>
-                <button onclick="processSubmission()" id="btnSubmit">Verify Input</button>
+                <button onclick="processSubmission()" id="btnSubmit">Verify Selection</button>
                 <div id="feedbackContainer" class="feedback-ui"></div>
             </div>
         </div>
@@ -238,62 +276,72 @@
     const questionBank = [
         {
             narrative: "A rescue technician's tools fell into wet, muddy sand. They have a permanent bar magnet available to extract them quickly.",
-            prompt: "What specialized class of materials (like iron or steel) will be attracted to the magnet?",
-            answers: ["magnetic", "magnetic materials", "magnetic substances", "magnetic substance"],
+            prompt: "What specialized class of materials will be attracted to the magnet?",
+            correct: "Magnetic Materials",
+            options: ["Magnetic Materials", "Non-Magnetic Substances", "Insulators", "Plastic Fillers"],
             hint: "Think about the general classification terms used for objects that experience a strong attraction to magnetic forces."
         },
         {
             narrative: "You discover a piece of dark, naturally occurring rock in the mountains that pulls iron filings toward itself without any electrical input.",
             prompt: "What is the scientific name of this natural magnetic mineral?",
-            answers: ["magnetite", "lodestone"],
+            correct: "Magnetite",
+            options: ["Magnetite", "Aluminium Ore", "Quartzite", "Copper Shavings"],
             hint: "It shares its etymological origin with the shepherd Magnes from Magnesia, Greece."
         },
         {
-            narrative: "A lab container holds a mixture of iron chips and copper wire shavings. You need to segregate them completely without pick-sorting.",
+            narrative: "A lab container holds a mixture of iron chips and copper wire shavings. You need to separate them completely without sorting by hand.",
             prompt: "Which specific substance will stick to a permanent magnet brought near the container?",
-            answers: ["iron", "iron chips"],
+            correct: "Iron Chips",
+            options: ["Iron Chips", "Copper Wire", "Plastic Beads", "Glass Powder"],
             hint: "Copper is non-magnetic, whereas this transitions easily towards the poles."
         },
         {
             narrative: "A navigation needle is allowed to pivot freely in a zero-friction housing with no external magnetic interference.",
             prompt: "Along what primary geographic directions will the suspended magnet align itself when resting?",
-            answers: ["north-south", "north south", "n-s", "ns"],
-            hint: "Enter the two balancing polar points separated by a hyphen or space (e.g., North-South)."
+            correct: "North-South",
+            options: ["North-South", "East-West", "Up-Down", "Randomly"],
+            hint: "Enter the two balancing polar points where the Earth's natural magnetic field guides a pointer."
         },
         {
             narrative: "An industrial scrapyard sorter uses a specialized crane wrapped in copper wire loops hooked to a direct-current circuit.",
             prompt: "What temporary setup is created when electricity passes through these coils around an iron core?",
-            answers: ["electromagnet", "an electromagnet"],
+            correct: "Electromagnet",
+            options: ["Electromagnet", "Permanent Bar Magnet", "Natural Lodestone", "Static Insulator"],
             hint: "It acts exactly like a magnet, but only when the electrical current flows."
         },
         {
             narrative: "Two bar magnets are pushed close together on a desktop tracking line. The two matching North poles are facing each other.",
             prompt: "What physical force or behavior will occur between these matching poles?",
-            answers: ["repulsion", "repel", "they repel", "magnetic repulsion"],
+            correct: "Repulsion",
+            options: ["Repulsion", "Attraction", "No Interaction", "Demagnetization"],
             hint: "Remember the universal law: Like poles do this, while unlike poles attract."
         },
         {
             narrative: "You map out a bar magnet and want to spot where its attraction force pulls items with the absolute highest intensity.",
             prompt: "Where on the physical bar magnet are the magnetic forces strongest?",
-            answers: ["poles", "at the poles", "the poles", "ends", "its poles"],
+            correct: "At the Poles",
+            options: ["At the Poles", "Exactly in the Center", "Along the Side Edges", "Evenly Everywhere"],
             hint: "These regions are located right at the two far ends of the structure."
         },
         {
             narrative: "A ship captain needs to turn off a massive cargo crane electromagnet instantly to drop an iron shipping crate.",
             prompt: "What action must the operator take regarding the electric current to make it lose its magnetism?",
-            answers: ["switch off", "turn off", "cut off", "disconnect", "stop it", "cut the power", "turn it off"],
+            correct: "Switch Off the Current",
+            options: ["Switch Off the Current", "Increase the Voltage", "Heat the Copper Coils", "Add More Iron Blocks"],
             hint: "An electromagnet functions dynamically; removing this energy component collapses the field."
         },
         {
             narrative: "A heavy permanent bar magnet is repeatedly dropped onto a concrete bunker floor from high balconies.",
             prompt: "What physical loss of properties happens to a magnet when subjected to harsh dropping or hammering?",
-            answers: ["demagnetization", "demagnetise", "demagnetize", "loss of magnetism", "loses magnetism"],
+            correct: "Demagnetization",
+            options: ["Demagnetization", "Imparting Fields", "Magnetization", "Charge Accumulation"],
             hint: "The structural layout of internal domains is broken down, resulting in the loss of its magnetic pull."
         },
         {
             narrative: "A precision magnetic compass is brought right next to a heavy duty working audio speaker housing.",
             prompt: "What part of the compass will experience sudden deflection due to the speaker's internal magnet?",
-            answers: ["needle", "the needle", "magnetic needle", "pointer"],
+            correct: "The Magnetic Needle",
+            options: ["The Magnetic Needle", "The Glass Cover", "The Outer Plastic Case", "The Fixed Base Dial"],
             hint: "Think about the light, freely pivoting component inside the compass dial."
         }
     ];
@@ -302,10 +350,9 @@
     let currentTaskIdx = 0;
     let currentAttempts = 0;
     let userScore = 0;
+    let draggedElement = null;
 
-    // Strict Branding Control Lifecycle
     window.addEventListener('DOMContentLoaded', () => {
-        // Fallback for visual rendering if image asset is missing locally
         const logo = document.getElementById('logoImg');
         logo.onerror = () => {
             logo.style.display = 'none';
@@ -319,13 +366,14 @@
             document.getElementById('splashScreen').classList.add('hidden');
             document.getElementById('instructionScreen').classList.remove('hidden');
         }, 5000);
+
+        setupDragAndDropListeners();
     });
 
     function startGame() {
         document.getElementById('instructionScreen').classList.add('hidden');
         document.getElementById('gamePlayScreen').classList.remove('hidden');
         
-        // Randomize list presentation order to preserve replay value
         randomizedQuestions = [...questionBank].sort(() => Math.random() - 0.5);
         currentTaskIdx = 0;
         userScore = 0;
@@ -341,57 +389,177 @@
         document.getElementById('lblNarrative').innerText = currentData.narrative;
         document.getElementById('lblPrompt').innerText = currentData.prompt;
         
-        const inputField = document.getElementById('txtAnswer');
-        inputField.value = '';
-        inputField.disabled = false;
+        // Reset Drop Zone
+        const dropZone = document.getElementById('mainDropZone');
+        dropZone.innerHTML = "[ Drop Answer Box Here ]";
+        dropZone.style.borderColor = "var(--accent-blue)";
+        dropZone.style.color = "var(--text-muted)";
+        
+        // Load options pool and shuffle options
+        const pool = document.getElementById('optionsPool');
+        pool.innerHTML = '';
+        
+        const shuffledOptions = [...currentData.options].sort(() => Math.random() - 0.5);
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'drag-item';
+            btn.draggable = true;
+            btn.innerText = opt;
+            
+            // Mouse Drag Events
+            btn.addEventListener('dragstart', handleDragStart);
+            btn.addEventListener('dragend', handleDragEnd);
+            
+            // Mobile Touch Events using TouchEvent API mapping
+            btn.addEventListener('touchstart', handleTouchStart, { passive: false });
+            btn.addEventListener('touchmove', handleTouchMove, { passive: false });
+            btn.addEventListener('touchend', handleTouchEnd);
+            
+            pool.appendChild(btn);
+        });
         
         const fbContainer = document.getElementById('feedbackContainer');
         fbContainer.className = "feedback-ui";
         fbContainer.innerText = "";
         
         document.getElementById('btnSubmit').classList.remove('hidden');
-        inputField.focus();
+    }
+
+    /* Standard HTML5 Drag and Drop Handlers */
+    function handleDragStart(e) {
+        draggedElement = this;
+        this.classList.add('dragging');
+    }
+
+    function handleDragEnd() {
+        this.classList.remove('dragging');
+    }
+
+    function setupDragAndDropListeners() {
+        const dropZone = document.getElementById('mainDropZone');
+        const pool = document.getElementById('optionsPool');
+
+        // Main Droppable zone events
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('dragenter', function() { this.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            if (draggedElement) {
+                this.innerHTML = '';
+                this.appendChild(draggedElement);
+                this.style.borderColor = "var(--accent-green)";
+                this.style.color = "#fff";
+            }
+        });
+
+        // Options pool can take items back if dropped outside
+        pool.addEventListener('dragover', (e) => e.preventDefault());
+        pool.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (draggedElement && !pool.contains(draggedElement)) {
+                pool.appendChild(draggedElement);
+                const dropZone = document.getElementById('mainDropZone');
+                if(dropZone.children.length === 0) {
+                    dropZone.innerHTML = "[ Drop Answer Box Here ]";
+                    dropZone.style.borderColor = "var(--accent-blue)";
+                    dropZone.style.color = "var(--text-muted)";
+                }
+            }
+        });
+    }
+
+    /* Mobile Compatibility Touch Interaction Logic */
+    let touchStartPool = null;
+    function handleTouchStart(e) {
+        draggedElement = this;
+        this.classList.add('dragging');
+    }
+
+    function handleTouchMove(e) {
+        if (!draggedElement) return;
+        e.preventDefault(); // Prevents page scrolling while pulling choices
+        
+        const touch = e.touches[0];
+        // Move element slightly visually to mimic dynamic dragging feedback if desired
+    }
+
+    function handleTouchEnd(e) {
+        if (!draggedElement) return;
+        this.classList.remove('dragging');
+        
+        const touch = e.changedTouches[0];
+        const dropZone = document.getElementById('mainDropZone');
+        const pool = document.getElementById('optionsPool');
+        
+        const zoneRect = dropZone.getBoundingClientRect();
+        
+        // Detect if release point lands within the boundaries of the Drop target box
+        if (touch.clientX >= zoneRect.left && touch.clientX <= zoneRect.right &&
+            touch.clientY >= zoneRect.top && touch.clientY <= zoneRect.bottom) {
+            dropZone.innerHTML = '';
+            dropZone.appendChild(draggedElement);
+            dropZone.style.borderColor = "var(--accent-green)";
+            dropZone.style.color = "#fff";
+        } else {
+            // Return to parent pool container
+            if (!pool.contains(draggedElement)) {
+                pool.appendChild(draggedElement);
+            }
+            if(dropZone.children.length === 0) {
+                dropZone.innerHTML = "[ Drop Answer Box Here ]";
+                dropZone.style.borderColor = "var(--accent-blue)";
+                dropZone.style.color = "var(--text-muted)";
+            }
+        }
+        draggedElement = null;
     }
 
     function processSubmission() {
-        const userInput = document.getElementById('txtAnswer').value.trim().toLowerCase();
-        const currentData = randomizedQuestions[currentTaskIdx];
+        const dropZone = document.getElementById('mainDropZone');
         const fbContainer = document.getElementById('feedbackContainer');
+        const currentData = randomizedQuestions[currentTaskIdx];
         
-        if (!userInput) return; // Ignore empty entries
+        if (dropZone.children.length === 0) {
+            fbContainer.className = "feedback-ui incorrect-style";
+            fbContainer.innerText = "⚠️ Please drag an option box into the drop field first!";
+            return;
+        }
 
+        const selectedAnswer = dropZone.children[0].innerText;
         currentAttempts++;
 
-        // Evaluate string match criteria
-        if (currentData.answers.includes(userInput)) {
-            // Success Pathway
+        if (selectedAnswer === currentData.correct) {
             document.getElementById('sndCorrect').play().catch(() => {});
             userScore += 10;
             document.getElementById('lblScore').innerText = userScore;
             
             fbContainer.className = "feedback-ui correct-style";
-            fbContainer.innerHTML = "✨ Correct! Masterfully evaluated.";
+            fbContainer.innerHTML = "✨ Correct! Element correctly balanced.";
             document.getElementById('btnSubmit').classList.add('hidden');
-            document.getElementById('txtAnswer').disabled = true;
+            
+            if(dropZone.children[0]) dropZone.children[0].draggable = false;
 
             setTimeout(() => {
                 transitionNextStep();
             }, 2500);
         } else {
-            // Failure Pathway
             document.getElementById('sndWrong').play().catch(() => {});
             
             if (currentAttempts < 2) {
                 fbContainer.className = "feedback-ui incorrect-style";
-                fbContainer.innerText = "❌ Incorrect observation. Recalibrate and try again!";
+                fbContainer.innerText = "❌ Incorrect placement. Re-align elements and try again!";
+                // Return item back to option list pool automatically for comfort
+                document.getElementById('optionsPool').appendChild(dropZone.children[0]);
+                dropZone.innerHTML = "[ Drop Answer Box Here ]";
+                dropZone.style.borderColor = "var(--accent-blue)";
+                dropZone.style.color = "var(--text-muted)";
             } else {
-                // Unlock hint structural context after second failed attempt
                 fbContainer.className = "feedback-ui incorrect-style";
-                fbContainer.innerHTML = `❌ Incorrect.<br><small style="color:#fff;">💡 System Hint: ${currentData.hint}</small>`;
-                
-                // Advance automatically after providing exposure time to the hint
+                fbContainer.innerHTML = `❌ System Jammed.<br><small style="color:#fff;">💡 Calibration Hint: ${currentData.hint}</small>`;
                 document.getElementById('btnSubmit').classList.add('hidden');
-                document.getElementById('txtAnswer').disabled = true;
+                
                 setTimeout(() => {
                     transitionNextStep();
                 }, 6000);
@@ -404,7 +572,6 @@
         if (currentTaskIdx < randomizedQuestions.length) {
             loadCurrentTask();
         } else {
-            // Mission conclusion routing
             document.getElementById('gamePlayScreen').classList.add('hidden');
             const summary = document.getElementById('summaryScreen');
             summary.classList.remove('hidden');
