@@ -13,6 +13,7 @@
             --panel-bg: #141e30;
             --text-light: #ffffff;
             --card-bg: #1d2d44;
+            --warning-amber: #ffb300;
         }
 
         * { 
@@ -44,7 +45,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             position: relative;
             overflow: hidden;
-            min-height: 620px;
+            min-height: 640px;
             border-top: 8px solid var(--primary-blue);
             display: flex;
             flex-direction: column;
@@ -100,7 +101,7 @@
             font-size: 0.9rem;
         }
 
-        /* LAB VIEW DISPLAY DECK */
+        /* LAB VIEW DISPLAY DECK & CUSTOM MODAL ALERTS */
         .lab-canvas-container {
             width: 100%;
             background: #0f171e;
@@ -122,6 +123,32 @@
             touch-action: none;
         }
 
+        /* DIAGNOSTIC ERROR DISPLAY POPUP OVERLAY */
+        #diagnostic-alert-overlay {
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            background: rgba(15, 23, 30, 0.95);
+            border: 2px dashed var(--warning-amber);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            z-index: 50;
+            transform: scale(0.9);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #diagnostic-alert-overlay.active {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .prompt-text {
             font-size: 1rem;
             font-weight: 600;
@@ -129,6 +156,7 @@
             margin-bottom: 12px;
             color: #e2e8f0;
             text-align: center;
+            min-height: 48px;
         }
 
         /* CONTROL RACK & SWITCHBOARD SLIDERS */
@@ -258,7 +286,7 @@
 <div id="game-container">
     <div id="splash-screen">
         <img src="assets/logo.png" alt="Innovine Logo" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').style.display='block';">
-        <h2 id="fallback-logo-text" style="display:none; color:var(--primary-blue); font-weight:900;">INNOVINE LABS</h2>
+        <h2 id="fallback-logo-text" style="display:none; color:var(--primary-blue); font-weight:900; letter-spacing:2px;">INNOVINE LABS</h2>
     </div>
 
     <div id="intro-view" class="view-frame hidden" style="text-align: center; justify-content: center;">
@@ -281,6 +309,13 @@
         
         <div class="lab-canvas-container" id="canvas-wrap">
             <canvas id="labCanvas" width="400" height="180"></canvas>
+            
+            <div id="diagnostic-alert-overlay">
+                <div style="font-size:2.5rem; margin-bottom:8px;">⚠️</div>
+                <h4 style="color:var(--warning-amber); font-weight:800; font-size:1.1rem; margin-bottom:6px; uppercase;">Diagnostic Alert</h4>
+                <p id="alert-modal-text" style="color:#e2e8f0; font-size:0.88rem; line-height:1.4; margin-bottom:15px;"></p>
+                <button id="close-alert-modal-btn" style="background:var(--warning-amber); border:none; color:#141e30; font-weight:bold; padding:8px 20px; border-radius:6px; cursor:pointer; font-size:0.85rem;">RE-TUNING SCHEMATIC</button>
+            </div>
         </div>
 
         <div id="control-panel-rack" class="control-rack">
@@ -305,7 +340,8 @@
 </div>
 
 <script>
-    const labDataset = [
+    // Comprehensive randomized master pool divided logically by task categories
+    const rawToggleUnitsPool = [
         {
             level: "METRICS CONFIG",
             q: "Task 01: Calibrate the switchboard panel to isolate only Uniform Standard Units of distance. Turn off body-part units.",
@@ -316,54 +352,108 @@
         },
         {
             level: "METRICS CONFIG",
-            q: "Task 02: Adjust the calibration marker on the broken ruler (missing its zero edge) to calculate the true length of the beam.",
+            q: "Task 01: Isolate globally unified industrial protocols. Deactivate any historical variable human metrics.",
+            taskType: "TOGGLE_UNITS",
+            switches: ["Footstep & Yard", "Centimetre & Millimetre", "Angstrom & Inch"],
+            targetStates: [false, true, false],
+            expl: "Centimetre and Millimetre form rigid, internationally structured S.I. benchmarks that prevent trading disputes caused by regional anatomical variations."
+        }
+    ];
+
+    const rawSliderRulerPool = [
+        {
+            level: "METRICS CONFIG",
+            q: "Task 02: Adjust the calibration marker on the broken ruler (missing its first 2cm) to compute the true length of the beam.",
             taskType: "SLIDER_RULER",
-            initialBeamVal: 8.5,
-            brokenEdgeOffset: 2.0,
-            targetAnswer: 6.5,
-            expl: "True Length = End Position minus Start Position. Discarding the broken 0-2cm region gives exactly 6.5 cm."
+            minRulerVal: 2,
+            maxRulerVal: 10, // Full physical length = 10 - 2 = 8cm total path boundary
+            targetAnswer: 8.0,
+            expl: "True Length = End Position (10cm) minus Start Position (2cm). Discarding the broken 0-2cm dead space gives exactly 8.0 cm."
         },
+        {
+            level: "METRICS CONFIG",
+            q: "Task 02: Tune the tracking slider to map the net length of a block measuring from the 3cm line up to the 9.5cm marker.",
+            taskType: "SLIDER_RULER",
+            minRulerVal: 3,
+            maxRulerVal: 9.5,
+            targetAnswer: 6.5,
+            expl: "Subtracting the starting offset alignment coordinate (3cm) from the absolute tip reading (9.5cm) computes to exactly 6.5 cm."
+        }
+    ];
+
+    const rawTapTimingPool = [
         {
             level: "KINEMATICS RUN",
             q: "Task 03: The pendulum simulation is running. Click the live viewport at the exact instant the tracking pattern shifts to pure Oscillatory Motion.",
             taskType: "TAP_TIMING",
             targetMotion: "Oscillatory",
-            expl: "To-and-fro repetitions around a steady central rest coordinate correctly specify clean Oscillatory Motion."
+            expl: "To-and-fro periodic repetitions tracing paths symmetrically around a steady central rest coordinate correctly specify clean Oscillatory Motion."
         },
+        {
+            level: "KINEMATICS RUN",
+            q: "Task 03: Analyze the live terminal feeds. Tap inside the visual grid whenever the trajectory matrix matches standard non-periodic Circular paths.",
+            taskType: "TAP_TIMING",
+            targetMotion: "Circular",
+            expl: "Continuous spinning vectors locking coordinate groups around a central fixed point mark pure Circular rotation states."
+        }
+    ];
+
+    const rawToggleMotionPool = [
         {
             level: "KINEMATICS RUN",
             q: "Task 04: Toggle the calibration profile below to match the current motion of the spinning ceiling fan blades.",
             taskType: "TOGGLE_MOTION",
-            switches: ["Circular Motion", "Rectilinear Motion", "Oscillatory Motion"],
+            switches: ["Circular Path", "Rectilinear Path", "Oscillatory Arc"],
             targetStates: [true, false, false],
             expl: "Points on the spinning blades travel along uniform paths positioned consistently around a locked central axis pivot, producing Circular Motion."
         },
         {
             level: "KINEMATICS RUN",
-            q: "Task 05: Track the vehicle model moving inside the grid lane. Click the viewport when it matches a pure Rectilinear path profile.",
-            taskType: "TAP_TIMING_RECT",
-            targetMotion: "Rectilinear",
-            expl: "Whenever an engineering load shifts uniformly along a flat, straight line vector, its motion profile is strictly Rectilinear."
+            q: "Task 04: Synchronize telemetry inputs with a high-speed projectile path traveling locked directly down a flat straight-line rail vector.",
+            taskType: "TOGGLE_MOTION",
+            switches: ["Oscillatory Arc", "Rectilinear Path", "Circular Path"],
+            targetStates: [false, true, false],
+            expl: "Whenever an engineering load shifts uniformly along a completely flat, straight line vector, its motion profile is strictly Rectilinear."
         }
     ];
 
+    const rawTapTimingRectPool = [
+        {
+            level: "KINEMATICS RUN",
+            q: "Task 05: Track the vehicle model moving inside the grid lane. Click the viewport when it matches a pure Rectilinear path profile.",
+            taskType: "TAP_TIMING_RECT",
+            targetMotion: "Rectilinear",
+            expl: "Linear transitions over regular vectors mapping zero lateral curvature establish clean Rectilinear tracking logs."
+        },
+        {
+            level: "KINEMATICS RUN",
+            q: "Task 05: Intercept the automated laboratory load carriage at the microsecond its path log drifts into Curvilinear path profiles.",
+            taskType: "TAP_TIMING_RECT",
+            targetMotion: "Curvilinear",
+            expl: "Whenever an object shifts tracking coordinates along a non-linear or wavy track profile, it exits straight lines into Curvilinear paths."
+        }
+    ];
+
+    // Array to hold randomized selection
+    let labDataset = [];
     let currentStep = 0, wrongCount = 0;
-    let attemptsUsedThisTask = 0; // Tracks localized loops (Max 2 Allowed)
+    let attemptsUsedThisTask = 0; 
     
     const canvas = document.getElementById('labCanvas');
     const ctx = canvas.getContext('2d');
     let canvasAnimationId = null;
     let animTick = 0;
 
-    let interactiveSliderX = 280; 
+    let interactiveSliderX = 250; 
     let currentMotionMode = "Circular"; 
 
-    // Native Audio Elements
+    // Sound asset nodes
     const sndCorrect = new Audio('assets/correct.mp3');
     const sndWrong = new Audio('assets/wrong.mp3');
     const sndClaps = new Audio('assets/freesound_community-claps-44774.mp3');
 
     window.addEventListener('DOMContentLoaded', () => {
+        assembleRandomizedDataset();
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             splash.style.opacity = '0';
@@ -371,8 +461,19 @@
                 splash.style.display = 'none';
                 document.getElementById('intro-view').classList.remove('hidden');
             }, 500);
-        }, 5000);
+        }, 3500);
     });
+
+    // Pick one question randomly from each core archetype pool to build a fresh setup
+    function assembleRandomizedDataset() {
+        labDataset = [
+            rawToggleUnitsPool[Math.floor(Math.random() * rawToggleUnitsPool.length)],
+            rawSliderRulerPool[Math.floor(Math.random() * rawSliderRulerPool.length)],
+            rawTapTimingPool[Math.floor(Math.random() * rawTapTimingPool.length)],
+            rawToggleMotionPool[Math.floor(Math.random() * rawToggleMotionPool.length)],
+            rawTapTimingRectPool[Math.floor(Math.random() * rawTapTimingRectPool.length)]
+        ];
+    }
 
     document.getElementById('engage-btn').onclick = () => {
         document.getElementById('intro-view').classList.add('hidden');
@@ -380,10 +481,21 @@
         initWorkspaceNode();
     };
 
+    document.getElementById('close-alert-modal-btn').onclick = (e) => {
+        e.stopPropagation();
+        document.getElementById('diagnostic-alert-overlay').classList.remove('active');
+    };
+
+    function triggerCustomOnScreenAlert(msg) {
+        document.getElementById('alert-modal-text').innerText = msg;
+        document.getElementById('diagnostic-alert-overlay').classList.add('active');
+    }
+
     function initWorkspaceNode() {
         if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
         
-        attemptsUsedThisTask = 0; // Reset counter for new task field
+        attemptsUsedThisTask = 0; 
+        document.getElementById('diagnostic-alert-overlay').classList.remove('active');
         document.getElementById('terminal-feedback').style.display = 'none';
         document.getElementById('submit-action-btn').classList.add('hidden');
         document.getElementById('verify-action-btn').classList.remove('hidden');
@@ -420,18 +532,22 @@
             row.innerHTML = `
                 <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem;">
                     <span>Calculated Length Vector:</span>
-                    <span id="slider-readout" style="color:var(--neon-cyan); font-weight:bold;">8.5 cm</span>
+                    <span id="slider-readout" style="color:var(--neon-cyan); font-weight:bold;">5.0 cm</span>
                 </div>
-                <input type="range" id="metric-slider" min="3.0" max="9.5" step="0.5" value="8.5" style="width:100%; height:6px; background:#334155; border-radius:3px; outline:none;">
+                <input type="range" id="metric-slider" min="1.0" max="9.0" step="0.5" value="5.0" style="width:100%; height:6px; background:#334155; border-radius:3px; outline:none;">
             `;
             controlArea.appendChild(row);
             
             document.getElementById('metric-slider').addEventListener('input', (e) => {
                 let val = parseFloat(e.target.value);
                 document.getElementById('slider-readout').innerText = val.toFixed(1) + " cm";
-                interactiveSliderX = 60 + ((val) * 32); 
+                // Correlate visual coordinate translation calculations across dynamic offsets
+                let originStartOffset = 60 + ((data.minRulerVal - 2) * 32);
+                interactiveSliderX = originStartOffset + (val * 32); 
             });
-            interactiveSliderX = 60 + (8.5 * 32);
+            let initialVal = parseFloat(document.getElementById('metric-slider').value);
+            let originStartOffset = 60 + ((data.minRulerVal - 2) * 32);
+            interactiveSliderX = originStartOffset + (initialVal * 32);
         } 
         else if (data.taskType === "TAP_TIMING" || data.taskType === "TAP_TIMING_RECT") {
             document.getElementById('rack-title').innerText = "Telemetry Analyzer Feed";
@@ -448,13 +564,13 @@
             if(animTick % 160 === 0) {
                 currentMotionMode = currentMotionMode === "Circular" ? "Oscillatory" : "Circular";
             }
-            drawLabGraphics(data.taskType);
+            drawLabGraphics(data);
             canvasAnimationId = requestAnimationFrame(workspaceLoop);
         }
         workspaceLoop();
     }
 
-    function drawLabGraphics(type) {
+    function drawLabGraphics(data) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         ctx.strokeStyle = '#102a43';
@@ -466,7 +582,7 @@
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        if (type === "TOGGLE_UNITS") {
+        if (data.taskType === "TOGGLE_UNITS") {
             ctx.fillStyle = "#16253b";
             ctx.fillRect(40, 50, 320, 80);
             ctx.strokeStyle = varColor('--primary-blue');
@@ -480,35 +596,47 @@
             ctx.font = "11px monospace";
             ctx.fillText("SYSTEM STATUS: AWAITING PARAMETERS", 200, 105);
         } 
-        else if (type === "SLIDER_RULER") {
+        else if (data.taskType === "SLIDER_RULER") {
+            // Ruler bounds are strictly mapped to dynamic range pools
             ctx.fillStyle = "#2c1a1a";
             ctx.fillRect(30, 60, 340, 60);
             ctx.strokeStyle = varColor('--error-red');
             ctx.lineWidth = 2;
             ctx.strokeRect(30, 60, 340, 60);
             
+            // Broken jagged edge graphic matching custom starting configurations
             ctx.fillStyle = "#0a0f14";
             ctx.beginPath();
             ctx.moveTo(30, 60); ctx.lineTo(42, 75); ctx.lineTo(32, 90); ctx.lineTo(45, 105); ctx.lineTo(30, 120);
             ctx.fill();
 
             ctx.strokeStyle = '#ffffff';
-            for (let i = 2; i <= 10; i++) {
+            // Start plotting lines dynamically using physical 2cm alignment as index base 0
+            for (let i = 2; i <= 12; i++) {
                 let xPos = 60 + ((i-2) * 32);
-                ctx.beginPath(); ctx.moveTo(xPos, 60); ctx.lineTo(xPos, 78); ctx.stroke();
-                ctx.fillStyle = "#ffffff";
-                ctx.font = "10px monospace";
-                ctx.fillText(i + "cm", xPos, 95);
+                if (xPos <= 370) {
+                    ctx.beginPath(); ctx.moveTo(xPos, 60); ctx.lineTo(xPos, 78); ctx.stroke();
+                    ctx.fillStyle = i < data.minRulerVal ? "#4a5568" : "#ffffff";
+                    ctx.font = "10px monospace";
+                    ctx.fillText(i + "cm", xPos, 95);
+                }
             }
+
+            // Draw target object bounds to scale
+            let startBeamX = 60 + ((data.minRulerVal - 2) * 32);
+            let endBeamX = 60 + ((data.maxRulerVal - 2) * 32);
+
+            ctx.fillStyle = "rgba(0, 242, 254, 0.15)";
+            ctx.fillRect(startBeamX, 110, (endBeamX - startBeamX), 10);
             
             ctx.strokeStyle = varColor('--neon-cyan');
             ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(60, 42); ctx.lineTo(interactiveSliderX, 42); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(startBeamX, 42); ctx.lineTo(interactiveSliderX, 42); ctx.stroke();
             
             ctx.fillStyle = varColor('--neon-cyan');
             ctx.beginPath(); ctx.arc(interactiveSliderX, 42, 6, 0, Math.PI*2); ctx.fill();
         } 
-        else if (type === "TAP_TIMING") {
+        else if (data.taskType === "TAP_TIMING") {
             let centerPos = canvas.width / 2;
             
             if (currentMotionMode === "Oscillatory") {
@@ -535,7 +663,7 @@
             ctx.font = "bold 11px monospace";
             ctx.fillText(`CURRENT MONITOR STATE: ${currentMotionMode.toUpperCase()}`, 200, 155);
         } 
-        else if (type === "TOGGLE_MOTION") {
+        else if (data.taskType === "TOGGLE_MOTION") {
             let originX = canvas.width / 2;
             let originY = canvas.height / 2 - 10;
             let spinRotation = animTick * 0.07;
@@ -553,7 +681,7 @@
             ctx.font = "bold 11px monospace";
             ctx.fillText("LIVE PROFILE SPIN VECTOR DETECTED", 200, 155);
         } 
-        else if (type === "TAP_TIMING_RECT") {
+        else if (data.taskType === "TAP_TIMING_RECT") {
             let trackY = canvas.height / 2;
             ctx.strokeStyle = '#486581';
             ctx.lineWidth = 2;
@@ -585,17 +713,17 @@
         return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     }
 
-    // Viewport Capture Click Processing Engine
+    // Capture processing calculations
     document.getElementById('canvas-wrap').onclick = () => {
         const data = labDataset[currentStep];
-        // Don't evaluate if data was already submitted successfully
         if (!document.getElementById('submit-action-btn').classList.contains('hidden')) return;
+        if (document.getElementById('diagnostic-alert-overlay').classList.contains('active')) return;
 
         if (data.taskType === "TAP_TIMING") {
-            evaluateActionPerformance(currentMotionMode === "Oscillatory");
+            evaluateActionPerformance(currentMotionMode === data.targetMotion);
         } else if (data.taskType === "TAP_TIMING_RECT") {
             let actualMode = (animTick % 200 < 100) ? "Rectilinear" : "Curvilinear";
-            evaluateActionPerformance(actualMode === "Rectilinear");
+            evaluateActionPerformance(actualMode === data.targetMotion);
         }
     };
 
@@ -621,7 +749,6 @@
         const terminal = document.getElementById('terminal-feedback');
 
         if (isCorrect) {
-            // Correct - Immediately Lock Down and allow proceeding
             document.getElementById('verify-action-btn').classList.add('hidden');
             lockCurrentInputs(true);
 
@@ -633,20 +760,20 @@
             sndCorrect.currentTime = 0;
             sndCorrect.play().catch(e => {});
         } else {
-            // First Wrong Attempt -> Alert user and allow secondary tweak
             if (attemptsUsedThisTask < 2) {
                 sndWrong.currentTime = 0;
                 sndWrong.play().catch(e => {});
-                alert("⚠️ PARAMETERS MISALIGNED!\n\n1 Attempt Remaining. Re-adjust your switches or sliders carefully.");
+                
+                // Fire custom visual modal notification on screen
+                triggerCustomOnScreenAlert("CRITICAL: Parameters Misaligned! Tracking variance detected. 1 Attempt remaining before terminal lock.");
             } 
-            // Second Wrong Attempt -> Max attempts reached, force lock and reveal right answer
             else {
                 wrongCount++;
                 document.getElementById('verify-action-btn').classList.add('hidden');
                 lockCurrentInputs(true);
 
                 terminal.className = "terminal-box hint-style";
-                terminal.innerHTML = "&nbsp;❌ <b>2 CHANCES EXCEEDED (DIAGNOSTIC DEVIATION)</b><br>" + labDataset[currentStep].expl;
+                terminal.innerHTML = "&nbsp;❌ <b>2 CHANCES EXCEEDED (STATION TEMPORARILY LOCKED)</b><br>" + labDataset[currentStep].expl;
                 terminal.style.display = "block";
                 document.getElementById('submit-action-btn').classList.remove('hidden');
 
@@ -686,7 +813,7 @@
         } else if (wrongCount <= 2) {
             summary.innerHTML = "⚠️ <b>Status: Minor Tolerance Drift</b><br><br>The metrics workstation successfully established parameters but detected isolated timing variances during frame capture.";
         } else {
-            summary.innerHTML = "❌ <b>Status: Station Recalibration Required</b><br><br>Severe telemetry failure reported during kinematic tracking. Keep core rules logged:<br>• <b>S.I. Metrics</b> remain uniform.<br>• <b>Rectilinear</b> tracks absolute lines.<br>• <b>Oscillatory</b> frames a regular to-and-fro arc.";
+            summary.innerHTML = "❌ <b>Status: Complete Station Recalibration Required</b><br><br>Severe telemetry failure reported during kinematic tracking. Keep core rules logged:<br>• <b>S.I. Metrics</b> remain uniform.<br>• <b>Rectilinear</b> tracks absolute straight lines.<br>• <b>Oscillatory</b> frames a regular to-and-fro arc.";
         }
     }
 </script>
