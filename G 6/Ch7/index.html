@@ -2,544 +2,539 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motion & Measurement Master</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Innovine: Motion & Measurement Calibration Desk</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
+        :root {
+            --primary-blue: #0072ff;
+            --neon-cyan: #00f2fe;
+            --success-green: #00ff87;
+            --error-red: #ff4757;
+            --panel-bg: #141e30;
+            --text-light: #ffffff;
+            --card-bg: #1d2d44;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #111;
+            background: linear-gradient(135deg, #0f171e 0%, #1a2a3a 100%);
+            color: var(--text-light);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            color: #fff;
-            overflow: hidden;
+            min-height: 100vh;
+            padding: 12px;
+            overflow-x: hidden;
         }
 
         #game-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--panel-bg);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             position: relative;
-            width: 800px;
-            height: 600px;
-            background: #141e30;
-            border: 4px solid #243b55;
-            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            min-height: 620px;
+            border-top: 8px solid var(--primary-blue);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- SCREEN 1: SPLASH SCREEN --- */
+        /* --- STABLE 5-SECOND SPLASH SHIELD LAYER --- */
         #splash-screen {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #ffffff;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 100;
-            transition: opacity 0.5s ease;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
         }
 
-        #logo-img {
-            max-width: 350px;
-            max-height: 200px;
+        .splash-logo {
+            max-width: 180px;
+            max-height: 180px;
             object-fit: contain;
-            animation: pulse 2s infinite ease-in-out;
+            margin-bottom: 15px;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.96); }
-            50% { transform: scale(1.04); }
-            100% { transform: scale(0.96); }
+        .splash-brand-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary-blue);
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        /* --- SCREEN 2: MAIN MENU --- */
-        #menu-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        /* --- SCREEN VIEWS --- */
+        .view-frame {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: radial-gradient(circle, #243b55 0%, #141e30 100%);
-            z-index: 50;
-            display: none;
+            flex-grow: 1;
         }
 
-        h1 {
-            font-size: 2.8rem;
-            color: #00f2fe;
-            text-shadow: 0 0 10px rgba(0,242,254,0.5);
-            margin-bottom: 10px;
-            text-align: center;
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+        }
+        
+        .level-badge { 
+            background: var(--primary-blue); 
+            color: white; 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            font-weight: 800; 
+            font-size: 0.8rem; 
+            letter-spacing: 1px; 
         }
 
-        .subtitle {
-            font-size: 1.2rem;
-            color: #4facfe;
-            margin-bottom: 40px;
+        .hud-box { 
+            font-weight: 800; 
+            color: var(--neon-cyan); 
+            font-size: 0.9rem;
         }
 
-        .btn {
-            padding: 14px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(45deg, #00c6ff, #0072ff);
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 5px 15px rgba(0,114,255,0.4);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,114,255,0.6);
-        }
-
-        /* --- SCREEN 3: GAMEPLAY --- */
-        #gameplay-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* LAB VIEW DISPLAY DECK */
+        .lab-canvas-container {
             width: 100%;
-            height: 100%;
-            display: none;
-        }
-
-        #hud {
-            position: absolute;
-            top: 15px;
-            left: 0;
-            width: 100%;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.05rem;
-            font-weight: bold;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .hud-item {
-            background: rgba(20, 30, 48, 0.9);
-            padding: 8px 14px;
-            border-radius: 6px;
-            border: 1px solid #00f2fe;
-        }
-
-        #target-box {
-            color: #ffea00;
-            border-color: #ffea00;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        #level-box {
-            color: #00ff87;
-            border-color: #00ff87;
-        }
-
-        canvas {
-            display: block;
             background: #0f171e;
-        }
-
-        /* --- SCREEN 4: GAME OVER / WIN --- */
-        #game-over-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 15, 30, 0.95);
+            border: 2px solid #243b55;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            z-index: 60;
-            display: none;
+            padding: 10px;
         }
 
-        #game-over-title {
-            font-size: 3rem;
-            margin-bottom: 20px;
+        #labCanvas {
+            background: #0a0f14;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .prompt-text {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            color: #e2e8f0;
             text-align: center;
         }
 
-        #game-over-msg {
-            font-size: 1.15rem;
-            margin-bottom: 30px;
-            max-width: 580px;
-            text-align: center;
-            color: #ccc;
-            line-height: 1.6;
+        /* GRID SELECTION INTERACTIVE ENGINE */
+        .interaction-grid { 
+            display: grid; 
+            gap: 10px; 
+            margin-bottom: 15px;
         }
+
+        .control-btn {
+            background: var(--card-bg); 
+            border: 2px solid #243b55; 
+            padding: 14px;
+            border-radius: 14px; 
+            text-align: left; 
+            font-size: 0.92rem; 
+            cursor: pointer; 
+            transition: 0.2s;
+            color: var(--text-light); 
+            font-weight: 600;
+            white-space: normal;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .control-btn:hover:not(:disabled) { 
+            border-color: var(--neon-cyan); 
+            background: #243b55; 
+        }
+        
+        .control-btn.correct { 
+            background: var(--success-green) !important; 
+            color: #052e16 !important; 
+            border-color: var(--success-green) !important; 
+            font-weight: 700; 
+        }
+
+        .control-btn.wrong { 
+            background: var(--error-red) !important; 
+            color: white !important; 
+            border-color: var(--error-red) !important; 
+        }
+
+        /* CONTEXTUAL TERMINAL FEEDBACK */
+        .terminal-box { 
+            padding: 14px; 
+            border-radius: 12px; 
+            display: none; 
+            line-height: 1.4; 
+            margin-bottom: 15px; 
+            font-size: 0.88rem; 
+        }
+
+        .hint-style { background: #2c2414; border-left: 4px solid #ffea00; color: #ffeaa7; }
+        .expl-style { background: #0c2d1c; border-left: 4px solid var(--success-green); color: #d1fae5; }
+
+        #submit-action-btn { 
+            width: 100%; 
+            margin-top: auto; 
+            padding: 16px; 
+            background: linear-gradient(45deg, var(--primary-blue), var(--neon-cyan)); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 800; 
+            font-size: 1rem; 
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+        }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        
-        <div id="splash-screen">
-            <img id="logo-img" src="assets/logo.png" alt="Innovine Logo">
-        </div>
-
-        <div id="menu-screen">
-            <h1>MOTION & MEASUREMENT QUEST</h1>
-            <p class="subtitle">Grade 6 Science Challenge</p>
-            <button class="btn" id="start-btn">START EXPERIMENT</button>
-        </div>
-
-        <div id="gameplay-screen">
-            <div id="hud">
-                <div class="hud-item" id="level-box">Level: 1</div>
-                <div class="hud-item" id="score-box">Score: 0 / 5</div>
-                <div class="hud-item" id="target-box">Target: Standard SI Units & Tools!</div>
-                <div class="hud-item" id="lives-box">❤️ Lives: 3</div>
-            </div>
-            <canvas id="gameCanvas" width="800" height="600"></canvas>
-        </div>
-
-        <div id="game-over-screen">
-            <h2 id="game-over-title">Experiment Over</h2>
-            <p id="game-over-msg">Description goes here...</p>
-            <button class="btn" id="restart-btn">Try Again</button>
-        </div>
-
+<div id="game-container">
+    <div id="splash-screen">
+        <div class="splash-brand-title" id="fallback-logo-text">INNOVINE</div>
+        <div style="font-size: 0.85rem; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Motion & Measurement Desk</div>
     </div>
 
-    <script>
-        const splashScreen = document.getElementById('splash-screen');
-        const menuScreen = document.getElementById('menu-screen');
-        const gameplayScreen = document.getElementById('gameplay-screen');
-        const gameOverScreen = document.getElementById('game-over-screen');
-        const startBtn = document.getElementById('start-btn');
-        const restartBtn = document.getElementById('restart-btn');
+    <div id="intro-view" class="view-frame hidden" style="text-align: center; justify-content: center;">
+        <h1 style="color: var(--neon-cyan); font-weight: 800; font-size: 1.6rem; margin-bottom: 5px;">Lab Meter Pro</h1>
+        <p style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 25px;">Spatial Physics Calibration Unit</p>
         
-        const levelBox = document.getElementById('level-box');
-        const scoreBox = document.getElementById('score-box');
-        const targetBox = document.getElementById('target-box');
-        const livesBox = document.getElementById('lives-box');
-        const gameOverTitle = document.getElementById('game-over-title');
-        const gameOverMsg = document.getElementById('game-over-msg');
+        <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: left; border: 1px solid #243b55; font-size: 0.92rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 30px;">
+            Welcome to the Engineering Analyzer. Step away from basic action tests and operate a diagnostic desk interface. Analyze geometric measurement inputs and verify vector motion curves safely.
+        </div>
+        <button id="engage-btn" style="width:100%; padding:16px; background:var(--primary-blue); color:white; border:none; border-radius:50px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow: 0 4px 14px rgba(0,114,255,0.4);">POWER UP MONITOR</button>
+    </div>
+
+    <div id="quiz-view" class="view-frame hidden">
+        <div class="header">
+            <div class="level-badge" id="level-indicator">LEVEL 1: METRICS</div>
+            <div class="hud-box">DESK NODES: <span id="node-progress">1/5</span></div>
+        </div>
         
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        <div id="prompt-msg" class="prompt-text"></div>
+        
+        <div class="lab-canvas-container">
+            <canvas id="labCanvas" width="400" height="150"></canvas>
+        </div>
 
-        // Game Configuration & State
-        let currentLevel = 1;
-        let score = 0;
-        let lives = 3;
-        let gameActive = false;
-        let items = [];
-        let player = { x: 360, y: 510, width: 100, height: 45, speed: 9, currentMotionMode: "Rectilinear" };
-        let keys = {};
-        let spawnTimer = 0;
-        let animationTick = 0;
-        const targetScorePerLevel = 5;
+        <div id="interactive-options" class="interaction-grid"></div>
+        <div id="terminal-feedback" class="terminal-box"></div>
+        <button id="submit-action-btn" class="hidden">PROCEED TO NEXT MATRIX →</button>
+    </div>
 
-        // Level 1 Item Pool: Measurement Types
-        const level1Pool = [
-            { name: "Metre (m)", isCorrect: true, desc: "SI Unit of Length", color: "#2ec4b6" },
-            { name: "Measuring Tape", isCorrect: true, desc: "Standard Tool", color: "#2ec4b6" },
-            { name: "Ruler", isCorrect: true, desc: "Standard Device", color: "#2ec4b6" },
-            { name: "Kilometre (km)", isCorrect: true, desc: "Metric Long Unit", color: "#2ec4b6" },
-            { name: "Handspan", isCorrect: false, desc: "Inaccurate Ancient Unit", color: "#e71d36" },
-            { name: "Pace / Footstep", isCorrect: false, desc: "Varies person to person", color: "#e71d36" },
-            { name: "Finger Width", isCorrect: false, desc: "Non-standard Unit", color: "#e71d36" },
-            { name: "Cubit", isCorrect: false, desc: "Ancient Arm Measure", color: "#e71d36" }
-        ];
+    <div id="result-view" class="view-frame hidden" style="text-align:center; justify-content: center;">
+        <div style="font-size: 4rem; margin-bottom: 10px;">📊</div>
+        <h2 style="color: var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">System Calibration Complete</h2>
+        <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: left; border: 1px solid #243b55; font-size: 0.95rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 30px;" id="evaluation-summary"></div>
+        <button onclick="location.reload()" style="width:100%; padding:16px; background:var(--primary-blue); color:white; border:none; border-radius:14px; font-weight:700; cursor:pointer; font-size: 0.95rem;">REBOOT LAB STATION</button>
+    </div>
+</div>
 
-        // Level 2 Obstacle Pool: Types of Motion
-        const level2Pool = [
-            { name: "Falling Apple", motionType: "Rectilinear", text: "Rectilinear Motion (Straight Line)", color: "#3a86ff" },
-            { name: "Ceiling Fan", motionType: "Circular", text: "Circular Motion (Fixed Center)", color: "#ff006e" },
-            { name: "Clock Pendulum", motionType: "Oscillatory", text: "Oscillatory Motion (To & Fro)", color: "#8338ec" }
-        ];
+<script>
+    // Unified Curated Interactive Dataset 
+    const labDataset = [
+        // Level 1: Standard vs Non-Standard Units & Measurement Mechanics
+        {
+            level: 1,
+            q: "Diagnostic Matrix 01:\nSelect the parameter set containing only uniform, universally accepted Standard Units of length.",
+            renderType: "RULER_SCALE",
+            choices: ["Metre, Centimetre, Kilometre", "Handspan, Cubit, Footstep", "Arm-span, Finger-width, Pace", "Yard, Pace, String-length"],
+            correct: 0,
+            hint: "Standard units must give identical results no matter who performs the measurement.",
+            expl: "S.I. systems like metres provide static uniform measurements across the globe, unlike human body properties which change from person to person."
+        },
+        {
+            level: 1,
+            q: "Diagnostic Matrix 02:\nAn engineer measures a physical beam using a broken ruler missing its starting zero edge. The measurement starts from 2.0 cm and ends at 8.5 cm. Calculate actual length.",
+            renderType: "BROKEN_RULER",
+            choices: ["8.5 cm", "10.5 cm", "6.5 cm", "2.0 cm"],
+            correct: 2,
+            hint: "Subtract the starting offset reading from the final position value to acquire true length.",
+            expl: "True Length = Final Reading - Initial Reading. Therefore, 8.5 cm minus 2.0 cm equals exactly 6.5 cm."
+        },
+        // Level 2: Kinematic Classification & Motion Mapping
+        {
+            level: 2,
+            q: "Kinematic Profile 03:\nClassify the exact geometric path profile performed by a heavy industrial clock pendulum when tracking coordinates.",
+            renderType: "PENDULUM_ANIM",
+            choices: ["Rectilinear Motion", "Circular Motion", "Oscillatory Motion", "Rotatory Motion"],
+            correct: 2,
+            hint: "Look closely at the to-and-fro rhythm repeating along a symmetric curve path.",
+            expl: "An object moving to-and-fro around its central rest position is performing clean Oscillatory Motion."
+        },
+        {
+            level: 2,
+            q: "Kinematic Profile 04:\nIdentify the tracking vector status of an active ceiling fan blade revolving around its central axle pivot point.",
+            renderType: "FAN_ANIM",
+            choices: ["Circular Motion", "Rectilinear Motion", "Oscillatory Motion", "Periodic Translation"],
+            correct: 0,
+            hint: "Every single point on the blade maintains an invariant equidistant radius from a static focal point.",
+            expl: "The fan operates in a fixed loop plane where all points travel paths situated uniformly around a center axis, yielding Circular Motion."
+        },
+        {
+            level: 2,
+            q: "Kinematic Profile 05:\nAnalyze the motion tracking plot of a heavy vehicle driving completely straight along a flat highway corridor.",
+            renderType: "STRAIGHT_ANIM",
+            choices: ["Oscillatory Motion", "Circular Motion", "Rectilinear Motion", "Vibratory Motion"],
+            correct: 2,
+            hint: "The displacement vector charts directly forward along an unbending straight-line track.",
+            expl: "When a structural body changes position along a linear straight path vector, it undergoes Rectilinear Motion."
+        }
+    ];
 
-        // --- SPLASH SCREEN SYSTEM ---
-        window.addEventListener('DOMContentLoaded', () => {
+    let currentStep = 0, wrongCount = 0;
+    const canvas = document.getElementById('labCanvas');
+    const ctx = canvas.getContext('2d');
+    let canvasAnimationId = null;
+    let animTick = 0;
+
+    // Loader logic
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
             setTimeout(() => {
-                splashScreen.style.opacity = '0';
-                setTimeout(() => {
-                    splashScreen.style.display = 'none';
-                    menuScreen.style.display = 'flex';
-                }, 500);
-            }, 5000); // Strict 5-Second hold
+                splash.style.display = 'none';
+                document.getElementById('intro-view').classList.remove('hidden');
+            }, 500);
+        }, 5000);
+    });
+
+    document.getElementById('engage-btn').onclick = () => {
+        document.getElementById('intro-view').classList.add('hidden');
+        document.getElementById('quiz-view').classList.remove('hidden');
+        renderLabNode();
+    };
+
+    function renderLabNode() {
+        if (canvasAnimationId) {
+            cancelAnimationFrame(canvasAnimationId);
+        }
+        
+        document.getElementById('terminal-feedback').style.display = 'none';
+        document.getElementById('submit-action-btn').classList.add('hidden');
+        
+        const data = labDataset[currentStep];
+        document.getElementById('node-progress').innerText = `${currentStep + 1} / ${labDataset.length}`;
+        document.getElementById('level-indicator').innerText = data.level === 1 ? "LEVEL 1: METRICS CONFIG" : "LEVEL 2: KINEMATICS PROFILE";
+        document.getElementById('prompt-msg').innerText = data.q;
+        
+        // Render dynamic interactive options grid
+        const optionArea = document.getElementById('interactive-options');
+        optionArea.innerHTML = "";
+        
+        data.choices.forEach((choice, idx) => {
+            const button = document.createElement('button');
+            button.className = 'control-btn';
+            button.innerText = choice;
+            button.onclick = () => evaluateChoice(idx, data.correct, button);
+            optionArea.appendChild(button);
         });
 
-        startBtn.addEventListener('click', () => startNewGame(1));
-        restartBtn.addEventListener('click', () => startNewGame(1));
+        // Start dedicated real-time telemetry render loop on canvas
+        animTick = 0;
+        function updateTelemetryLoop() {
+            animTick++;
+            drawLabGraphics(data.renderType);
+            canvasAnimationId = requestAnimationFrame(updateTelemetryLoop);
+        }
+        updateTelemetryLoop();
+    }
 
-        window.addEventListener('keydown', e => {
-            keys[e.code] = true;
-            // Level 2 controls: Quick switch states using Number keys
-            if (currentLevel === 2 && gameActive) {
-                if (e.code === 'Digit1') player.currentMotionMode = "Rectilinear";
-                if (e.code === 'Digit2') player.currentMotionMode = "Circular";
-                if (e.code === 'Digit3') player.currentMotionMode = "Oscillatory";
-            }
-        });
-        window.addEventListener('keyup', e => keys[e.code] = false);
-
-        function startNewGame(lvl) {
-            menuScreen.style.display = 'none';
-            gameOverScreen.style.display = 'none';
-            gameplayScreen.style.display = 'block';
-            
-            currentLevel = lvl;
-            score = 0;
-            if (lvl === 1) lives = 3;
-            items = [];
-            player.x = canvas.width / 2 - player.width / 2;
-            player.currentMotionMode = "Rectilinear";
-            gameActive = true;
-            spawnTimer = 0;
-            
-            updateHUD();
-            requestAnimationFrame(gameLoop);
+    function drawLabGraphics(type) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Standard high-tech background grids
+        ctx.strokeStyle = '#102a43';
+        ctx.lineWidth = 1;
+        for(let x=20; x<canvas.width; x+=20) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
         }
 
-        function updateHUD() {
-            levelBox.innerText = `Level: ${currentLevel}`;
-            scoreBox.innerText = `Score: ${score} / ${targetScorePerLevel}`;
-            livesBox.innerText = `❤️ Lives: ${"❤️".repeat(lives)}`;
-            
-            if (currentLevel === 1) {
-                targetBox.innerHTML = "🎯 CATCH: Standard Units & Tools!<br>⚠️ AVOID: Body-part Units!";
-                targetBox.style.borderColor = "#ffea00";
-                targetBox.style.color = "#ffea00";
-            } else {
-                targetBox.innerHTML = "💡 Press [1], [2], or [3] to change your state to match the falling motion type obstacle!";
-                targetBox.style.borderColor = "#00f2fe";
-                targetBox.style.color = "#00f2fe";
-            }
-        }
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
-        function spawnItem() {
-            if (currentLevel === 1) {
-                const template = level1Pool[Math.floor(Math.random() * level1Pool.length)];
-                items.push({
-                    x: Math.random() * (canvas.width - 150) + 25,
-                    y: -40,
-                    width: 140,
-                    height: 40,
-                    name: template.name,
-                    isCorrect: template.isCorrect,
-                    color: "#243b55",
-                    textAccent: template.isCorrect ? "#00ff87" : "#ff4757",
-                    speed: Math.random() * 1.5 + 2.5
-                });
-            } else {
-                // Level 2 Spawning
-                const template = level2Pool[Math.floor(Math.random() * level2Pool.length)];
-                items.push({
-                    x: Math.random() * (canvas.width - 180) + 30,
-                    y: -60,
-                    width: 170,
-                    height: 65,
-                    name: template.name,
-                    motionType: template.motionType,
-                    text: template.text,
-                    color: template.color,
-                    speed: Math.random() * 1.0 + 2.8
-                });
-            }
-        }
-
-        function gameLoop() {
-            if (!gameActive) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            animationTick++;
-
-            // Draw clean grid line elements to hint at spatial measurement
-            ctx.strokeStyle = '#1d2d44';
-            ctx.lineWidth = 1;
-            for (let i = 50; i < canvas.width; i += 50) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-
-            // --- PLAYER CONTROLS & RENDERING ---
-            if ((keys['ArrowLeft'] || keys['KeyA']) && player.x > 0) player.x -= player.speed;
-            if ((keys['ArrowRight'] || keys['KeyD']) && player.x < canvas.width - player.width) player.x += player.speed;
-
-            // Render Player Container
+        if (type === "RULER_SCALE") {
+            // Draw a high precision calibrated engineering ruler scale
+            ctx.fillStyle = "#16253b";
+            ctx.fillRect(30, 45, 340, 60);
+            ctx.strokeStyle = varColor('--neon-cyan');
             ctx.lineWidth = 2;
-            if (currentLevel === 1) {
-                ctx.fillStyle = '#00f2fe';
-                ctx.fillRect(player.x, player.y, player.width, player.height);
-                ctx.strokeStyle = '#fff';
-                ctx.strokeRect(player.x, player.y, player.width, player.height);
-                
-                ctx.fillStyle = '#000';
-                ctx.font = 'bold 12px Arial';
-                ctx.fillText("🔬 MEASURE BOT", player.x + 4, player.y + 26);
-            } else {
-                // Level 2 Visual Formats - Changes form based on mode selected
-                ctx.strokeStyle = '#ffffff';
-                if (player.currentMotionMode === "Rectilinear") ctx.fillStyle = "#3a86ff";
-                if (player.currentMotionMode === "Circular") ctx.fillStyle = "#ff006e";
-                if (player.currentMotionMode === "Oscillatory") ctx.fillStyle = "#8338ec";
-                
-                ctx.fillRect(player.x, player.y, player.width, player.height);
-                ctx.strokeRect(player.x, player.y, player.width, player.height);
-
-                // Quick selector guides on top of player box
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 10px sans-serif';
-                ctx.fillText(`MODE: ${player.currentMotionMode}`, player.x + 5, player.y + 26);
-            }
-
-            // --- LEVEL 2 CONTROLS ON-SCREEN LEGEND ---
-            if (currentLevel === 2) {
-                ctx.fillStyle = "rgba(0,0,0,0.4)";
-                ctx.fillRect(10, 550, 780, 40);
-                ctx.fillStyle = "#fff";
-                ctx.font = "12px sans-serif";
-                ctx.fillText("Press keys to change mode:  [1] Rectilinear (Blue)   |   [2] Circular (Pink)   |   [3] Oscillatory (Purple)", 20, 574);
-            }
-
-            // Spawn Cycle
-            spawnTimer++;
-            if (spawnTimer % 90 === 0) spawnItem();
-
-            // --- PROCESS FALLING ELEMENTS ---
-            for (let i = items.length - 1; i >= 0; i--) {
-                let item = items[i];
-                item.y += item.speed;
-
-                // Object box container card layout
-                ctx.fillStyle = item.color;
-                ctx.fillRect(item.x, item.y, item.width, item.height);
-                ctx.strokeStyle = '#ffffff';
-                ctx.strokeRect(item.x, item.y, item.width, item.height);
-
-                if (currentLevel === 1) {
-                    // Level 1 labels drawing
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 13px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 24);
-                    
-                    // Minor indicator bar decoration
-                    ctx.fillStyle = item.textAccent;
-                    ctx.fillRect(item.x, item.y + item.height - 4, item.width, 4);
-                } else {
-                    // Level 2 special motion pattern visualization
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 12px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 24);
-                    
-                    ctx.font = '10px Arial';
-                    ctx.fillStyle = '#dcdde1';
-                    ctx.fillText(item.motionType, item.x + item.width / 2, item.y + 44);
-
-                    // Dynamic animations inside card to depict the actual physics motion!
-                    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-                    ctx.beginPath();
-                    let ox = item.x + 20;
-                    let oy = item.y + item.height - 10;
-                    if (item.motionType === "Rectilinear") {
-                        // Straight horizontal vector lines arrow
-                        ctx.moveTo(ox, oy); ctx.lineTo(ox + 20, oy);
-                        ctx.lineTo(ox + 16, oy - 3); ctx.moveTo(ox + 20, oy); ctx.lineTo(ox + 16, oy + 3);
-                    } else if (item.motionType === "Circular") {
-                        // Small circling spin point loop
-                        let radius = 6;
-                        let angle = (animationTick * 0.1);
-                        ctx.arc(ox + 10, oy, radius, 0, Math.PI * 2);
-                    } else if (item.motionType === "Oscillatory") {
-                        // Swing arc to-and-fro visual cue line
-                        let swing = Math.sin(animationTick * 0.08) * 10;
-                        ctx.moveTo(ox + 10, oy - 8); ctx.lineTo(ox + 10 + swing, oy);
-                    }
-                    ctx.stroke();
-                }
-                ctx.textAlign = 'left'; // Reset formatting defaults
-
-                // Collisions intersection boundary box
-                if (item.x < player.x + player.width &&
-                    item.x + item.width > player.x &&
-                    item.y < player.y + player.height &&
-                    item.y + item.height > player.y) {
-                    
-                    if (currentLevel === 1) {
-                        if (item.isCorrect) {
-                            score++;
-                            if (score >= targetScorePerLevel) {
-                                score = 0;
-                                currentLevel = 2;
-                                items = [];
-                                updateHUD();
-                                alert("Level 1 Clear! Proceeding to Level 2: Motion Type Matcher challenge!");
-                            }
-                        } else {
-                            lives--;
-                            if (lives <= 0) { endGame(false); return; }
-                        }
-                    } else {
-                        // Level 2 Rules check matching states transformation condition
-                        if (player.currentMotionMode === item.motionType) {
-                            score++;
-                            if (score >= targetScorePerLevel) {
-                                endGame(true); // Victory!
-                                return;
-                            }
-                        } else {
-                            lives--;
-                            if (lives <= 0) { endGame(false); return; }
-                        }
-                    }
-                    
-                    updateHUD();
-                    items.splice(i, 1);
-                    continue;
-                }
-
-                if (item.y > canvas.height) {
-                    items.splice(i, 1);
+            ctx.strokeRect(30, 45, 340, 60);
+            
+            ctx.strokeStyle = '#ffffff';
+            for (let i = 0; i <= 10; i++) {
+                let xPos = 40 + (i * 32);
+                ctx.beginPath();
+                ctx.moveTo(xPos, 45);
+                ctx.lineTo(xPos, i % 5 === 0 ? 70 : 58);
+                ctx.stroke();
+                if(i % 5 === 0) {
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "10px monospace";
+                    ctx.fillText(i + "cm", xPos, 85);
                 }
             }
+        } 
+        else if (type === "BROKEN_RULER") {
+            // Draw a broken broken-edge scale starting instantly from 2cm
+            ctx.fillStyle = "#2c1a1a";
+            ctx.fillRect(30, 45, 340, 60);
+            ctx.strokeStyle = varColor('--error-red');
+            ctx.lineWidth = 2;
+            ctx.strokeRect(30, 45, 340, 60);
+            
+            // Jagged broken lines at left edge
+            ctx.fillStyle = "#0a0f14";
+            ctx.beginPath();
+            ctx.moveTo(30, 45);
+            ctx.lineTo(42, 60);
+            ctx.lineTo(32, 75);
+            ctx.lineTo(45, 90);
+            ctx.lineTo(30, 105);
+            ctx.fill();
 
-            requestAnimationFrame(gameLoop);
+            ctx.strokeStyle = '#ffffff';
+            for (let i = 2; i <= 9; i++) {
+                let xPos = 60 + ((i-2) * 40);
+                ctx.beginPath();
+                ctx.moveTo(xPos, 45);
+                ctx.lineTo(xPos, 65);
+                ctx.stroke();
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "11px monospace";
+                ctx.fillText(i + "cm", xPos, 82);
+            }
+            
+            // Draw target line segment indicator overhead
+            ctx.strokeStyle = varColor('--neon-cyan');
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(60, 30); ctx.lineTo(320, 30); ctx.stroke();
+            ctx.fillStyle = varColor('--neon-cyan');
+            ctx.font = "bold 11px sans-serif";
+            ctx.fillText("OBJECT UNDER EVALUATION", 200, 15);
+        } 
+        else if (type === "PENDULUM_ANIM") {
+            // Live vector tracing for to-and-fro oscillatory arcs
+            let centerPos = canvas.width / 2;
+            let sweepAngle = Math.sin(animTick * 0.05) * 0.6;
+            let endX = centerPos + Math.sin(sweepAngle) * 90;
+            let endY = 20 + Math.cos(sweepAngle) * 90;
+            
+            ctx.strokeStyle = '#486581';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(centerPos, 20); ctx.lineTo(endX, endY); ctx.stroke();
+            
+            ctx.fillStyle = varColor('--primary-blue');
+            ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.stroke();
+        } 
+        else if (type === "FAN_ANIM") {
+            // Live vector tracing for rotational planes
+            let originX = canvas.width / 2;
+            let originY = canvas.height / 2;
+            let spinRotation = animTick * 0.06;
+            
+            ctx.fillStyle = '#243b55';
+            ctx.beginPath(); ctx.arc(originX, originY, 12, 0, Math.PI*2); ctx.fill();
+            
+            ctx.strokeStyle = '#9fb3c8';
+            ctx.lineWidth = 8;
+            for(let bladeIdx = 0; bladeIdx < 3; bladeIdx++) {
+                let currentAngle = spinRotation + (bladeIdx * (Math.PI * 2 / 3));
+                ctx.beginPath();
+                ctx.moveTo(originX, originY);
+                ctx.lineTo(originX + Math.cos(currentAngle)*55, originY + Math.sin(currentAngle)*55);
+                ctx.stroke();
+            }
+        } 
+        else if (type === "STRAIGHT_ANIM") {
+            // Continuous unified linear translation workspace
+            let trackY = canvas.height / 2 + 10;
+            ctx.strokeStyle = '#486581';
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(40, trackY); ctx.lineTo(360, trackY); ctx.stroke();
+            
+            let carX = 40 + (animTick * 1.5 % 300);
+            ctx.fillStyle = varColor('--success-green');
+            ctx.fillRect(carX, trackY - 18, 32, 18);
+            ctx.fillStyle = '#000';
+            ctx.beginPath(); ctx.arc(carX + 7, trackY, 4, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(carX + 25, trackY, 4, 0, Math.PI*2); ctx.fill();
         }
+    }
 
-        function endGame(isWin) {
-            gameActive = false;
-            gameplayScreen.style.display = 'none';
-            gameOverScreen.style.display = 'flex';
+    function varColor(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
 
-            if (isWin) {
-                gameOverTitle.innerText = "🏆 SYSTEM CALIBRATED!";
-                gameOverTitle.style.color = "#00ff87";
-                gameOverMsg.innerHTML = "Splendid job! You passed all parts of Grade 6 Measurement & Motion!<br><br><b>Level 1 Mastered:</b> You correctly rejected unreliable non-standard units (handspans/paces) and embraced standard S.I. systems.<br><b>Level 2 Mastered:</b> You dynamically matched straight line vectors (Rectilinear), rotating orbits (Circular), and to-and-fro physics paths (Oscillatory)!";
-            } else {
-                gameOverTitle.innerText = "❌ EXPERIMENT FAILED";
-                gameOverTitle.style.color = "#ff4757";
-                if (currentLevel === 1) {
-                    gameOverMsg.innerHTML = "You collected non-standard ancient body units! Remember, measurements like a handspan or pace vary from person to person and cannot be used for accurate scientific trade or design.";
-                } else {
-                    gameOverMsg.innerHTML = "Mismatch detected! Your state profile did not align with the incoming obstacle's mechanics. Remember:<br>• Apple falling = <b>Rectilinear</b><br>• Fan spinning = <b>Circular</b><br>• Clock pendulum = <b>Oscillatory</b>";
-                }
-            }
+    function evaluateChoice(selected, correct, element) {
+        // Lock alternate paths instantly during assessment phase
+        document.querySelectorAll('.control-btn').forEach(btn => btn.disabled = true);
+        
+        const terminal = document.getElementById('terminal-feedback');
+        
+        if (selected === correct) {
+            element.classList.add('correct');
+            terminal.className = "terminal-box expl-style";
+            terminal.innerHTML = "✅ <b>PROMPT VERIFIED:</b> " + labDataset[currentStep].expl;
+        } else {
+            element.classList.add('wrong');
+            wrongCount++;
+            document.querySelectorAll('.control-btn')[correct].classList.add('correct');
+            terminal.className = "terminal-box hint-style";
+            terminal.innerHTML = "❌ <b>CALIBRATION ERROR:</b> " + labDataset[currentStep].expl;
         }
-    </script>
+        
+        terminal.style.display = "block";
+        document.getElementById('submit-action-btn').classList.remove('hidden');
+    }
+
+    document.getElementById('submit-action-btn').onclick = () => {
+        currentStep++;
+        if (currentStep < labDataset.length) {
+            renderLabNode();
+        } else {
+            terminateSessionReport();
+        }
+    };
+
+    function terminateSessionReport() {
+        if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
+        
+        document.getElementById('quiz-view').classList.add('hidden');
+        document.getElementById('result-view').classList.remove('hidden');
+        
+        const summary = document.getElementById('evaluation-summary');
+        if (wrongCount === 0) {
+            summary.innerHTML = "🏆 <b>Status: Optimal Performance</b><br><br>All system measurements and tracking parameters matched exact profiles perfectly. Your understanding of standard metric offsets and motion structures is fully complete.";
+        } else if (wrongCount <= 2) {
+            summary.innerHTML = "⚠️ <b>Status: Marginal Tolerances</b><br><br>The workspace required adjustments on certain profiles. Review broken ruler math equations and ensure you don't mistake standard measures for individual body attributes.";
+        } else {
+            summary.innerHTML = "❌ <b>Status: Recalibration Required</b><br><br>High mismatch rate recorded during tracking selection. Remember:<br>• Apple dropping = <b>Rectilinear</b><br>• Fan rotation = <b>Circular</b><br>• Pendulum swing = <b>Oscillatory</b>";
+        }
+    }
+</script>
 </body>
 </html>
