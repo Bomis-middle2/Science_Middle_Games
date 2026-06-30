@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Circuit Runner: Symbols & Materials</title>
+    <title>Circuit Runner: Pro Edition</title>
     <style>
         * {
             box-sizing: border-box;
@@ -58,7 +58,7 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.95); }
+            0 { transform: scale(0.95); }
             50% { transform: scale(1.02); }
             100% { transform: scale(0.95); }
         }
@@ -145,7 +145,7 @@
         #target-box {
             color: #ffea00;
             border-color: #ffea00;
-            max-width: 320px;
+            max-width: 420px;
             text-align: center;
         }
 
@@ -159,7 +159,32 @@
             background: #121214;
         }
 
-        /* --- SCREEN 4: GAME OVER / WIN --- */
+        /* --- SCREEN 4: INTERMEDIATE SUCCESS SCREEN --- */
+        #level-clear-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(22, 36, 71, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 55;
+            display: none;
+            border: 4px solid #00fff0;
+            border-radius: 8px;
+        }
+
+        .clear-title {
+            font-size: 3.5rem;
+            color: #00fff0;
+            text-shadow: 0 0 15px rgba(0,255,240,0.4);
+            margin-bottom: 20px;
+        }
+
+        /* --- SCREEN 5: GAME OVER / WIN --- */
         #game-over-screen {
             position: absolute;
             top: 0;
@@ -196,7 +221,7 @@
     <div id="game-container">
         
         <div id="splash-screen">
-            <img id="logo-img" src="image_cc8df7.png" alt="Innovine Logo">
+            <img id="logo-img" src="assets/logo.png" alt="Innovine Logo">
         </div>
 
         <div id="menu-screen">
@@ -215,6 +240,14 @@
             <canvas id="gameCanvas" width="800" height="600"></canvas>
         </div>
 
+        <div id="level-clear-screen">
+            <h2 class="clear-title">⚡ LEVEL 1 COMPLETED ⚡</h2>
+            <p id="level-clear-msg" style="font-size:1.2rem; max-width:550px; text-align:center; margin-bottom:35px; line-height:1.6; color:#e0e0e0;">
+                Excellent! You successfully filtered out the insulators and verified all electrical conductors to complete your baseline testing.
+            </p>
+            <button class="btn" id="next-level-btn" style="background-color:#00fff0; color:#121214; box-shadow: 0 5px 15px rgba(0,255,240,0.3);">ADVANCE TO LEVEL 2</button>
+        </div>
+
         <div id="game-over-screen">
             <h2 id="game-over-title">Game Over</h2>
             <p id="game-over-msg">Your circuit broke down!</p>
@@ -227,8 +260,10 @@
         const splashScreen = document.getElementById('splash-screen');
         const menuScreen = document.getElementById('menu-screen');
         const gameplayScreen = document.getElementById('gameplay-screen');
+        const levelClearScreen = document.getElementById('level-clear-screen');
         const gameOverScreen = document.getElementById('game-over-screen');
         const startBtn = document.getElementById('start-btn');
+        const nextLevelBtn = document.getElementById('next-level-btn');
         const restartBtn = document.getElementById('restart-btn');
         
         const levelBox = document.getElementById('level-box');
@@ -247,34 +282,43 @@
         let lives = 3;
         let gameActive = false;
         let items = [];
-        let player = { x: 360, y: 510, width: 110, height: 40, speed: 9 };
+        let player = { x: 360, y: 510, width: 110, height: 40, speed: 10 };
         let keys = {};
         let spawnTimer = 0;
         const targetScorePerLevel = 5;
 
-        // Level 1 Pool: Materials
-        const level1Pool = [
-            { name: "Copper Wire", matchesTarget: true, info: "conductor", color: "#b87333" },
-            { name: "Iron Nail", matchesTarget: true, info: "conductor", color: "#aaa9ad" },
-            { name: "Aluminum Foil", matchesTarget: true, info: "conductor", color: "#ddd" },
-            { name: "Plastic Ruler", matchesTarget: false, info: "insulator", color: "#e63946" },
-            { name: "Rubber Eraser", matchesTarget: false, info: "insulator", color: "#ffb703" },
-            { name: "Wooden Stick", matchesTarget: false, info: "insulator", color: "#9c6644" }
+        // Level 2 Target Pool Questions Tracker
+        let currentLevel2Question = null;
+
+        // Level 1 Random Generator Dynamic Elements
+        const itemPrefixes = ["Shiny", "Old", "Pure", "Rusty", "Heavy", "Broken", "Polished", "Coated"];
+        const conductorBases = [
+            { name: "Copper Wire", color: "#b87333" },
+            { name: "Iron Nail", color: "#aaa9ad" },
+            { name: "Aluminum Foil", color: "#e2e2e2" },
+            { name: "Steel Key", color: "#7f8c8d" },
+            { name: "Brass Coin", color: "#d4af37" }
+        ];
+        const insulatorBases = [
+            { name: "Plastic Ruler", color: "#e63946" },
+            { name: "Rubber Eraser", color: "#ffb703" },
+            { name: "Wooden Stick", color: "#9c6644" },
+            { name: "Glass Strip", color: "#a8dadc" },
+            { name: "Cotton Ribbon", color: "#ddbea9" }
         ];
 
-        // Level 2 Pool: Circuit Schematic Diagrams
+        // Level 2 Archetype Pool
         const level2Pool = [
-            { name: "Cell", matchesTarget: true, symbolType: "cell", color: "#4cc9f0" },
-            { name: "Battery", matchesTarget: true, symbolType: "battery", color: "#4cc9f0" },
-            { name: "Electric Bulb", matchesTarget: false, symbolType: "bulb", color: "#f72585" },
-            { name: "Switch (ON)", matchesTarget: false, symbolType: "switch_on", color: "#f72585" },
-            { name: "Switch (OFF)", matchesTarget: false, symbolType: "switch_off", color: "#f72585" },
-            { name: "Wire Line", matchesTarget: false, symbolType: "wire", color: "#f72585" }
+            { label: "Cell", type: "cell", color: "#1f4068" },
+            { label: "Battery", type: "battery", color: "#1f4068" },
+            { label: "Electric Bulb", type: "bulb", color: "#1f4068" },
+            { label: "Switch (ON)", type: "switch_on", color: "#1f4068" },
+            { label: "Switch (OFF)", type: "switch_off", color: "#1f4068" },
+            { label: "Wire Line", type: "wire", color: "#1f4068" }
         ];
 
         // --- TIMERS & SCENE TRANSITIONS ---
         window.addEventListener('DOMContentLoaded', () => {
-            // Hide menu layout on fresh load so splash shows cleanly over white background
             menuScreen.style.display = 'none';
             setTimeout(() => {
                 splashScreen.style.opacity = '0';
@@ -282,19 +326,29 @@
                     splashScreen.style.display = 'none';
                     menuScreen.style.display = 'flex';
                 }, 500);
-            }, 5000); // 5 Seconds Splash Screen hold
+            }, 5000); 
         });
 
         startBtn.addEventListener('click', () => startNewGame(1));
+        nextLevelBtn.addEventListener('click', () => {
+            levelClearScreen.style.display = 'none';
+            startNewGame(2);
+        });
         restartBtn.addEventListener('click', () => startNewGame(1));
 
         window.addEventListener('keydown', e => keys[e.code] = true);
         window.addEventListener('keyup', e => keys[e.code] = false);
 
+        function generateLevel2Question() {
+            const randomPick = level2Pool[Math.floor(Math.random() * level2Pool.length)];
+            currentLevel2Question = randomPick.type;
+            updateHUD();
+        }
+
         function startNewGame(lvl) {
-            // FIX: Corrected target string pointer from .style.none to .style.display
             menuScreen.style.display = 'none';
             gameOverScreen.style.display = 'none';
+            levelClearScreen.style.display = 'none';
             gameplayScreen.style.display = 'block';
             
             currentLevel = lvl;
@@ -305,7 +359,12 @@
             gameActive = true;
             spawnTimer = 0;
             
-            updateHUD();
+            if (currentLevel === 2) {
+                generateLevel2Question();
+            } else {
+                updateHUD();
+            }
+            
             requestAnimationFrame(gameLoop);
         }
 
@@ -319,15 +378,16 @@
                 targetBox.style.borderColor = "#ffea00";
                 targetBox.style.color = "#ffea00";
             } else {
-                targetBox.innerText = "Target: ELECTRICAL SOURCES! (Cells/Batteries)";
+                let textLabel = level2Pool.find(p => p.type === currentLevel2Question)?.label || "";
+                targetBox.innerText = `🚨 INTERCEPT SYMBOL: ${textLabel.toUpperCase()} 🚨`;
                 targetBox.style.borderColor = "#00fff0";
                 targetBox.style.color = "#00fff0";
             }
         }
 
-        // Custom Vector drawings for Component Symbols
+        // Custom Schematic Symbols Renderer
         function drawCircuitSymbol(ctx, type, x, y, w, h) {
-            ctx.strokeStyle = "#fff";
+            ctx.strokeStyle = "#00fff0";
             ctx.lineWidth = 3;
             ctx.beginPath();
             
@@ -336,33 +396,47 @@
 
             if (type === "cell") {
                 ctx.moveTo(cx - 15, cy); ctx.lineTo(cx - 5, cy);
-                ctx.moveTo(cx - 5, cy - 15); ctx.lineTo(cx - 5, cy + 15); 
+                ctx.moveTo(cx - 5, cy - 18); ctx.lineTo(cx - 5, cy + 18); 
+                ctx.stroke();
                 
-                ctx.lineWidth = 5;
-                ctx.moveTo(cx + 5, cy - 8); ctx.lineTo(cx + 5, cy + 8); 
+                ctx.beginPath();
+                ctx.lineWidth = 6;
+                ctx.moveTo(cx + 5, cy - 10); ctx.lineTo(cx + 5, cy + 10); 
+                ctx.stroke();
+                
+                ctx.beginPath();
                 ctx.lineWidth = 3;
                 ctx.moveTo(cx + 5, cy); ctx.lineTo(cx + 15, cy);
             } 
             else if (type === "battery") {
                 ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
                 ctx.moveTo(cx - 15, cy - 15); ctx.lineTo(cx - 15, cy + 15);
-                ctx.lineWidth = 5;
-                ctx.moveTo(cx - 7, cy - 8); ctx.lineTo(cx - 7, cy + 8);
-                ctx.lineWidth = 1; ctx.setLineDash([2, 2]); 
-                ctx.moveTo(cx - 7, cy); ctx.lineTo(cx + 7, cy);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 5;
+                ctx.moveTo(cx - 8, cy - 8); ctx.lineTo(cx - 8, cy + 8);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 1; ctx.setLineDash([2, 2]); 
+                ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 6, cy);
                 ctx.stroke();
                 ctx.setLineDash([]); 
-                ctx.lineWidth = 3;
-                ctx.moveTo(cx + 7, cy - 15); ctx.lineTo(cx + 7, cy + 15);
-                ctx.lineWidth = 5;
-                ctx.moveTo(cx + 15, cy - 8); ctx.lineTo(cx + 15, cy + 8);
-                ctx.lineWidth = 3;
-                ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
+                
+                ctx.beginPath(); ctx.lineWidth = 3;
+                ctx.moveTo(cx + 6, cy - 15); ctx.lineTo(cx + 6, cy + 15);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 5;
+                ctx.moveTo(cx + 14, cy - 8); ctx.lineTo(cx + 14, cy + 8);
+                ctx.stroke();
+                
+                ctx.beginPath(); ctx.lineWidth = 3;
+                ctx.moveTo(cx + 14, cy); ctx.lineTo(cx + 25, cy);
             } 
             else if (type === "bulb") {
                 ctx.arc(cx, cy, 12, 0, Math.PI * 2);
-                ctx.moveTo(cx - 20, cy); ctx.lineTo(cx - 12, cy);
-                ctx.moveTo(cx + 12, cy); ctx.lineTo(cx + 20, cy);
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 12, cy);
+                ctx.moveTo(cx + 12, cy); ctx.lineTo(cx + 25, cy);
                 ctx.moveTo(cx - 6, cy + 4);
                 ctx.lineTo(cx - 3, cy - 4);
                 ctx.lineTo(cx, cy + 2);
@@ -372,6 +446,8 @@
             else if (type === "switch_on") {
                 ctx.arc(cx - 15, cy, 3, 0, Math.PI * 2, true);
                 ctx.arc(cx + 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.stroke();
+                ctx.beginPath();
                 ctx.moveTo(cx - 12, cy); ctx.lineTo(cx + 12, cy);
                 ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
                 ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
@@ -379,31 +455,52 @@
             else if (type === "switch_off") {
                 ctx.arc(cx - 15, cy, 3, 0, Math.PI * 2, true);
                 ctx.arc(cx + 15, cy, 3, 0, Math.PI * 2, true);
-                ctx.moveTo(cx - 13, cy); ctx.lineTo(cx + 5, cy - 12); 
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx - 13, cy); ctx.lineTo(cx + 5, cy - 14); 
                 ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
                 ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
             }
             else if (type === "wire") {
-                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx + 25, cy);
+                ctx.moveTo(cx - 30, cy); ctx.lineTo(cx + 30, cy);
             }
             ctx.stroke();
         }
 
         function spawnItem() {
-            const pool = (currentLevel === 1) ? level1Pool : level2Pool;
-            const template = pool[Math.floor(Math.random() * pool.length)];
-            
-            items.push({
-                x: Math.random() * (canvas.width - 140) + 20,
-                y: -80,
-                width: 130,
-                height: currentLevel === 1 ? 40 : 75, 
-                name: template.name,
-                matchesTarget: template.matchesTarget,
-                symbolType: template.symbolType || null,
-                color: template.color,
-                speed: Math.random() * 1.5 + (currentLevel === 1 ? 2.5 : 3.0)
-            });
+            if (currentLevel === 1) {
+                // Determine if item will be conductor vs insulator randomly
+                const isConductor = Math.random() > 0.45;
+                const basePool = isConductor ? conductorBases : insulatorBases;
+                const selectedBase = basePool[Math.floor(Math.random() * basePool.length)];
+                const selectedPrefix = itemPrefixes[Math.floor(Math.random() * itemPrefixes.length)];
+                
+                items.push({
+                    x: Math.random() * (canvas.width - 150) + 15,
+                    y: -50,
+                    width: 145,
+                    height: 42,
+                    name: `${selectedPrefix} ${selectedBase.name}`,
+                    matchesTarget: isConductor,
+                    symbolType: null,
+                    color: selectedBase.color,
+                    speed: Math.random() * 1.5 + 2.5
+                });
+            } else {
+                // Level 2 Spawning: Build randomized pool variables loop
+                const archetype = level2Pool[Math.floor(Math.random() * level2Pool.length)];
+                items.push({
+                    x: Math.random() * (canvas.width - 140) + 20,
+                    y: -90,
+                    width: 130,
+                    height: 80, 
+                    name: archetype.label,
+                    matchesTarget: (archetype.type === currentLevel2Question),
+                    symbolType: archetype.type,
+                    color: archetype.color,
+                    speed: Math.random() * 1.0 + 3.0
+                });
+            }
         }
 
         function gameLoop() {
@@ -411,18 +508,18 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Tech grid lines
+            // Tech Grid background lines
             ctx.strokeStyle = '#1f4068';
             ctx.lineWidth = 1;
             for(let g = 100; g < canvas.width; g += 200) {
                 ctx.beginPath(); ctx.moveTo(g, 0); ctx.lineTo(g, canvas.height); ctx.stroke();
             }
 
-            // Controls
+            // Character movement
             if ((keys['ArrowLeft'] || keys['KeyA']) && player.x > 0) player.x -= player.speed;
             if ((keys['ArrowRight'] || keys['KeyD']) && player.x < canvas.width - player.width) player.x += player.speed;
 
-            // Render Player Tester Basket
+            // Render Player Tester Tray
             ctx.fillStyle = currentLevel === 1 ? '#ffea00' : '#00fff0';
             ctx.fillRect(player.x, player.y, player.width, player.height);
             ctx.strokeStyle = '#fff';
@@ -430,18 +527,18 @@
             
             ctx.fillStyle = '#0f3460';
             ctx.font = 'bold 12px sans-serif';
-            ctx.fillText(currentLevel === 1 ? "⚠️ TESTER" : "🔋 TERMINAL", player.x + 15, player.y + 24);
+            ctx.fillText(currentLevel === 1 ? "🔬 TESTER TRAY" : "⚡ SCHEMATIC SLOT", player.x + 8, player.y + 24);
 
-            // Spawner
+            // Spawner clock cycle
             spawnTimer++;
             if (spawnTimer % 65 === 0) spawnItem();
 
-            // Handle falling drop nodes
+            // Process item arrays
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
                 item.y += item.speed;
 
-                // Draw background wrapper
+                // Render bounding background cards
                 ctx.fillStyle = item.color;
                 ctx.fillRect(item.x, item.y, item.width, item.height);
                 ctx.strokeStyle = '#ffffff';
@@ -449,79 +546,93 @@
                 ctx.strokeRect(item.x, item.y, item.width, item.height);
 
                 if (currentLevel === 1) {
-                    ctx.fillStyle = '#000000';
-                    ctx.font = 'bold 13px Arial';
+                    ctx.fillStyle = '#121214';
+                    ctx.font = 'bold 11px Arial';
                     ctx.textAlign = 'center';
-                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 24);
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 25);
                 } else {
-                    drawCircuitSymbol(ctx, item.symbolType, item.x, item.y, item.width, item.height - 20);
+                    // Level 2 schematic drawing layout
+                    drawCircuitSymbol(ctx, item.symbolType, item.x, item.y, item.width, item.height - 24);
+                    
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(item.x + 2, item.y + item.height - 20, item.width - 4, 18);
+                    ctx.fillRect(item.x + 2, item.y + item.height - 22, item.width - 4, 20);
                     
                     ctx.fillStyle = '#000000';
                     ctx.font = 'bold 11px Arial';
                     ctx.textAlign = 'center';
-                    ctx.fillText(item.name, item.x + item.width / 2, item.y + item.height - 6);
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + item.height - 7);
                 }
                 ctx.textAlign = 'left'; 
 
-                // Detect overlaps bounding box
+                // Check collision intersection points
                 if (item.x < player.x + player.width &&
                     item.x + item.width > player.x &&
                     item.y < player.y + player.height &&
                     item.y + item.height > player.y) {
                     
-                    if (item.matchesTarget) {
-                        score++;
-                        if (score >= targetScorePerLevel) {
-                            if (currentLevel === 1) {
-                                score = 0;
-                                currentLevel = 2;
-                                items = [];
-                                updateHUD();
-                                alert("Level 1 Clear! Proceeding to Level 2: Circuit Diagrams & Symbols challenge!");
-                            } else {
-                                endGame(true); 
-                                return;
+                    // Recalculate targets based on matchesTarget properties
+                    if (currentLevel === 1) {
+                        if (item.matchesTarget) {
+                            score++;
+                            if (score >= targetScorePerLevel) {
+                                // Trigger proper transitional display
+                                gameActive = false;
+                                gameplayScreen.style.display = 'block'; 
+                                levelClearScreen.style.display = 'flex';
                             }
+                        } else {
+                            lives--;
+                            if (lives <= 0) { endGame(false); return; }
                         }
                     } else {
-                        lives--;
-                        if (lives <= 0) {
-                            endGame(false);
-                            return;
+                        // Level 2 Dynamic Questioning Loop Matcher
+                        if (item.symbolType === currentLevel2Question) {
+                            score++;
+                            if (score >= targetScorePerLevel) {
+                                endGame(true); 
+                                return;
+                            } else {
+                                // Instantly roll a new diagram question to answer
+                                generateLevel2Question();
+                            }
+                        } else {
+                            lives--;
+                            if (lives <= 0) { endGame(false); return; }
                         }
                     }
+                    
                     updateHUD();
                     items.splice(i, 1);
                     continue;
                 }
 
-                // Remove item out of screen bounds
                 if (item.y > canvas.height) {
                     items.splice(i, 1);
                 }
             }
 
-            requestAnimationFrame(gameLoop);
+            if (gameActive) {
+                requestAnimationFrame(gameLoop);
+            }
         }
 
         function endGame(isWin) {
             gameActive = false;
             gameplayScreen.style.display = 'none';
+            levelClearScreen.style.display = 'none';
             gameOverScreen.style.display = 'flex';
 
             if (isWin) {
-                gameOverTitle.innerText = "🏆 MASTER SCIENTIST!";
+                gameOverTitle.innerText = "🏆 MASTER ELECTROMECHANIC!";
                 gameOverTitle.style.color = "#00fff0";
-                gameOverMsg.innerHTML = "Incredible job! You successfully mastered both parts of Grade 6 Circuits!<br><br><b>Level 1:</b> You isolated conductors correctly.<br><b>Level 2:</b> You identified standard diagram symbols for Cells & Batteries (the power sources providing chemical-to-electrical energy conversion!).";
+                gameOverMsg.innerHTML = "Sensational job! You passed all validation checks for Grade 6 Electricity and Circuits!<br><br><b>Level 1 Mastered:</b> You separated variable conductors from active insulators.<br><b>Level 2 Mastered:</b> You successfully decoded multi-step diagram questions using official schematic symbols!";
             } else {
-                gameOverTitle.innerText = "💥 CIRCUIT BLOWN OUT";
+                gameOverTitle.innerText = "💥 CIRCUIT BREAKER BLOWN";
                 gameOverTitle.style.color = "#e43f5a";
                 if(currentLevel === 1) {
-                    gameOverMsg.innerHTML = "You caught too many <b>Insulators</b>. Materials like plastic, wood, and rubber block electric charges from flowing safely through circuits.";
+                    gameOverMsg.innerHTML = "An insulator entered the loop! Materials like plastic, wood, glass, and rubber block electric currents because they lack mobile electric charges.";
                 } else {
-                    gameOverMsg.innerHTML = "You missed the proper symbols or collected the wrong components! Remember, a <b>Cell</b> consists of one long and one short line, while a <b>Battery</b> links multiple cells together.";
+                    gameOverMsg.innerHTML = "Incorrect symbol captured! Double-check your diagram schematics:<br>• <b>Cell:</b> One long line (+), one short thick line (-)<br>• <b>Battery:</b> Multiple integrated cells connected in series.";
                 }
             }
         }
