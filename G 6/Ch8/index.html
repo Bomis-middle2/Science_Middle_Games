@@ -3,665 +3,533 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 6 Science: Fundamentals of Electricity & Circuits Lab</title>
+    <title>Circuit Runner: Symbols & Materials</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #090d16;
-            color: #f8fafc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: #162447;
+            border: 4px solid #0f3460;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- SCREEN 1: SPLASH SCREEN --- */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.5s ease;
         }
-        #gameContainer {
-            position: relative;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 4px solid #1e293b;
-            background-color: #0f172a;
+
+        #logo-img {
+            max-width: 350px;
+            max-height: 200px;
+            object-fit: contain;
+            animation: pulse 2s infinite ease-in-out;
         }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(0.95); }
+        }
+
+        /* --- SCREEN 2: MAIN MENU --- */
+        #menu-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #1f4068 0%, #162447 100%);
+            z-index: 50;
+            display: none;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #e43f5a;
+            text-shadow: 0 0 10px rgba(228,63,90,0.6);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #00fff0;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #e43f5a;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 15px rgba(228,63,90,0.4);
+        }
+
+        .btn:hover {
+            background-color: #ff4d6d;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(228,63,90,0.6);
+        }
+
+        /* --- SCREEN 3: ACTUAL GAMEPLAY --- */
+        #gameplay-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        #hud {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            font-weight: bold;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: rgba(15, 52, 96, 0.9);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid #00fff0;
+        }
+
+        #target-box {
+            color: #ffea00;
+            border-color: #ffea00;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        #level-box {
+            color: #ff4d6d;
+            border-color: #ff4d6d;
+        }
+
         canvas {
             display: block;
-            background-color: #0f172a;
+            background: #121214;
+        }
+
+        /* --- SCREEN 4: GAME OVER / WIN --- */
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 26, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 60;
+            display: none;
+        }
+
+        #game-over-title {
+            font-size: 3.2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #game-over-msg {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 550px;
+            text-align: center;
+            color: #ccc;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
 
-    <div id="gameContainer">
-        <canvas id="circuitLabCanvas" width="900" height="600"></canvas>
+    <div id="game-container">
+        
+        <div id="splash-screen">
+            <img id="logo-img" src="image_cc8df7.png" alt="Innovine Logo">
+        </div>
+
+        <div id="menu-screen">
+            <h1>CIRCUIT RUNNER</h1>
+            <p class="subtitle">Electricity, Circuits & Symbols</p>
+            <button class="btn" id="start-btn">START GAME</button>
+        </div>
+
+        <div id="gameplay-screen">
+            <div id="hud">
+                <div class="hud-item" id="level-box">Level: 1</div>
+                <div class="hud-item" id="score-box">Score: 0 / 5</div>
+                <div class="hud-item" id="target-box">Collect: CONDUCTORS!</div>
+                <div class="hud-item" id="lives-box">⚡ Lives: 3</div>
+            </div>
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <div id="game-over-screen">
+            <h2 id="game-over-title">Game Over</h2>
+            <p id="game-over-msg">Your circuit broke down!</p>
+            <button class="btn" id="restart-btn">Play Again</button>
+        </div>
+
     </div>
 
     <script>
-        const canvas = document.getElementById('circuitLabCanvas');
+        const splashScreen = document.getElementById('splash-screen');
+        const menuScreen = document.getElementById('menu-screen');
+        const gameplayScreen = document.getElementById('gameplay-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        const levelBox = document.getElementById('level-box');
+        const scoreBox = document.getElementById('score-box');
+        const targetBox = document.getElementById('target-box');
+        const livesBox = document.getElementById('lives-box');
+        const gameOverTitle = document.getElementById('game-over-title');
+        const gameOverMsg = document.getElementById('game-over-msg');
+        
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // GAME STATES: 'SPLASH', 'INSTRUCTIONS', 'PLAYING', 'GAME_OVER'
-        let currentState = 'SPLASH';
-        let splashStartTime = Date.now();
-        const SPLASH_DURATION = 5000; // Mandatory 5 Seconds Lock
-
-        // Session Performance & State Metrics
-        let activeQuestions = [];
-        let currentQuestionIndex = 0;
+        // Game State Variables
+        let currentLevel = 1;
         let score = 0;
-        let healthPoints = 3; 
-        let attemptsLeft = 2;
-        let currentInstanceHint = "";
-        let displayHintBanner = false;
-        let activeOptions = [];
-        let selectedObject = null;
-        let successGlowTicks = 0;
+        let lives = 3;
+        let gameActive = false;
+        let items = [];
+        let player = { x: 360, y: 510, width: 90, height: 40, speed: 9 };
+        let keys = {};
+        let spawnTimer = 0;
+        const targetScorePerLevel = 5;
 
-        // Interactive Component Anchors
-        const testSlotZone = { x: 400, y: 350, width: 100, height: 48, occupiedBy: null };
-        const knifeSwitchControl = { x: 375, y: 460, width: 150, height: 42, isEngaged: false };
-
-        // Programmatic Web Audio Synthesis Engine
-        const AudioEngine = {
-            ctx: null,
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            },
-            playClick() {
-                this.init();
-                let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(580, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.08);
-            },
-            playBuzzer() {
-                this.init();
-                let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.45);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.45);
-            },
-            playSuccess() {
-                this.init();
-                let osc1 = this.ctx.createOscillator();
-                let gain1 = this.ctx.createGain();
-                osc1.type = 'triangle';
-                osc1.frequency.setValueAtTime(523.25, this.ctx.currentTime);
-                gain1.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain1.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
-                osc1.connect(gain1);
-                gain1.connect(this.ctx.destination);
-                osc1.start();
-                osc1.stop(this.ctx.currentTime + 0.35);
-
-                let osc2 = this.ctx.createOscillator();
-                let gain2 = this.ctx.createGain();
-                osc2.type = 'triangle';
-                osc2.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.12);
-                gain2.gain.setValueAtTime(0.15, this.ctx.currentTime + 0.12);
-                gain2.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.47);
-                osc2.connect(gain2);
-                gain2.connect(this.ctx.destination);
-                osc2.start();
-                osc2.stop(this.ctx.currentTime + 0.47);
-
-                this.triggerClappingEffect();
-            },
-            triggerClappingEffect() {
-                try {
-                    let bufSize = this.ctx.sampleRate * 0.35;
-                    let buffer = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
-                    let data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufSize; i++) {
-                        data[i] = Math.random() * 2 - 1;
-                    }
-                    for (let burst = 0; burst < 3; burst++) {
-                        let src = this.ctx.createBufferSource();
-                        src.buffer = buffer;
-                        let filter = this.ctx.createBiquadFilter();
-                        filter.type = 'bandpass';
-                        filter.frequency.value = 950 + (burst * 100);
-                        let burstGain = this.ctx.createGain();
-                        let timeDelay = this.ctx.currentTime + (burst * 0.12);
-                        burstGain.gain.setValueAtTime(0.06, timeDelay);
-                        burstGain.gain.exponentialRampToValueAtTime(0.001, timeDelay + 0.22);
-                        src.connect(filter);
-                        filter.connect(burstGain);
-                        burstGain.connect(this.ctx.destination);
-                        src.start(timeDelay);
-                    }
-                } catch (e) {}
-            }
-        };
-
-        // Textbook Database Layer: 12 Rigorous Application Tasks
-        const masterItemPool = [
-            { id: "M1", name: "Copper Wire Strip", isConductor: true, label: "COPPER", color: "#b87333", desc: "Complete the connection link to safely transmit power from the plant network.", hint: "Metals like copper allow electric current to pass through freely." },
-            { id: "M2", name: "Thick Plastic Jacket", isConductor: false, label: "PLASTIC", color: "#2563eb", desc: "Insulate the bare handle grips of the electrician's pliers to prevent high-voltage hazard shock.", hint: "Plastic behaves as an insulator, blocking electrical current flows." },
-            { id: "M3", name: "Aluminium Foil Plate", isConductor: true, label: "ALUMINIUM", color: "#94a3b8", desc: "Bridge a damaged operational trace loop inside a standard electronic circuit board channel.", hint: "Aluminium is a functional metal element used widely for electric cables." },
-            { id: "M4", name: "Soft Rubber Tape", isConductor: false, label: "RUBBER", color: "#db2777", desc: "Wrap around a structural copper wire junction splice to seal it cleanly from touch hazards.", hint: "Rubber prevents electrical charges from moving out of the circuit loop." },
-            { id: "M5", name: "Steel Safety Pin", isConductor: true, label: "STEEL PIN", color: "#cbd5e1", desc: "Act as an emergency alternative temporary switch mechanism inside a classroom project board.", hint: "Steel is a durable carbon-iron alloy and represents a powerful conductor." },
-            { id: "M6", name: "Dry Wooden Block", isConductor: false, label: "DRY WOOD", color: "#78350f", desc: "Isolate a high-power control switch backing panel frame safely from moist grounding lines.", hint: "Dry wood does not allow electric charges to travel through its matrix." },
-            { id: "M7", name: "Graphite Electrode", isConductor: true, label: "GRAPHITE", color: "#475569", desc: "Test an alternative mineral structure capable of conducting current despite being non-metallic.", hint: "Graphite is a non-metal form of carbon that conducts current effectively." },
-            { id: "M8", name: "Glazed Porcelain Rim", isConductor: false, label: "PORCELAIN", color: "#e2e8f0", desc: "Mount a structural overhead high-voltage cable separation hook safely away from utility poles.", hint: "Ceramic porcelain acts as a premium insulator protecting high-voltage infrastructure." },
-            { id: "M9", name: "Iron Construction Nail", isConductor: true, label: "IRON NAIL", color: "#64748b", desc: "Repair a physical gap break detected across an industrial battery bay bracket track terminal.", hint: "Iron objects complete circuits reliably by acting as strong conductors." },
-            { id: "M10", name: "Heavy Cardboard Sheeting", isConductor: false, label: "CARDBOARD", color: "#a1a1aa", desc: "Insert a physical safety separator partition barrier inside a tabletop lamp terminal housing box.", hint: "Paper products lack free charge carriers, classifying them clearly as insulators." },
-            { id: "M11", name: "Polished Brass Skeleton Key", isConductor: true, label: "BRASS KEY", color: "#eab308", desc: "Form a solid mechanical jumper connection directly across two bare electrical terminal blocks.", hint: "Brass is a robust alloy containing copper, making it a reliable conductor." },
-            { id: "M12", name: "Thick Glass Rod Spacer", isConductor: false, label: "GLASS SPACER", color: "#38bdf8", desc: "Construct a physical safety brace bar designed to stop live current leaking into adjacent housing.", hint: "Glass offers very high resistance and handles properties as an expert insulator." }
+        // Level 1 Pool: Materials
+        const level1Pool = [
+            { name: "Copper Wire", matchesTarget: true, info: "conductor", color: "#b87333" },
+            { name: "Iron Nail", matchesTarget: true, info: "conductor", color: "#aaa9ad" },
+            { name: "Aluminum Foil", matchesTarget: true, info: "conductor", color: "#ddd" },
+            { name: "Plastic Ruler", matchesTarget: false, info: "insulator", color: "#e63946" },
+            { name: "Rubber Eraser", matchesTarget: false, info: "insulator", color: "#ffb703" },
+            { name: "Wooden Stick", matchesTarget: false, info: "insulator", color: "#9c6644" }
         ];
 
-        function initializeLaboratorySession() {
-            currentQuestionIndex = 0;
+        // Level 2 Pool: Circuit Schematic Diagrams Vector Drawing Lookups
+        const level2Pool = [
+            { name: "Cell", matchesTarget: true, symbolType: "cell", color: "#4cc9f0" },
+            { name: "Battery", matchesTarget: true, symbolType: "battery", color: "#4cc9f0" },
+            { name: "Electric Bulb", matchesTarget: false, symbolType: "bulb", color: "#f72585" },
+            { name: "Switch (ON)", matchesTarget: false, symbolType: "switch_on", color: "#f72585" },
+            { name: "Switch (OFF)", matchesTarget: false, symbolType: "switch_off", color: "#f72585" },
+            { name: "Wire Line", matchesTarget: false, symbolType: "wire", color: "#f72585" }
+        ];
+
+        // --- TIMERS & SCENE TRANSITIONS ---
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                splashScreen.style.opacity = '0';
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                    menuScreen.style.display = 'flex';
+                }, 500);
+            }, 5000); // 5 Seconds Splash Screen hold
+        });
+
+        startBtn.addEventListener('click', () => startNewGame(1));
+        restartBtn.addEventListener('click', () => startNewGame(1));
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function startNewGame(lvl) {
+            menuScreen.style.none = 'none';
+            gameOverScreen.style.display = 'none';
+            gameplayScreen.style.display = 'block';
+            
+            currentLevel = lvl;
             score = 0;
-            healthPoints = 3;
-            activeQuestions = [...masterItemPool].sort(() => Math.random() - 0.5).slice(0, 10);
-            assembleActiveQuestionInstance();
+            if(lvl === 1) lives = 3; 
+            items = [];
+            player.x = canvas.width / 2 - player.width / 2;
+            gameActive = true;
+            
+            updateHUD();
+            requestAnimationFrame(gameLoop);
         }
 
-        function assembleActiveQuestionInstance() {
-            attemptsLeft = 2;
-            displayHintBanner = false;
-            testSlotZone.occupiedBy = null;
-            knifeSwitchControl.isEngaged = false;
-            successGlowTicks = 0;
-
-            const targetTask = activeQuestions[currentQuestionIndex];
-            currentInstanceHint = targetTask.hint;
-
-            let distractionPool = masterItemPool.filter(item => item.id !== targetTask.id);
-            distractionPool.sort(() => Math.random() - 0.5);
-
-            let activeChoices = [targetTask, distractionPool[0], distractionPool[1]];
-            activeChoices.sort(() => Math.random() - 0.5);
-
-            activeOptions = [];
-            for (let i = 0; i < 3; i++) {
-                activeOptions.push({
-                    data: activeChoices[i],
-                    x: 200 + (i * 250),
-                    y: 150,
-                    originX: 200 + (i * 250),
-                    originY: 150,
-                    width: 180,
-                    height: 50,
-                    isDocked: false
-                });
+        function updateHUD() {
+            levelBox.innerText = `Level: ${currentLevel}`;
+            scoreBox.innerText = `Score: ${score} / ${targetScorePerLevel}`;
+            livesBox.innerText = `⚡ Lives: ${"❤️".repeat(lives)}`;
+            
+            if (currentLevel === 1) {
+                targetBox.innerText = "Collect: CONDUCTORS!";
+                targetBox.style.borderColor = "#ffea00";
+                targetBox.style.color = "#ffea00";
+            } else {
+                targetBox.innerText = "Target: ELECTRICAL SOURCES! (Cells/Batteries)";
+                targetBox.style.borderColor = "#00fff0";
+                targetBox.style.color = "#00fff0";
             }
         }
 
-        // Custom Vector Branding Renderer (Innovine Identity)
-        function drawInnovineVectorBranding(x, y, multiplier) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(multiplier, multiplier);
-
-            // Hexagon Boundary Base
-            ctx.strokeStyle = '#0ea5e9';
-            ctx.lineWidth = 5;
+        // Custom Vector drawings for Component Symbols
+        function drawCircuitSymbol(ctx, type, x, y, w, h) {
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                let rotAngle = (Math.PI / 3) * i;
-                let hx = 75 * Math.cos(rotAngle);
-                let hy = 75 * Math.sin(rotAngle);
-                if (i === 0) ctx.moveTo(hx, hy);
-                else ctx.lineTo(hx, hy);
-            }
-            ctx.closePath();
-            ctx.stroke();
+            
+            let cx = x + w / 2;
+            let cy = y + h / 2;
 
-            // Inner Central Node
-            ctx.fillStyle = '#38bdf8';
-            ctx.beginPath();
-            ctx.arc(0, 0, 22, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Node Core Links
-            ctx.strokeStyle = '#67e8f9';
-            ctx.lineWidth = 4;
-            for (let j = 0; j < 3; j++) {
-                let segmentAngle = (Math.PI / 1.5) * j + 0.3;
-                ctx.beginPath();
-                ctx.moveTo(22 * Math.cos(segmentAngle), 22 * Math.sin(segmentAngle));
-                ctx.lineTo(62 * Math.cos(segmentAngle), 62 * Math.sin(segmentAngle));
+            if (type === "cell") {
+                // Long thin line (positive), short thick line (negative)
+                ctx.moveTo(cx - 15, cy); ctx.lineTo(cx - 5, cy);
+                ctx.moveTo(cx - 5, cy - 15); ctx.lineTo(cx - 5, cy + 15); // Long
+                
+                ctx.lineWidth = 5;
+                ctx.moveTo(cx + 5, cy - 8); ctx.lineTo(cx + 5, cy + 8); // Short/Thick
+                ctx.lineWidth = 3;
+                ctx.moveTo(cx + 5, cy); ctx.lineTo(cx + 15, cy);
+            } 
+            else if (type === "battery") {
+                // Multiple cells joined
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
+                ctx.moveTo(cx - 15, cy - 15); ctx.lineTo(cx - 15, cy + 15);
+                ctx.lineWidth = 5;
+                ctx.moveTo(cx - 7, cy - 8); ctx.lineTo(cx - 7, cy + 8);
+                ctx.lineWidth = 1; ctx.setLineDash([2, 2]); // Dashed line connecting
+                ctx.moveTo(cx - 7, cy); ctx.lineTo(cx + 7, cy);
                 ctx.stroke();
-
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(62 * Math.cos(segmentAngle), 62 * Math.sin(segmentAngle), 6, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.setLineDash([]); // Reset
+                ctx.lineWidth = 3;
+                ctx.moveTo(cx + 7, cy - 15); ctx.lineTo(cx + 7, cy + 15);
+                ctx.lineWidth = 5;
+                ctx.moveTo(cx + 15, cy - 8); ctx.lineTo(cx + 15, cy + 8);
+                ctx.lineWidth = 3;
+                ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
+            } 
+            else if (type === "bulb") {
+                // Circle with a filament loop inside
+                ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                ctx.moveTo(cx - 20, cy); ctx.lineTo(cx - 12, cy);
+                ctx.moveTo(cx + 12, cy); ctx.lineTo(cx + 20, cy);
+                // Filament M shape
+                ctx.moveTo(cx - 6, cy + 4);
+                ctx.lineTo(cx - 3, cy - 4);
+                ctx.lineTo(cx, cy + 2);
+                ctx.lineTo(cx + 3, cy - 4);
+                ctx.lineTo(cx + 6, cy + 4);
+            } 
+            else if (type === "switch_on") {
+                // Terminals linked flat down
+                ctx.arc(cx - 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.arc(cx + 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.moveTo(cx - 12, cy); ctx.lineTo(cx + 12, cy);
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
+                ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
+            } 
+            else if (type === "switch_off") {
+                // Arm pointing up, open gap
+                ctx.arc(cx - 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.arc(cx + 15, cy, 3, 0, Math.PI * 2, true);
+                ctx.moveTo(cx - 13, cy); ctx.lineTo(cx + 5, cy - 12); // Tilted open arm
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx - 15, cy);
+                ctx.moveTo(cx + 15, cy); ctx.lineTo(cx + 25, cy);
             }
-            ctx.restore();
+            else if (type === "wire") {
+                ctx.moveTo(cx - 25, cy); ctx.lineTo(cx + 25, cy);
+            }
+            ctx.stroke();
         }
 
-        function paintLaboratoryTick() {
+        function spawnItem() {
+            const pool = (currentLevel === 1) ? level1Pool : level2Pool;
+            const template = pool[Math.floor(Math.random() * pool.length)];
+            
+            items.push({
+                x: Math.random() * (canvas.width - 140) + 20,
+                y: -50,
+                width: 130,
+                height: currentLevel === 1 ? 40 : 75, // Extra space vertically for level 2 symbol rendering
+                name: template.name,
+                matchesTarget: template.matchesTarget,
+                symbolType: template.symbolType || null,
+                color: template.color,
+                speed: Math.random() * 1.5 + (currentLevel === 1 ? 2.5 : 3.0)
+            });
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (currentState === 'SPLASH') {
-                ctx.fillStyle = '#090d16';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Tech grid aesthetics lines
+            ctx.strokeStyle = '#1f4068';
+            ctx.lineWidth = 1;
+            for(let g = 100; g < canvas.width; g += 200) {
+                ctx.beginPath(); ctx.moveTo(g, 0); ctx.lineTo(g, canvas.height); ctx.stroke();
+            }
 
-                drawInnovineVectorBranding(canvas.width / 2, canvas.height / 2 - 40, 1.25);
+            // Player Receiver Box Controls
+            if ((keys['ArrowLeft'] || keys['KeyA']) && player.x > 0) player.x -= player.speed;
+            if ((keys['ArrowRight'] || keys['KeyD']) && player.x < canvas.width - player.width) player.x += player.speed;
 
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 42px sans-serif';
-                ctx.letterSpacing = "4px";
-                ctx.textAlign = 'center';
-                ctx.fillText('INNOVINE', canvas.width / 2, canvas.height / 2 + 85);
-                ctx.letterSpacing = "0px";
+            // Render Player Tester Basket
+            ctx.fillStyle = currentLevel === 1 ? '#ffea00' : '#00fff0';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.strokeStyle = '#fff';
+            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            
+            ctx.fillStyle = '#0f3460';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText(currentLevel === 1 ? "⚠️ TESTER" : "🔋 TERMINAL", player.x + 10, player.y + 24);
 
-                ctx.fillStyle = '#475569';
-                ctx.font = '600 14px sans-serif';
-                ctx.fillText('VIRTUAL LABORATORY SIMULATION ENVIRONMENT', canvas.width / 2, canvas.height / 2 + 130);
+            // Spawn cycle
+            spawnTimer++;
+            if (spawnTimer % 85 === 0) spawnItem();
 
-                if (Date.now() - splashStartTime > SPLASH_DURATION) {
-                    currentState = 'INSTRUCTIONS';
-                }
+            // Handle falling drop nodes
+            for (let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
+                item.y += item.speed;
 
-            } else if (currentState === 'INSTRUCTIONS') {
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = '#f8fafc';
-                ctx.font = 'bold 32px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('LAB PROTOCOLS & CIRCUIT DIAGRAM INSTRUCTIONS', canvas.width / 2, 85);
-
-                ctx.fillStyle = '#64748b';
-                ctx.font = 'bold 15px sans-serif';
-                ctx.fillText('SCIENCE CURRICULUM LEVEL VI  |  CHAPTER 8: ELECTRICITY', canvas.width / 2, 120);
-
-                ctx.fillStyle = '#1e293b';
-                ctx.fillRect(80, 160, 740, 290);
-                ctx.strokeStyle = '#334155';
+                // Background box wrapper element
+                ctx.fillStyle = item.color;
+                ctx.fillRect(item.x, item.y, item.width, item.height);
+                ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 2;
-                ctx.strokeRect(80, 160, 740, 290);
+                ctx.strokeRect(item.x, item.y, item.width, item.height);
 
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#38bdf8';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('CORE SCIENTIFIC OBJECTIVE:', 120, 205);
-
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '15px sans-serif';
-                ctx.fillText('Read the laboratory requirement. Analyze whether the scenario calls for a', 120, 230);
-                ctx.fillText('Conductor (allows current) or an Insulator (blocks current) to complete the tasks safely.', 120, 255);
-
-                ctx.fillStyle = '#facc15';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('LABORATORY WORKFLOW CONTROLS:', 120, 310);
-
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '15px sans-serif';
-                ctx.fillText('1. Drag items using your pointer directly into the dashed test slot circuit junction.', 120, 335);
-                ctx.fillText('2. Click on the knife switch lever down to pass current verification tests.', 120, 360);
-                ctx.fillText('3. Each prompt permits 2 distinct attempt loops before generating contextual hints.', 120, 385);
-                ctx.fillText('4. Preserve system health metrics. Completing 10 questions routes to the evaluation card.', 120, 410);
-
-                ctx.fillStyle = '#10b981';
-                ctx.fillRect(320, 490, 260, 50);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('INITIALIZE LABORATORY SUITE', canvas.width / 2, 521);
-
-            } else if (currentState === 'PLAYING') {
-                const targetTask = activeQuestions[currentQuestionIndex];
-
-                // Restructured Scoreboard Header (Fixed text alignments and X slots to eliminate text overlapping)
-                ctx.fillStyle = '#090d16';
-                ctx.fillRect(0, 0, canvas.width, 65);
-                ctx.strokeStyle = '#1e293b';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(0, 0, canvas.width, 65);
-
-                ctx.font = 'bold 15px sans-serif';
-                
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#38bdf8';
-                ctx.fillText(`CURRENT TASK: ${currentQuestionIndex + 1} / 10`, 30, 38);
-
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(`METRIC ACCURACY: ${score} Pts`, 300, 38);
-                
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#ef4444';
-                ctx.fillText(`SYSTEM INTEGRITY: ${healthPoints} HP`, 550, 38);
-
-                ctx.textAlign = 'right';
-                ctx.fillStyle = '#475569';
-                ctx.fillText('GRADE 6 PHYSICS LAB', canvas.width - 30, 38);
-
-                // Objective Prompt Card
-                ctx.fillStyle = '#1e293b';
-                ctx.fillRect(40, 85, 820, 45);
-                ctx.fillStyle = '#facc15';
-                ctx.font = '600 15px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(`SCENARIO TARGET: "${targetTask.desc}"`, canvas.width / 2, 113);
-
-                // Blueprint Wire Outlines
-                let systemClosedSuccessfully = (knifeSwitchControl.isEngaged && testSlotZone.occupiedBy && testSlotZone.occupiedBy.data.id === targetTask.id);
-                ctx.lineWidth = 7;
-                ctx.strokeStyle = systemClosedSuccessfully ? '#facc15' : '#334155';
-
-                ctx.beginPath();
-                ctx.moveTo(250, 374);
-                ctx.lineTo(160, 374);
-                ctx.lineTo(160, 280);
-                ctx.lineTo(400, 280);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(500, 280);
-                ctx.lineTo(740, 280);
-                ctx.lineTo(740, 374);
-                ctx.lineTo(500, 374);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(250, 374);
-                ctx.lineTo(250, 480);
-                ctx.lineTo(375, 480);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(525, 480);
-                ctx.lineTo(650, 480);
-                ctx.lineTo(650, 374);
-                ctx.stroke();
-
-                // Dry Cell
-                ctx.save();
-                ctx.translate(540, 350);
-                ctx.fillStyle = '#ef4444';
-                ctx.fillRect(0, 0, 110, 48);
-                ctx.fillStyle = '#64748b';
-                ctx.fillRect(110, 14, 8, 20);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 13px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('DRY CELL', 55, 29);
-                ctx.font = 'bold 18px sans-serif';
-                ctx.fillText('+', 100, 31);
-                ctx.fillText('-', 15, 31);
-                ctx.restore();
-
-                // Bulb Housing
-                ctx.save();
-                ctx.translate(405, 230);
-                if (systemClosedSuccessfully) {
-                    successGlowTicks++;
-                    let pulsingGlow = ctx.createRadialGradient(45, 25, 5, 45, 25, 45 + Math.sin(successGlowTicks * 0.15) * 6);
-                    pulsingGlow.addColorStop(0, 'rgba(254, 240, 138, 1)');
-                    pulsingGlow.addColorStop(0.5, 'rgba(234, 179, 8, 0.4)');
-                    pulsingGlow.addColorStop(1, 'rgba(234, 179, 8, 0)');
-                    ctx.fillStyle = pulsingGlow;
-                    ctx.beginPath();
-                    ctx.arc(45, 25, 50, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.fillStyle = systemClosedSuccessfully ? '#fef08a' : '#1e293b';
-                ctx.strokeStyle = '#475569';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(45, 25, 25, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.strokeStyle = systemClosedSuccessfully ? '#ea580c' : '#475569';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(35, 30);
-                ctx.lineTo(40, 15);
-                ctx.lineTo(50, 15);
-                ctx.lineTo(55, 30);
-                ctx.stroke();
-                ctx.fillStyle = '#334155';
-                ctx.fillRect(32, 49, 26, 12);
-                ctx.restore();
-
-                // Test Slot Insertion Box
-                ctx.fillStyle = 'rgba(9, 13, 22, 0.8)';
-                ctx.fillRect(testSlotZone.x, testSlotZone.y, testSlotZone.width, testSlotZone.height);
-                ctx.strokeStyle = '#38bdf8';
-                ctx.lineWidth = 2.5;
-                ctx.setLineDash([6, 4]);
-                ctx.strokeRect(testSlotZone.x, testSlotZone.y, testSlotZone.width, testSlotZone.height);
-                ctx.setLineDash([]);
-                ctx.fillStyle = '#475569';
-                ctx.font = 'bold 11px sans-serif';
-                ctx.textAlign = 'center';
-                if (!testSlotZone.occupiedBy) {
-                    ctx.fillText('INSERT ELEMENT', testSlotZone.x + testSlotZone.width / 2, testSlotZone.y + 28);
-                }
-
-                // Interactive Circuit Switch
-                ctx.fillStyle = knifeSwitchControl.isEngaged ? '#10b981' : '#dc2626';
-                ctx.fillRect(knifeSwitchControl.x, knifeSwitchControl.y, knifeSwitchControl.width, knifeSwitchControl.height);
-                ctx.strokeStyle = '#334155';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(knifeSwitchControl.x, knifeSwitchControl.y, knifeSwitchControl.width, knifeSwitchControl.height);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 13px sans-serif';
-                ctx.fillText(knifeSwitchControl.isEngaged ? 'SWITCH CLOSED' : 'ENGAGE SWITCH', knifeSwitchControl.x + knifeSwitchControl.width / 2, knifeSwitchControl.y + 26);
-
-                // Option Cards Deck Layer
-                activeOptions.forEach(opt => {
-                    if (!opt.isDocked || selectedObject === opt) {
-                        ctx.fillStyle = opt.data.color;
-                        ctx.fillRect(opt.x - opt.width / 2, opt.y - opt.height / 2, opt.width, opt.height);
-                        ctx.strokeStyle = selectedObject === opt ? '#facc15' : '#334155';
-                        ctx.lineWidth = selectedObject === opt ? 3.5 : 2;
-                        ctx.strokeRect(opt.x - opt.width / 2, opt.y - opt.height / 2, opt.width, opt.height);
-
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 13px sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(opt.data.name, opt.x, opt.y + 5);
-                    }
-                });
-
-                // Hint Board Frame
-                if (displayHintBanner) {
-                    ctx.fillStyle = '#1e1b4b';
-                    ctx.fillRect(60, 525, 780, 48);
-                    ctx.strokeStyle = '#f59e0b';
-                    ctx.lineWidth = 1.5;
-                    ctx.strokeRect(60, 525, 780, 48);
-
-                    ctx.fillStyle = '#fbbf24';
-                    ctx.font = 'italic 14px sans-serif';
+                if (currentLevel === 1) {
+                    // Level 1: Just Display text block labels
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 13px Arial';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`SCIENTIFIC CONCEPT HINT: ${currentInstanceHint}`, canvas.width / 2, 554);
-                }
-
-            } else if (currentState === 'GAME_OVER') {
-                ctx.fillStyle = '#090d16';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                let testPassed = (healthPoints > 0 && score >= 7);
-
-                ctx.fillStyle = testPassed ? '#10b981' : '#ef4444';
-                ctx.font = 'bold 38px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(testPassed ? 'LAB EVALUATION SUCCESSFUL' : 'LAB CERTIFICATION INCOMPLETE', canvas.width / 2, 170);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 20px sans-serif';
-                ctx.fillText(`Operational Calibration Accuracy: ${score} / 10 Tasks Matched`, canvas.width / 2, 245);
-
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '15px sans-serif';
-                if (testPassed) {
-                    ctx.fillText('Excellent proficiency. Core principles of conductive loops and insulator barriers mastered.', canvas.width / 2, 300);
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + 24);
                 } else {
-                    ctx.fillText('Required proficiency threshold not fulfilled. Re-examine the material charts and try again.', canvas.width / 2, 300);
-                }
-
-                ctx.fillStyle = '#2563eb';
-                ctx.fillRect(350, 380, 200, 52);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('RUN NEW TRIAL', canvas.width / 2, 412);
-            }
-        }
-
-        // Desktop and Mobile Event Listeners Helpers
-        function getPointerCoords(e) {
-            const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX;
-            let clientY = e.clientY;
-            
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            }
-            
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
-        }
-
-        function handlePointerDown(coords) {
-            const mouseX = coords.x;
-            const mouseY = coords.y;
-
-            if (currentState === 'INSTRUCTIONS') {
-                if (mouseX >= 320 && mouseX <= 580 && mouseY >= 490 && mouseY <= 540) {
-                    AudioEngine.playClick();
-                    initializeLaboratorySession();
-                    currentState = 'PLAYING';
-                }
-            } else if (currentState === 'PLAYING') {
-                activeOptions.forEach(opt => {
-                    if (mouseX >= opt.x - opt.width / 2 && mouseX <= opt.x + opt.width / 2 &&
-                        mouseY >= opt.y - opt.height / 2 && mouseY <= opt.y + opt.height / 2) {
-                        selectedObject = opt;
-                        AudioEngine.playClick();
-                    }
-                });
-
-                if (mouseX >= knifeSwitchControl.x && mouseX <= knifeSwitchControl.x + knifeSwitchControl.width &&
-                    mouseY >= knifeSwitchControl.y && mouseY <= knifeSwitchControl.y + knifeSwitchControl.height) {
+                    // Level 2: Render schematic symbols + Text name at the bottom corner edge
+                    drawCircuitSymbol(ctx, item.symbolType, item.x, item.y, item.width, item.height - 20);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(item.x + 2, item.y + item.height - 20, item.width - 4, 18);
                     
-                    if (testSlotZone.occupiedBy && !knifeSwitchControl.isEngaged) {
-                        knifeSwitchControl.isEngaged = true;
-                        AudioEngine.playClick();
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(item.name, item.x + item.width / 2, item.y + item.height - 6);
+                }
+                ctx.textAlign = 'left'; // Reset alignment formatters
 
-                        let targetObject = activeQuestions[currentQuestionIndex];
-                        if (testSlotZone.occupiedBy.data.id === targetObject.id) {
-                            AudioEngine.playSuccess();
-                            score++;
-                            setTimeout(() => {
-                                currentQuestionIndex++;
-                                if (currentQuestionIndex >= 10) {
-                                    currentState = 'GAME_OVER';
-                                } else {
-                                    assembleActiveQuestionInstance();
-                                }
-                            }, 1900);
-                        } else {
-                            AudioEngine.playBuzzer();
-                            healthPoints--;
-                            attemptsLeft--;
-
-                            setTimeout(() => {
-                                if (healthPoints <= 0) {
-                                    currentState = 'GAME_OVER';
-                                } else {
-                                    knifeSwitchControl.isEngaged = false;
-                                    if (attemptsLeft <= 0) {
-                                        displayHintBanner = true;
-                                    }
-                                    if (testSlotZone.occupiedBy) {
-                                        testSlotZone.occupiedBy.x = testSlotZone.occupiedBy.originX;
-                                        testSlotZone.occupiedBy.y = testSlotZone.occupiedBy.originY;
-                                        testSlotZone.occupiedBy.isDocked = false;
-                                        testSlotZone.occupiedBy = null;
-                                    }
-                                }
-                            }, 1300);
+                // Detect overlaps bounding box
+                if (item.x < player.x + player.width &&
+                    item.x + item.width > player.x &&
+                    item.y < player.y + player.height &&
+                    item.y + item.height > player.y) {
+                    
+                    if (item.matchesTarget) {
+                        score++;
+                        if (score >= targetScorePerLevel) {
+                            if (currentLevel === 1) {
+                                // Level up transition configuration 
+                                score = 0;
+                                currentLevel = 2;
+                                items = [];
+                                updateHUD();
+                                alert("Level 1 Clear! Proceeding to Level 2: Circuit Diagrams & Symbols challenge!");
+                            } else {
+                                endGame(true); // Won overall game setup loop
+                                return;
+                            }
                         }
-                    } else if (!testSlotZone.occupiedBy) {
-                        AudioEngine.playBuzzer();
+                    } else {
+                        lives--;
+                        if (lives <= 0) {
+                            endGame(false);
+                            return;
+                        }
                     }
+                    updateHUD();
+                    items.splice(i, 1);
+                    continue;
                 }
-            } else if (currentState === 'GAME_OVER') {
-                if (mouseX >= 350 && mouseX <= 550 && mouseY >= 380 && mouseY <= 432) {
-                    AudioEngine.playClick();
-                    initializeLaboratorySession();
-                    currentState = 'PLAYING';
+
+                if (item.y > canvas.height) {
+                    items.splice(i, 1);
                 }
             }
+
+            requestAnimationFrame(gameLoop);
         }
 
-        function handlePointerMove(coords) {
-            if (!selectedObject || currentState !== 'PLAYING') return;
-            selectedObject.x = coords.x;
-            selectedObject.y = coords.y;
-        }
+        function endGame(isWin) {
+            gameActive = false;
+            gameplayScreen.style.display = 'none';
+            gameOverScreen.style.display = 'flex';
 
-        function handlePointerUp() {
-            if (!selectedObject || currentState !== 'PLAYING') return;
-
-            let dropZoneCenterX = testSlotZone.x + testSlotZone.width / 2;
-            let dropZoneCenterY = testSlotZone.y + testSlotZone.height / 2;
-            let spatialDistance = Math.hypot(selectedObject.x - dropZoneCenterX, selectedObject.y - dropZoneCenterY);
-
-            if (spatialDistance < 90 && !testSlotZone.occupiedBy) {
-                selectedObject.x = dropZoneCenterX;
-                selectedObject.y = dropZoneCenterY;
-                selectedObject.isDocked = true;
-                testSlotZone.occupiedBy = selectedObject;
-                AudioEngine.playClick();
+            if (isWin) {
+                gameOverTitle.innerText = "🏆 MASTER SCIENTIST!";
+                gameOverTitle.style.color = "#00fff0";
+                gameOverMsg.innerHTML = "Incredible job! You successfully mastered both parts of Grade 6 Circuits!<br><br><b>Level 1:</b> You isolated conductors correctly.<br><b>Level 2:</b> You identified standard diagram symbols for Cells & Batteries (the power sources providing chemical-to-electrical energy conversion!).";
             } else {
-                selectedObject.x = selectedObject.originX;
-                selectedObject.y = selectedObject.originY;
-                selectedObject.isDocked = false;
-                if (testSlotZone.occupiedBy === selectedObject) {
-                    testSlotZone.occupiedBy = null;
+                gameOverTitle.innerText = "💥 CIRCUIT BLOWN OUT";
+                gameOverTitle.style.color = "#e43f5a";
+                if(currentLevel === 1) {
+                    gameOverMsg.innerHTML = "You caught too many <b>Insulators</b>. Materials like plastic, wood, and rubber block electric charges from flowing safely through circuits.";
+                } else {
+                    gameOverMsg.innerHTML = "You missed the proper symbols or collected the wrong components! Remember, a <b>Cell</b> consists of one long and one short line, while a <b>Battery</b> links multiple cells together.";
                 }
             }
-            selectedObject = null;
         }
-
-        // Unified Events Router
-        window.addEventListener('mousedown', (e) => handlePointerDown(getPointerCoords(e)));
-        window.addEventListener('mousemove', (e) => handlePointerMove(getPointerCoords(e)));
-        window.addEventListener('mouseup', () => handlePointerUp());
-
-        window.addEventListener('touchstart', (e) => { e.preventDefault(); handlePointerDown(getPointerCoords(e)); }, {passive: false});
-        window.addEventListener('touchmove', (e) => { e.preventDefault(); handlePointerMove(getPointerCoords(e)); }, {passive: false});
-        window.addEventListener('touchend', () => handlePointerUp());
-
-        function frameTickController() {
-            paintLaboratoryTick();
-            requestAnimationFrame(frameTickController);
-        }
-
-        frameTickController();
     </script>
 </body>
 </html>
