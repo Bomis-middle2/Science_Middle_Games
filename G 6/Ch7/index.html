@@ -312,7 +312,7 @@
             
             <div id="diagnostic-alert-overlay">
                 <div style="font-size:2.5rem; margin-bottom:8px;">⚠️</div>
-                <h4 style="color:var(--warning-amber); font-weight:800; font-size:1.1rem; margin-bottom:6px; uppercase;">Diagnostic Alert</h4>
+                <h4 style="color:var(--warning-amber); font-weight:800; font-size:1.1rem; margin-bottom:6px; text-transform: uppercase;">Diagnostic Alert</h4>
                 <p id="alert-modal-text" style="color:#e2e8f0; font-size:0.88rem; line-height:1.4; margin-bottom:15px;"></p>
                 <button id="close-alert-modal-btn" style="background:var(--warning-amber); border:none; color:#141e30; font-weight:bold; padding:8px 20px; border-radius:6px; cursor:pointer; font-size:0.85rem;">RE-TUNING SCHEMATIC</button>
             </div>
@@ -340,7 +340,7 @@
 </div>
 
 <script>
-    // Comprehensive randomized master pool divided logically by task categories
+    // Master pools with randomized layouts
     const rawToggleUnitsPool = [
         {
             level: "METRICS CONFIG",
@@ -366,9 +366,9 @@
             q: "Task 02: Adjust the calibration marker on the broken ruler (missing its first 2cm) to compute the true length of the beam.",
             taskType: "SLIDER_RULER",
             minRulerVal: 2,
-            maxRulerVal: 10, // Full physical length = 10 - 2 = 8cm total path boundary
-            targetAnswer: 8.0,
-            expl: "True Length = End Position (10cm) minus Start Position (2cm). Discarding the broken 0-2cm dead space gives exactly 8.0 cm."
+            maxRulerVal: 7, // Fixed to align directly from 2cm to 7cm marker
+            targetAnswer: 5.0, // 7 - 2 = 5cm true length
+            expl: "True Length = End Position (7cm) minus Start Position (2cm). Discarding the broken 0-2cm dead space gives exactly 5.0 cm."
         },
         {
             level: "METRICS CONFIG",
@@ -434,7 +434,6 @@
         }
     ];
 
-    // Array to hold randomized selection
     let labDataset = [];
     let currentStep = 0, wrongCount = 0;
     let attemptsUsedThisTask = 0; 
@@ -447,7 +446,6 @@
     let interactiveSliderX = 250; 
     let currentMotionMode = "Circular"; 
 
-    // Sound asset nodes
     const sndCorrect = new Audio('assets/correct.mp3');
     const sndWrong = new Audio('assets/wrong.mp3');
     const sndClaps = new Audio('assets/freesound_community-claps-44774.mp3');
@@ -464,7 +462,6 @@
         }, 3500);
     });
 
-    // Pick one question randomly from each core archetype pool to build a fresh setup
     function assembleRandomizedDataset() {
         labDataset = [
             rawToggleUnitsPool[Math.floor(Math.random() * rawToggleUnitsPool.length)],
@@ -541,7 +538,6 @@
             document.getElementById('metric-slider').addEventListener('input', (e) => {
                 let val = parseFloat(e.target.value);
                 document.getElementById('slider-readout').innerText = val.toFixed(1) + " cm";
-                // Correlate visual coordinate translation calculations across dynamic offsets
                 let originStartOffset = 60 + ((data.minRulerVal - 2) * 32);
                 interactiveSliderX = originStartOffset + (val * 32); 
             });
@@ -597,21 +593,18 @@
             ctx.fillText("SYSTEM STATUS: AWAITING PARAMETERS", 200, 105);
         } 
         else if (data.taskType === "SLIDER_RULER") {
-            // Ruler bounds are strictly mapped to dynamic range pools
             ctx.fillStyle = "#2c1a1a";
             ctx.fillRect(30, 60, 340, 60);
             ctx.strokeStyle = varColor('--error-red');
             ctx.lineWidth = 2;
             ctx.strokeRect(30, 60, 340, 60);
             
-            // Broken jagged edge graphic matching custom starting configurations
             ctx.fillStyle = "#0a0f14";
             ctx.beginPath();
             ctx.moveTo(30, 60); ctx.lineTo(42, 75); ctx.lineTo(32, 90); ctx.lineTo(45, 105); ctx.lineTo(30, 120);
             ctx.fill();
 
             ctx.strokeStyle = '#ffffff';
-            // Start plotting lines dynamically using physical 2cm alignment as index base 0
             for (let i = 2; i <= 12; i++) {
                 let xPos = 60 + ((i-2) * 32);
                 if (xPos <= 370) {
@@ -622,12 +615,11 @@
                 }
             }
 
-            // Draw target object bounds to scale
             let startBeamX = 60 + ((data.minRulerVal - 2) * 32);
             let endBeamX = 60 + ((data.maxRulerVal - 2) * 32);
 
-            ctx.fillStyle = "rgba(0, 242, 254, 0.15)";
-            ctx.fillRect(startBeamX, 110, (endBeamX - startBeamX), 10);
+            ctx.fillStyle = "rgba(0, 242, 254, 0.25)";
+            ctx.fillRect(startBeamX, 110, (endBeamX - startBeamX), 12);
             
             ctx.strokeStyle = varColor('--neon-cyan');
             ctx.lineWidth = 4;
@@ -713,7 +705,6 @@
         return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     }
 
-    // Capture processing calculations
     document.getElementById('canvas-wrap').onclick = () => {
         const data = labDataset[currentStep];
         if (!document.getElementById('submit-action-btn').classList.contains('hidden')) return;
@@ -763,8 +754,6 @@
             if (attemptsUsedThisTask < 2) {
                 sndWrong.currentTime = 0;
                 sndWrong.play().catch(e => {});
-                
-                // Fire custom visual modal notification on screen
                 triggerCustomOnScreenAlert("CRITICAL: Parameters Misaligned! Tracking variance detected. 1 Attempt remaining before terminal lock.");
             } 
             else {
