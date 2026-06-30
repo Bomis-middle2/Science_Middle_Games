@@ -3,710 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polar Vector: Innovine Edition</title>
+    <title>Magnetism Revision Quiz</title>
     <style>
         :root {
-            --bg-main: #0a0f1d;
-            --bg-panel: #141b2d;
-            --neon-blue: #3b82f6;
-            --neon-red: #ef4444;
-            --gold: #f59e0b;
-            --text-light: #f8fafc;
-            --innovine-teal: #06b6d4;
+            --bg-main: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --accent-blue: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --border: #cbd5e1;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             user-select: none;
         }
 
         body {
             background-color: var(--bg-main);
-            color: var(--text-light);
+            color: var(--text-dark);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
+            padding: 20px;
         }
 
-        #game-container {
+        #quiz-container {
             width: 100%;
-            max-width: 450px;
-            height: 90vh;
-            max-height: 750px;
-            background-color: var(--bg-panel);
-            border-radius: 20px;
-            border: 2px solid #232d45;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .screen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 24px;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
-        /* NEW SCREEN: 5-SECOND INNOVINE LOGO SPLASH */
-        #screen-splash {
-            background-color: #060913;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo-container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 120px;
-            height: 120px;
-        }
-
-        .logo-hexagon {
-            font-size: 4.5rem;
-            z-index: 2;
-            filter: drop-shadow(0 0 15px var(--innovine-teal));
-            animation: pulseLogo 2s infinite ease-in-out;
-        }
-
-        .logo-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 4px solid rgba(6, 182, 212, 0.1);
-            border-top: 4px solid var(--innovine-teal);
-            border-radius: 50%;
-            animation: spinRing 5s linear infinite;
-        }
-
-        .brand-name {
-            font-size: 2.2rem;
-            font-weight: 900;
-            letter-spacing: 4px;
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-        }
-
-        .brand-sub {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            color: #64748b;
-            margin-top: -10px;
-        }
-
-        @keyframes spinRing {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes pulseLogo {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.06); opacity: 1; }
-        }
-
-        /* TYPOGRAPHY */
-        h1 {
-            text-align: center;
-            font-size: 2.2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            background: linear-gradient(to right, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-top: 20px;
-        }
-
-        h2 {
-            font-size: 1.3rem;
-            color: #94a3b8;
-            text-align: center;
-        }
-
-        p.description {
-            color: #94a3b8;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            text-align: center;
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
+            max-width: 480px;
+            background-color: var(--card-bg);
             border-radius: 12px;
-            border: 1px solid #232d45;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border: 1px solid var(--border);
+        }
+
+        /* HEADER & FOOTER LOGOS */
+        .brand-header {
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+        .brand-header h1 {
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+            letter-spacing: 1px;
+        }
+        .brand-header p {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.5;
         }
 
         /* BUTTONS */
-        .btn {
-            background: linear-gradient(135deg, var(--neon-blue), #1d4ed8);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-            transition: transform 0.1s, filter 0.2s;
-            text-align: center;
-        }
-        .btn:active { transform: scale(0.98); }
-        .btn:hover { filter: brightness(1.1); }
-
-        /* HUD LAYOUT */
-        .hud {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            z-index: 10;
-            background: rgba(10, 15, 29, 0.7);
-            padding: 10px 15px;
-            border-radius: 30px;
-            border: 1px solid #232d45;
-            backdrop-filter: blur(5px);
-        }
-        #timer-display { color: var(--neon-red); }
-        #score-display { color: var(--gold); }
-
-        /* RUNNER GAMEPLAY */
-        #canvas-wrapper {
-            flex-grow: 1;
-            position: relative;
-            margin: 15px 0;
-            border-radius: 15px;
-            overflow: hidden;
-            border: 1px solid #232d45;
-        }
-        canvas {
-            display: block;
-            background: #060913;
-            width: 100%;
-            height: 100%;
-        }
-
-        .controls-hint {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 5px;
-        }
-        .control-trigger {
-            flex: 1;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            color: white;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        .trigger-north { background: linear-gradient(135deg, var(--neon-red), #991b1b); }
-        .trigger-south { background: linear-gradient(135deg, var(--neon-blue), #1e3a8a); }
-        .control-trigger.active { outline: 2px solid white; box-shadow: 0 0 15px currentColor; }
-
-        /* QUIZ SCREEN HOUSING */
-        .quiz-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid #232d45;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .question-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            color: #f1f5f9;
-        }
-        .options-box {
+        .options-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-        .option-btn {
-            background: #1e2640;
-            border: 1px solid #334155;
-            color: #cbd5e1;
+
+        .opt-btn {
+            background: #ffffff;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
             padding: 14px;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: left;
             font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background 0.15s;
         }
-        .option-btn:hover { background: #243054; border-color: #475569; }
-        .option-btn.correct { background: #16a34a !important; border-color: #22c55e !important; color: white; }
-        .option-btn.wrong { background: #dc2626 !important; border-color: #ef4444 !important; color: white; }
+        .opt-btn:hover {
+            background: #f8fafc;
+        }
 
-        /* END SCREEN SUMMARY */
-        .results-block {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #232d45;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: left;
+        /* ANSWER STATE CLASSES */
+        .opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: var(--success) !important;
+            color: var(--success) !important;
+            font-weight: 600;
+        }
+        .opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: var(--danger) !important;
+        }
+
+        .action-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
             font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* SUMMARY BOX */
+        .summary-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
             line-height: 1.6;
         }
     </style>
 </head>
 <body>
 
-<div id="game-container">
+<div id="quiz-container">
 
-    <div id="screen-splash" class="screen active">
-        <div class="logo-container">
-            <div class="logo-ring"></div>
-            <div class="logo-hexagon">⬢</div>
-        </div>
-        <div class="brand-name">INNOVINE</div>
-        <div class="brand-sub">LABS STUDIO</div>
+    <div class="brand-header">
+        <h1>INNOVINE</h1>
+        <p>Labs Studio Assessment Tool</p>
     </div>
 
-    <div id="screen-start" class="screen">
-        <h1>Polar Vector</h1>
-        <h2>10-Second Magnet Blitz</h2>
-        <p class="description">
-            <b>INSTRUCTIONS:</b><br><br>
-            1. 🏃‍♂️ <b>Run Phase (10s):</b> Move left/right automatically. Tap the keys <b>[ A ] (North Pole)</b> or <b>[ S ] (South Pole)</b> to switch polarities instantly.<br><br>
-            • Match <b>opposite poles</b> to vacuum up Golden Coins.<br>
-            • Match <b>identical poles</b> to push Danger Hazards away!<br><br>
-            2. 🧬 <b>Quiz Phase:</b> Survive the run, then crack 5 randomized questions built directly from the textbook chapter.
-        </p>
-        <button class="btn" onclick="startRunPhase()">ENGAGE TRACK</button>
+    <div id="display-area" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="progress-text" id="progress">Loading quiz parameters...</div>
+        <div class="question-text" id="q-text">Connecting to chapter question database...</div>
+        <div class="options-list" id="q-options"></div>
     </div>
 
-    <div id="screen-runner" class="screen">
-        <div class="hud">
-            <div id="timer-display">TIME: 10.0s</div>
-            <div id="score-display">ENERGY: 0</div>
-        </div>
-        
-        <div id="canvas-wrapper">
-            <canvas id="gameCanvas"></canvas>
-        </div>
-
-        <div class="controls-hint">
-            <button class="control-trigger trigger-north active" id="key-n" onclick="changePlayerPole('NORTH')">[A] Emit North</button>
-            <button class="control-trigger trigger-south" id="key-s" onclick="changePlayerPole('SOUTH')">[S] Emit South</button>
-        </div>
-    </div>
-
-    <div id="screen-quiz" class="screen">
-        <div class="hud" style="justify-content: center; margin-bottom: 15px;">
-            <div style="color: var(--neon-blue);" id="quiz-progress">QUESTION 1 OF 5</div>
-        </div>
-
-        <div class="quiz-card">
-            <div class="question-text" id="q-text">Loading security question...</div>
-            <div class="options-box" id="q-options"></div>
-        </div>
-
-        <button class="btn" id="next-btn" onclick="advanceQuiz()" style="display:none;">NEXT CHALLENGE</button>
-    </div>
-
-    <div id="screen-end" class="screen">
-        <h1>Mission Log</h1>
-        <div class="results-block" id="end-report">
-            Analyzing terminal parameters...
-        </div>
-        <button class="btn" onclick="location.reload()">RELOAD SYSTEM</button>
-    </div>
+    <button class="action-btn" id="nav-btn" style="display: none;"></button>
 
 </div>
 
 <script>
-    // --- DATABASE: SOURCE DATA FOR 5 RANDOM QUESTIONS ---
-    const QUESTION_BANK = [
+    // --- TEXTBOOK DATABASE SOURCE MATERIAL ---
+    const CHAPTER_QUESTIONS = [
         {
-            q: "Who is historically credited with the discovery of natural magnets (magnetite) in Magnesia, Greece?",
-            options: ["A Greek sailor named Christopher", "A shepherd named Magnes", "An explorer named Lodestone", "Sir Isaac Newton"],
-            answer: 1,
-            cite: "The first magnets were discovered by a shepherd named Magnes in Magnesia, Greece."
+            q: "Who is historically credited with the discovery of natural magnets (lodestones) in Magnesia, Greece?",
+            options: ["A Greek sailor named Christopher", "A shepherd named Magnes", "An inventor named Thomas Edison", "Sir Isaac Newton"],
+            ans: 1
         },
         {
-            q: "Which specific regions of a magnet exhibit the strongest magnetic forces?",
-            options: ["The geometric middle center", "The external surface edges", "The North and South poles", "The magnetic fields lines exclusively"],
-            answer: 2,
-            cite: "Poles are the regions where the magnetic strength is the strongest."
+            q: "Which specific areas of a magnet contain the strongest magnetic attractive forces?",
+            options: ["The geometric exact center", "The outer surface width edge", "The North and South poles", "The imaginary field lines only"],
+            ans: 2
         },
         {
-            q: "If you want to maintain the magnetic strength of a Horseshoe Magnet long-term, what is the proper storage method?",
-            options: ["Place a piece of iron across its poles", "Store it submerged completely in water", "Keep it directly next to your smartphone", "Wrap it tightly in layers of aluminum foil"],
-            answer: 0,
-            cite: "For a Horseshoe Magnet, place a piece of iron across the poles to maintain its strength."
+            q: "What is the proper textbook method for storing a horseshoe magnet to keep its magnetic properties long-term?",
+            options: ["Place a piece of soft iron across its poles", "Submerge it completely under water", "Keep it resting near digital screens", "Wrap it in layers of plastic cloth"],
+            ans: 0
         },
         {
-            q: "Permanent magnets are exceptionally durable, strong magnets often constructed using mixtures of which materials?",
-            options: ["Copper, Gold, and Aluminum", "Iron, Cobalt, and Nickel", "Steel, Zinc, and Platinum", "Lodestone, Lead, and Carbon"],
-            answer: 1,
-            cite: "Permanent magnets are strong magnets made from mixtures of iron, cobalt and nickel."
+            q: "Permanent artificial magnets are strong magnets typically manufactured using mixtures of:",
+            options: ["Copper, Gold, and Aluminum", "Iron, Cobalt, and Nickel", "Steel, Zinc, and Platinum", "Lead, Tin, and Carbon Brass"],
+            ans: 1
         },
         {
-            q: "According to the fundamental laws of magnetism, what direct physical event occurs when two like poles are placed near each other?",
-            options: ["They completely demagnetize one another", "They pull tightly towards each other", "They break in half instantly", "They actively push away/repel each other"],
-            answer: 3,
-            cite: "The laws of magnetism state that like poles repel each other."
+            q: "According to the fundamental laws of magnetism, what happens when two like poles (e.g. North and North) are pushed near each other?",
+            options: ["They demagnetize each other completely", "They attract and pull closely together", "They break physically down the middle", "They experience a force that repels each other"],
+            ans: 3
         },
         {
-            q: "What component inside a magnetic compass constantly aligns itself with the Earth's magnetic field?",
-            options: ["An aluminum needle tip", "A copper wire tracking coil", "A magnetized needle painted half in red", "A liquid iron core basin"],
-            answer: 2,
-            cite: "A compass contains a magnetic needle painted half in red that always points towards the north."
+            q: "What component inside a simple magnetic compass consistently aligns itself with the Earth's north-south direction?",
+            options: ["An unmagnetized aluminum pointer tip", "A copper wire induction tracking ring", "A magnetized needle painted half in red", "A heavy liquid basin ring frame"],
+            ans: 2
         }
     ];
 
-    // Game Core State variables
-    let gameScore = 0;
-    let runTimeRemaining = 10.0;
-    let runIntervalId = null;
-    let animationFrameId = null;
+    // Engine Tracker Variables
+    let randomizedSet = [];
+    let activeIndex = 0;
+    let scoreCounter = 0;
+    let optionLocked = false;
 
-    // Runner Engine variables
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    let lanePositions = [];
-    let currentLane = 1;
-    let currentShipX = 0;
-    let targetShipX = 0;
-    let currentPolarity = "NORTH"; 
-
-    let spawnObjects = [];
-    let gameTicks = 0;
-
-    // Quiz Variables
-    let dynamicQuizSet = [];
-    let activeQuizIndex = 0;
-    let correctQuizAnswers = 0;
-    let activeQuestionAnswered = false;
-
-    // --- TIMED INITIALIZATION FOR SPLASH PAGE ---
+    // Run immediately when page drops into the window
     window.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-            document.getElementById("screen-splash").classList.remove("active");
-            document.getElementById("screen-start").classList.add("active");
-        }, 5000); // Transitions precisely after 5 seconds
+        initializeQuiz();
     });
 
-    function resizeTrackCanvas() {
-        const wrap = document.getElementById("canvas-wrapper");
-        canvas.width = wrap.clientWidth;
-        canvas.height = wrap.clientHeight;
-        lanePositions = [canvas.width * 0.22, canvas.width * 0.5, canvas.width * 0.78];
-        if(currentShipX === 0) {
-            currentShipX = lanePositions[currentLane];
-            targetShipX = lanePositions[currentLane];
-        }
-    }
-
-    function changePlayerPole(pole) {
-        currentPolarity = pole;
-        document.getElementById("key-n").classList.toggle("active", pole === "NORTH");
-        document.getElementById("key-s").classList.toggle("active", pole === "SOUTH");
-    }
-
-    window.addEventListener("keydown", (e) => {
-        if(e.key.toLowerCase() === 'a') changePlayerPole('NORTH');
-        if(e.key.toLowerCase() === 's') changePlayerPole('SOUTH');
-    });
-
-    canvas.addEventListener("touchstart", (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const touchX = e.touches[0].clientX - rect.left;
-        if(touchX < canvas.width / 2) {
-            if(currentLane > 0) currentLane--;
-        } else {
-            if(currentLane < 2) currentLane++;
-        }
-        targetShipX = lanePositions[currentLane];
-    });
-
-    canvas.addEventListener("mousedown", (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        if(clickX < canvas.width / 2) {
-            if(currentLane > 0) currentLane--;
-        } else {
-            if(currentLane < 2) currentLane++;
-        }
-        targetShipX = lanePositions[currentLane];
-    });
-
-    // --- PHASE 1: THE RUNNER MECHANICS ---
-    function startRunPhase() {
-        document.getElementById("screen-start").classList.remove("active");
-        document.getElementById("screen-runner").classList.add("active");
+    function initializeQuiz() {
+        // Clone raw data array
+        let rawPool = [...CHAPTER_QUESTIONS];
+        randomizedSet = [];
         
-        resizeTrackCanvas();
-        window.addEventListener('resize', resizeTrackCanvas);
-
-        runTimeRemaining = 10.0;
-        gameScore = 0;
-        spawnObjects = [];
-        gameTicks = 0;
-
-        runIntervalId = setInterval(() => {
-            runTimeRemaining -= 0.1;
-            if(runTimeRemaining <= 0) {
-                runTimeRemaining = 0;
-                clearInterval(runIntervalId);
-                cancelAnimationFrame(animationFrameId);
-                initializeQuizPhase();
-            }
-            document.getElementById("timer-display").innerText = `TIME: ${Math.max(0, runTimeRemaining).toFixed(1)}s`;
-        }, 100);
-
-        runLoop();
-    }
-
-    function runLoop() {
-        gameTicks++;
-        updateRunnerPhysics();
-        drawRunnerGraphics();
-        animationFrameId = requestAnimationFrame(runLoop);
-    }
-
-    function updateRunnerPhysics() {
-        currentShipX += (targetShipX - currentShipX) * 0.25;
-
-        if(gameTicks % 15 === 0) {
-            let selectedLane = Math.floor(Math.random() * 3);
-            let objectRoll = Math.random();
-            if(objectRoll < 0.55) {
-                spawnObjects.push({
-                    x: lanePositions[selectedLane],
-                    y: -20,
-                    type: "COIN",
-                    pole: Math.random() < 0.5 ? "NORTH" : "SOUTH",
-                    radius: 12
-                });
-            } else {
-                spawnObjects.push({
-                    x: lanePositions[selectedLane],
-                    y: -20,
-                    type: "HAZARD",
-                    pole: Math.random() < 0.5 ? "NORTH" : "SOUTH",
-                    width: 32,
-                    height: 16
-                });
-            }
+        // Pick exactly 5 random questions
+        while (randomizedSet.length < 5 && rawPool.length > 0) {
+            let randomIndex = Math.floor(Math.random() * rawPool.length);
+            randomizedSet.push(rawPool.splice(randomIndex, 1)[0]);
         }
 
-        for(let i = spawnObjects.length - 1; i >= 0; i--) {
-            let item = spawnObjects[i];
-            item.y += 7.5; 
-
-            let distY = 540 - item.y;
-            if(distY > 0 && distY < 200) {
-                if(item.type === "COIN" && currentPolarity !== item.pole) {
-                    item.x += (currentShipX - item.x) * 0.2;
-                    item.y += (540 - item.y) * 0.15;
-                } else if(item.type === "HAZARD" && currentPolarity === item.pole) {
-                    if(Math.abs(currentShipX - item.x) < 60) {
-                        item.x += item.x > currentShipX ? 8 : -8;
-                    }
-                }
-            }
-
-            let isCollidingY = (item.y >= 520 && item.y <= 555);
-            let isCollidingX = (Math.abs(currentShipX - item.x) < 25);
-
-            if(isCollidingY && isCollidingX) {
-                if(item.type === "COIN") {
-                    if(currentPolarity !== item.pole) {
-                        gameScore += 50; 
-                    } else {
-                        gameScore = Math.max(0, gameScore - 20); 
-                    }
-                } else if(item.type === "HAZARD") {
-                    if(currentPolarity === item.pole) {
-                        gameScore += 25; 
-                    } else {
-                        gameScore = Math.max(0, gameScore - 40); 
-                    }
-                }
-                document.getElementById("score-display").innerText = `ENERGY: ${gameScore}`;
-                spawnObjects.splice(i, 1);
-                continue;
-            }
-
-            if(item.y > canvas.height + 30) {
-                spawnObjects.splice(i, 1);
-            }
-        }
+        activeIndex = 0;
+        scoreCounter = 0;
+        displayQuestion();
     }
 
-    function drawRunnerGraphics() {
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-
-        ctx.strokeStyle = "#16223f";
-        ctx.lineWidth = 2;
-        lanePositions.forEach(pos => {
-            ctx.beginPath();
-            ctx.moveTo(pos, 0);
-            ctx.lineTo(pos, canvas.height);
-            ctx.stroke();
-        });
-
-        spawnObjects.forEach(item => {
-            let colorCode = item.pole === "NORTH" ? varColor('--neon-red') : varColor('--neon-blue');
-            if(item.type === "COIN") {
-                ctx.fillStyle = "#fbbf24";
-                ctx.strokeStyle = colorCode;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(item.x, item.y, item.radius, 0, Math.PI*2);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = "#000";
-                ctx.font = "bold 11px Arial";
-                ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                ctx.fillText(item.pole[0], item.x, item.y);
-            } else {
-                ctx.fillStyle = colorCode;
-                ctx.fillRect(item.x - item.width/2, item.y - item.height/2, item.width, item.height);
-                ctx.strokeStyle = "#fff";
-                ctx.lineWidth = 1;
-                ctx.strokeRect(item.x - item.width/2, item.y - item.height/2, item.width, item.height);
-
-                ctx.fillStyle = "#fff";
-                ctx.font = "bold 9px monospace";
-                ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                ctx.fillText("❗", item.x, item.y);
-            }
-        });
-
-        let shipColor = currentPolarity === "NORTH" ? varColor('--neon-red') : varColor('--neon-blue');
+    function displayQuestion() {
+        optionLocked = false;
         
-        ctx.strokeStyle = shipColor;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(currentShipX, 540, 24, 0, Math.PI*2);
-        ctx.stroke();
+        // Hide navigation button until option selection registers
+        const navBtn = document.getElementById("nav-btn");
+        navBtn.style.display = "none";
 
-        ctx.fillStyle = "#f8fafc";
-        ctx.beginPath();
-        ctx.moveTo(currentShipX, 524);
-        ctx.lineTo(currentShipX - 14, 550);
-        ctx.lineTo(currentShipX + 14, 550);
-        ctx.fill();
-    }
-
-    function varColor(name) {
-        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    }
-
-    // --- PHASE 2: TERMINAL SECURITY QUIZ ---
-    function initializeQuizPhase() {
-        document.getElementById("screen-runner").classList.remove("active");
-        document.getElementById("screen-quiz").classList.add("active");
-
-        let pool = [...QUESTION_BANK];
-        dynamicQuizSet = [];
-        while(dynamicQuizSet.length < 5 && pool.length > 0) {
-            let rIdx = Math.floor(Math.random() * pool.length);
-            dynamicQuizSet.push(pool.splice(rIdx, 1)[0]);
-        }
-
-        activeQuizIndex = 0;
-        correctQuizAnswers = 0;
-        presentQuestion();
-    }
-
-    function presentQuestion() {
-        activeQuestionAnswered = false;
-        document.getElementById("next-btn").style.display = "none";
+        let currentQuestionData = randomizedSet[activeIndex];
         
-        let qData = dynamicQuizSet[activeQuizIndex];
-        document.getElementById("quiz-progress").innerText = `QUESTION ${activeQuizIndex + 1} OF 5`;
-        document.getElementById("q-text").innerText = qData.q;
+        // Render texts
+        document.getElementById("progress").innerText = `QUESTION ${activeIndex + 1} OF 5`;
+        document.getElementById("q-text").innerText = currentQuestionData.q;
 
-        const optionsHousing = document.getElementById("q-options");
-        optionsHousing.innerHTML = "";
+        const optionsBox = document.getElementById("q-options");
+        optionsBox.innerHTML = ""; // Clear old node nodes
 
-        qData.options.forEach((opt, idx) => {
+        // Generate choice inputs dynamically
+        currentQuestionData.options.forEach((choiceText, index) => {
             let btn = document.createElement("button");
-            btn.className = "option-btn";
-            btn.innerText = opt;
-            btn.onclick = () => logQuizSubmission(idx, btn);
-            optionsHousing.appendChild(btn);
+            btn.className = "opt-btn";
+            btn.innerText = choiceText;
+            btn.onclick = () => evaluateAnswer(index, btn);
+            optionsBox.appendChild(btn);
         });
     }
 
-    function logQuizSubmission(selectedIndex, chosenButton) {
-        if(activeQuestionAnswered) return; 
-        activeQuestionAnswered = true;
+    function evaluateAnswer(userSelectedIndex, targetButtonElement) {
+        if (optionLocked) return; // Prevent multiple selection clicks
+        optionLocked = true;
 
-        let qData = dynamicQuizSet[activeQuizIndex];
-        const allButtons = document.getElementById("q-options").children;
+        let questionData = randomizedSet[activeIndex];
+        const choiceButtons = document.getElementById("q-options").children;
+        const navBtn = document.getElementById("nav-btn");
 
-        if(selectedIndex === qData.answer) {
-            chosenButton.classList.add("correct");
-            correctQuizAnswers++;
+        if (userSelectedIndex === questionData.ans) {
+            targetButtonElement.classList.add("correct");
+            scoreCounter++;
         } else {
-            chosenButton.classList.add("wrong");
-            allButtons[qData.answer].classList.add("correct");
+            targetButtonElement.classList.add("wrong");
+            // Highlight right answer to educate user immediately
+            choiceButtons[questionData.ans].classList.add("correct");
         }
 
-        document.getElementById("next-btn").style.display = "block";
+        // Setup the verification step button action
+        navBtn.innerText = (activeIndex < 4) ? "CONTINUE TO NEXT" : "VIEW REVISION SUMMARY";
+        navBtn.onclick = () => advanceQuizPointer();
+        navBtn.style.display = "block";
     }
 
-    function advanceQuiz() {
-        activeQuizIndex++;
-        if(activeQuizIndex < 5) {
-            presentQuestion();
+    function advanceQuizPointer() {
+        activeIndex++;
+        if (activeIndex < 5) {
+            displayQuestion();
         } else {
-            displayFinalReport();
+            renderFinalSummary();
         }
     }
 
-    // --- PHASE 3: DISMISSAL CONSOLE REPORT ---
-    function displayFinalReport() {
-        document.getElementById("screen-quiz").classList.remove("active");
-        document.getElementById("screen-end").classList.add("active");
+    function renderFinalSummary() {
+        const displayArea = document.getElementById("display-area");
+        const navBtn = document.getElementById("nav-btn");
+        let passagePercentage = (scoreCounter / 5) * 100;
 
-        const targetReport = document.getElementById("end-report");
-        let percent = (correctQuizAnswers / 5) * 100;
-        
-        let headerNote = percent >= 80 ? "🏆 CLEARANCE GRANTED" : "❌ SYSTEM COOLDOWN INITIATED";
-        let statusColor = percent >= 80 ? "#16a34a" : "#dc2626";
+        let statusHeadline = passagePercentage >= 80 ? "🎉 Assessment Passed Successfully" : "📚 Chapter Review Recommended";
+        let colorTheme = passagePercentage >= 80 ? "var(--success)" : "var(--danger)";
 
-        let textOutput = `<h3 style="color:${statusColor}; margin-bottom:12px;">${headerNote}</h3>`;
-        textOutput += `• <b>Arcade Track Score:</b> ${gameScore} Joules Energy Collected<br>`;
-        textOutput += `• <b>Assessment Accuracy:</b> ${correctQuizAnswers} / 5 Questions Correct (${percent}%)<br><br>`;
-        
-        if(percent >= 80) {
-            textOutput += `<b>Analysis:</b> Outstanding work! You cleanly completed the fast polarity field run and successfully demonstrated complete mastery over natural/artificial magnet categorization, proper keeper storage rules, and the laws of attraction/repulsion.`;
-        } else {
-            textOutput += `<b>Analysis:</b> Core stabilization failed. Please review your textbook notes regarding why permanent magnets are made of iron/cobalt/nickel, how magnets are protected using soft iron bars across their poles, and how like poles repel.`;
-        }
+        // Transform display view into basic scoresheet summary report card
+        displayArea.innerHTML = `
+            <h2 style="color: ${colorTheme}; font-size: 1.25rem; text-align: center; margin-bottom: 4px;">${statusHeadline}</h2>
+            <div class="summary-box">
+                <p>• <b>Total Answered:</b> 5 Questions</p>
+                <p>• <b>Correct Responses:</b> ${scoreCounter} / 5</p>
+                <p>• <b>Accuracy Rating:</b> ${passagePercentage}%</p>
+                <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 10px;">
+                    ${passagePercentage >= 80 ? 
+                    "Excellent knowledge base! You demonstrated a complete, structured understanding of the laws of magnetism, pole locations, magnetic materials, and keeper precautions." : 
+                    "Review your Grade 6 Chapter highlights regarding why like poles experience repulsive separation, permanent magnets use mixtures of iron/cobalt/nickel, and why keepers preserve field strengths."}
+                </p>
+            </div>
+        `;
 
-        targetReport.innerHTML = textOutput;
+        // Update footer button function to restart the quiz engine seamlessly
+        navBtn.innerText = "RESET QUIZ ENGINE";
+        navBtn.onclick = () => {
+            initializeQuiz();
+            // Restore regular question presentation HTML layout structures
+            displayArea.innerHTML = `
+                <div class="progress-text" id="progress">Loading quiz parameters...</div>
+                <div class="question-text" id="q-text">Connecting...</div>
+                <div class="options-list" id="q-options"></div>
+            `;
+            displayQuestion();
+        };
+        navBtn.style.display = "block";
     }
 </script>
 </body>
