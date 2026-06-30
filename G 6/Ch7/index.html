@@ -70,14 +70,6 @@
             margin-bottom: 15px;
         }
 
-        .splash-brand-title {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: var(--primary-blue);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
         /* --- SCREEN VIEWS --- */
         .view-frame {
             display: flex;
@@ -266,12 +258,10 @@
 <div id="game-container">
     <div id="splash-screen">
         <img src="assets/logo.png" alt="Innovine Logo" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').style.display='block';">
-      
-      </div>
+        <h2 id="fallback-logo-text" style="display:none; color:var(--primary-blue); font-weight:900;">INNOVINE LABS</h2>
+    </div>
 
     <div id="intro-view" class="view-frame hidden" style="text-align: center; justify-content: center;">
-        <div style="margin-bottom: 15px;">
-        </div>
         <h1 style="color: var(--neon-cyan); font-weight: 800; font-size: 1.6rem; margin-bottom: 5px;">Lab Meter Pro</h1>
         <p style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 25px;">Spatial Physics Calibration Unit</p>
         
@@ -315,7 +305,6 @@
 </div>
 
 <script>
-    // Pure physics interaction schema dataset (Zero multi-choice properties)
     const labDataset = [
         {
             level: "METRICS CONFIG",
@@ -359,15 +348,15 @@
     ];
 
     let currentStep = 0, wrongCount = 0;
+    let attemptsUsedThisTask = 0; // Tracks localized loops (Max 2 Allowed)
+    
     const canvas = document.getElementById('labCanvas');
     const ctx = canvas.getContext('2d');
     let canvasAnimationId = null;
     let animTick = 0;
 
-    // Interactive Drag / State parameters
     let interactiveSliderX = 280; 
-    let isDraggingSlider = false;
-    let currentMotionMode = "Circular"; // Dynamic variation switcher for task 3 & 5
+    let currentMotionMode = "Circular"; 
 
     // Native Audio Elements
     const sndCorrect = new Audio('assets/correct.mp3');
@@ -394,6 +383,7 @@
     function initWorkspaceNode() {
         if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
         
+        attemptsUsedThisTask = 0; // Reset counter for new task field
         document.getElementById('terminal-feedback').style.display = 'none';
         document.getElementById('submit-action-btn').classList.add('hidden');
         document.getElementById('verify-action-btn').classList.remove('hidden');
@@ -406,7 +396,6 @@
         const controlArea = document.getElementById('dynamic-switches');
         controlArea.innerHTML = "";
 
-        // Build native interactive inputs depending on physics objective (No MCQ templates)
         if (data.taskType === "TOGGLE_UNITS" || data.taskType === "TOGGLE_MOTION") {
             document.getElementById('rack-title').innerText = "Instrument Toggle Switches";
             data.switches.forEach((label, idx) => {
@@ -440,7 +429,6 @@
             document.getElementById('metric-slider').addEventListener('input', (e) => {
                 let val = parseFloat(e.target.value);
                 document.getElementById('slider-readout').innerText = val.toFixed(1) + " cm";
-                // Tie slider directly to live vector graphics on canvas
                 interactiveSliderX = 60 + ((val) * 32); 
             });
             interactiveSliderX = 60 + (8.5 * 32);
@@ -457,7 +445,6 @@
         animTick = 0;
         function workspaceLoop() {
             animTick++;
-            // Dynamically morph physics models for live capture questions
             if(animTick % 160 === 0) {
                 currentMotionMode = currentMotionMode === "Circular" ? "Oscillatory" : "Circular";
             }
@@ -470,7 +457,6 @@
     function drawLabGraphics(type) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Matrix grid plotting lines
         ctx.strokeStyle = '#102a43';
         ctx.lineWidth = 1;
         for(let x=20; x<canvas.width; x+=20) {
@@ -495,14 +481,12 @@
             ctx.fillText("SYSTEM STATUS: AWAITING PARAMETERS", 200, 105);
         } 
         else if (type === "SLIDER_RULER") {
-            // Damaged measuring ruler setup
             ctx.fillStyle = "#2c1a1a";
             ctx.fillRect(30, 60, 340, 60);
             ctx.strokeStyle = varColor('--error-red');
             ctx.lineWidth = 2;
             ctx.strokeRect(30, 60, 340, 60);
             
-            // Broken jagged edge graphic
             ctx.fillStyle = "#0a0f14";
             ctx.beginPath();
             ctx.moveTo(30, 60); ctx.lineTo(42, 75); ctx.lineTo(32, 90); ctx.lineTo(45, 105); ctx.lineTo(30, 120);
@@ -511,30 +495,20 @@
             ctx.strokeStyle = '#ffffff';
             for (let i = 2; i <= 10; i++) {
                 let xPos = 60 + ((i-2) * 32);
-                ctx.beginPath();
-                ctx.moveTo(xPos, 60);
-                ctx.lineTo(xPos, 78);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(xPos, 60); ctx.lineTo(xPos, 78); ctx.stroke();
                 ctx.fillStyle = "#ffffff";
                 ctx.font = "10px monospace";
                 ctx.fillText(i + "cm", xPos, 95);
             }
             
-            // Render calibration bar adjusted by dynamic slide values
             ctx.strokeStyle = varColor('--neon-cyan');
             ctx.lineWidth = 4;
-            ctx.beginPath(); 
-            ctx.moveTo(60, 42); 
-            ctx.lineTo(interactiveSliderX, 42); 
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(60, 42); ctx.lineTo(interactiveSliderX, 42); ctx.stroke();
             
             ctx.fillStyle = varColor('--neon-cyan');
-            ctx.beginPath();
-            ctx.arc(interactiveSliderX, 42, 6, 0, Math.PI*2);
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(interactiveSliderX, 42, 6, 0, Math.PI*2); ctx.fill();
         } 
         else if (type === "TAP_TIMING") {
-            // Dynamic telemetry feedback mode loop
             let centerPos = canvas.width / 2;
             
             if (currentMotionMode === "Oscillatory") {
@@ -547,7 +521,6 @@
                 ctx.fillStyle = varColor('--primary-blue');
                 ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.fill();
             } else {
-                // Rotates out of bounds to simulate spinning/circular state
                 let spinAngle = animTick * 0.08;
                 let endX = centerPos + Math.cos(spinAngle) * 45;
                 let endY = 70 + Math.sin(spinAngle) * 45;
@@ -574,10 +547,7 @@
             ctx.lineWidth = 8;
             for(let b = 0; b < 3; b++) {
                 let angle = spinRotation + (b * (Math.PI * 2 / 3));
-                ctx.beginPath();
-                ctx.moveTo(originX, originY);
-                ctx.lineTo(originX + Math.cos(angle)*60, originY + Math.sin(angle)*60);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(originX, originY); ctx.lineTo(originX + Math.cos(angle)*60, originY + Math.sin(angle)*60); ctx.stroke();
             }
             ctx.fillStyle = varColor('--neon-cyan');
             ctx.font = "bold 11px monospace";
@@ -593,13 +563,11 @@
             let carX;
 
             if (animTick % 200 < 100) {
-                // Linear flat transition pattern
                 carX = 40 + ((animTick % 100) * 3.2);
                 ctx.fillStyle = varColor('--success-green');
                 ctx.fillRect(carX, trackY - 12, 28, 16);
                 stateLabel = "Rectilinear";
             } else {
-                // Sinusoidal curved path transition pattern
                 carX = 40 + ((animTick % 100) * 3.2);
                 let carY = trackY + Math.sin(animTick * 0.2) * 25;
                 ctx.fillStyle = varColor('--error-red');
@@ -617,9 +585,12 @@
         return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     }
 
-    // Viewport Capture Processing Engine
+    // Viewport Capture Click Processing Engine
     document.getElementById('canvas-wrap').onclick = () => {
         const data = labDataset[currentStep];
+        // Don't evaluate if data was already submitted successfully
+        if (!document.getElementById('submit-action-btn').classList.contains('hidden')) return;
+
         if (data.taskType === "TAP_TIMING") {
             evaluateActionPerformance(currentMotionMode === "Oscillatory");
         } else if (data.taskType === "TAP_TIMING_RECT") {
@@ -641,35 +612,54 @@
         } 
         else if (data.taskType === "SLIDER_RULER") {
             let currentVal = parseFloat(document.getElementById('metric-slider').value);
-            // Check if calibrated calculation isolates the true span accurately
             evaluateActionPerformance(Math.abs(currentVal - data.targetAnswer) < 0.2);
         }
     };
 
     function evaluateActionPerformance(isCorrect) {
-        document.getElementById('verify-action-btn').classList.add('hidden');
+        attemptsUsedThisTask++;
         const terminal = document.getElementById('terminal-feedback');
-        
-        // Freeze toggle controls
-        document.querySelectorAll('.instrument-toggle input').forEach(input => input.disabled = true);
-        let slider = document.getElementById('metric-slider');
-        if(slider) slider.disabled = true;
 
         if (isCorrect) {
+            // Correct - Immediately Lock Down and allow proceeding
+            document.getElementById('verify-action-btn').classList.add('hidden');
+            lockCurrentInputs(true);
+
             terminal.className = "terminal-box expl-style";
             terminal.innerHTML = "&nbsp;⚙️ <b>CALIBRATION OPTIMAL</b><br>" + labDataset[currentStep].expl;
+            terminal.style.display = "block";
+            document.getElementById('submit-action-btn').classList.remove('hidden');
+
             sndCorrect.currentTime = 0;
             sndCorrect.play().catch(e => {});
         } else {
-            wrongCount++;
-            terminal.className = "terminal-box hint-style";
-            terminal.innerHTML = "&nbsp;⚠️ <b>DIAGNOSTIC DEVIATION DETECTED</b><br>" + labDataset[currentStep].expl;
-            sndWrong.currentTime = 0;
-            sndWrong.play().catch(e => {});
+            // First Wrong Attempt -> Alert user and allow secondary tweak
+            if (attemptsUsedThisTask < 2) {
+                sndWrong.currentTime = 0;
+                sndWrong.play().catch(e => {});
+                alert("⚠️ PARAMETERS MISALIGNED!\n\n1 Attempt Remaining. Re-adjust your switches or sliders carefully.");
+            } 
+            // Second Wrong Attempt -> Max attempts reached, force lock and reveal right answer
+            else {
+                wrongCount++;
+                document.getElementById('verify-action-btn').classList.add('hidden');
+                lockCurrentInputs(true);
+
+                terminal.className = "terminal-box hint-style";
+                terminal.innerHTML = "&nbsp;❌ <b>2 CHANCES EXCEEDED (DIAGNOSTIC DEVIATION)</b><br>" + labDataset[currentStep].expl;
+                terminal.style.display = "block";
+                document.getElementById('submit-action-btn').classList.remove('hidden');
+
+                sndWrong.currentTime = 0;
+                sndWrong.play().catch(e => {});
+            }
         }
-        
-        terminal.style.display = "block";
-        document.getElementById('submit-action-btn').classList.remove('hidden');
+    }
+
+    function lockCurrentInputs(shouldLock) {
+        document.querySelectorAll('.instrument-toggle input').forEach(input => input.disabled = shouldLock);
+        let slider = document.getElementById('metric-slider');
+        if(slider) slider.disabled = shouldLock;
     }
 
     document.getElementById('submit-action-btn').onclick = () => {
@@ -696,7 +686,7 @@
         } else if (wrongCount <= 2) {
             summary.innerHTML = "⚠️ <b>Status: Minor Tolerance Drift</b><br><br>The metrics workstation successfully established parameters but detected isolated timing variances during frame capture.";
         } else {
-            summary.innerHTML = "❌ <b>Status: Complete Station Recalibration Required</b><br><br>Severe telemetry failure reported during kinematic tracking. Keep core rules logged:<br>• <b>S.I. Metrics</b> remain uniform.<br>• <b>Rectilinear</b> tracks absolute lines.<br>• <b>Oscillatory</b> frames a regular to-and-fro arc.";
+            summary.innerHTML = "❌ <b>Status: Station Recalibration Required</b><br><br>Severe telemetry failure reported during kinematic tracking. Keep core rules logged:<br>• <b>S.I. Metrics</b> remain uniform.<br>• <b>Rectilinear</b> tracks absolute lines.<br>• <b>Oscillatory</b> frames a regular to-and-fro arc.";
         }
     }
 </script>
