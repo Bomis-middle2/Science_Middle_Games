@@ -44,6 +44,10 @@
         const canvas = document.getElementById('magnetismCanvas');
         const ctx = canvas.getContext('2d');
 
+        // ASSET PIPELINE: Load external branding image
+        const logoAsset = new Image();
+        logoAsset.src = 'assets/logo.png';
+
         // STATE ENGINE: 'SPLASH', 'INSTRUCTIONS', 'PLAYING', 'GAME_OVER'
         let currentState = 'SPLASH';
         let splashStartTime = Date.now();
@@ -58,7 +62,7 @@
         let displayHintBanner = false;
         let currentInstanceHint = "";
         let choiceCards = [];
-        let loadedSpecimen = null; // Replaces laboratoryDropZone.occupiedBy
+        let loadedSpecimen = null;
         let animationTicks = 0;
 
         // Interactive Interface Buttons (Non-drag zones)
@@ -171,7 +175,7 @@
             for (let i = 0; i < 3; i++) {
                 choiceCards.push({
                     data: uniqueSelection[i],
-                    x: 180 + (i * 270), // Centered beautifully across width
+                    x: 180 + (i * 270), 
                     y: 400,
                     width: 220,
                     height: 55,
@@ -180,44 +184,29 @@
             }
         }
 
-        function drawInnovineVectorLogo(x, y, scale, isSplash) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(scale, scale);
-
-            ctx.strokeStyle = isSplash ? '#1e3a8a' : '#2563eb'; 
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                let angle = (Math.PI / 3) * i;
-                let hx = 75 * Math.cos(angle);
-                let hy = 75 * Math.sin(angle);
-                if (i === 0) ctx.moveTo(hx, hy);
-                else ctx.lineTo(hx, hy);
+        // RE-ENGINEERED LOGO DRAWER: Renders target reference asset/logo.png cleanly centered
+        function drawInnovineLogoAsset(x, y, displayWidth, displayHeight) {
+            // Check to ensure the image has loaded down the asset line pipeline before drawing
+            if (logoAsset.complete && logoAsset.naturalWidth !== 0) {
+                ctx.save();
+                // Draw image anchored from its true center point coordinates
+                ctx.drawImage(
+                    logoAsset, 
+                    x - displayWidth / 2, 
+                    y - displayHeight / 2, 
+                    displayWidth, 
+                    displayHeight
+                );
+                ctx.restore();
+            } else {
+                // High-quality fallback text tracker while asset finishes server fetch
+                ctx.save();
+                ctx.fillStyle = '#2563eb';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('[LOGOTYPE]', x, y);
+                ctx.restore();
             }
-            ctx.closePath();
-            ctx.stroke();
-
-            ctx.fillStyle = isSplash ? '#2563eb' : '#60a5fa'; 
-            ctx.beginPath();
-            ctx.arc(0, 0, 24, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = isSplash ? '#0284c7' : '#38bdf8';
-            ctx.lineWidth = 4;
-            for (let j = 0; j < 3; j++) {
-                let lAngle = (Math.PI / 1.5) * j + 0.4;
-                ctx.beginPath();
-                ctx.moveTo(24 * Math.cos(lAngle), 24 * Math.sin(lAngle));
-                ctx.lineTo(64 * Math.cos(lAngle), 64 * Math.sin(lAngle));
-                ctx.stroke();
-
-                ctx.fillStyle = isSplash ? '#1e293b' : '#ffffff';
-                ctx.beginPath();
-                ctx.arc(64 * Math.cos(lAngle), 64 * Math.sin(lAngle), 6, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
         }
 
         function updateAndRenderCanvas() {
@@ -226,7 +215,10 @@
             if (currentState === 'SPLASH') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                drawInnovineVectorLogo(canvas.width / 2, canvas.height / 2 - 40, 1.2, true);
+                
+                // Render the clean image asset logo (150x150 dimensions for splash screen display focus)
+                drawInnovineLogoAsset(canvas.width / 2, canvas.height / 2 - 40, 150, 150);
+
                 ctx.fillStyle = '#0f172a'; 
                 ctx.font = 'bold 44px sans-serif';
                 ctx.letterSpacing = "5px";
@@ -298,12 +290,15 @@
                 ctx.lineWidth = 2;
                 ctx.strokeRect(0, 0, canvas.width, 65);
 
+                // Small decorative logo inside the UI Header panel (40x40 dimension constraint)
+                drawInnovineLogoAsset(50, 32, 40, 40);
+
                 ctx.font = 'bold 15px sans-serif';
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#38bdf8';
-                ctx.fillText(`CURRENT TASK: ${currentTaskIndex + 1} / 10`, 35, 38);
+                ctx.fillText(`CURRENT TASK: ${currentTaskIndex + 1} / 10`, 95, 38);
                 ctx.fillStyle = '#f8fafc';
-                ctx.fillText(`EARNED SCORE: ${score} Pts`, 320, 38);
+                ctx.fillText(`EARNED SCORE: ${score} Pts`, 340, 38);
                 ctx.fillStyle = '#ef4444';
                 ctx.fillText(`SYSTEM HP: ${healthPoints} LIFE`, 590, 38);
                 ctx.textAlign = 'right';
@@ -380,7 +375,7 @@
                     ctx.fillText('CHAMBER EMPTY', chamberX, dockY + 30);
                 }
 
-                // --- INTERACTIVE SPECIMEN SELECTION MATRIX (CLICK INSTEAD OF DRAG) ---
+                // --- INTERACTIVE SPECIMEN SELECTION MATRIX ---
                 ctx.fillStyle = '#0f172a';
                 ctx.fillRect(40, 335, 820, 135);
                 ctx.strokeStyle = '#1e293b';
@@ -395,11 +390,10 @@
                     let cardLeft = card.x - card.width / 2;
                     let cardTop = card.y - card.height / 2;
 
-                    // Background highlights if selected/loaded
                     if (loadedSpecimen && loadedSpecimen.data.id === card.data.id) {
                         ctx.fillStyle = '#1e293b';
                         ctx.fillRect(cardLeft - 4, cardTop - 4, card.width + 8, card.height + 8);
-                        ctx.strokeStyle = '#facc15'; // Yellow neon glow
+                        ctx.strokeStyle = '#facc15'; 
                         ctx.lineWidth = 3;
                     } else {
                         ctx.fillStyle = '#111827';
@@ -484,7 +478,6 @@
                     currentState = 'PLAYING';
                 }
             } else if (currentState === 'PLAYING') {
-                // Loop through selection cards to load them into chamber via clean click
                 choiceCards.forEach(card => {
                     if (pX >= card.x - card.width / 2 && pX <= card.x + card.width / 2 &&
                         pY >= card.y - card.height / 2 && pY <= card.y + card.height / 2) {
@@ -496,7 +489,6 @@
                     }
                 });
 
-                // Core Trigger Evaluation Engine Code
                 if (pX >= testTriggerButton.x && pX <= testTriggerButton.x + testTriggerButton.width &&
                     pY >= testTriggerButton.y && pY <= testTriggerButton.y + testTriggerButton.height) {
                     
@@ -529,7 +521,7 @@
                                     if (attemptsLeft <= 0) {
                                         displayHintBanner = true;
                                     }
-                                    loadedSpecimen = null; // Flush incorrect test chamber entry
+                                    loadedSpecimen = null; 
                                 }
                             }, 1400);
                         }
