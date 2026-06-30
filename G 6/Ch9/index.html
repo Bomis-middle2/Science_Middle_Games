@@ -3,495 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Innovine - Magnetic Sandbox Lab</title>
+    <title>The Magnetism Mission</title>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-red: #f87171;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #0b0f19;
-            color: #f1f5f9;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
         }
-        #canvasFrame {
-            position: relative;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 3px solid #1e293b;
-            background-color: #0f172a;
+
+        .game-container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 650px;
+            padding: 30px;
+            box-sizing: border-box;
         }
-        canvas {
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .logo-placeholder {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        h1 {
+            margin: 5px 0;
+            font-size: 24px;
+            color: var(--accent-blue);
+        }
+
+        .stage-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-blue);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .narrative {
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            background-color: #0f172a80;
+            padding: 15px;
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 4px;
+        }
+
+        .asset-log {
+            font-size: 11px;
+            color: var(--text-muted);
+            background: #0f172a;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-top: 20px;
+        }
+
+        label {
             display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #7dd3fc;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .feedback.correct {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(248, 113, 113, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            display: block;
+        }
+
+        ol {
+            margin: 10px 0;
+            padding-left: 20px;
+            color: #cbd5e1;
+        }
+
+        ol li {
+            margin-bottom: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .summary-card {
+            text-align: center;
+        }
+        
+        .badge {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 
-    <div id="canvasFrame">
-        <canvas id="gameCanvas" width="960" height="640"></canvas>
+<div class="game-container">
+    <div class="header">
+        <div class="logo-placeholder">📁 ASSET: logo.png</div>
+        <h1>THE MAGNETISM MISSION</h1>
     </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+    <div id="stage1" class="stage-pane">
+        <div class="stage-title">Stage 1: The Shepherd's Lost Stick</div>
+        <div class="asset-log">
+            <span>🔊 Audio playing: ambient_mountains.mp3</span>
+        </div>
+        <div class="narrative">
+            You open your eyes and find yourself in ancient Magnesia, Greece. A worried shepherd named Magnes runs up to you.<br><br>
+            <em>"Help! My herding stick is stuck flat against a black mountain rock, and I can't pull it away!"</em><br><br>
+            The tip of his stick is made of iron. The rock is a dark, natural mineral pulling it via natural magnetic forces.
+        </div>
+        <div class="form-group">
+            <label for="ans1">What is the scientific name of this natural mineral rock?</label>
+            <input type="text" id="ans1" placeholder="Type your answer here..." autocomplete="off">
+            <button onclick="checkStage1()">Submit Answer</button>
+        </div>
+        <div id="fb1" class="feedback"></div>
+    </div>
 
-        // BRANDING ASSETS
-        const logoImg = new Image();
-        logoImg.src = 'assets/logo.png';
+    <div id="stage2" class="stage-pane hidden">
+        <div class="stage-title">Stage 2: The Sorting Gates</div>
+        <div class="asset-log">
+            <span>🔊 Audio playing: gate_creak.mp3</span>
+        </div>
+        <div class="narrative">
+            The mountain wall slides open, revealing a futuristic laboratory with two large bins:<br>
+            <strong>BIN A: MAGNETIC</strong> &nbsp;|&nbsp; <strong>BIN B: NON-MAGNETIC</strong><br><br>
+            Scattered on the floor are four fallen items: <br>
+            • Plastic Bottle<br>
+            • Iron Nail<br>
+            • Aluminium Foil<br>
+            • Cobalt Coin<br><br>
+            To cross the threshold, you must sort the magnetic items using your stick.
+        </div>
+        <div class="form-group">
+            <label for="ans2">Which TWO items from the list belong in BIN A (Magnetic)?</label>
+            <input type="text" id="ans2" placeholder="Item 1, Item 2" autocomplete="off">
+            <button onclick="checkStage2()">Submit Answer</button>
+        </div>
+        <div id="fb2" class="feedback"></div>
+    </div>
 
-        // STATE CONTROLLERS
-        let gameState = 'SPLASH'; // SPLASH -> PLAYING -> SUMMARY
-        let splashTimeStart = Date.now();
-        const SPLASH_LIMIT = 5000; // 5 SECONDS EXACT LATER ENTRY
+    <div id="stage3" class="stage-pane hidden">
+        <div class="stage-title">Stage 3: The Compass Maze</div>
+        <div class="asset-log">
+            <span>🔊 Audio playing: wind_howl.mp3</span>
+        </div>
+        <div class="narrative">
+            You step forward and find yourself in a thick, misty forest. You cannot see the sun or landmarks.<br><br>
+            You take a magnetic navigation compass out of your coat pocket. You hold it flat, and the needle settles down. The red half of the pointer aligns directly toward a giant oak tree in front of you.
+        </div>
+        <div class="form-group">
+            <label for="ans3">If you need to travel directly SOUTH to escape, should you walk 'toward' or 'away' from the giant oak tree?</label>
+            <input type="text" id="ans3" placeholder="toward / away" autocomplete="off">
+            <button onclick="checkStage3()">Submit Answer</button>
+        </div>
+        <div id="fb3" class="feedback"></div>
+    </div>
 
-        // GAMEPLAY DATA TRACKERS
-        let activeLevelIdx = 0;
-        let scoreStars = 0;
-        let coreIntegrity = 3;
-        let selectedInstrumentId = "";
-        let runningAnalysisAnim = false;
-        let feedbackString = "";
-        let feedbackColor = "#ffffff";
-        let cycleTicks = 0;
+    <div id="stage4" class="stage-pane hidden">
+        <div class="stage-title">Stage 4: The Weakening Captain</div>
+        <div class="asset-log">
+            <span>🔊 Audio playing: clanging_metal.mp3</span>
+        </div>
+        <div class="narrative">
+            You arrive at an island control tower. Captain Lily is distressed: <br>
+            <em>"Our emergency backup steering system uses a powerful Permanent Bar Magnet, but it has completely lost its magnetism!"</em><br><br>
+            You read the crew's daily maintenance log:
+            <ol>
+                <li>They wrapped it in wood and kept it in pairs with unlike poles together.</li>
+                <li>They accidentally dropped it from a high balcony onto the metal deck.</li>
+                <li>They wiped it clean with a wet cloth.</li>
+                <li>They left it sitting far away from electronic devices.</li>
+            </ol>
+        </div>
+        <div class="form-group">
+            <label for="ans4">Enter the action number (1, 2, 3, or 4) that ruined the permanent magnet:</label>
+            <input type="text" id="ans4" placeholder="Type the single digit..." autocomplete="off">
+            <button onclick="checkStage4()">Submit Answer</button>
+        </div>
+        <div id="fb4" class="feedback"></div>
+    </div>
 
-        // PHYSICAL LAB APPARATUS SELECTION (NO MULTIPLE CHOICE TEXT BUTTONS)
-        const instruments = [
-            { id: "iron_test", name: "Iron Wand Rod", action: "Tests for raw magnetic pull against materials.", x: 60, y: 450, w: 185, h: 65, tint: "#3b82f6" },
-            { id: "string_rig", name: "Thread Pivot String", action: "Suspends specimens freely to find North axes.", x: 275, y: 450, w: 185, h: 65, tint: "#a855f7" },
-            { id: "electromagnet", name: "Coil Wire & Switch", action: "Generates quick on/off magnetic inductive fields.", x: 490, y: 450, w: 185, h: 65, tint: "#10b981" },
-            { id: "field_compass", name: "Geographic Compass", action: "Tracks core alignment with global planetary fields.", x: 705, y: 450, w: 185, h: 65, tint: "#f59e0b" },
-            { id: "split_cutter", name: "Twin-Pole Separator", action: "Reveals molecular polar splitting properties.", x: 220, y: 535, w: 185, h: 65, tint: "#ec4899" },
-            { id: "soft_keepers", name: "Spacers & Keepers", action: "Protects loops from self-demagnetization issues.", x: 550, y: 535, w: 185, h: 65, tint: "#ef4444" }
-        ];
+    <div id="stage5" class="stage-pane hidden">
+        <div class="stage-title">Stage 5: The Crane Master</div>
+        <div class="asset-log">
+            <span>🔊 Audio playing: power_hum.mp3</span>
+        </div>
+        <div class="narrative">
+            To escape the island entirely, you must navigate a massive scrap crane to pick up a huge shipment of iron beams and pack them into your ship. This crane uses a temporary magnet powered by electric current.<br><br>
+            You enter the cockpit. A soft iron core is tightly wrapped with copper coils leading to a battery switch. The crane is down over the iron scrap, but nothing sticks.
+        </div>
+        <div class="form-group">
+            <label for="ans5a">Step 1: To make the crane act like a magnet and lift the iron, what do you do to the electricity? (e.g., 'switch on' or 'switch off')</label>
+            <input type="text" id="ans5a" placeholder="Action to lift..." autocomplete="off">
+            
+            <label for="ans5b" style="margin-top: 15px;">Step 2: Once hovering safely above your boat, how do you release the iron?</label>
+            <input type="text" id="ans5b" placeholder="Action to drop..." autocomplete="off">
+            
+            <button onclick="checkStage5()" style="margin-top: 10px;">Activate Crane</button>
+        </div>
+        <div id="fb5" class="feedback"></div>
+    </div>
 
-        // PHYSICS SCENARIOS
-        const scenarios = [
-            {
-                title: "Anomaly 1: The Mountain Pinned Staff",
-                narrative: "A mountainside lodestone rock has captured a iron-tipped wooden walking stick. Locals fear a ghost holds the mountain path. Choose the physical piece of equipment from the deck to isolate the material attraction pulling the metal iron tip.",
-                targetTool: "iron_test",
-                insight: "Natural loadstone materials draw iron-bearing substances tightly, completely overlooking non-ferrous structures.",
-                themeColor: "#3b82f6"
-            },
-            {
-                title: "Anomaly 2: Identification of True Bricks",
-                narrative: "Two unmarked metallic blocks reside on your workspace. One is basic un-magnetized iron; the other is a fully permanent magnet. Select the testing assembly to safely identify the true permanent magnet right now.",
-                targetTool: "string_rig",
-                insight: "A true floating or hung magnet naturally swivels onto Earth's geographical magnetic axis lines.",
-                themeColor: "#a855f7"
-            },
-            {
-                title: "Anomaly 3: The Heavy Lifting Carrier",
-                narrative: "An industrial junk crane requires an attachment that can pick up massive scrap engine blocks but release them cleanly into cargo beds without getting them jammed or permanently stuck. Deploy the right system.",
-                targetTool: "electromagnet",
-                insight: "Electromagnets provide dynamic, temporary fields that collapse instantly once electric power stops flowing.",
-                themeColor: "#10b981"
-            },
-            {
-                title: "Anomaly 4: Polar Directional Calibration",
-                narrative: "A survey team reports their compass red arrow tips match standard geographic North. Since opposing poles attract, verify what underlying interior magnetic charge actually lines up under the geographic North ice.",
-                targetTool: "field_compass",
-                insight: "Earth is flipped inside out! The North geographic zone is the planet's deep inner magnetic South pole.",
-                themeColor: "#f59e0b"
-            },
-            {
-                title: "Anomaly 5: Shattered Magnetic Domains",
-                narrative: "An active bar magnet was stepped on, shattering clean down the center line into separate chips. Deploy a tool to measure what happens to the fractured molecular domains inside the pieces.",
-                targetTool: "split_cutter",
-                insight: "Monopoles cannot exist. Every fresh broken block automatically receives its own unified North and South pole set.",
-                themeColor: "#ec4899"
-            },
-            {
-                title: "Anomaly 6: Preventing Decay in Storage",
-                narrative: "Precision lab components are bleeding away structural field strength because students toss them into mixed storage drawers. Deploy a configuration that bridges the flux lines to halt self-demagnetization.",
-                targetTool: "soft_keepers",
-                insight: "Storing magnets in reverse configurations backed with soft iron keepers maintains locked complete circuits.",
-                themeColor: "#ef4444"
-            }
-        ];
+    <div id="gameOver" class="stage-pane hidden summary-card">
+        <div class="badge">🧲</div>
+        <h2 style="color: var(--accent-green);">MISSION ACCOMPLISHED</h2>
+        <div class="asset-log" style="justify-content: center;">
+            <span>🔊 Audio: victory_fanfare.mp3</span>
+        </div>
+        <p style="line-height: 1.6; text-align: left; background: #0f172a; padding: 20px; border-radius: 8px;">
+            <strong>Rank Awarded:</strong> Master of Magnetism<br><br>
+            Congratulations! You successfully bypassed every real-world roadblock by applying key physics concepts:<br>
+            ✔ Natural materials identification (Magnetite)<br>
+            ✔ Classifying Magnetic Substances (Iron & Cobalt)<br>
+            ✔ Directional mechanics of suspended magnets<br>
+            ✔ Preventing Demagnetization<br>
+            ✔ Operating Electromagnets using electrical current
+        </p>
+        <button onclick="resetGame()" style="background-color: #475569; color: white; margin-top: 15px;">Play Revision Again</button>
+    </div>
+</div>
 
-        // AUDIO GENERATION SYNTH
-        const SoundSystem = {
-            audioCtx: null,
-            startup() {
-                if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
-            },
-            click() {
-                this.startup();
-                let osc = this.audioCtx.createOscillator();
-                let amp = this.audioCtx.createGain();
-                osc.frequency.setValueAtTime(550, this.audioCtx.currentTime);
-                amp.gain.setValueAtTime(0.03, this.audioCtx.currentTime);
-                amp.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.04);
-                osc.connect(amp); amp.connect(this.audioCtx.destination);
-                osc.start(); osc.stop(this.audioCtx.currentTime + 0.04);
-            },
-            success() {
-                this.startup();
-                let osc1 = this.audioCtx.createOscillator();
-                let osc2 = this.audioCtx.createOscillator();
-                let amp = this.audioCtx.createGain();
-                osc1.frequency.setValueAtTime(440, this.audioCtx.currentTime);
-                osc2.frequency.setValueAtTime(554, this.audioCtx.currentTime + 0.06);
-                amp.gain.setValueAtTime(0.06, this.audioCtx.currentTime);
-                amp.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
-                osc1.connect(amp); osc2.connect(amp); amp.connect(this.audioCtx.destination);
-                osc1.start(); osc2.start(); 
-                osc1.stop(this.audioCtx.currentTime + 0.4); osc2.stop(this.audioCtx.currentTime + 0.4);
-            },
-            error() {
-                this.startup();
-                let osc = this.audioCtx.createOscillator();
-                let amp = this.audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(110, this.audioCtx.currentTime);
-                amp.gain.setValueAtTime(0.12, this.audioCtx.currentTime);
-                amp.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.25);
-                osc.connect(amp); amp.connect(this.audioCtx.destination);
-                osc.start(); osc.stop(this.audioCtx.currentTime + 0.25);
-            }
-        };
+<script>
+    // Asset Trigger Helpers for Simulation
+    function triggerAudioLog(elementId, text) {
+        document.querySelector(`#${elementId} .asset-log span`).innerText = text;
+    }
 
-        function resetSimulation() {
-            activeLevelIdx = 0;
-            scoreStars = 0;
-            coreIntegrity = 3;
-            reloadNextField();
+    // Stage 1 Verification
+    function checkStage1() {
+        const val = document.getElementById('ans1').value.trim().toLowerCase();
+        const fb = document.getElementById('fb1');
+        
+        if (val === 'magnetite' || val === 'lodestone') {
+            fb.className = "feedback correct";
+            fb.innerText = "🔊 [success_chime.mp3] - Correct! Magnetite is a natural magnetic iron ore mineral named after Magnes!";
+            setTimeout(() => {
+                document.getElementById('stage1').classList.add('hidden');
+                document.getElementById('stage2').classList.remove('hidden');
+            }, 2000);
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerText = "🔊 [error_buzz.mp3] - The rock holds tight. Hint: It's a natural magnetic rock named after the region of Magnesia or the shepherd!";
         }
+    }
 
-        function reloadNextField() {
-            selectedInstrumentId = "";
-            feedbackString = "";
-            runningAnalysisAnim = false;
+    // Stage 2 Verification
+    function checkStage2() {
+        const val = document.getElementById('ans2').value.trim().toLowerCase();
+        const fb = document.getElementById('fb2');
+        
+        if (val.includes('iron') && val.includes('cobalt')) {
+            fb.className = "feedback correct";
+            fb.innerText = "🔊 [success_chime.mp3] - Clink! Iron and Cobalt coins are heavily attracted. Plastic and aluminium are non-magnetic!";
+            setTimeout(() => {
+                document.getElementById('stage2').classList.add('hidden');
+                document.getElementById('stage3').classList.remove('hidden');
+            }, 2000);
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerText = "🔊 [error_buzz.mp3] - The security system sounds! Remember your elements. Aluminium and plastic do not attract to magnetic poles. Try again.";
         }
+    }
 
-        function processCoreEngineFrame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            cycleTicks++;
-
-            // ==========================================
-            // STATE 1: EXCLUSIVE BRANDING SPLASH (5 SECS)
-            // ==========================================
-            if (gameState === 'SPLASH') {
-                // Absolute clean corporate background focus separation
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                let centerX = canvas.width / 2;
-                let centerY = canvas.height / 2;
-
-                // Render image assets if loaded, fallback safely to vector graphics if pending
-                if (logoImg.complete && logoImg.naturalWidth !== 0) {
-                    ctx.drawImage(logoImg, centerX - 75, centerY - 110, 150, 150);
-                } else {
-                    // Modern Minimal Vector Tech Geometry
-                    ctx.strokeStyle = '#2563eb';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY - 35, 45, 0, Math.PI * 2);
-                    ctx.stroke();
-                    ctx.fillStyle = '#2563eb';
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY - 35, 15, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // Core Corporate Typography
-                ctx.fillStyle = '#0f172a';
-                ctx.font = 'bold 46px sans-serif';
-                ctx.letterSpacing = "6px";
-                ctx.textAlign = 'center';
-                ctx.fillText('INNOVINE', centerX, centerY + 85);
-                
-                ctx.letterSpacing = "0px";
-                ctx.fillStyle = '#64748b';
-                ctx.font = 'bold 12px sans-serif';
-                ctx.fillText('DIGITAL INTERACTIVE PHYSICS PLATFORM', centerX, centerY + 120);
-
-                // Tech Loader Ring Indicator
-                ctx.strokeStyle = 'rgba(37, 99, 235, 0.15)';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY + 160, 12, 0, Math.PI * 2);
-                ctx.stroke();
-
-                ctx.strokeStyle = '#2563eb';
-                ctx.lineWidth = 2.5;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY + 160, 12, cycleTicks * 0.05, (cycleTicks * 0.05) + (Math.PI * 0.6));
-                ctx.stroke();
-
-                // Lock step check 
-                if (Date.now() - splashTimeStart > SPLASH_LIMIT) {
-                    gameState = 'PLAYING';
-                    resetSimulation();
-                }
-
-            // ==========================================
-            // STATE 2: ACTIVE SANDBOX APPLICATION
-            // ==========================================
-            } else if (gameState === 'PLAYING') {
-                const step = scenarios[activeLevelIdx];
-
-                // Upper Status Console Header
-                ctx.fillStyle = '#090d16';
-                ctx.fillRect(0, 0, canvas.width, 65);
-                ctx.strokeStyle = '#1e293b';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(0, 0, canvas.width, 65);
-
-                // Small Brand Marker
-                if (logoImg.complete && logoImg.naturalWidth !== 0) {
-                    ctx.drawImage(logoImg, 35, 17, 30, 30);
-                }
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.fillText('INNOVINE PHYSICS BENCH', 75, 38);
-
-                // Indicators
-                ctx.fillStyle = '#6366f1';
-                ctx.fillText(`ANOMALY RECORD: ${activeLevelIdx + 1} / 6`, 340, 38);
-                ctx.fillStyle = '#facc15';
-                ctx.fillText(`⭐ STABILITY TOKENS: ${scoreStars}`, 550, 38);
-                ctx.fillStyle = '#ef4444';
-                ctx.fillText(`❤️ INSTRUMENT SAFETY: ${coreIntegrity}`, 755, 38);
-
-                // Lab Desk Boundary Wall
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(25, 85, 910, 535);
-                ctx.strokeStyle = '#1e293b';
-                ctx.strokeRect(25, 85, 910, 535);
-
-                // Target Level Header Ribbon
-                ctx.fillStyle = step.themeColor;
-                ctx.fillRect(25, 85, 910, 42);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 15px sans-serif';
-                ctx.fillText(step.title, 45, 111);
-
-                // Incident Monitor Console
-                ctx.fillStyle = '#1e293b';
-                ctx.fillRect(45, 145, 870, 110);
-                ctx.strokeStyle = '#334155';
-                ctx.strokeRect(45, 145, 870, 110);
-
-                ctx.fillStyle = '#f8fafc';
-                ctx.font = '15px sans-serif';
-                ctx.textAlign = 'center';
-                renderWrappedString(step.narrative, canvas.width / 2, 182, 810, 24);
-
-                // Magnetic Particle Field Visualization Frame
-                ctx.save();
-                ctx.translate(canvas.width / 2, 320);
-                for (let k = 1; k <= 5; k++) {
-                    ctx.strokeStyle = runningAnalysisAnim ? feedbackColor : `rgba(99, 102, 241, ${0.35 - (k * 0.05)})`;
-                    ctx.lineWidth = runningAnalysisAnim ? 2.5 : 1.5;
-                    let rx = 160 + k * 25 + Math.sin(cycleTicks * 0.07) * 10;
-                    let ry = 12 + k * 4;
-                    ctx.beginPath();
-                    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-                ctx.restore();
-
-                // Live Stream Output Text Block
-                ctx.textAlign = 'center';
-                if (feedbackString !== "") {
-                    ctx.fillStyle = feedbackColor;
-                    ctx.font = 'bold 13px sans-serif';
-                    ctx.fillText(feedbackString, canvas.width / 2, 324);
-                } else {
-                    ctx.fillStyle = '#475569';
-                    ctx.font = 'italic 13px sans-serif';
-                    ctx.fillText("⚡ [APPARATUS DETACHED] Click a physical instrument block from the workspace pool below to test ⚡", canvas.width / 2, 324);
-                }
-
-                // Apparatus Title Panel Splitter
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#475569';
-                ctx.font = 'bold 11px sans-serif';
-                ctx.letterSpacing = "2px";
-                ctx.fillText("AVAILABLE LABORATORY INSTRUMENTS & SPECIMENS", 50, 425);
-                ctx.letterSpacing = "0px";
-
-                // Map Instruments Grid Output
-                instruments.forEach((tool) => {
-                    let activeMatch = (selectedInstrumentId === tool.id);
-
-                    ctx.fillStyle = activeMatch ? '#1e3a8a' : '#1e293b';
-                    ctx.strokeStyle = activeMatch ? tool.tint : '#334155';
-                    ctx.lineWidth = activeMatch ? 3 : 1.5;
-
-                    ctx.fillRect(tool.x, tool.y, tool.w, tool.h);
-                    ctx.strokeRect(tool.x, tool.y, tool.w, tool.h);
-
-                    // Component Alignment Geometry Accent
-                    ctx.fillStyle = tool.tint;
-                    ctx.fillRect(tool.x + 12, tool.y + 12, 6, 6);
-
-                    // Instrument Header Label
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 12.5px sans-serif';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(tool.name, tool.x + 25, tool.y + 20);
-
-                    // Capability Subtext description
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.font = '10px sans-serif';
-                    renderWrappedString(tool.action, tool.x + 12, tool.y + 36, tool.w - 20, 13);
-                });
-
-            // ==========================================
-            // STATE 3: MISSION RECAP OVERVIEW
-            // ==========================================
-            } else if (gameState === 'SUMMARY') {
-                ctx.fillStyle = '#05070c';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                let winStatus = (coreIntegrity > 0 && scoreStars >= 4);
-
-                ctx.fillStyle = winStatus ? '#10b981' : '#ef4444';
-                ctx.font = 'bold 36px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(winStatus ? 'DIAGNOSTIC CRUISE SUCCESSFUL!' : 'LAB INSTRUMENT CRITICAL FAILURE', canvas.width / 2, 210);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '18px sans-serif';
-                ctx.fillText(`Total Tokens Collected: ${scoreStars} / 6 Star Badges`, canvas.width / 2, 280);
-
-                ctx.fillStyle = '#64748b';
-                ctx.font = '15px sans-serif';
-                if (winStatus) {
-                    ctx.fillText('Superb. You accurately used physics apparatus to verify fields, magnetic poles, and preservation rules.', canvas.width / 2, 335);
-                } else {
-                    ctx.fillText('The tracking system safety triggered. Refresh your understanding of magnetic storage and fields to try again.', canvas.width / 2, 335);
-                }
-
-                // Reset Action Box
-                ctx.fillStyle = '#2563eb';
-                ctx.fillRect(375, 410, 210, 50);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 15px sans-serif';
-                ctx.fillText('RELOAD SIMULATOR', canvas.width / 2, 441);
-            }
+    // Stage 3 Verification
+    function checkStage3() {
+        const val = document.getElementById('ans3').value.trim().toLowerCase();
+        const fb = document.getElementById('fb3');
+        
+        if (val === 'away') {
+            fb.className = "feedback correct";
+            fb.innerText = "🔊 [success_chime.mp3] - Exactly! The red needle aligns North. Moving away from North sets your heading straight South!";
+            setTimeout(() => {
+                document.getElementById('stage3').classList.add('hidden');
+                document.getElementById('stage4').classList.remove('hidden');
+            }, 2000);
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerText = "🔊 [error_buzz.mp3] - Walking toward the tree takes you North, deep into the foggy terrain! Recheck your alignment.";
         }
+    }
 
-        // TEXT MULTILINE BOUNDARY WRAPPING HELPER
-        function renderWrappedString(text, x, y, maxWidth, lineHeight) {
-            let words = text.split(' ');
-            let line = '';
-            let targetY = y;
-
-            for (let n = 0; n < words.length; n++) {
-                let testLine = line + words[n] + ' ';
-                let metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && n > 0) {
-                    ctx.fillText(line, x, targetY);
-                    line = words[n] + ' ';
-                    targetY += lineHeight;
-                } else {
-                    line = testLine;
-                }
-            }
-            ctx.fillText(line, x, targetY);
+    // Stage 4 Verification
+    function checkStage4() {
+        const val = document.getElementById('ans4').value.trim();
+        const fb = document.getElementById('fb4');
+        
+        if (val === '2') {
+            fb.className = "feedback correct";
+            fb.innerText = "🔊 [success_chime.mp3] - Spot on! Dropping from heights, heating, or hammering alignment breaks down atomic alignment. Storing with magnetic keepers (1) actually preserves magnetism.";
+            setTimeout(() => {
+                document.getElementById('stage4').classList.add('hidden');
+                document.getElementById('stage5').classList.remove('hidden');
+            }, 2000);
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerText = "🔊 [error_buzz.mp3] - That action keeps magnets safely stored or unbothered. Check which destructive action causes demagnetization.";
         }
+    }
 
-        // UNIFIED MOUSE & TOUCH EVENT MANAGEMENT
-        function handleInteractionAtPoint(pX, pY) {
-            if (gameState === 'PLAYING') {
-                if (runningAnalysisAnim) return; // Block input stream during evaluation loop updates
-
-                instruments.forEach((tool) => {
-                    if (pX >= tool.x && pX <= tool.x + tool.w && pY >= tool.y && pY <= tool.y + tool.h) {
-                        selectedInstrumentId = tool.id;
-                        SoundSystem.click();
-                        evaluateDeployedInstrument();
-                    }
-                });
-            } else if (gameState === 'SUMMARY') {
-                if (pX >= 375 && pX <= 585 && pY >= 410 && pY <= 460) {
-                    SoundSystem.click();
-                    gameState = 'PLAYING';
-                    resetSimulation();
-                }
-            }
+    // Stage 5 Verification
+    function checkStage5() {
+        const lift = document.getElementById('ans5a').value.trim().toLowerCase();
+        const drop = document.getElementById('ans5b').value.trim().toLowerCase();
+        const fb = document.getElementById('fb5');
+        
+        if (lift.includes('on') && drop.includes('off')) {
+            fb.className = "feedback correct";
+            fb.innerText = "🔊 [success_chime.mp3] - Excellent configuration!";
+            triggerAudioLog('stage5', '🔊 Audio playing: victory_fanfare.mp3');
+            
+            setTimeout(() => {
+                document.getElementById('stage5').classList.add('hidden');
+                document.getElementById('gameOver').classList.remove('hidden');
+            }, 1800);
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerText = "🔊 [error_buzz.mp3] - The crane failed. An electromagnet depends on active current flow to hold its attraction. It must lose current to let go.";
         }
+    }
 
-        // LAB SELECTION EVALUATION LOGIC
-        function evaluateDeployedInstrument() {
-            runningAnalysisAnim = true;
-            let step = scenarios[activeLevelIdx];
+    // Reset Function
+    function resetGame() {
+        document.getElementById('ans1').value = '';
+        document.getElementById('ans2').value = '';
+        document.getElementById('ans3').value = '';
+        document.getElementById('ans4').value = '';
+        document.getElementById('ans5a').value = '';
+        document.getElementById('ans5b').value = '';
+        
+        document.getElementById('fb1').className = 'feedback';
+        document.getElementById('fb2').className = 'feedback';
+        document.getElementById('fb3').className = 'feedback';
+        document.getElementById('fb4').className = 'feedback';
+        document.getElementById('fb5').className = 'feedback';
+        
+        triggerAudioLog('stage5', '🔊 Audio playing: power_hum.mp3');
+        
+        document.getElementById('gameOver').classList.add('hidden');
+        document.getElementById('stage1').classList.remove('hidden');
+    }
+</script>
 
-            if (selectedInstrumentId === step.targetTool) {
-                SoundSystem.success();
-                feedbackColor = "#10b981";
-                feedbackString = `✅ SCAN COMPLETE: ${step.insight}`;
-                scoreStars++;
-                
-                setTimeout(() => {
-                    activeLevelIdx++;
-                    if (activeLevelIdx >= scenarios.length) {
-                        gameState = 'SUMMARY';
-                    } else {
-                        reloadNextField();
-                    }
-                }, 4500);
-            } else {
-                SoundSystem.error();
-                feedbackColor = "#ef4444";
-                feedbackString = "❌ ANALYSIS CRASH: The deployed device did not sense any aligned magnetic vector values here. Resetting workbench...";
-                coreIntegrity--;
-                
-                setTimeout(() => {
-                    if (coreIntegrity <= 0) {
-                        gameState = 'SUMMARY';
-                    } else {
-                        runningAnalysisAnim = false;
-                        selectedInstrumentId = "";
-                        feedbackString = "";
-                    }
-                }, 4000);
-            }
-        }
-
-        // BOUNDS CONVERTER
-        function calculateOffsets(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: (e.clientX - rect.left) * (canvas.width / rect.width),
-                y: (e.clientY - rect.top) * (canvas.height / rect.height)
-            };
-        }
-
-        window.addEventListener('mousedown', (e) => {
-            let pts = calculateOffsets(e);
-            handleInteractionAtPoint(pts.x, pts.y);
-        });
-
-        window.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (e.touches.length > 0) {
-                let pts = calculateOffsets(e.touches[0]);
-                handleInteractionAtPoint(pts.x, pts.y);
-            }
-        }, {passive: false});
-
-        function runMainTick() {
-            processCoreEngineFrame();
-            requestAnimationFrame(runMainTick);
-        }
-
-        runMainTick();
-    </script>
 </body>
 </html>
