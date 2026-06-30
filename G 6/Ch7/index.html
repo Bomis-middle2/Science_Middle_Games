@@ -21,6 +21,7 @@
             padding: 0; 
             font-family: 'Segoe UI', system-ui, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         body {
@@ -136,7 +137,7 @@
             text-align: center;
         }
 
-        /* GRID SELECTION INTERACTIVE ENGINE */
+        /* GRID SELECTION INTERACTIVE ENGINE (No MCQ formatting labels) */
         .interaction-grid { 
             display: grid; 
             gap: 10px; 
@@ -146,10 +147,10 @@
         .control-btn {
             background: var(--card-bg); 
             border: 2px solid #243b55; 
-            padding: 14px;
+            padding: 15px;
             border-radius: 14px; 
-            text-align: left; 
-            font-size: 0.92rem; 
+            text-align: center; 
+            font-size: 0.95rem; 
             cursor: pointer; 
             transition: 0.2s;
             color: var(--text-light); 
@@ -211,23 +212,27 @@
 
 <div id="game-container">
     <div id="splash-screen">
-        <div class="splash-brand-title" id="fallback-logo-text">INNOVINE</div>
+        <img src="assets/logo.png" alt="Innovine Logo" class="splash-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').style.display='block';">
+        <div class="splash-brand-title" id="fallback-logo-text" style="display:none; margin-bottom:10px;">INNOVINE</div>
         <div style="font-size: 0.85rem; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Motion & Measurement Desk</div>
     </div>
 
     <div id="intro-view" class="view-frame hidden" style="text-align: center; justify-content: center;">
+        <div style="margin-bottom: 15px;">
+            <img src="assets/logo.png" alt="Innovine Logo" style="max-height: 60px; object-fit: contain;">
+        </div>
         <h1 style="color: var(--neon-cyan); font-weight: 800; font-size: 1.6rem; margin-bottom: 5px;">Lab Meter Pro</h1>
         <p style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 25px;">Spatial Physics Calibration Unit</p>
         
         <div style="background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: left; border: 1px solid #243b55; font-size: 0.92rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 30px;">
-            Welcome to the Engineering Analyzer. Step away from basic action tests and operate a diagnostic desk interface. Analyze geometric measurement inputs and verify vector motion curves safely.
+            Welcome to the Engineering Analyzer console. Step away from standard item tests and operate a system diagnostic desk interface. Analyze geometric measurement datasets and verify tracking profiles safely.
         </div>
         <button id="engage-btn" style="width:100%; padding:16px; background:var(--primary-blue); color:white; border:none; border-radius:50px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow: 0 4px 14px rgba(0,114,255,0.4);">POWER UP MONITOR</button>
     </div>
 
     <div id="quiz-view" class="view-frame hidden">
         <div class="header">
-            <div class="level-badge" id="level-indicator">LEVEL 1: METRICS</div>
+            <div class="level-badge" id="level-indicator">LEVEL 1: METRICS CONFIG</div>
             <div class="hud-box">DESK NODES: <span id="node-progress">1/5</span></div>
         </div>
         
@@ -251,53 +256,46 @@
 </div>
 
 <script>
-    // Unified Curated Interactive Dataset 
+    // Unified Grade 6 Mechanics Dataset (Curated completely without options label tags)
     const labDataset = [
-        // Level 1: Standard vs Non-Standard Units & Measurement Mechanics
         {
             level: 1,
-            q: "Diagnostic Matrix 01:\nSelect the parameter set containing only uniform, universally accepted Standard Units of length.",
+            q: "Diagnostic Matrix 01:\nSelect the parameter set containing only uniform, universally accepted Standard Units of length tracking.",
             renderType: "RULER_SCALE",
             choices: ["Metre, Centimetre, Kilometre", "Handspan, Cubit, Footstep", "Arm-span, Finger-width, Pace", "Yard, Pace, String-length"],
             correct: 0,
-            hint: "Standard units must give identical results no matter who performs the measurement.",
             expl: "S.I. systems like metres provide static uniform measurements across the globe, unlike human body properties which change from person to person."
         },
         {
             level: 1,
-            q: "Diagnostic Matrix 02:\nAn engineer measures a physical beam using a broken ruler missing its starting zero edge. The measurement starts from 2.0 cm and ends at 8.5 cm. Calculate actual length.",
+            q: "Diagnostic Matrix 02:\nAn engineer measures a physical beam using a damaged device missing its zero mark edge. The reading starts from 2.0 cm and checks out at 8.5 cm. Confirm true width.",
             renderType: "BROKEN_RULER",
-            choices: ["8.5 cm", "10.5 cm", "6.5 cm", "2.0 cm"],
+            choices: ["8.5 centimeters", "10.5 centimeters", "6.5 centimeters", "2.0 centimeters"],
             correct: 2,
-            hint: "Subtract the starting offset reading from the final position value to acquire true length.",
-            expl: "True Length = Final Reading - Initial Reading. Therefore, 8.5 cm minus 2.0 cm equals exactly 6.5 cm."
+            expl: "True Distance = Final Reading minus Initial Reading. Therefore, 8.5 cm subtracted by 2.0 cm equals exactly 6.5 cm."
         },
-        // Level 2: Kinematic Classification & Motion Mapping
         {
             level: 2,
-            q: "Kinematic Profile 03:\nClassify the exact geometric path profile performed by a heavy industrial clock pendulum when tracking coordinates.",
+            q: "Kinematic Profile 03:\nClassify the exact geometric path profile performed by an active heavy clock pendulum inside the matrix field.",
             renderType: "PENDULUM_ANIM",
             choices: ["Rectilinear Motion", "Circular Motion", "Oscillatory Motion", "Rotatory Motion"],
             correct: 2,
-            hint: "Look closely at the to-and-fro rhythm repeating along a symmetric curve path.",
             expl: "An object moving to-and-fro around its central rest position is performing clean Oscillatory Motion."
         },
         {
             level: 2,
-            q: "Kinematic Profile 04:\nIdentify the tracking vector status of an active ceiling fan blade revolving around its central axle pivot point.",
+            q: "Kinematic Profile 04:\nIdentify the tracking vector profile of an active ceiling fan blade revolving around its central stationary axle pivot.",
             renderType: "FAN_ANIM",
             choices: ["Circular Motion", "Rectilinear Motion", "Oscillatory Motion", "Periodic Translation"],
             correct: 0,
-            hint: "Every single point on the blade maintains an invariant equidistant radius from a static focal point.",
             expl: "The fan operates in a fixed loop plane where all points travel paths situated uniformly around a center axis, yielding Circular Motion."
         },
         {
             level: 2,
-            q: "Kinematic Profile 05:\nAnalyze the motion tracking plot of a heavy vehicle driving completely straight along a flat highway corridor.",
+            q: "Kinematic Profile 05:\nAnalyze the motion tracking plot of a heavy test load driving completely straight along a flat highway corridor.",
             renderType: "STRAIGHT_ANIM",
             choices: ["Oscillatory Motion", "Circular Motion", "Rectilinear Motion", "Vibratory Motion"],
             correct: 2,
-            hint: "The displacement vector charts directly forward along an unbending straight-line track.",
             expl: "When a structural body changes position along a linear straight path vector, it undergoes Rectilinear Motion."
         }
     ];
@@ -308,7 +306,12 @@
     let canvasAnimationId = null;
     let animTick = 0;
 
-    // Loader logic
+    // Local Native Audio Nodes
+    const sndCorrect = new Audio('assets/correct.mp3');
+    const sndWrong = new Audio('assets/wrong.mp3');
+    const sndClaps = new Audio('assets/freesound_community-claps-44774.mp3');
+
+    // Loader mechanism
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
@@ -327,9 +330,7 @@
     };
 
     function renderLabNode() {
-        if (canvasAnimationId) {
-            cancelAnimationFrame(canvasAnimationId);
-        }
+        if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
         
         document.getElementById('terminal-feedback').style.display = 'none';
         document.getElementById('submit-action-btn').classList.add('hidden');
@@ -339,7 +340,6 @@
         document.getElementById('level-indicator').innerText = data.level === 1 ? "LEVEL 1: METRICS CONFIG" : "LEVEL 2: KINEMATICS PROFILE";
         document.getElementById('prompt-msg').innerText = data.q;
         
-        // Render dynamic interactive options grid
         const optionArea = document.getElementById('interactive-options');
         optionArea.innerHTML = "";
         
@@ -351,7 +351,7 @@
             optionArea.appendChild(button);
         });
 
-        // Start dedicated real-time telemetry render loop on canvas
+        // Frame rendering cycle
         animTick = 0;
         function updateTelemetryLoop() {
             animTick++;
@@ -364,7 +364,7 @@
     function drawLabGraphics(type) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Standard high-tech background grids
+        // High contrast grid mapping lines
         ctx.strokeStyle = '#102a43';
         ctx.lineWidth = 1;
         for(let x=20; x<canvas.width; x+=20) {
@@ -375,7 +375,6 @@
         ctx.textBaseline = "middle";
 
         if (type === "RULER_SCALE") {
-            // Draw a high precision calibrated engineering ruler scale
             ctx.fillStyle = "#16253b";
             ctx.fillRect(30, 45, 340, 60);
             ctx.strokeStyle = varColor('--neon-cyan');
@@ -397,14 +396,12 @@
             }
         } 
         else if (type === "BROKEN_RULER") {
-            // Draw a broken broken-edge scale starting instantly from 2cm
             ctx.fillStyle = "#2c1a1a";
             ctx.fillRect(30, 45, 340, 60);
             ctx.strokeStyle = varColor('--error-red');
             ctx.lineWidth = 2;
             ctx.strokeRect(30, 45, 340, 60);
             
-            // Jagged broken lines at left edge
             ctx.fillStyle = "#0a0f14";
             ctx.beginPath();
             ctx.moveTo(30, 45);
@@ -426,16 +423,14 @@
                 ctx.fillText(i + "cm", xPos, 82);
             }
             
-            // Draw target line segment indicator overhead
             ctx.strokeStyle = varColor('--neon-cyan');
             ctx.lineWidth = 3;
             ctx.beginPath(); ctx.moveTo(60, 30); ctx.lineTo(320, 30); ctx.stroke();
             ctx.fillStyle = varColor('--neon-cyan');
             ctx.font = "bold 11px sans-serif";
-            ctx.fillText("OBJECT UNDER EVALUATION", 200, 15);
+            ctx.fillText("OBJECT RADIAL SPAN", 200, 15);
         } 
         else if (type === "PENDULUM_ANIM") {
-            // Live vector tracing for to-and-fro oscillatory arcs
             let centerPos = canvas.width / 2;
             let sweepAngle = Math.sin(animTick * 0.05) * 0.6;
             let endX = centerPos + Math.sin(sweepAngle) * 90;
@@ -451,7 +446,6 @@
             ctx.beginPath(); ctx.arc(endX, endY, 14, 0, Math.PI*2); ctx.stroke();
         } 
         else if (type === "FAN_ANIM") {
-            // Live vector tracing for rotational planes
             let originX = canvas.width / 2;
             let originY = canvas.height / 2;
             let spinRotation = animTick * 0.06;
@@ -470,7 +464,6 @@
             }
         } 
         else if (type === "STRAIGHT_ANIM") {
-            // Continuous unified linear translation workspace
             let trackY = canvas.height / 2 + 10;
             ctx.strokeStyle = '#486581';
             ctx.lineWidth = 3;
@@ -490,21 +483,23 @@
     }
 
     function evaluateChoice(selected, correct, element) {
-        // Lock alternate paths instantly during assessment phase
         document.querySelectorAll('.control-btn').forEach(btn => btn.disabled = true);
-        
         const terminal = document.getElementById('terminal-feedback');
         
         if (selected === correct) {
             element.classList.add('correct');
             terminal.className = "terminal-box expl-style";
-            terminal.innerHTML = "✅ <b>PROMPT VERIFIED:</b> " + labDataset[currentStep].expl;
+            terminal.innerHTML = "&nbsp;⚙️ <b>TELEMETRY STATUS: OPTIMAL</b><br>" + labDataset[currentStep].expl;
+            sndCorrect.currentTime = 0;
+            sndCorrect.play().catch(e => console.log('Audio stream ready'));
         } else {
             element.classList.add('wrong');
             wrongCount++;
             document.querySelectorAll('.control-btn')[correct].classList.add('correct');
             terminal.className = "terminal-box hint-style";
-            terminal.innerHTML = "❌ <b>CALIBRATION ERROR:</b> " + labDataset[currentStep].expl;
+            terminal.innerHTML = "&nbsp;⚠️ <b>TELEMETRY STATUS: DEVIATION DETECTED</b><br>" + labDataset[currentStep].expl;
+            sndWrong.currentTime = 0;
+            sndWrong.play().catch(e => console.log('Audio stream ready'));
         }
         
         terminal.style.display = "block";
@@ -526,13 +521,16 @@
         document.getElementById('quiz-view').classList.add('hidden');
         document.getElementById('result-view').classList.remove('hidden');
         
+        sndClaps.currentTime = 0;
+        sndClaps.play().catch(e => console.log('Summary audio trigger ready'));
+        
         const summary = document.getElementById('evaluation-summary');
         if (wrongCount === 0) {
-            summary.innerHTML = "🏆 <b>Status: Optimal Performance</b><br><br>All system measurements and tracking parameters matched exact profiles perfectly. Your understanding of standard metric offsets and motion structures is fully complete.";
+            summary.innerHTML = "🏆 <b>Status: Optimal Performance</b><br><br>All monitored matrix coordinates and physics tracking profiles matched target specifications with 100% precision score.";
         } else if (wrongCount <= 2) {
-            summary.innerHTML = "⚠️ <b>Status: Marginal Tolerances</b><br><br>The workspace required adjustments on certain profiles. Review broken ruler math equations and ensure you don't mistake standard measures for individual body attributes.";
+            summary.innerHTML = "⚠️ <b>Status: Operational Limits Checked</b><br><br>The workbench logged minor feedback anomalies during tracing execution. Review standard measurement parameters and kinematic structures.";
         } else {
-            summary.innerHTML = "❌ <b>Status: Recalibration Required</b><br><br>High mismatch rate recorded during tracking selection. Remember:<br>• Apple dropping = <b>Rectilinear</b><br>• Fan rotation = <b>Circular</b><br>• Pendulum swing = <b>Oscillatory</b>";
+            summary.innerHTML = "❌ <b>Status: Full Calibration Required</b><br><br>System registered a critical mismatch. Keep in mind:<br>• Direct linear shifts = <b>Rectilinear</b><br>• Central axis loops = <b>Circular</b><br>• To-and-fro repetitions = <b>Oscillatory</b>";
         }
     }
 </script>
