@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 6 Physics: Advanced Magnetism Lab</title>
+    <title>The Secret World of Magnets</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #0b0f19;
+            background-color: #0c0f1d;
             color: #f1f5f9;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -23,7 +23,7 @@
         #labContainer {
             position: relative;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
             border: 4px solid #1e293b;
             background-color: #0f172a;
@@ -37,332 +37,321 @@
 <body>
 
     <div id="labContainer">
-        <canvas id="physicsLabCanvas" width="950" height="650"></canvas>
+        <canvas id="magnetAdventureCanvas" width="950" height="650"></canvas>
     </div>
 
     <script>
-        const canvas = document.getElementById('physicsLabCanvas');
+        const canvas = document.getElementById('magnetAdventureCanvas');
         const ctx = canvas.getContext('2d');
 
         // BRANDING ASSET PIPELINE
         const logoAsset = new Image();
         logoAsset.src = 'assets/logo.png';
 
-        // STATE ENGINE: 'SPLASH', 'PROTOCOLS', 'LAB_ACTIVE', 'SUMMARY'
+        // STATE ENGINE: 'SPLASH', 'STORY_INTRO', 'ADVENTURE_ACTIVE', 'VICTORY_SCREEN'
         let currentState = 'SPLASH';
         let splashStartTime = Date.now();
-        const SPLASH_DURATION = 2200;
+        const SPLASH_DURATION = 5000; // EXACTLY 5 SECONDS LOCKED SPLASH
 
-        // SESSION METRICS
-        let currentQuestionIdx = 0;
-        let playerScore = 0;
-        let labHP = 3;
+        // ADVENTURE TRACKERS
+        let adventureStepIdx = 0;
+        let starTokens = 0;
+        let healthHearts = 3;
         let attemptsLeft = 2;
-        let activeHint = "";
-        let showHintBox = false;
-        let isEvaluating = false;
-        let evalTimer = 0;
-        let selectedOptionIdx = -1;
-        let animationTicks = 0;
+        let adviceTip = "";
+        let showAdvice = false;
+        let runningActionAnimation = false;
+        let animTimer = 0;
+        let chosenActionIdx = -1;
+        let loopTicks = 0;
 
-        // SCENARIO DATABANK (Curriculum Mapped Puzzles)
-        const curriculumScenarios = [
+        // ADVENTURE QUESTS (Designed for 6th grade curiosity)
+        const adventureQuests = [
             {
-                station: "STATION 1: DISCOVERY",
-                title: "The Ancient Greece Riddle",
-                prompt: "Magnes the shepherd says his iron-tipped staff is stuck to a rock by 'magic wood spirits'. How do you prove it's interacting with the metal tip?",
-                options: [
-                    "Touch a wooden cup to the rock to show it doesn't stick, then touch a steel blade to it.",
-                    "Rub a leather strap against the rock until it sparks and catches fire.",
-                    "Throw a bronze coin at the stick to knock it free from the mountain side."
+                title: "Quest 1: The Mountain Riddle",
+                story: "Magnes the Greek shepherd is terrified! His wooden staff with a sharp iron tip is stuck tight to a massive black rock. He screams that an invisible forest giant is holding his staff! How do you prove it's just the rock drawing in the metal tip?",
+                tools: [
+                    "Touch a wooden bowl to the rock to show it doesn't stick, then touch a steel sword to it.",
+                    "Rub a leather belt against the rock until it gets hot to try and spark a campfire.",
+                    "Throw a heavy bronze coin directly at his hand to break his grip."
                 ],
-                correct: 0,
-                hint: "Magnets selectively attract certain materials like iron and steel, completely ignoring wood, leather, or bronze.",
-                accent: "#3b82f6"
+                winningIdx: 0,
+                clue: "Natural magnetic rocks like Magnetite will selectively grab iron and steel, but completely ignore wood, leather, or bronze!",
+                color: "#3b82f6"
             },
             {
-                station: "STATION 2: IDENTIFICATION",
-                title: "The Anonymous Bar Dilemma",
-                prompt: "You have two identical grey metal bars. One is a true permanent magnet, and the other is just plain unmagnetized iron. How do you find out which is which?",
-                options: [
-                    "Scratch them together violently to see which one leaves a darker mark.",
-                    "Suspend each freely by a string; the true magnet will rotate to align North-South.",
-                    "Drop both into a bucket of water; the non-magnet will float instantly."
+                title: "Quest 2: The Blank Metal Boxes",
+                story: "A merchant gives you two shiny grey metal blocks that look exactly identical. One is a magic permanent magnet, but the other is just an ordinary chunk of plain iron. How can you find the real magnet using nothing else?",
+                tools: [
+                    "Scratch them together as hard as you can to see which one creates darker dust.",
+                    "Tie a string to the center of each and hang them from a branch; the real magnet will rotate until it points North-South.",
+                    "Drop both into a bucket of water; the regular iron block will float instantly."
                 ],
-                correct: 1,
-                hint: "A freely suspended magnet has a directive property that always forces it to align along Earth's North-South axis.",
-                accent: "#a855f7"
+                winningIdx: 1,
+                clue: "When left free to hang and spin, every real magnet has a directive compass power that makes it face Earth's North and South poles!",
+                color: "#a855f7"
             },
             {
-                station: "STATION 3: ELECTROMAGNETISM",
-                title: "Scrapyard Crane Design",
-                prompt: "You are designing a crane to lift heavy iron scrap from piles of wood and glass, then drop it cleanly onto a truck. What is best?",
-                options: [
-                    "A massive permanent bar magnet wrapped in thick layers of defensive soft rubber sheets.",
-                    "An electromagnet, because you can flip its electric current switch on to pick up and off to drop items.",
-                    "An artificial horseshoe magnet heated to extreme temperatures to maximize its pull power."
+                title: "Quest 3: The Scrapyard Giant",
+                story: "You are piloting a giant construction crane! Your job is to pick up heavy iron beams from a messy pile of smashed glass and wood, carry them across the yard, and drop them perfectly inside a delivery truck. What tool do you attach to the crane hook?",
+                tools: [
+                    "A massive permanent bar magnet wrapped safely in thick, protective soft rubber layers.",
+                    "An electromagnet, because flipping its power switch instantly turns the magnetism ON to pick up and OFF to drop.",
+                    "A natural horseshoe lodestone that has been heated over a blazing furnace fire to make it super strong."
                 ],
-                correct: 1,
-                hint: "Electromagnets only hold magnetic properties while an active electric current runs through their coiled circuit wire.",
-                accent: "#10b981"
+                winningIdx: 1,
+                clue: "Electromagnets are temporary! They only pull objects when an electric current is flowing through their wire coils.",
+                color: "#10b981"
             },
             {
-                station: "STATION 4: GEOPHYSICS",
-                title: "The Broken Compass Conundrum",
-                prompt: "A compass needle's North pole points toward Earth's geographic North Pole. Since opposite poles attract, what is actually hiding there?",
-                options: [
-                    "The geographic Arctic region acts as Earth's deep internal magnetic South Pole.",
-                    "A massive mountain of pure natural magnetite pulling all North markers away.",
-                    "Earth's geographic North Pole contains a giant electrical coil spinning backward."
+                title: "Quest 4: The Reverse Compass Mystery",
+                story: "You are navigating through a dense jungle. Your compass needle's bright red North tip points perfectly toward Earth's geographic North Pole. But wait... since opposite poles attract each other, what magnetic pole is actually hiding beneath the Arctic ice?",
+                tools: [
+                    "The geographic Arctic region secretly acts as Earth's deep internal magnetic South Pole.",
+                    "A massive underground mountain of solid magnetic ore that drags all red markers toward it.",
+                    "A giant whirlpool of electrical current spinning backward inside the ocean floor."
                 ],
-                correct: 0,
-                hint: "The Earth operates like a massive bar magnet. Its magnetic South pole sits near the geographic North Pole.",
-                accent: "#f59e0b"
+                winningIdx: 0,
+                clue: "Our Earth behaves like one giant hidden magnet, but its internal magnetic poles are flipped upside down compared to our maps!",
+                color: "#f59e0b"
             },
             {
-                station: "STATION 5: FIELD STRENGTH",
-                title: "The Crime Scene Investigation",
-                prompt: "A student single-strokes a nail to magnetize it, but accidentally snaps it in half. What happens to the broken pieces?",
-                options: [
-                    "One piece holds 100% North and the other holds 100% South magnetism.",
-                    "Both pieces instantly lose all magnetic strength and turn back into normal nails.",
-                    "Each piece becomes a complete individual magnet with its own North and South pole."
+                title: "Quest 5: The Broken Toy Trap",
+                story: "You carefully magnetize an ordinary steel nail by rubbing a bar magnet over it 50 times in one direction. But while celebrating, you accidentally step on the nail and snap it cleanly in half! What happened to the broken pieces?",
+                tools: [
+                    "One piece now holds 100% of the North magnetism and the other holds 100% of the South magnetism.",
+                    "Both broken pieces instantly lose all power and turn back into regular old junk steel nails.",
+                    "Each separate broken piece becomes its own individual, perfect magnet with a fresh North and South pole."
                 ],
-                correct: 2,
-                hint: "Magnetic poles can never be isolated. Snapping a magnet simply yields two smaller, complete functional magnets.",
-                accent: "#ec4899"
+                winningIdx: 2,
+                clue: "Magnetic poles are inseparable couples! No matter how many times you chop a magnet, every piece gets its own North and South ends.",
+                color: "#ec4899"
             },
             {
-                station: "STATION 6: DEMAGNETIZATION",
-                title: "The Lab Repair Ward",
-                prompt: "The school's magnets have grown weak because students dropped them, put them on radiators, and tossed them loosely. How do you store them?",
-                options: [
-                    "Keep them loosely floating inside cold water containers away from light.",
-                    "Store them in pairs with opposite poles facing, using wooden insulation spacers and soft iron keepers.",
-                    "Stack them all in a continuous line with identical poles tightly clamped together."
+                title: "Quest 6: The Magnet Doctor's Safe",
+                story: "The school lab magnets are losing their strength because students keep dropping them on the floor, leaving them on burning hot radiators, or tossing them messy into bins. How should you store them to protect their power?",
+                tools: [
+                    "Keep them floating loosely in a glass jar filled with ice-cold mountain water.",
+                    "Store them in pairs facing opposite ways, with wooden blocks in between them and soft iron bars across their ends.",
+                    "Stack them tightly in a long, straight line with all identical poles clamped hard against each other."
                 ],
-                correct: 1,
-                hint: "To avoid self-demagnetization, store bar magnets in pairs facing opposite directions with keepers across their open poles.",
-                accent: "#ef4444"
+                winningIdx: 1,
+                clue: "To stop magnets from destroying their own fields (self-demagnetization), store them in opposite pairs using wooden spacers and iron keepers!",
+                color: "#ef4444"
             }
         ];
 
-        // AUDIO ENGINE (Web Audio API)
+        // AUDIO GENERATION CHIPS
         const AudioSynth = {
             ctx: null,
             init() {
                 if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 if (this.ctx.state === 'suspended') this.ctx.resume();
             },
-            playClick() {
+            playBlip() {
                 this.init();
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
-                osc.frequency.setValueAtTime(580, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
                 osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.06);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.05);
             },
-            playSuccess() {
+            playSpark() {
                 this.init();
                 let osc1 = this.ctx.createOscillator();
                 let osc2 = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
-                osc1.frequency.setValueAtTime(523.25, this.ctx.currentTime);
-                osc2.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+                osc1.frequency.setValueAtTime(523, this.ctx.currentTime);
+                osc2.frequency.setValueAtTime(659, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
                 osc1.connect(gain); osc2.connect(gain); gain.connect(this.ctx.destination);
-                osc1.start(); osc2.start(); osc1.stop(this.ctx.currentTime + 0.4); osc2.stop(this.ctx.currentTime + 0.4);
+                osc1.start(); osc2.start(); osc1.stop(this.ctx.currentTime + 0.35); osc2.stop(this.ctx.currentTime + 0.35);
             },
-            playError() {
+            playThud() {
                 this.init();
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(130, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
                 osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.35);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.3);
             }
         };
 
-        function resetSimulation() {
-            currentQuestionIdx = 0;
-            playerScore = 0;
-            labHP = 3;
-            prepareNextStation();
+        function resetAdventure() {
+            adventureStepIdx = 0;
+            starTokens = 0;
+            healthHearts = 3;
+            loadNewQuest();
         }
 
-        function prepareNextStation() {
+        function loadNewQuest() {
             attemptsLeft = 2;
-            showHintBox = false;
-            selectedOptionIdx = -1;
-            isEvaluating = false;
-            if (currentQuestionIdx < curriculumScenarios.length) {
-                activeHint = curriculumScenarios[currentQuestionIdx].hint;
+            showAdvice = false;
+            chosenActionIdx = -1;
+            runningActionAnimation = false;
+            if (adventureStepIdx < adventureQuests.length) {
+                adviceTip = adventureQuests[adventureStepIdx].clue;
             }
         }
 
-        function drawBrandingLogo(x, y, sz) {
+        function drawBranding(x, y, size) {
             if (logoAsset.complete && logoAsset.naturalWidth !== 0) {
-                ctx.drawImage(logoAsset, x - sz/2, y - sz/2, sz, sz);
+                ctx.drawImage(logoAsset, x - size/2, y - size/2, size, size);
             } else {
-                ctx.fillStyle = '#3b82f6';
+                ctx.fillStyle = '#2563eb';
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('[LAB LOGO]', x, y);
+                ctx.fillText('[INNOVINE]', x, y);
             }
         }
 
-        function drawInterface() {
+        function drawMainGameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            animationTicks++;
+            loopTicks++;
 
             if (currentState === 'SPLASH') {
+                // Background fills white purely for logo asset focus separation
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                drawBrandingLogo(canvas.width / 2, canvas.height / 2 - 40, 160);
+                drawBranding(canvas.width / 2, canvas.height / 2 - 40, 160);
 
                 ctx.fillStyle = '#0f172a';
-                ctx.font = 'bold 42px sans-serif';
+                ctx.font = 'bold 44px sans-serif';
                 ctx.letterSpacing = "4px";
                 ctx.textAlign = 'center';
-                ctx.fillText('INNOVINE LABS', canvas.width / 2, canvas.height / 2 + 90);
+                ctx.fillText('INNOVINE', canvas.width / 2, canvas.height / 2 + 90);
                 
                 ctx.letterSpacing = "0px";
                 ctx.fillStyle = '#64748b';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.fillText('CURRICULUM PHYSICS EMULATOR • GRADE 6', canvas.width / 2, canvas.height / 2 + 130);
+                ctx.font = 'bold 13px sans-serif';
+                ctx.fillText('INTERACTIVE PHYSICS MODULES', canvas.width / 2, canvas.height / 2 + 130);
 
+                // EXACTLY 5 SECONDS CHECK
                 if (Date.now() - splashStartTime > SPLASH_DURATION) {
-                    currentState = 'PROTOCOLS';
+                    currentState = 'STORY_INTRO';
                 }
 
-            } else if (currentState === 'PROTOCOLS') {
-                // BRIEFING FRAME
+            } else if (currentState === 'STORY_INTRO') {
                 ctx.fillStyle = '#090d16';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = '#f8fafc';
-                ctx.font = 'bold 32px sans-serif';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 36px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('MISSION BRIEFING: MAGNETISM MATRIX', canvas.width / 2, 100);
+                ctx.fillText('THE SECRET WORLD OF MAGNETS!', canvas.width / 2, 120);
 
-                ctx.fillStyle = '#64748b';
+                ctx.fillStyle = '#475569';
                 ctx.font = '600 14px sans-serif';
-                ctx.fillText('APPLIED CONCEPT CHALLENGE SERIE', canvas.width / 2, 135);
+                ctx.fillText('AN INTERACTIVE LAB ADVENTURE', canvas.width / 2, 155);
 
-                // Protocol Box
+                // Scroll box
                 ctx.fillStyle = '#1e293b';
-                ctx.fillRect(100, 180, 750, 260);
+                ctx.fillRect(120, 200, 710, 240);
                 ctx.strokeStyle = '#334155';
                 ctx.lineWidth = 2;
-                ctx.strokeRect(100, 180, 750, 260);
+                ctx.strokeRect(120, 200, 710, 240);
 
                 ctx.textAlign = 'left';
-                ctx.fillStyle = '#38bdf8';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('LAB PROCEDURES:', 140, 225);
+                ctx.fillStyle = '#f1f5f9';
+                ctx.font = '16px sans-serif';
+                wrapText("Welcome, young scientist! Magnets aren't magical stones—they operate on strict laws of force, materials, and fields.", 160, 245, 630, 24);
+                wrapText("You are going on a quest to solve 6 practical problems around fields, compasses, electromagnets, and proper care.", 160, 295, 630, 24);
+                wrapText("Look at the items on your workbench, think about how magnetic forces act, and choose the right option to fix the issue!", 160, 345, 630, 24);
 
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '15px sans-serif';
-                ctx.fillText('• Do not memorize rules—apply diagnostic logic to critical field issues.', 140, 260);
-                ctx.fillText('• Analyze scenarios across 6 specialized lab simulation workstations.', 140, 295);
-                ctx.fillText('• Failed calibrations unlock physical hint structures from your science syllabus.', 140, 330);
-                ctx.fillText('• Safe limits: Maintain system health integrity above critical zero levels.', 140, 365);
-
-                // Button
+                // Start button
                 ctx.fillStyle = '#10b981';
-                ctx.fillRect(325, 490, 300, 50);
+                ctx.fillRect(345, 490, 260, 50);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 16px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('INITIALIZE DIAGNOSTICS', canvas.width / 2, 521);
+                ctx.fillText('START ADVENTURE', canvas.width / 2, 521);
 
-            } else if (currentState === 'LAB_ACTIVE') {
-                const data = curriculumScenarios[currentQuestionIdx];
+            } else if (currentState === 'ADVENTURE_ACTIVE') {
+                const quest = adventureQuests[adventureStepIdx];
 
-                // HUD Panel
-                ctx.fillStyle = '#090d16';
-                ctx.fillRect(0, 0, canvas.width, 70);
+                // Top Dashboard Line
+                ctx.fillStyle = '#060913';
+                ctx.fillRect(0, 0, canvas.width, 65);
                 ctx.strokeStyle = '#1e293b';
-                ctx.strokeRect(0, 0, canvas.width, 70);
+                ctx.strokeRect(0, 0, canvas.width, 65);
 
-                drawBrandingLogo(50, 35, 42);
+                // Small corner logo
+                drawBranding(45, 32, 36);
 
                 ctx.textAlign = 'left';
-                ctx.fillStyle = '#f8fafc';
-                ctx.font = 'bold 16px sans-serif';
-                ctx.fillText('INNOVINE PHYSICS LAB', 90, 41);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText('INNOVINE ADVENTURE LAB', 75, 37);
 
-                ctx.fillStyle = '#38bdf8';
-                ctx.fillText(`STATION: ${currentQuestionIdx + 1} / 6`, 320, 41);
-                ctx.fillStyle = '#10b981';
-                ctx.fillText(`ACCURACY: ${playerScore} PTS`, 500, 41);
-                ctx.fillStyle = '#ef4444';
-                ctx.fillText(`LAB HP: ${labHP}`, 680, 41);
-
-                // Workbench Display
-                ctx.fillStyle = '#111827';
-                ctx.fillRect(40, 95, 870, 520);
-                ctx.strokeStyle = '#1e293b';
-                ctx.strokeRect(40, 95, 870, 520);
-
-                // Terminal header strip
-                ctx.fillStyle = data.accent;
-                ctx.fillRect(40, 95, 870, 40);
-                
-                ctx.fillStyle = '#000000';
-                ctx.globalAlpha = 0.2;
-                ctx.fillRect(40, 95, 870, 40);
-                ctx.globalAlpha = 1.0;
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 15px sans-serif';
-                ctx.textAlign = 'left';
-                ctx.fillText(`${data.station} : ${data.title}`, 60, 121);
-
-                // Prompt Question Box
-                ctx.fillStyle = '#1e293b';
-                ctx.fillRect(70, 160, 810, 85);
-                ctx.strokeStyle = '#334155';
-                ctx.strokeRect(70, 160, 810, 85);
-
+                ctx.fillStyle = '#6366f1';
+                ctx.fillText(`PROGRESS: ${adventureStepIdx + 1}/6`, 310, 37);
                 ctx.fillStyle = '#facc15';
-                ctx.font = '600 15px sans-serif';
-                ctx.textAlign = 'center';
-                wrapText(data.prompt, canvas.width / 2, 195, 760, 22);
+                ctx.fillText(`⭐ TOKENS: ${starTokens}`, 490, 37);
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText(`❤️ SHIELD HP: ${healthHearts}`, 650, 37);
 
-                // Decorative Interactive Field Waves if checking answer
-                if (isEvaluating) {
-                    evalTimer++;
+                // Interactive Board Layout
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(30, 85, 890, 540);
+                ctx.strokeStyle = '#1e293b';
+                ctx.strokeRect(30, 85, 890, 540);
+
+                // Colored Banner header
+                ctx.fillStyle = quest.color;
+                ctx.fillRect(30, 85, 890, 42);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(quest.title, 50, 112);
+
+                // Narrative Scenario Box
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(55, 145, 840, 105);
+                ctx.strokeStyle = '#334155';
+                ctx.strokeRect(55, 145, 840, 105);
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '15px sans-serif';
+                ctx.textAlign = 'center';
+                wrapText(quest.story, canvas.width / 2, 178, 790, 22);
+
+                // Magnetic Ripple Animation
+                if (runningActionAnimation) {
+                    animTimer++;
                     ctx.save();
-                    ctx.translate(canvas.width/2, 290);
-                    ctx.lineWidth = 2;
-                    let correctColor = (selectedOptionIdx === data.correct) ? 'rgba(16,185,129,' : 'rgba(239,68,68,';
-                    for(let i=1; i<=4; i++) {
-                        ctx.strokeStyle = `${correctColor}${0.6 - (i*0.13)})`;
-                        let rx = 100 + i*25 + Math.sin(animationTicks*0.2)*8;
-                        let ry = 25 + i*8;
+                    ctx.translate(canvas.width / 2, 280);
+                    ctx.lineWidth = 2.5;
+                    let fxColor = (chosenActionIdx === quest.winningIdx) ? 'rgba(16,185,129,' : 'rgba(239,68,68,';
+                    for (let x = 1; x <= 4; x++) {
+                        ctx.strokeStyle = `${fxColor}${0.6 - (x * 0.12)})`;
+                        let rx = 120 + x * 30 + Math.sin(loopTicks * 0.2) * 10;
+                        let ry = 20 + x * 6;
                         ctx.beginPath();
-                        ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI*2);
+                        ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
                         ctx.stroke();
                     }
                     ctx.restore();
                 }
 
-                // Draw Answer Options
-                data.options.forEach((opt, idx) => {
-                    let boxY = 310 + (idx * 75);
-                    let isHovered = false; // standard initialization
+                // Interactive Tool/Action Cards on the Workbench
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText("CHOOSE YOUR PHYSICAL LAB ACTION:", 60, 285);
 
-                    if (selectedOptionIdx === idx) {
-                        ctx.fillStyle = isEvaluating ? ((data.correct === idx) ? '#065f46' : '#991b1b') : '#1e3a8a';
-                        ctx.strokeStyle = isEvaluating ? ((data.correct === idx) ? '#10b981' : '#ef4444') : '#3b82f6';
+                quest.tools.forEach((toolText, idx) => {
+                    let cardY = 300 + (idx * 75);
+
+                    if (chosenActionIdx === idx) {
+                        ctx.fillStyle = runningActionAnimation ? ((quest.winningIdx === idx) ? '#065f46' : '#881337') : '#1e3a8a';
+                        ctx.strokeStyle = runningActionAnimation ? ((quest.winningIdx === idx) ? '#10b981' : '#f43f5e') : '#3b82f6';
                         ctx.lineWidth = 3;
                     } else {
                         ctx.fillStyle = '#1f2937';
@@ -370,67 +359,71 @@
                         ctx.lineWidth = 1.5;
                     }
 
-                    ctx.fillRect(70, boxY, 810, 60);
-                    ctx.strokeRect(70, boxY, 810, 60);
+                    ctx.fillRect(55, cardY, 840, 60);
+                    ctx.strokeRect(55, cardY, 840, 60);
 
-                    // Radio Node indicator
-                    ctx.fillStyle = selectedOptionIdx === idx ? (isEvaluating ? ((data.correct === idx) ? '#10b981' : '#ef4444') : '#3b82f6') : '#4b5563';
-                    ctx.beginPath();
-                    ctx.arc(105, boxY + 30, 10, 0, Math.PI*2);
-                    ctx.fill();
-
+                    // Decorative tool chip icon box
+                    ctx.fillStyle = chosenActionIdx === idx ? '#3b82f6' : '#4b5563';
+                    ctx.fillRect(75, cardY + 15, 30, 30);
+                    
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = '600 14px sans-serif';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(String.fromCharCode(65 + idx), 90, cardY + 34);
+
+                    // Option text layout
+                    ctx.fillStyle = '#f1f5f9';
+                    ctx.font = '600 14.5px sans-serif';
                     ctx.textAlign = 'left';
-                    wrapText(opt, 135, boxY + 35, 720, 18);
+                    wrapText(toolText, 125, cardY + 35, 740, 18);
                 });
 
-                // Bottom Hint scaffold layout
-                if (showHintBox) {
-                    ctx.fillStyle = '#2d1a10';
-                    ctx.fillRect(70, 545, 810, 45);
-                    ctx.strokeStyle = '#d97706';
-                    ctx.strokeRect(70, 545, 810, 45);
+                // Wisdom Scaffold Box
+                if (showAdvice) {
+                    ctx.fillStyle = '#2a1a08';
+                    ctx.fillRect(55, 535, 840, 45);
+                    ctx.strokeStyle = '#b45309';
+                    ctx.strokeRect(55, 535, 840, 45);
 
-                    ctx.fillStyle = '#f59e0b';
-                    ctx.font = 'italic 13.5px sans-serif';
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.font = 'italic 13px sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`LAB SCAFFOLD ADVICE: ${activeHint}`, canvas.width / 2, 572);
+                    ctx.fillText(`FIELD GUIDE CLUE: ${adviceTip}`, canvas.width / 2, 562);
                 }
 
-            } else if (currentState === 'SUMMARY') {
-                ctx.fillStyle = '#05070c';
+            } else if (currentState === 'VICTORY_SCREEN') {
+                ctx.fillStyle = '#05070a';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                let isPass = (labHP > 0 && playerScore >= 4);
+                let didWinAll = (healthHearts > 0 && starTokens >= 4);
 
-                ctx.fillStyle = isPass ? '#10b981' : '#ef4444';
+                ctx.fillStyle = didWinAll ? '#10b981' : '#ef4444';
                 ctx.font = 'bold 36px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(isPass ? 'DIAGNOSTIC MATRIX SUCCEEDED' : 'LAB CERTIFICATION INCOMPLETE', canvas.width / 2, 200);
+                ctx.fillText(didWinAll ? 'QUEST RUN SUCCESSFUL!' : 'MISSION OVER: RE-CALIBRATION NEEDED', canvas.width / 2, 210);
 
                 ctx.fillStyle = '#ffffff';
                 ctx.font = '20px sans-serif';
-                ctx.fillText(`Your Final Performance Score: ${playerScore} / 6 Systems Correct`, canvas.width / 2, 275);
+                ctx.fillText(`Tokens Found: ${starTokens} / 6 Star Badges`, canvas.width / 2, 280);
 
                 ctx.fillStyle = '#94a3b8';
                 ctx.font = '15px sans-serif';
-                if (isPass) {
-                    ctx.fillText('Excellent tracking! You applied core principles of fields, induction, and safety storage structures cleanly.', canvas.width / 2, 335);
+                if (didWinAll) {
+                    ctx.fillText('Fantastic work! You know exactly how magnetic properties behave, turn on/off, and how to protect them.', canvas.width / 2, 340);
                 } else {
-                    ctx.fillText('System properties dropped below threshold limits. Review permanent vs temporary configurations and try again.', canvas.width / 2, 335);
+                    ctx.fillText('Your shield energy drained. Re-read the physical properties of fields and metals to try again.', canvas.width / 2, 340);
                 }
 
-                // Action Area
-                ctx.fillStyle = '#2563eb';
-                ctx.fillRect(375, 420, 200, 50);
+                // Action box
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(385, 420, 180, 50);
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 15px sans-serif';
-                ctx.fillText('RESTART RUN', canvas.width / 2, 451);
+                ctx.fillText('PLAY AGAIN', canvas.width / 2, 451);
             }
         }
 
-        // TEXT HELPER UTILITY FOR COMPACT WRAPPING
+        // SCENARIO WRAPPING CALCULATOR
         function wrapText(text, x, y, maxWidth, lineHeight) {
             let words = text.split(' ');
             let line = '';
@@ -450,70 +443,70 @@
             ctx.fillText(line, x, currentY);
         }
 
-        function processInteraction(pX, pY) {
-            if (currentState === 'PROTOCOLS') {
-                if (pX >= 325 && pX <= 625 && pY >= 490 && pY <= 540) {
-                    AudioSynth.playClick();
-                    resetSimulation();
-                    currentState = 'LAB_ACTIVE';
+        function clickController(pX, pY) {
+            if (currentState === 'STORY_INTRO') {
+                if (pX >= 345 && pX <= 605 && pY >= 490 && pY <= 540) {
+                    AudioSynth.playBlip();
+                    resetAdventure();
+                    currentState = 'ADVENTURE_ACTIVE';
                 }
-            } else if (currentState === 'LAB_ACTIVE') {
-                if (isEvaluating) return; // ignore inputs during wave lock animations
+            } else if (currentState === 'ADVENTURE_ACTIVE') {
+                if (runningActionAnimation) return; // freeze updates during wave bursts
 
-                // Check Options Boxes selection boundaries
+                // Check which action block was selected on workbench
                 for (let i = 0; i < 3; i++) {
-                    let boxY = 310 + (i * 75);
-                    if (pX >= 70 && pX <= 880 && pY >= boxY && pY <= boxY + 60) {
-                        selectedOptionIdx = i;
-                        AudioSynth.playClick();
-                        triggerEvaluation();
+                    let cardY = 300 + (i * 75);
+                    if (pX >= 55 && pX <= 895 && pY >= cardY && pY <= cardY + 60) {
+                        chosenActionIdx = i;
+                        AudioSynth.playBlip();
+                        evaluateActionChoice();
                         break;
                     }
                 }
-            } else if (currentState === 'SUMMARY') {
-                if (pX >= 375 && pX <= 575 && pY >= 420 && pY <= 470) {
-                    AudioSynth.playClick();
-                    resetSimulation();
-                    currentState = 'LAB_ACTIVE';
+            } else if (currentState === 'VICTORY_SCREEN') {
+                if (pX >= 385 && pX <= 565 && pY >= 420 && pY <= 470) {
+                    AudioSynth.playBlip();
+                    resetAdventure();
+                    currentState = 'ADVENTURE_ACTIVE';
                 }
             }
         }
 
-        function triggerEvaluation() {
-            isEvaluating = true;
-            let data = curriculumScenarios[currentQuestionIdx];
+        function evaluateActionChoice() {
+            runningActionAnimation = true;
+            let quest = adventureQuests[adventureStepIdx];
 
-            if (selectedOptionIdx === data.correct) {
-                AudioSynth.playSuccess();
-                playerScore++;
+            if (chosenActionIdx === quest.winningIdx) {
+                AudioSynth.playSpark();
+                starTokens++;
                 setTimeout(() => {
-                    currentQuestionIdx++;
-                    if (currentQuestionIdx >= curriculumScenarios.length) {
-                        currentState = 'SUMMARY';
+                    adventureStepIdx++;
+                    if (adventureStepIdx >= adventureQuests.length) {
+                        currentState = 'VICTORY_SCREEN';
                     } else {
-                        prepareNextStation();
+                        loadNewQuest();
                     }
                 }, 2000);
             } else {
-                AudioSynth.playError();
-                labHP--;
+                AudioSynth.playThud();
+                healthHearts--;
                 attemptsLeft--;
                 setTimeout(() => {
-                    if (labHP <= 0) {
-                        currentState = 'SUMMARY';
+                    if (healthHearts <= 0) {
+                        currentState = 'VICTORY_SCREEN';
                     } else {
-                        isEvaluating = false;
+                        runningActionAnimation = false;
                         if (attemptsLeft <= 0) {
-                            showHintBox = true;
+                            showAdvice = true;
                         }
-                        selectedOptionIdx = -1; // let them try alternative selection again
+                        chosenActionIdx = -1; // let them grab another item from the desk
                     }
                 }, 1800);
             }
         }
 
-        // LISTENER REGISTRATION PIPELINE
-        function getCanvasCoordinates(e) {
+        // VIEWPORT COORD SCALERS
+        function fetchInteractionCoords(e) {
             const rect = canvas.getBoundingClientRect();
             return {
                 x: (e.clientX - rect.left) * (canvas.width / rect.width),
@@ -522,24 +515,24 @@
         }
 
         window.addEventListener('mousedown', (e) => {
-            let coords = getCanvasCoordinates(e);
-            processInteraction(coords.x, coords.y);
+            let coords = fetchInteractionCoords(e);
+            clickController(coords.x, coords.y);
         });
 
         window.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if(e.touches.length > 0) {
-                let coords = getCanvasCoordinates(e.touches[0]);
-                processInteraction(coords.x, coords.y);
+            if (e.touches.length > 0) {
+                let coords = fetchInteractionCoords(e.touches[0]);
+                clickController(coords.x, coords.y);
             }
         }, {passive: false});
 
-        function masterLoop() {
-            drawInterface();
-            requestAnimationFrame(masterLoop);
+        function engineFrameTick() {
+            drawMainGameLoop();
+            requestAnimationFrame(engineFrameTick);
         }
 
-        masterLoop();
+        engineFrameTick();
     </script>
 </body>
 </html>
