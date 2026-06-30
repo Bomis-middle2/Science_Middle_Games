@@ -2,170 +2,611 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Magnetic Mission Control</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  text-align:center;
-  background:#f2f7ff;
+:root {
+    --primary-blue: #1e3a8a;
+    --neon-cyan: #06b6d4;
+    --pole-north: #ef4444;
+    --pole-south: #3b82f6;
+    --panel-bg: #0f172a;
+    --text-light: #f8fafc;
+    --card-bg: #1e293b;
 }
-.screen{
-  display:none;
-  padding:20px;
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
-.active{
-  display:block;
+
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+    color: var(--text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 12px;
 }
-button{
-  padding:12px 18px;
-  margin:8px;
-  font-size:16px;
-  border:none;
-  border-radius:10px;
-  background:#2b6cb0;
-  color:white;
+
+#app-container {
+    width: 100%;
+    max-width: 480px;
+    background: var(--panel-bg);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    position: relative;
+    overflow: hidden;
+    min-height: 640px;
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
 }
-button:hover{background:#1a4f80;}
-.card{
-  background:white;
-  padding:20px;
-  margin:20px auto;
-  max-width:500px;
-  border-radius:15px;
-  box-shadow:0 0 10px rgba(0,0,0,0.1);
+
+.screen {
+    display: none;
+    flex-direction: column;
+    flex-grow: 1;
 }
-.timer{
-  font-size:18px;
-  color:#d9534f;
+
+.screen.active {
+    display: flex;
 }
+
+/* BUTTONS */
+button {
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(45deg, var(--primary-blue), var(--neon-cyan));
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+}
+
+/* INSTRUMENT PANEL RACK */
+.control-rack {
+    background: var(--card-bg);
+    border: 2px solid #334155;
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rack-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #94a3b8;
+    font-weight: 800;
+}
+
+.interaction-deck {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.pole-btn {
+    flex: 1;
+    padding: 12px;
+    font-weight: 800;
+    border-radius: 10px;
+    border: 2px solid transparent;
+}
+
+.pole-btn.north { background: var(--pole-north); color: white; }
+.pole-btn.south { background: var(--pole-south); color: white; }
+.pole-btn.active { border-color: white; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
+
+/* LIVE MONITOR GRID */
+.lab-canvas-container {
+    width: 100%;
+    background: #020617;
+    border: 2px solid #334155;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    cursor: crosshair;
+}
+
+#labCanvas {
+    background: #030712;
+    border-radius: 10px;
+    display: block;
+    touch-action: none;
+}
+
+/* TELEMETRY HUD */
+.hud-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.badge {
+    background: #1e293b;
+    border: 1px solid #475569;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.timer { color: #f43f5e; font-weight: 800; }
+.score { color: var(--neon-cyan); }
+
+.prompt-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    color: #cbd5e1;
+    text-align: center;
+}
+
+.terminal-box {
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    display: none;
+}
+.hint-style { background: #2d2011; border-left: 4px solid #f59e0b; color: #fef08a; }
+.expl-style { background: #064e3b; border-left: 4px solid #10b981; color: #a7f3d0; }
+
+.hidden { display: none !important; }
 </style>
 </head>
-
 <body>
 
-<!-- SPLASH -->
-<div id="splash" class="screen active">
-  <img src="assets/logo.png" style="width:200px;margin-top:80px;">
-  <h2>Innovine Learning</h2>
-</div>
+<div id="app-container">
 
-<!-- TITLE -->
-<div id="title" class="screen">
-  <h1>🧲 Magnetic Mission Control</h1>
-  <p>Restore balance in the Arctic Magnetic Lab!</p>
-  <button onclick="startGame()">Start</button>
-</div>
+    <div id="splash" class="screen active" style="justify-content: center; align-items: center; text-align: center;">
+        <div style="font-size: 4.5rem; margin-bottom: 15px; animation: pulse 2s infinite;">🧲</div>
+        <h2 style="letter-spacing: 2px; color: var(--neon-cyan); font-weight: 900;">INNOVINE LABS</h2>
+        <p style="font-size: 0.8rem; color: #64748b; font-weight: bold; text-transform: uppercase; margin-top: 5px;">Magnetic Physics Engine</p>
+    </div>
 
-<!-- GAME -->
-<div id="game" class="screen">
-  <div class="timer">Time Left: <span id="time">60</span>s</div>
-  <div class="card">
-    <h3 id="question"></h3>
-    <div id="options"></div>
-    <p id="hint" style="color:#d9534f;"></p>
-  </div>
-  <p>Score: <span id="score">0</span></p>
-</div>
+    <div id="title-screen" class="screen" style="justify-content: center; align-items: center; text-align: center;">
+        <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; color: #ffffff;">Magnetic Mission Control</h1>
+        <p style="color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin-bottom: 30px; max-width: 340px;">
+            Step away from old multiple-choice choices. Operate physical magnetic fluxes, sweep field lines, and safely recalibrate polarity vectors directly on the interactive terminal workspace.
+        </p>
+        <button onclick="startCalibration()" style="width: 80%; padding: 16px;">LAUNCH SANDBOX DESK</button>
+    </div>
 
-<!-- END -->
-<div id="end" class="screen">
-  <h1>Mission Complete 🧲</h1>
-  <p id="result"></p>
-  <button onclick="location.reload()">Play Again</button>
+    <div id="game-screen" class="screen">
+        <div class="hud-bar">
+            <div class="badge score">FIELD DATA: <span id="progress-hud">1/5</span></div>
+            <div class="badge timer">SYSTEM LOCK: <span id="time-hud">60</span>s</div>
+        </div>
+        
+        <div id="prompt-msg" class="prompt-text"></div>
+        
+        <div class="lab-canvas-container" id="canvas-wrap">
+            <canvas id="labCanvas" width="400" height="200"></canvas>
+        </div>
+
+        <div class="control-rack" id="control-panel">
+            <div class="rack-title" id="control-title">Field Controls</div>
+            <div id="interactive-inputs" class="interaction-deck"></div>
+        </div>
+
+        <div id="terminal-feedback" class="terminal-box"></div>
+
+        <div style="display:flex; gap:10px; margin-top:auto;">
+            <button id="diagnose-btn" style="flex:1;" onclick="evaluateLabTask()">EXECUTE INTEGRITY TEST</button>
+            <button id="next-matrix-btn" class="hidden" style="flex:1;" onclick="advanceMatrix()">NEXT FIELD TARGET →</button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="screen" style="justify-content: center; align-items: center; text-align: center;">
+        <div id="final-icon" style="font-size: 4rem; margin-bottom: 15px;">🏆</div>
+        <h2 style="color: var(--neon-cyan); margin-bottom: 15px;">Calibration Analysis Complete</h2>
+        <div style="background: var(--card-bg); border: 1px solid #334155; padding: 20px; border-radius: 16px; text-align: left; font-size: 0.92rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 25px;" id="summary-report"></div>
+        <button onclick="location.reload()" style="width: 100%;">REBOOT LAB WORKSTATION</button>
+    </div>
+
 </div>
 
 <script>
+// Transition Splash Shield
+setTimeout(() => {
+    document.getElementById("splash").classList.remove("active");
+    document.getElementById("title-screen").classList.add("active");
+}, 2500);
 
-setTimeout(()=>{
-  document.getElementById("splash").classList.remove("active");
-  document.getElementById("title").classList.add("active");
-}, 2000);
-
-let questions = [
-{q:"Which poles attract each other?",o:["N-N","S-S","N-S","Same poles"],a:2,h:"Opposite poles attract"},
-{q:"Magnet attracts:",o:["Wood","Iron","Plastic","Paper"],a:1,h:"Only magnetic materials"},
-{q:"Which is non-magnetic?",o:["Iron nail","Steel clip","Rubber","Pin"],a:2,h:"Check metals vs non-metals"},
-{q:"Like poles:",o:["Attract","Repel","Stick","Disappear"],a:1,h:"Same poles repel"},
-{q:"Strongest part of magnet is:",o:["Center","Edges","Poles","Any point"],a:2,h:"Ends are strongest"},
-{q:"Magnet can attract:",o:["Glass","Iron","Paper","Wood"],a:1,h:"Think metals"},
-{q:"Earth behaves like:",o:["Battery","Magnet","Stone","Light"],a:1,h:"Earth has magnetic field"},
-{q:"Compass uses:",o:["Heat","Magnetism","Light","Sound"],a:1,h:"Direction finding tool"},
-{q:"Magnet will NOT attract:",o:["Iron","Nickel","Plastic","Cobalt"],a:2,h:"Non-metal item"},
-{q:"Opposite poles:",o:["Repel","Attract","Break","Stop"],a:1,h:"Rule of magnetism"},
-{q:"Magnetic materials contain:",o:["Iron","Sugar","Water","Air"],a:0,h:"Ferromagnetic metals"},
-{q:"Magnet strength is highest at:",o:["Middle","Ends","All equal","Corners"],a:1,h:"Poles"},
-{q:"A magnet always has:",o:["1 pole","2 poles","3 poles","No poles"],a:1,h:"North and South"},
-{q:"Which is used in fridge door?",o:["Glue","Magnet","Water","Fan"],a:1,h:"Everyday use"},
-{q:"Magnet repels when:",o:["Opposite poles","Same poles","Different shape","Broken"],a:1,h:"Rule again"}
+// Unified Interactive Physics Dataset (No Multi-Choice options properties)
+const physicsDataset = [
+    {
+        taskType: "POLAR_ATTRACT",
+        q: "Field 01: Set the polarity of the experimental laboratory terminal bar to generate an Attraction Vector toward the anchored magnet.",
+        expl: "Opposite poles (North and South) always form magnetic attraction vectors, drawing objects closer together.",
+        hint: "Look closely at the static magnet's pole facing the center gap."
+    },
+    {
+        taskType: "FILINGS_SWEEP",
+        q: "Field 02: Sweep the energetic magnetic field across the sandbox area. Cleanse and collect all magnetic iron filings while ignoring non-magnetic particles.",
+        expl: "Magnets selectively exert attraction force upon ferromagnetic items like iron, leaving materials like rubber or wood unaffected.",
+        hint: "Drag or hold inside the canvas to sweep the magnet cluster over the particles."
+    },
+    {
+        taskType: "COMPASS_ALIGN",
+        q: "Field 03: Rotate the core magnetic compass dial to calibrate it with the Earth's natural geographic North-South line.",
+        expl: "A freely suspended magnet or compass needle naturally aligns itself with the Earth's magnetic poles, pointing North-South.",
+        hint: "Rotate the needle until the red tip locks onto the top true North axis indicator."
+    },
+    {
+        taskType: "POLAR_REPEL",
+        q: "Field 04: Calibrate the portable module's polarity to generate a Repulsion Deflection against the test vector shield.",
+        expl: "Like magnetic poles (North against North, or South against South) always create an active repulsive force field.",
+        hint: "Match the terminal color exactly to mirror the adjacent structural pole."
+    },
+    {
+        taskType: "POLE_INTENSITY",
+        q: "Field 05: Click or tap the live workspace at the exact geometric zone where a magnet's flux lines and attraction capacity are strongest.",
+        expl: "Magnetic force is always concentrated at maximum intensity at the terminal Poles of a magnet.",
+        hint: "Target either the extreme left or extreme right margins where the field lines converge."
+    }
 ];
 
-let current=0, score=0, attempts=0;
-let time=60, timer;
+let currentStep = 0, anomaliesFound = 0, timeRemaining = 60;
+let loopId = null, tick = 0, countdownInterval = null;
+const canvas = document.getElementById('labCanvas');
+const ctx = canvas.getContext('2d');
 
-function startGame(){
-  document.getElementById("title").classList.remove("active");
-  document.getElementById("game").classList.add("active");
-  loadQ();
-  timer=setInterval(()=>{
-    time--;
-    document.getElementById("time").innerText=time;
-    if(time<=0) endGame();
-  },1000);
+// Game state variables
+let activePolarity = "NORTH"; // POLAR_ATTRACT / POLAR_REPEL
+let particles = [];           // FILINGS_SWEEP
+let mouseX = 200, mouseY = 100, isSwiping = false;
+let compassAngle = 1.2;       // COMPASS_ALIGN (In Radians)
+let isRotatingCompass = false;
+
+function startCalibration() {
+    document.getElementById("title-screen").classList.remove("active");
+    document.getElementById("game-screen").classList.add("active");
+    loadMatrixNode();
+    
+    countdownInterval = setInterval(() => {
+        timeRemaining--;
+        document.getElementById("time-hud").innerText = timeRemaining;
+        if(timeRemaining <= 0) terminateLabSession();
+    }, 1000);
 }
 
-function loadQ(){
-  attempts=0;
-  document.getElementById("hint").innerText="";
-  let q=questions[current];
-  document.getElementById("question").innerText=q.q;
-
-  let opt="";
-  q.o.forEach((val,i)=>{
-    opt+=`<button onclick="check(${i})">${val}</button>`;
-  });
-  document.getElementById("options").innerHTML=opt;
-}
-
-function check(i){
-  let q=questions[current];
-
-  if(i==q.a){
-    score++;
-    document.getElementById("score").innerText=score;
-    nextQ();
-  } else {
-    attempts++;
-    if(attempts==2){
-      document.getElementById("hint").innerText="Hint: "+q.h;
+function loadMatrixNode() {
+    if (loopId) cancelAnimationFrame(loopId);
+    document.getElementById("terminal-feedback").style.display = "none";
+    document.getElementById("next-matrix-btn").classList.add("hidden");
+    document.getElementById("diagnose-btn").classList.remove("hidden");
+    
+    const node = physicsDataset[currentStep];
+    document.getElementById("progress-hud").innerText = `${currentStep + 1} / ${physicsDataset.length}`;
+    document.getElementById("prompt-msg").innerText = node.q;
+    
+    const inputArea = document.getElementById("interactive-inputs");
+    inputArea.innerHTML = "";
+    
+    // Set up situational manual inputs matching the target layout concept
+    if (node.taskType === "POLAR_ATTRACT" || node.taskType === "POLAR_REPEL") {
+        document.getElementById("control-title").innerText = "Polarity Regulator Matrix";
+        inputArea.innerHTML = `
+            <button class="pole-btn north active" id="btn-n" onclick="selectPole('NORTH')">NORTH (N)</button>
+            <button class="pole-btn south" id="btn-s" onclick="selectPole('SOUTH')">SOUTH (S)</button>
+        `;
+        activePolarity = "NORTH";
+    } 
+    else if (node.taskType === "FILINGS_SWEEP") {
+        document.getElementById("control-title").innerText = "Sweeper Status Monitor";
+        inputArea.innerHTML = `<div style="font-size:0.85rem; color:#64748b; font-style:italic;">Remaining filings: <span id="filing-count" style="color:var(--neon-cyan); font-weight:bold;">10</span></div>`;
+        
+        // Spawn experimental physics components
+        particles = [];
+        for(let i=0; i<10; i++) {
+            particles.push({x: 60 + Math.random()*280, y: 50 + Math.random()*100, type: "IRON", active: true, radius: 4});
+        }
+        for(let i=0; i<8; i++) {
+            particles.push({x: 60 + Math.random()*280, y: 50 + Math.random()*100, type: "RUBBER", active: true, radius: 5});
+        }
+    } 
+    else if (node.taskType === "COMPASS_ALIGN") {
+        document.getElementById("control-title").innerText = "Manual Orientation Gear";
+        inputArea.innerHTML = `<div style="font-size:0.82rem; color:#94a3b8; text-align:center;">Drag inside the viewport loop directly to rotate the internal needle.</div>`;
+        compassAngle = 1.4 + Math.random()*2;
+    } 
+    else if (node.taskType === "POLE_INTENSITY") {
+        document.getElementById("control-title").innerText = "Spatial Flux Readout";
+        inputArea.innerHTML = `<div style="font-size:0.82rem; color:#94a3b8; text-align:center;">Tap the exact location on the magnet frame holding max force vector strength.</div>`;
     }
-  }
+
+    tick = 0;
+    function labRenderLoop() {
+        tick++;
+        renderPhysicsCanvas(node.taskType);
+        loopId = requestAnimationFrame(labRenderLoop);
+    }
+    labRenderLoop();
 }
 
-function nextQ(){
-  current++;
-  if(current>=questions.length){
-    endGame();
-  } else {
-    loadQ();
-  }
+function selectPole(pole) {
+    activePolarity = pole;
+    document.getElementById("btn-n").classList.toggle("active", pole === "NORTH");
+    document.getElementById("btn-s").classList.toggle("active", pole === "SOUTH");
 }
 
-function endGame(){
-  clearInterval(timer);
-  document.getElementById("game").classList.remove("active");
-  document.getElementById("end").classList.add("active");
+// Interactive Canvas Mouse/Touch event wireframes
+const canvasWrap = document.getElementById('canvas-wrap');
+canvasWrap.addEventListener('mousedown', startInteraction);
+canvasWrap.addEventListener('mousemove', dragInteraction);
+canvasWrap.addEventListener('mouseup', endInteraction);
+canvasWrap.addEventListener('touchstart', (e) => { let t = e.touches[0]; startInteraction(t); }, {passive: true});
+canvasWrap.addEventListener('touchmove', (e) => { let t = e.touches[0]; dragInteraction(t); }, {passive: true});
+canvasWrap.addEventListener('touchend', endInteraction);
 
-  let msg="";
-  if(score>=12) msg="Excellent Magnetic Engineer 🌟";
-  else if(score>=8) msg="Good Work 👍";
-  else if(score>=5) msg="Well Tried 🙂";
-  else msg="Revise Concepts 📘";
+function startInteraction(e) {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+    isSwiping = true;
 
-  document.getElementById("result").innerText=
-  "Score: "+score+"/15\n"+msg;
+    if (physicsDataset[currentStep].taskType === "COMPASS_ALIGN") {
+        isRotatingCompass = true;
+    }
+    if (physicsDataset[currentStep].taskType === "POLE_INTENSITY") {
+        // Evaluate direct workspace click instantly on touch down
+        let hitPoles = (mouseX < 90 || mouseX > 310) && (mouseY > 70 && mouseY < 130);
+        evaluateLabTask(hitPoles);
+    }
 }
 
+function dragInteraction(e) {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+
+    if (physicsDataset[currentStep].taskType === "FILINGS_SWEEP" && isSwiping) {
+        particles.forEach(p => {
+            if(p.active && p.type === "IRON") {
+                let dist = Math.hypot(p.x - mouseX, p.y - mouseY);
+                if(dist < 25) p.active = false; // Magnet pulls file clear
+            }
+        });
+        let rem = particles.filter(p => p.type === "IRON" && p.active).length;
+        let countHUD = document.getElementById('filing-count');
+        if(countHUD) countHUD.innerText = rem;
+    }
+
+    if (physicsDataset[currentStep].taskType === "COMPASS_ALIGN" && isRotatingCompass) {
+        let dx = mouseX - canvas.width/2;
+        let dy = mouseY - canvas.height/2;
+        compassAngle = Math.atan2(dy, dx);
+    }
+}
+
+function endInteraction() {
+    isSwiping = false;
+    isRotatingCompass = false;
+}
+
+function renderPhysicsCanvas(type) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Graphic background grids
+    ctx.strokeStyle = '#111827';
+    ctx.lineWidth = 1;
+    for(let x=20; x<canvas.width; x+=20) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    if (type === "POLAR_ATTRACT" || type === "POLAR_REPEL") {
+        // Anchor Magnet 1 (Left side)
+        ctx.fillStyle = varColor('--pole-north');
+        ctx.fillRect(40, 80, 60, 40);
+        ctx.fillStyle = varColor('--pole-south');
+        ctx.fillRect(100, 80, 60, 40);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 12px sans-serif";
+        ctx.fillText("N", 70, 100);
+        ctx.fillText("S", 130, 100);
+
+        // Adjustable Terminal Module 2 (Right side)
+        let isN = activePolarity === "NORTH";
+        ctx.fillStyle = isN ? varColor('--pole-north') : varColor('--pole-south');
+        ctx.fillRect(240, 80, 60, 40);
+        ctx.fillStyle = isN ? varColor('--pole-south') : varColor('--pole-north');
+        ctx.fillRect(300, 80, 60, 40);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(isN ? "N" : "S", 270, 100);
+        ctx.fillText(isN ? "S" : "N", 330, 100);
+
+        // Render live dynamic flux force arrows depending on configuration settings
+        ctx.strokeStyle = activePolarity === "NORTH" ? varColor('--neon-cyan') : "#f43f5e";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (type === "POLAR_ATTRACT") {
+            // Lines representing ideal vector trajectory attraction flows
+            let offset = Math.sin(tick * 0.1) * 8;
+            ctx.moveTo(175 + offset, 100); ctx.lineTo(165 + offset, 95);
+            ctx.moveTo(175 + offset, 100); ctx.lineTo(165 + offset, 105);
+            ctx.moveTo(225 - offset, 100); ctx.lineTo(235 - offset, 95);
+            ctx.moveTo(225 - offset, 100); ctx.lineTo(235 - offset, 105);
+        } else {
+            // Deflection Repulsion profiles
+            let offset = Math.sin(tick * 0.1) * 5;
+            ctx.moveTo(170 - offset, 100); ctx.lineTo(180 - offset, 95);
+            ctx.moveTo(170 - offset, 100); ctx.lineTo(180 - offset, 105);
+            ctx.moveTo(230 + offset, 100); ctx.lineTo(220 + offset, 95);
+            ctx.moveTo(230 + offset, 100); ctx.lineTo(220 + offset, 105);
+        }
+        ctx.stroke();
+    } 
+    else if (type === "FILINGS_SWEEP") {
+        // Draw sorting tray particles
+        particles.forEach(p => {
+            if (!p.active) return;
+            ctx.fillStyle = p.type === "IRON" ? "#94a3b8" : "#b45309";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Draw player manual electromagnetic field capture brush
+        ctx.strokeStyle = "rgba(6, 182, 212, 0.4)";
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(mouseX, mouseY, 25, 0, Math.PI*2); ctx.stroke();
+        ctx.fillStyle = "rgba(6, 182, 212, 0.15)";
+        ctx.beginPath(); ctx.arc(mouseX, mouseY, 25, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.font = "9px monospace";
+        ctx.fillText("CORE MAGNET", mouseX, mouseY);
+    } 
+    else if (type === "COMPASS_ALIGN") {
+        let cx = canvas.width / 2;
+        let cy = canvas.height / 2;
+        
+        // Earth static axis markers
+        ctx.fillStyle = "#64748b";
+        ctx.font = "bold 11px monospace";
+        ctx.fillText("GEOGRAPHIC NORTH", cx, 20);
+        ctx.fillText("GEOGRAPHIC SOUTH", cx, 180);
+
+        // Circular compass cage outline 
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, 55, 0, Math.PI*2); ctx.stroke();
+
+        // Render rotated variable alignment pointer needle
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(compassAngle);
+        
+        ctx.fillStyle = varColor('--pole-north');
+        ctx.beginPath(); ctx.moveTo(0, -45); ctx.lineTo(10, 0); ctx.lineTo(-10, 0); ctx.fill();
+        ctx.fillStyle = varColor('--pole-south');
+        ctx.beginPath(); ctx.moveTo(0, 45); ctx.lineTo(10, 0); ctx.lineTo(-10, 0); ctx.fill();
+        
+        ctx.restore();
+    } 
+    else if (type === "POLE_INTENSITY") {
+        // Render bar core with integrated curvature flux arcs
+        ctx.fillStyle = varColor('--pole-north'); ctx.fillRect(80, 80, 120, 40);
+        ctx.fillStyle = varColor('--pole-south'); ctx.fillRect(200, 80, 120, 40);
+        ctx.fillStyle = "#fff"; ctx.font = "bold 13px sans-serif";
+        ctx.fillText("NORTH POLE", 140, 100); ctx.fillText("SOUTH POLE", 260, 100);
+
+        // Visual field line waves mapping outwards to illustrate spatial physics density
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1.5;
+        for(let offset=10; offset<=40; offset+=10) {
+            ctx.beginPath(); ctx.arc(80, 100, offset, -Math.PI/2, Math.PI/2, true); ctx.stroke();
+            ctx.beginPath(); ctx.arc(320, 100, offset, Math.PI/2, -Math.PI/2, true); ctx.stroke();
+        }
+    }
+}
+
+function varColor(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function evaluateLabTask(directTouchPassed = null) {
+    const node = physicsDataset[currentStep];
+    let isSuccessful = false;
+
+    if (node.taskType === "POLAR_ATTRACT") {
+        // A facing South anchor pulls on a North adjustable block configuration
+        isSuccessful = (activePolarity === "NORTH");
+    } 
+    else if (node.taskType === "FILINGS_SWEEP") {
+        // True if all ferromagnetic iron elements are thoroughly isolated
+        let remainingIron = particles.filter(p => p.type === "IRON" && p.active).length;
+        isSuccessful = (remainingIron === 0);
+    } 
+    else if (node.taskType === "COMPASS_ALIGN") {
+        // Calculate pointer proximity angle relative to perpendicular geographical north
+        let normalizedAngle = Math.abs((compassAngle + Math.PI/2) % (Math.PI * 2));
+        isSuccessful = (normalizedAngle < 0.25 || Math.abs(normalizedAngle - Math.PI*2) < 0.25);
+    } 
+    else if (node.taskType === "POLAR_REPEL") {
+        // Mirror neighboring poles to verify physical push repulsion bounds
+        isSuccessful = (activePolarity === "SOUTH");
+    } 
+    else if (node.taskType === "POLE_INTENSITY") {
+        isSuccessful = directTouchPassed;
+    }
+
+    document.getElementById("diagnose-btn").classList.add("hidden");
+    const terminal = document.getElementById("terminal-feedback");
+
+    if (isSuccessful) {
+        terminal.className = "terminal-box expl-style";
+        terminal.innerHTML = `&nbsp;⚡ <b>DIAGNOSTIC CRITERIA MET</b><br>${node.expl}`;
+    } else {
+        anomaliesFound++;
+        terminal.className = "terminal-box hint-style";
+        terminal.innerHTML = `&nbsp;❌ <b>WORKSPACE DISCREPANCY</b><br>Hint: ${node.hint}.<br><br><small>${node.expl}</small>`;
+    }
+
+    terminal.style.display = "block";
+    document.getElementById("next-matrix-btn").classList.remove("hidden");
+}
+
+function advanceMatrix() {
+    currentStep++;
+    if (currentStep < physicsDataset.length) {
+        loadMatrixNode();
+    } else {
+        terminateLabSession();
+    }
+}
+
+function terminateLabSession() {
+    clearInterval(countdownInterval);
+    if (loopId) cancelAnimationFrame(loopId);
+    
+    document.getElementById("game-screen").classList.remove("active");
+    document.getElementById("end-screen").classList.add("active");
+    
+    const summary = document.getElementById("summary-report");
+    const icon = document.getElementById("final-icon");
+
+    if (anomaliesFound === 0) {
+        icon.innerText = "🏆";
+        summary.innerHTML = "<b>Status: Master Flux Specialist</b><br><br>All interactive polar tasks, compass alignments, and sweeping loops passed validation thresholds with flawless precision.";
+    } else if (anomaliesFound <= 2) {
+        icon.innerText = "⚡";
+        summary.innerHTML = "<b>Status: Calibration Tolerable</b><br><br>The control panel successfully re-established magnetic monitoring arrays, despite minor polarity conflicts logged during live matrix updates.";
+    } else {
+        icon.innerText = "📘";
+        summary.innerHTML = "<b>Status: Complete Sector Realignment Needed</b><br><br>System registered extensive coordinate deviations. Remember the lab core specs:<br>• <b>Unlike poles</b> attract; <b>Like poles</b> repel.<br>• Magnetic intensity concentrates fully at the <b>terminal ends/poles</b>.<br>• Iron filings exhibit <b>magnetic property attraction</b>, non-metals do not.";
+    }
+}
 </script>
 
 </body>
