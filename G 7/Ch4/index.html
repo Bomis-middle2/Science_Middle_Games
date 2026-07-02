@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 7 Live Circuit Grid Sandbox</title>
+    <title>Innovine - Grade 7 Cyber-Circuit Academy</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #060a12;
-            color: #f8fafc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             overflow: hidden;
             user-select: none;
+            -webkit-user-select: none;
         }
         #canvasFrame {
             position: relative;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
-            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.4);
+            border-radius: 24px;
             overflow: hidden;
-            border: 4px solid #1e293b;
+            border: 4px solid #3b82f6;
             background-color: #090d16;
         }
         canvas {
@@ -45,126 +46,118 @@
         const logoImg = new Image();
         logoImg.src = 'assets/logo.png';
 
-        // MAIN CONTROL STATES
-        let gameState = 'SPLASH'; // SPLASH -> STAGE_INTRO -> PLAY_SANDBOX -> STAGE_COMPLETE -> GAMEOVER
+        // ENGINE STATES
+        let gameState = 'SPLASH'; // SPLASH -> MISSION_BRIEF -> SANDBOX -> SUCCESS -> GAMEOVER
         let splashTimeStart = Date.now();
-        const SPLASH_LIMIT = 5000; // 5 Seconds exact Branding lock
+        const SPLASH_LIMIT = 5000; // Locked 5 Seconds Splash
 
         let currentStageIdx = 0;
-        let healthPoints = 3;
-        let sandboxScore = 0;
-        let globalTicks = 0;
+        let lives = 3;
+        let highscore = 0;
+        let ticks = 0;
 
-        // ANIMATION AND INTERACTION TRACKING VARIABLE STATE
-        let activeGridComponent = null; 
-        let simulationActive = false;
-        let circuitStateMessage = "READY TO WIRE: Deploy the critical components onto the golden terminal blocks.";
-        let messageColor = "#94a3b8";
-        let stateTimer = 0;
+        // SELECTION MECHANICS
+        let chosenHardware = null;
+        let energyFlowing = false;
+        let systemAlertText = "🔋 CORE STATUS: WAITING FOR COMPONENT... SNAP A TILE ONTO THE GOLD SOCKET GRID!";
+        let alertColor = "#38bdf8";
         let compassAngle = 0;
-        let fuseBlown = false;
+        let wireMelted = false;
 
-        // INVENTORY DECK SELECTION (PHYSICAL HARDWARE PARTS)
-        const inventoryDeck = [
-            { id: "switch_closed", name: "Key Switch [Closed]", desc: "Provides a zero-break continuous solid path.", color: "#2563eb", icon: "🔑" },
-            { id: "battery_series", name: "2-Cell Battery", desc: "Two chemical cells linked in series (+ to -).", color: "#ec4899", icon: "🔋" },
-            { id: "nichrome_wire", name: "Nichrome Element", desc: "High resistance wire coil that generates extreme heat.", color: "#a855f7", icon: "🌀" },
-            { id: "thin_fuse", name: "Alloy Fuse Wire", desc: "Low melting link that breaks if current overloads.", color: "#e11d48", icon: "⚡" },
-            { id: "compass_needle", name: "Magnetic Compass", desc: "Detects the invisible magnetic effect of lines.", color: "#f59e0b", icon: "🧭" },
-            { id: "nail_coiled", name: "Soft Iron Core Coil", desc: "Acts like a heavy magnet only while power passes.", color: "#10b981", icon: "🧲" }
+        // INVENTORY COMPONENT DECK (GEARED TO G7 SYLLABUS WITH GAMIFIED ICONS)
+        const componentInventory = [
+            { id: "switch_closed", title: "Key Switch [ON]", note: "Locks down a clean, uninterrupted loop.", hue: "#2563eb", symbol: "🔑", volts: 0 },
+            { id: "battery_series", title: "Twin Battery", note: "Links cells (+ to -) for max electric punch.", hue: "#ec4899", symbol: "⚡🔋", volts: 3 },
+            { id: "nichrome_wire", title: "Nichrome Coil", note: "Super high resistance turns current into heat.", hue: "#a855f7", symbol: "🌀🔥", volts: 0 },
+            { id: "thin_fuse", title: "Alloy Fuse Wire", note: "The grid bodyguard! Melts down to save lines.", hue: "#f43f5e", symbol: "🛡️💥", volts: 0 },
+            { id: "compass_needle", title: "Field Compass", note: "Senses current magnetic force fields nearby.", hue: "#eab308", symbol: "🧭✨", volts: 0 },
+            { id: "nail_coiled", title: "Iron Core Inductor", note: "Becomes a super-magnet only when juice flows.", hue: "#10b981", symbol: "🧲⚙️", volts: 0 }
         ];
 
-        // RENDER LOCATION FOR INVENTORY LAYOUT
-        const deckX = 40, deckY = 515, cardW = 142, cardH = 95;
+        const deckStartX = 35, deckStartY = 510, tileW = 145, tileH = 100;
 
-        // STAGES DESIGNED AROUND GRADE 7 LESSONS
-        const stages = [
+        // SCIENTIFIC NARRATIVE QUESTS
+        const campaignStages = [
             {
-                title: "MISSION 1: The Dark Signal Beacon",
-                brief: "The colony lighthouse path is open and broken. A standard single cell provides power, but the circuit route contains a physical air gap preventing current flow. Select the tool that safely patches the loop gap to make electricity flow continuously.",
-                targetId: "switch_closed",
-                hardwareTerminals: [ { x: 480, y: 310, label: "LOOP COUPLER" } ],
-                bgMatrix: "beacon"
+                heading: "QUEST 1: BRIDGE THE BLACKOUT GAP",
+                story: "Oh no! The backup computer power rail has an open circuit air gap, causing a total blackout. Drop the dynamic mechanical tool required to turn this into a standard closed circuit so the current can travel smoothly!",
+                solutionKey: "switch_closed",
+                targetTerminal: { x: 480, y: 300, name: "CENTRAL LINK GATE" }
             },
             {
-                title: "MISSION 2: High-Voltage Motor Crank",
-                brief: "An ventilation fan motor requires an immediate multi-cell voltage drop to generate enough magnetic push to spin its blade. A single weak cell fails. Deploy a serial multi-cell stack configuration to jumpstart the drive.",
-                targetId: "battery_series",
-                hardwareTerminals: [ { x: 480, y: 310, label: "DC ENERGY INPUT" } ],
-                bgMatrix: "motor"
+                heading: "QUEST 2: SUPERCHARGE THE ENGINE DRIVERS",
+                story: "The command ventilation thruster is struggling! A single chemical cell cannot generate enough voltage push to rotate the motor coils. Deploy a boosted electrical source combined in series (positive to negative terminals).",
+                solutionKey: "battery_series",
+                targetTerminal: { x: 480, y: 300, name: "SERIES VOLTAGE PORT" }
             },
             {
-                title: "MISSION 3: Incubator Thermal Unit",
-                brief: "An agricultural laboratory requires a component that converts raw electrical kinetic streams into ambient heat radiation via high resistance atomic drag. Wire the correct element loop inside the heating tray.",
-                targetId: "nichrome_wire",
-                hardwareTerminals: [ { x: 480, y: 310, label: "THERMAL CORE SLOT" } ],
-                bgMatrix: "heater"
+                heading: "QUEST 3: IGNITE THE RECOVERY RADIATOR",
+                story: "The space greenhouse is freezing! You need to mount a core element block that uses high resistance atomic drag to convert moving currents directly into extreme heating effects.",
+                solutionKey: "nichrome_wire",
+                targetTerminal: { x: 480, y: 300, name: "HEATER MATRIX" }
             },
             {
-                title: "MISSION 4: The Transformer Surge Shield",
-                brief: "A regional substation line is vulnerable to sudden lightning strikes. To prevent total appliance fires across the grid, load a sacrificial wire component designed to melt instantly if excessive load surges.",
-                targetId: "thin_fuse",
-                hardwareTerminals: [ { x: 480, y: 310, label: "SURGE TERMINAL" } ],
-                bgMatrix: "fuse"
+                heading: "QUEST 4: DROP THE SURGE ACCIDENT BREAK",
+                story: "Warning! Solar flares are spiking heavy electricity lines. To prevent the computers from catching fire, lock in a safety valve designed to automatically melt and snap if excessive current flows through it.",
+                solutionKey: "thin_fuse",
+                targetTerminal: { x: 480, y: 300, name: "SAFETY FUSE VALVE" }
             },
             {
-                title: "MISSION 5: The Deflection Detector",
-                brief: "You are attempting to trace if current is secretly escaping into a buried concrete wall conduit. Wire in an interactive sensor that physically swivels out of alignment whenever a magnetic force leaks from a wire.",
-                targetId: "compass_needle",
-                hardwareTerminals: [ { x: 480, y: 310, label: "MAGNETIC INDUCTION DETECTOR" } ],
-                bgMatrix: "compass"
+                heading: "QUEST 5: TRACE THE UNSEEN MAGNETIC CURRENT",
+                story: "A hidden power line is leaking an invisible field! Wire up a classic historical discovery device that uses a free-floating needle to visually swivel when an electric wire acts like a temporary magnet.",
+                solutionKey: "compass_needle",
+                targetTerminal: { x: 480, y: 300, name: "MAGNETIC EFFECT DETECTOR" }
             },
             {
-                title: "MISSION 6: The Scrap Metal Crane Drop",
-                brief: "An industrial scrapyard needs a sorting lifting plate that can lock onto iron car frames firmly when active, but immediately demagnetize to drop them the millisecond the circuit loop is broken.",
-                targetId: "nail_coiled",
-                hardwareTerminals: [ { x: 480, y: 310, label: "CORE INDUCTOR ASSEMBLY" } ],
-                bgMatrix: "bell"
+                heading: "QUEST 6: ASSEMBLING THE MAGNETIC JUNK CARRIER",
+                story: "Time to load heavy iron payload pods! Wire an electromagnet that generates immense magnetic pull forces when the line is powered up, but instantly drops the payload completely when the switch breaks open.",
+                solutionKey: "nail_coiled",
+                targetTerminal: { x: 480, y: 300, name: "CORE APPARATUS ENGINE" }
             }
         ];
 
-        // AUDIO FREQUENCY SYNTHESIZER
-        const SoundEngine = {
-            ctx: null,
-            init() {
-                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // AUDIO EFFECTS SYSTEM
+        const SoundBox = {
+            audioCtx: null,
+            wake() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); },
+            beep() {
+                this.wake(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
+                osc.frequency.setValueAtTime(600, this.audioCtx.currentTime); g.gain.setValueAtTime(0.03, this.audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.06);
+                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.06);
             },
-            playTick() {
-                this.init(); let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
-                osc.frequency.setValueAtTime(400, this.ctx.currentTime); gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
-                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.05);
+            cheer() {
+                this.wake(); let osc1 = this.audioCtx.createOscillator(); let osc2 = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
+                osc1.frequency.setValueAtTime(523.25, this.audioCtx.currentTime); osc2.frequency.setValueAtTime(659.25, this.audioCtx.currentTime + 0.08);
+                g.gain.setValueAtTime(0.07, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
+                osc1.connect(g); osc2.connect(g); g.connect(this.audioCtx.destination); osc1.start(); osc2.start();
+                osc1.stop(this.audioCtx.currentTime + 0.4); osc2.stop(this.audioCtx.currentTime + 0.4);
             },
-            playSuccess() {
-                this.init(); let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
-                osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.1); // E5
-                osc.frequency.setValueAtTime(783.99, this.ctx.currentTime + 0.2); // G5
-                gain.gain.setValueAtTime(0.08, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
-                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.5);
-            },
-            playBurnout() {
-                this.init(); let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, this.ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
-                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.3);
+            zap() {
+                this.wake(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, this.audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(30, this.audioCtx.currentTime + 0.25);
+                g.gain.setValueAtTime(0.15, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.25);
+                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.25);
             }
         };
 
-        function startSandboxLevel() {
-            activeGridComponent = null;
-            simulationActive = false;
-            fuseBlown = false;
+        function initSandboxLevel() {
+            chosenHardware = null;
+            energyFlowing = false;
+            wireMelted = false;
             compassAngle = 0;
-            circuitStateMessage = "SANDBOX OFFLINE: Press 'ENGAGE CURRENT CIRCUIT' after dropping a component module.";
-            messageColor = "#64748b";
+            systemAlertText = "⚡ COIL MATRIX STATS: IDLE. DRAG OR CLICK A TECH PART TILE BELOW TO PATCH ENGINE CORE BOARD.";
+            alertColor = "#64748b";
         }
 
-        function drawGameLoop() {
+        function engineFrameUpdate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            globalTicks++;
+            ticks++;
 
+            // ==========================================
+            // STATE 1: CORPORATE MINIMAL BRANDING INTRO
+            // ==========================================
             if (gameState === 'SPLASH') {
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -186,350 +179,341 @@
                 ctx.letterSpacing = "0px"; ctx.fillStyle = '#64748b'; ctx.font = 'bold 11px sans-serif';
                 ctx.fillText('LIVE CIRCUIT SANDBOX & SIMULATION INTERACTIVE', cx, cy + 115);
 
-                // Core Minimal Rotation Tracker Loader
                 ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 3; ctx.beginPath();
-                ctx.arc(cx, cy + 160, 14, globalTicks * 0.06, (globalTicks * 0.06) + (Math.PI * 0.5)); ctx.stroke();
+                ctx.arc(cx, cy + 160, 14, ticks * 0.06, (ticks * 0.06) + (Math.PI * 0.5)); ctx.stroke();
 
                 if (Date.now() - splashTimeStart > SPLASH_LIMIT) {
-                    gameState = 'STAGE_INTRO';
-                    startSandboxLevel();
+                    gameState = 'MISSION_BRIEF';
+                    initSandboxLevel();
                 }
             }
 
             // ==========================================
-            // STATE 2: LAB STAGE INTRO NARRATIVE DIALOGUE
+            // STATE 2: SPACE ACADEMY MISSION BRIEFING
             // ==========================================
-            else if (gameState === 'STAGE_INTRO') {
-                let sc = stages[currentStageIdx];
-                ctx.fillStyle = '#090d16';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            else if (gameState === 'MISSION_BRIEF') {
+                let stageData = campaignStages[currentStageIdx];
+                
+                // Deep starfield cosmic background
+                ctx.fillStyle = '#020617'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 1;
+                for(let x=0; x<canvas.width; x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+                for(let y=0; y<canvas.height; y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
 
-                // Grid background accent lines
-                ctx.strokeStyle = '#111827'; ctx.lineWidth = 1;
-                for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
-                for(let j=0; j<canvas.height; j+=40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(canvas.width,j); ctx.stroke(); }
+                // Futuristic Card Frame
+                ctx.fillStyle = '#0b1329'; ctx.fillRect(80, 100, 800, 420);
+                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 3; ctx.strokeRect(80, 100, 800, 420);
 
-                ctx.fillStyle = '#1e293b'; ctx.fillRect(100, 120, 760, 380);
-                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.strokeRect(100, 120, 760, 380);
-
-                ctx.fillStyle = '#3b82f6'; ctx.fillRect(100, 120, 760, 45);
+                // Cosmic Title header block
+                ctx.fillStyle = '#1d4ed8'; ctx.fillRect(80, 100, 800, 50);
                 ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'left';
-                ctx.fillText(`INCOMING PHYSICAL EXPERIMENT CHALLENGE — UNIT ${currentStageIdx+1}`, 130, 148);
+                ctx.fillText(`📡 INCOMING SPACE MISSION BROADCAST — STEP ${currentStageIdx+1}/6`, 110, 132);
 
-                ctx.fillStyle = '#f8fafc'; ctx.font = '22px sans-serif';
-                ctx.fillText(sc.title, 130, 215);
+                ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 24px sans-serif';
+                ctx.fillText(stageData.heading, 110, 195);
 
-                ctx.fillStyle = '#94a3b8'; ctx.font = '15px sans-serif';
-                wrapAndPrintText(sc.brief, 130, 260, 700, 25);
+                ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
+                printWrappedText(stageData.story, 110, 240, 740, 26);
 
-                // Interactive Enter Action Button box
-                ctx.fillStyle = '#10b981'; ctx.fillRect(350, 410, 260, 50);
+                // Neon Action Core Button
+                let pulseSize = Math.sin(ticks * 0.05) * 4;
+                ctx.fillStyle = '#10b981'; 
+                ctx.fillRect(330 - pulseSize/2, 420 - pulseSize/2, 300 + pulseSize, 50 + pulseSize);
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(330 - pulseSize/2, 420 - pulseSize/2, 300 + pulseSize, 50 + pulseSize);
+                
                 ctx.fillStyle = '#ffffff'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText('BOOT BENCH LAB WORKSPACE', 480, 441);
+                ctx.fillText('INITIALIZE WORKBENCH GRID ⚙️', 480, 451);
             }
 
             // ==========================================
-            // STATE 3: INTERACTIVE LIVE CIRCUITS SANDBOX
+            // STATE 3: ARCADE COIL ENERGY SANDBOX
             // ==========================================
-            else if (gameState === 'PLAY_SANDBOX') {
-                let sc = stages[currentStageIdx];
+            else if (gameState === 'SANDBOX') {
+                let stageData = campaignStages[currentStageIdx];
 
-                // Render Top Operations Bar Console
-                ctx.fillStyle = '#0d1527'; ctx.fillRect(0, 0, canvas.width, 60);
-                ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,60); ctx.lineTo(canvas.width, 60); ctx.stroke();
+                // Neon Gaming Header Controls
+                ctx.fillStyle = '#090d16'; ctx.fillRect(0, 0, canvas.width, 65);
+                ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,65); ctx.lineTo(canvas.width,65); ctx.stroke();
 
-                ctx.textAlign = 'left'; ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("INNOVINE ELECTRICITY SIMULATOR", 30, 35);
+                ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
+                ctx.fillText("🚀 INNOVINE CYBER-CIRCUIT LAB", 30, 38);
 
-                ctx.fillStyle = '#38bdf8'; ctx.fillText(`STAGE: ${currentStageIdx+1}/6`, 380, 35);
-                ctx.fillStyle = '#facc15'; ctx.fillText(`⭐ INSIGHT SCORE: ${sandboxScore}`, 520, 35);
-                ctx.fillStyle = '#ef4444'; ctx.fillText(`❤️ HP INTEGRITY: ${healthPoints}`, 700, 35);
+                ctx.fillStyle = '#a855f7'; ctx.fillText(`GRID AREA: ${currentStageIdx+1}/6`, 350, 38);
+                ctx.fillStyle = '#facc15'; ctx.fillText(`⭐ XP POINTS: ${highscore}`, 510, 38);
+                ctx.fillStyle = '#ef4444'; ctx.fillText(`❤️ LIVES LEFT: ${lives}`, 690, 38);
 
-                // Render Main Laboratory Wiring Board Grid
-                ctx.fillStyle = '#0b1120'; ctx.fillRect(20, 80, 920, 410);
-                ctx.strokeStyle = '#1e293b'; ctx.strokeRect(20, 80, 920, 410);
+                // Active Circuit Board Core Layout Frame
+                ctx.fillStyle = '#050b18'; ctx.fillRect(20, 85, 920, 400);
+                ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2; ctx.strokeRect(20, 85, 920, 400);
 
-                // Blueprint circuit visual background wiring path tracks
-                ctx.strokeStyle = simulationActive ? '#3b82f6' : '#1e293b';
-                ctx.lineWidth = 4;
+                // Animated Electrical Schematic rails
+                ctx.strokeStyle = energyFlowing ? '#3b82f6' : '#1e293b';
+                ctx.lineWidth = 5;
                 ctx.beginPath();
                 ctx.moveTo(150, 240); ctx.lineTo(150, 310); ctx.lineTo(360, 310);
                 ctx.moveTo(600, 310); ctx.lineTo(810, 310); ctx.lineTo(810, 240);
                 ctx.stroke();
 
-                // Draw standard circuit loop back rails
-                ctx.strokeStyle = simulationActive ? '#10b981' : '#1e293b';
+                ctx.strokeStyle = energyFlowing ? '#10b981' : '#1e293b';
                 ctx.beginPath();
-                ctx.moveTo(150, 240); ctx.lineTo(480, 140); ctx.lineTo(810, 240);
+                ctx.moveTo(150, 240); ctx.lineTo(480, 145); ctx.lineTo(810, 240);
                 ctx.stroke();
 
-                // Draw background decorative component symbols based on type to establish real schematics
-                ctx.fillStyle = '#334155'; ctx.font = '24px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("💡 [BULB]", 480, 130);
+                // Draw Animated Electron Flow particles along paths
+                if (energyFlowing && !wireMelted) {
+                    ctx.fillStyle = '#facc15';
+                    let particleOffset = (ticks * 4) % 180;
+                    ctx.beginPath(); ctx.arc(150 + particleOffset * 1.1, 310, 5, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(810 - particleOffset * 1.8, 200, 5, 0, Math.PI*2); ctx.fill();
+                }
 
-                // Render Target Dynamic Golden Connection Terminals
-                sc.hardwareTerminals.forEach(term => {
-                    ctx.fillStyle = '#1e293b'; ctx.fillRect(term.x - 120, term.y - 45, 240, 90);
-                    ctx.strokeStyle = '#eab308'; ctx.lineWidth = 2; ctx.strokeRect(term.x - 120, term.y - 45, 240, 90);
+                // Lab Appliance Schematic Symbols Graphic
+                ctx.fillStyle = energyFlowing && !wireMelted ? '#facc15' : '#475569';
+                ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(energyFlowing && !wireMelted ? "💥 [⚡ BULB GLOWING! ⚡]" : "💡 [BULB APPLIANCE]", 480, 125);
 
-                    if (!activeGridComponent) {
-                        ctx.fillStyle = 'rgba(234, 179, 8, 0.08)';
-                        ctx.fillRect(term.x - 120, term.y - 45, 240, 90);
-                        ctx.fillStyle = '#eab308'; ctx.font = 'bold 11px sans-serif';
-                        ctx.fillText(`[ DROP ${term.label} HERE ]`, term.x, term.y + 5);
-                    }
-                });
+                // Render Targeted Core Socket Gate Terminal
+                let term = stageData.targetTerminal;
+                ctx.fillStyle = '#0f172a'; ctx.fillRect(term.x - 125, term.y - 45, 250, 90);
+                ctx.strokeStyle = '#eab308'; ctx.lineWidth = 3; ctx.strokeRect(term.x - 125, term.y - 45, 250, 90);
 
-                // Render Active Placed Component inside Terminal with Active Physical Graphics Animations
-                if (activeGridComponent) {
-                    ctx.fillStyle = activeGridComponent.color;
-                    ctx.fillRect(370, 275, 220, 70);
-                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(370, 275, 220, 70);
+                if (!chosenHardware) {
+                    ctx.fillStyle = 'rgba(234, 179, 8, 0.05)'; ctx.fillRect(term.x - 125, term.y - 45, 250, 90);
+                    ctx.fillStyle = '#eab308'; ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText(`[ 🛰️ PLACE ${term.name} HERE ]`, term.x, term.y + 6);
+                }
+
+                // Render In-Slot Component Module with Physics System Vector Animations
+                if (chosenHardware) {
+                    ctx.fillStyle = chosenHardware.hue; ctx.fillRect(365, 265, 230, 70);
+                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.strokeRect(365, 265, 230, 70);
 
                     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
-                    ctx.fillText(`${activeGridComponent.icon} ${activeGridComponent.name}`, 480, 305);
+                    ctx.fillText(`${chosenHardware.symbol} ${chosenHardware.title}`, 480, 295);
 
-                    // --- ACTIVE HARDWARE SIMULATED ANIMATIONS ---
-                    if (simulationActive) {
-                        // Animation 1: Nichrome wire high thermal load element heating up red hot
-                        if (activeGridComponent.id === 'nichrome_wire') {
-                            ctx.strokeStyle = `rgb(${200 + Math.sin(globalTicks*0.2)*55}, 50, 50)`;
-                            ctx.lineWidth = 5;
-                            ctx.beginPath();
-                            for(let ix = 390; ix <= 570; ix += 10) {
-                                ctx.lineTo(ix, 325 + (ix%2===0 ? 8 : -8));
+                    if (energyFlowing) {
+                        // Animation 1: Nichrome High-resistance Loop overheating element glow
+                        if (chosenHardware.id === 'nichrome_wire') {
+                            ctx.strokeStyle = `rgb(${210 + Math.sin(ticks*0.25)*45}, 40, 40)`;
+                            ctx.lineWidth = 5; ctx.beginPath();
+                            for(let lx = 385; lx <= 575; lx += 12) {
+                                ctx.lineTo(lx, 318 + (lx%2===0 ? 9 : -9));
                             }
                             ctx.stroke();
                         }
-                        // Animation 2: Alloy Fuse Wire blowing out completely under load
-                        if (activeGridComponent.id === 'thin_fuse') {
-                            ctx.strokeStyle = fuseBlown ? '#475569' : '#f43f5e';
-                            ctx.lineWidth = 3;
-                            ctx.beginPath();
-                            ctx.moveTo(400, 325);
-                            if (fuseBlown) {
-                                ctx.lineTo(470, 320); ctx.moveTo(490, 330); ctx.lineTo(560, 325);
-                                circuitStateMessage = "💥 FUSE BURNOUT SAFELY TRIGGERED: The alloy wire melted instantly to halt excessive current.";
-                                messageColor = "#f43f5e";
+                        // Animation 2: Alloy low-melting wire breaking completely in half
+                        if (chosenHardware.id === 'thin_fuse') {
+                            ctx.strokeStyle = wireMelted ? '#64748b' : '#ef4444'; ctx.lineWidth = 4;
+                            ctx.beginPath(); ctx.moveTo(390, 318);
+                            if (wireMelted) {
+                                ctx.lineTo(470, 312); ctx.moveTo(490, 324); ctx.lineTo(570, 318);
+                                systemAlertText = "🛡️ SURGE DISCHARGED: Low melting-point alloy wire split completely to protect appliances!";
+                                alertColor = "#f43f5e";
                             } else {
-                                ctx.lineTo(560, 325);
+                                ctx.lineTo(570, 318);
                             }
                             ctx.stroke();
                         }
-                        // Animation 3: Geographic Magnetic Compass deflection dial mechanics
-                        if (activeGridComponent.id === 'compass_needle') {
-                            compassAngle += (Math.PI*0.25 - compassAngle) * 0.1; // Smooth alignment matrix swing
-                            ctx.save();
-                            ctx.translate(480, 328);
-                            ctx.rotate(compassAngle);
-                            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
-                            ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0, -20); ctx.stroke();
-                            ctx.strokeStyle = '#94a3b8';
-                            ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0, 20); ctx.stroke();
+                        // Animation 3: Floating Dial Compass Deflection mechanics
+                        if (chosenHardware.id === 'compass_needle') {
+                            compassAngle += (Math.PI * 0.35 - compassAngle) * 0.15;
+                            ctx.save(); ctx.translate(480, 320); ctx.rotate(compassAngle);
+                            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-18); ctx.stroke();
+                            ctx.strokeStyle = '#94a3b8'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,18); ctx.stroke();
                             ctx.restore();
                         }
-                        // Animation 4: Soft Iron Core Nail electromagnet field particle rings
-                        if (activeGridComponent.id === 'nail_coiled') {
-                            ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)'; ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            ctx.ellipse(480, 325, 40 + Math.sin(globalTicks*0.3)*10, 15, 0, 0, Math.PI*2);
-                            ctx.stroke();
+                        // Animation 4: Coiled soft iron nail magnetic flux lines
+                        if (chosenHardware.id === 'nail_coiled') {
+                            ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)'; ctx.lineWidth = 2;
+                            ctx.beginPath(); ctx.ellipse(480, 318, 50 + Math.sin(ticks*0.4)*12, 14, 0, 0, Math.PI*2); ctx.stroke();
                         }
                     }
                 }
 
-                // Live Simulator Activity Terminal Readout Output text
+                // Interactive Activity Terminal Dialogue Monitor Screen
                 ctx.fillStyle = '#020617'; ctx.fillRect(20, 405, 920, 40);
-                ctx.fillStyle = messageColor; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(circuitStateMessage, canvas.width/2, 429);
+                ctx.fillStyle = alertColor; ctx.font = 'bold 12.5px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(systemAlertText, canvas.width/2, 429);
 
-                // Simulation Activation Button Trigger
-                ctx.fillStyle = simulationActive ? '#dc2626' : '#2563eb';
-                ctx.fillRect(720, 452, 210, 32);
+                // Action Launch Ignition Command Button Box
+                ctx.fillStyle = energyFlowing ? '#ef4444' : '#2563eb';
+                ctx.fillRect(710, 452, 230, 33);
                 ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(simulationActive ? "DISCONNECT BREAK CIRCUIT" : "ENGAGE CURRENT CIRCUIT ⚡", 825, 472);
+                ctx.fillText(energyFlowing ? "💥 DISCONNECT POWER LOOP" : "ENGAGE POWER IGNITION ⚡", 825, 473);
 
-                // Hardware Parts Deck Space Splitter Label
-                ctx.textAlign = 'left'; ctx.fillStyle = '#475569'; ctx.font = 'bold 11px sans-serif'; ctx.letterSpacing = "2px";
-                ctx.fillText("LAB COMPONENT DISPATCH INVENTORY DECK", 30, 503); ctx.letterSpacing = "0px";
+                // Modular Asset Shelf Title
+                ctx.textAlign = 'left'; ctx.fillStyle = '#4b5563'; ctx.font = 'bold 11px sans-serif'; ctx.letterSpacing = "2px";
+                ctx.fillText("SPACE SHIP INVENTORY COMPONENT DOCK TILES", 35, 502); ctx.letterSpacing = "0px";
 
-                // Map Inventory Cards Grid
-                inventoryDeck.forEach((card, idx) => {
-                    let rx = deckX + (idx * 150);
-                    ctx.fillStyle = '#111827'; ctx.fillRect(rx, deckY, cardW, cardH);
-                    ctx.strokeStyle = '#334155'; ctx.lineWidth = 1.5; ctx.strokeRect(rx, deckY, cardW, cardH);
+                // Generate Arcade Style Grid Tiles Selection Shelf
+                componentInventory.forEach((tile, index) => {
+                    let tx = deckStartX + (index * 152);
+                    ctx.fillStyle = '#0f172a'; ctx.fillRect(tx, deckStartY, tileW, tileH);
+                    ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2; ctx.strokeRect(tx, deckStartY, tileW, tileH);
 
-                    ctx.fillStyle = card.color; ctx.fillRect(rx + 8, deckY + 8, 4, 14);
+                    ctx.fillStyle = tile.hue; ctx.fillRect(tx+8, deckStartY+8, 5, 15);
                     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif';
-                    ctx.fillText(card.name, rx + 18, deckY + 20);
+                    ctx.fillText(tile.title, tx + 18, deckStartY + 20);
 
-                    ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif';
-                    wrapAndPrintText(card.desc, rx + 10, deckY + 40, cardW - 16, 13);
+                    ctx.fillStyle = '#94a3b8'; ctx.font = '10px sans-serif';
+                    printWrappedText(tile.note, tx + 10, deckStartY + 42, tileW - 16, 13);
                 });
             }
 
             // ==========================================
-            // STATE 4: SUCCESS RECAP AND FEEDBACK SCREEN
+            // STATE 4: SUCCESS LEVEL CLEARED REWARD CARD
             // ==========================================
-            else if (gameState === 'STAGE_COMPLETE') {
-                let sc = stages[currentStageIdx];
-                ctx.fillStyle = '#070f1e'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            else if (gameState === 'SUCCESS') {
+                let stageData = campaignStages[currentStageIdx];
+                ctx.fillStyle = '#030712'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = '#10b981'; ctx.font = 'bold 32px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("CIRCUIT SYNCHRONIZED SUCCESSFULLY!", canvas.width/2, 200);
+                ctx.fillStyle = '#10b981'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText("🚀 CIRCUIT LEVEL FULLY SECURED!", canvas.width/2, 190);
 
-                ctx.fillStyle = '#f8fafc'; ctx.font = '16px sans-serif';
-                ctx.fillText("Core Educational Insight Discovered:", canvas.width/2, 260);
+                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 15px sans-serif';
+                ctx.fillText("Grade 7 Electric Core Concept Mastered:", canvas.width/2, 250);
 
-                ctx.fillStyle = '#94a3b8'; ctx.font = 'italic 16px sans-serif';
-                wrapAndPrintText(`"${sc.brief}"`, canvas.width/2, 300, 750, 24);
+                ctx.fillStyle = '#38bdf8'; ctx.font = 'italic 15px sans-serif';
+                printWrappedText(`"${stageData.story}"`, canvas.width/2, 290, 760, 24);
 
-                // Next Level Button Action Layout Box
-                ctx.fillStyle = '#2563eb'; ctx.fillRect(380, 450, 200, 50);
+                // Next Matrix Level Block Link
+                ctx.fillStyle = '#2563eb'; ctx.fillRect(360, 460, 240, 50);
                 ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("NEXT SCHEMATIC MATRIX", canvas.width/2, 481);
+                ctx.fillText("NEXT SCHEMATIC RADAR", canvas.width/2, 491);
             }
 
             // ==========================================
-            // STATE 5: GAME OVER SIMULATOR REBOOT
+            // STATE 5: SHUTDOWN POWER OVERLOAD RESET
             // ==========================================
             else if (gameState === 'GAMEOVER') {
-                ctx.fillStyle = '#0f0505'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ef4444'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("HARDWARE BALANCE SHUTDOWN", canvas.width/2, 230);
+                ctx.fillStyle = '#110606'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ef4444'; ctx.font = 'bold 38px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText("⚡ SHIP POWER OVERLOAD BREAKDOWN ⚡", canvas.width/2, 230);
 
                 ctx.fillStyle = '#94a3b8'; ctx.font = '16px sans-serif';
-                ctx.fillText("Too many incompatible modules caused critical impedance faults.", canvas.width/2, 290);
+                ctx.fillText("Impedance mismatch or open circuit fault caused a systems meltdown.", canvas.width/2, 290);
 
-                ctx.fillStyle = '#dc2626'; ctx.fillRect(370, 380, 220, 50);
+                ctx.fillStyle = '#ef4444'; ctx.fillRect(360, 380, 240, 50);
                 ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("REBOOT COLD MATRIX SIM", canvas.width/2, 411);
+                ctx.fillText("REBOOT CENTRAL SHIP REACTOR", canvas.width/2, 411);
             }
 
-            requestAnimationFrame(drawGameLoop);
+            requestAnimationFrame(engineFrameUpdate);
         }
 
-        // TEXT WRAPPING AND CHOPPING UTILITY
-        function wrapAndPrintText(str, x, y, maxW, lineH) {
-            let tokens = str.split(' '); let segment = ''; let currentY = y;
-            for (let n = 0; n < tokens.length; n++) {
-                let testLine = segment + tokens[n] + ' ';
-                if (ctx.measureText(testLine).width > maxW && n > 0) {
-                    ctx.fillText(segment, x, currentY); segment = tokens[n] + ' '; currentY += lineH;
-                } else { segment = testLine; }
+        // TEXT MULTILINE PARSER WRAPPER CHOPPER
+        function printWrappedText(msg, x, y, maxW, lineSpc) {
+            let broken = msg.split(' '); let rowStr = ''; let targetY = y;
+            for (let i = 0; i < broken.length; i++) {
+                let testRow = rowStr + broken[i] + ' ';
+                if (ctx.measureText(testRow).width > maxW && i > 0) {
+                    ctx.fillText(rowStr, x, targetY); rowStr = broken[i] + ' '; targetY += lineSpc;
+                } else { rowStr = testRow; }
             }
-            ctx.fillText(segment, x, currentY);
+            ctx.fillText(rowStr, x, targetY);
         }
 
-        // CLICK HANDLING FOR ACTIONS AND GRID WIRING POSITIONS
-        function processUserInteraction(mx, my) {
-            if (gameState === 'STAGE_INTRO') {
-                if (mx >= 350 && mx <= 610 && my >= 410 && my <= 460) {
-                    SoundEngine.playTick();
-                    gameState = 'PLAY_SANDBOX';
+        // UNIFIED CLICKS ENGINE MANAGEMENT MATH
+        function dispatchTapCoordinates(mx, my) {
+            if (gameState === 'MISSION_BRIEF') {
+                if (mx >= 330 && mx <= 630 && my >= 420 && my <= 470) {
+                    SoundBox.beep(); gameState = 'SANDBOX';
                 }
             }
-            else if (gameState === 'PLAY_SANDBOX') {
-                // Check if user clicked an inventory module card to deploy it
-                inventoryDeck.forEach((card, idx) => {
-                    let rx = deckX + (idx * 150);
-                    if (mx >= rx && mx <= rx + cardW && my >= deckY && my <= deckY + cardH) {
-                        SoundEngine.playTick();
-                        activeGridComponent = card;
-                        simulationActive = false;
-                        fuseBlown = false;
-                        circuitStateMessage = `DEPLOYED: ${card.name} loaded into connection terminal block. Press power to test.`;
-                        messageColor = "#38bdf8";
+            else if (gameState === 'SANDBOX') {
+                // Check shelf tile clicks to load parts
+                componentInventory.forEach((tile, idx) => {
+                    let tx = deckStartX + (idx * 152);
+                    if (mx >= tx && mx <= tx + tileW && my >= deckStartY && my <= deckStartY + tileH) {
+                        SoundBox.beep();
+                        chosenHardware = tile;
+                        energyFlowing = false;
+                        wireMelted = false;
+                        systemAlertText = `📡 MODULE SNAP-IN: ${tile.title} loaded into connection terminal block. Engage switch to evaluate current flow.`;
+                        alertColor = "#c084fc";
                     }
                 });
 
-                // Check if user clicked the "Engage Circuit" Toggle button
-                if (mx >= 720 && mx <= 930 && my >= 452 && my <= 484) {
-                    SoundEngine.playTick();
-                    if (!activeGridComponent) {
-                        circuitStateMessage = "WARNING WARNING: Cannot establish load path. The loop connection terminal is currently blank!";
-                        messageColor = "#eab308";
+                // Check Action Button Click trigger matrix
+                if (mx >= 710 && mx <= 940 && my >= 452 && my <= 485) {
+                    SoundBox.beep();
+                    if (!chosenHardware) {
+                        systemAlertText = "⚠ SYSTEM WARNING: Unloaded grid node path. Drop a physics tool tile into the slot before turning on power!";
+                        alertColor = "#eab308";
                         return;
                     }
 
-                    simulationActive = !simulationActive;
+                    energyFlowing = !energyFlowing;
 
-                    if (simulationActive) {
-                        let target = stages[currentStageIdx];
-                        if (activeGridComponent.id === target.targetId) {
-                            // Specific special condition trigger animations
-                            if (activeGridComponent.id === 'thin_fuse') {
-                                fuseBlown = true;
-                            }
+                    if (energyFlowing) {
+                        let levelDef = campaignStages[currentStageIdx];
+                        if (chosenHardware.id === levelDef.solutionKey) {
+                            if (chosenHardware.id === 'thin_fuse') wireMelted = true;
                             
-                            SoundEngine.playSuccess();
-                            circuitStateMessage = "🟢 LOAD BALANCED: Continuous path validated! Transforming current effects cleanly.";
-                            messageColor = "#10b981";
-                            sandboxScore += 10;
+                            SoundBox.cheer();
+                            systemAlertText = "🟢 PATH CALIBRATION PASS: Complete loop verified. Electric current effects running within margins.";
+                            alertColor = "#10b981";
+                            highscore += 20;
 
-                            setTimeout(() => {
-                                gameState = 'STAGE_COMPLETE';
-                            }, 3000);
+                            setTimeout(() => { gameState = 'SUCCESS'; }, 3200);
                         } else {
-                            SoundEngine.playBurnout();
-                            circuitStateMessage = "🚨 CRITICAL FAULT: Circuit architecture breakdown! Incompatible electrical impedance detected.";
-                            messageColor = "#ef4444";
-                            healthPoints--;
-                            simulationActive = false;
+                            SoundBox.zap();
+                            systemAlertText = "🚨 IMPEDANCE FAULT CRASH: Incompatible electrical loop configuration or open circuit line! Restarting core node...";
+                            alertColor = "#f43f5e";
+                            lives--;
+                            energyFlowing = false;
 
-                            if (healthPoints <= 0) {
-                                setTimeout(() => { gameState = 'GAMEOVER'; }, 1500);
+                            if (lives <= 0) {
+                                setTimeout(() => { gameState = 'GAMEOVER'; }, 1200);
                             }
                         }
                     }
                 }
             }
-            else if (gameState === 'STAGE_COMPLETE') {
-                if (mx >= 380 && mx <= 580 && my >= 450 && my <= 500) {
-                    SoundEngine.playTick();
+            else if (gameState === 'SUCCESS') {
+                if (mx >= 360 && mx <= 600 && my >= 460 && my <= 510) {
+                    SoundBox.beep();
                     currentStageIdx++;
-                    if (currentStageIdx >= stages.length) {
-                        currentStageIdx = 0; // Win loop overflow safety refresh reset
-                        sandboxScore = 0;
-                        healthPoints = 3;
+                    if (currentStageIdx >= campaignStages.length) {
+                        currentStageIdx = 0; highscore = 0; lives = 3;
                         gameState = 'SPLASH';
                         splashTimeStart = Date.now();
                     } else {
-                        gameState = 'STAGE_INTRO';
+                        gameState = 'MISSION_BRIEF';
                     }
-                    startSandboxLevel();
+                    initSandboxLevel();
                 }
             }
             else if (gameState === 'GAMEOVER') {
-                if (mx >= 370 && mx <= 590 && my >= 380 && my <= 430) {
-                    SoundEngine.playTick();
-                    currentStageIdx = 0; sandboxScore = 0; healthPoints = 3;
-                    gameState = 'PLAY_SANDBOX';
-                    startSandboxLevel();
+                if (mx >= 360 && mx <= 600 && my >= 380 && my <= 430) {
+                    SoundBox.beep();
+                    currentStageIdx = 0; highscore = 0; lives = 3;
+                    gameState = 'SANDBOX';
+                    initSandboxLevel();
                 }
             }
         }
 
-        // UNIFIED CLICKS MAP ADAPTER MOUSE EVENT TRIGGERS
+        // INPUT EVENT CAPTURE REGISTRATION
         canvas.addEventListener('mousedown', (e) => {
-            const r = canvas.getBoundingClientRect();
-            let clickX = (e.clientX - r.left) * (canvas.width / r.width);
-            let clickY = (e.clientY - r.top) * (canvas.height / r.height);
-            processUserInteraction(clickX, clickY);
+            const boundary = canvas.getBoundingClientRect();
+            let mouseX = (e.clientX - boundary.left) * (canvas.width / boundary.width);
+            let mouseY = (e.clientY - boundary.top) * (canvas.height / boundary.height);
+            dispatchTapCoordinates(mouseX, mouseY);
         });
 
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (e.touches.length > 0) {
-                const r = canvas.getBoundingClientRect();
-                let touchX = (e.touches[0].clientX - r.left) * (canvas.width / r.width);
-                let touchY = (e.touches[0].clientY - r.top) * (canvas.height / r.height);
-                processUserInteraction(touchX, touchY);
+                const boundary = canvas.getBoundingClientRect();
+                let touchX = (e.touches[0].clientX - boundary.left) * (canvas.width / boundary.width);
+                let touchY = (e.touches[0].clientY - boundary.top) * (canvas.height / boundary.height);
+                dispatchTapCoordinates(touchX, touchY);
             }
         }, {passive: false});
 
-        // KICKSTART CORE ENGINE LOOP RUNNER
-        drawGameLoop();
+        // RUN ENGINE TICK OVERLOOP
+        engineFrameUpdate();
     </script>
 </body>
 </html>
