@@ -61,15 +61,14 @@ body:before {
     gap: 15px;
     margin-bottom: 30px;
 }
-.innovine-logo {
+.app-brand-logo {
+    width: clamp(90px, 15vw, 130px);
+    height: auto;
     filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.6));
     animation: pulseGlow 3s ease-in-out infinite;
 }
-.laser-dot {
-    animation: beamSync 1.5s alternate infinite;
-}
 #splash-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 900;
     letter-spacing: 3px;
     background: linear-gradient(45deg, #06b6d4, #6366f1, #f43f5e);
@@ -345,10 +344,6 @@ canvas {
     0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.5)); }
     50% { transform: scale(1.04); filter: drop-shadow(0 0 25px rgba(244, 63, 94, 0.8)); }
 }
-@keyframes beamSync {
-    0% { opacity: 0.3; }
-    100% { opacity: 1; fill: #06b6d4; }
-}
 @media(max-width:760px) {
     #root { max-width: 520px; }
     .main { grid-template-columns: 1fr; grid-template-rows: .82fr 1fr; }
@@ -384,18 +379,7 @@ canvas {
 
 <div id="splash">
   <div class="logo-container">
-    <svg class="innovine-logo" viewBox="0 0 100 100" width="90" height="90">
-      <defs>
-        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#06b6d4" />
-          <stop offset="50%" stop-color="#6366f1" />
-          <stop offset="100%" stop-color="#f43f5e" />
-        </linearGradient>
-      </defs>
-      <path d="M 30,50 C 30,35 45,30 50,50 C 55,70 70,65 70,50 C 70,35 55,30 50,50 C 45,70 30,65 30,50 Z" 
-            fill="none" stroke="url(#grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="50" cy="50" r="3" fill="#ffffff" class="laser-dot" />
-    </svg>
+    <img src="assets/logo.png" alt="Innovine Logo" class="app-brand-logo" />
     <div id="splash-title">INNOVINE</div>
   </div>
   <div class="loader"><div id="loadFill"></div></div>
@@ -714,7 +698,15 @@ function sound(id) {
 
 function finish() {
     let acc = Math.round((score / (questions.length * 15)) * 100);
-    $('root').innerHTML = `<div class="screen"><div class="endCard"><h1>🏆 Optics Lab Complete!</h1><p>You have aligned all 10 experiment stations successfully.<br><b>Final Luminous Flux: ${score} lm</b><br><b>Calibration Accuracy: ${acc}%</b></p><button class="btn" onclick="location.reload()">Reboot Lab Terminal</button></div></div>`;
+    $('root').innerHTML = `
+    <div class="screen">
+        <div class="endCard">
+            <img src="assets/logo.png" alt="Innovine" style="width:75px; height:auto; margin-bottom:12px; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1));" />
+            <h1>🏆 Optics Lab Complete!</h1>
+            <p>You have aligned all 10 experiment stations successfully.<br><b>Final Luminous Flux: ${score} lm</b><br><b>Calibration Accuracy: ${acc}%</b></p>
+            <button class="btn" onclick="location.reload()">Reboot Lab Terminal</button>
+        </div>
+    </div>`;
 }
 
 function confetti() {
