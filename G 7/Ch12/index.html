@@ -54,6 +54,20 @@ body:before {
     transition: opacity .5s ease;
     color: #fff;
 }
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+.innovine-logo {
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.6));
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+.laser-dot {
+    animation: beamSync 1.5s alternate infinite;
+}
 #splash-title {
     font-size: 2.5rem;
     font-weight: 900;
@@ -61,7 +75,6 @@ body:before {
     background: linear-gradient(45deg, #06b6d4, #6366f1, #f43f5e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 20px;
 }
 .loader {
     position: absolute;
@@ -328,6 +341,14 @@ canvas {
 @keyframes fall {
     to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.5)); }
+    50% { transform: scale(1.04); filter: drop-shadow(0 0 25px rgba(244, 63, 94, 0.8)); }
+}
+@keyframes beamSync {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; fill: #06b6d4; }
+}
 @media(max-width:760px) {
     #root { max-width: 520px; }
     .main { grid-template-columns: 1fr; grid-template-rows: .82fr 1fr; }
@@ -360,18 +381,37 @@ canvas {
 </head>
 <body>
 <audio id="correctSound" src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAA/f39/f39/v7+/v7+/v79/f39/f39/f39/f39/f39/f39/f39/f39/f35+fn5+fn5+fn5+fn5+Q==" preload="auto"></audio>
-<div id="splash"><div id="splash-title">INNOVINE</div><div class="loader"><div id="loadFill"></div></div></div>
+
+<div id="splash">
+  <div class="logo-container">
+    <svg class="innovine-logo" viewBox="0 0 100 100" width="90" height="90">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#06b6d4" />
+          <stop offset="50%" stop-color="#6366f1" />
+          <stop offset="100%" stop-color="#f43f5e" />
+        </linearGradient>
+      </defs>
+      <path d="M 30,50 C 30,35 45,30 50,50 C 55,70 70,65 70,50 C 70,35 55,30 50,50 C 45,70 30,65 30,50 Z" 
+            fill="none" stroke="url(#grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="50" cy="50" r="3" fill="#ffffff" class="laser-dot" />
+    </svg>
+    <div id="splash-title">INNOVINE</div>
+  </div>
+  <div class="loader"><div id="loadFill"></div></div>
+</div>
+
 <div id="root">
   <div id="intro" class="screen">
     <div class="introCard">
-      <h1>🧱 OpticsLab Studio</h1>
+      <h1>🔬 OpticsLab Studio</h1>
       <p>Master the properties of light, reflection, lenses, and color spectrums. Match the correct optical pairs to repair the laser pathways on the diagnostic lab terminal.</p>
       <div class="rules">
-        <div>🔦 Calibrate the ray pathways.</div>
+        <div>🔦 Calibrate ray pathways and target pinholes.</div>
         <div>🌈 Explore mirrors, spherical lenses, and color dispersion.</div>
         <div>✌️ You get 2 diagnostic attempts per experiment setup.</div>
       </div>
-      <button class="btn" onclick="startGame()">Boot Optical Console</button>
+      <button class="btn" onclick="startGame()">Boot Light Console</button>
     </div>
   </div>
   <div class="topbar">
@@ -401,7 +441,6 @@ canvas {
 const $ = id => document.getElementById(id);
 let canvas, ctx, items = [], qIndex = 0, score = 0, tries = 2, selected = null, placed = [null, null], locked = false, wallGlow = 0, shake = 0, anim = 0;
 
-// Grade 7 Light Syllabus Dataset mapped into logical paired matching challenges
 const questions = [
     {
         q: 'How does light travel from a flashlight through space, and what happens when you look through a bent straw?',
@@ -694,7 +733,6 @@ function draw() {
     let w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
     
-    // Tech Lab Space Canvas Styling
     ctx.fillStyle = '#060913';
     ctx.fillRect(0, 0, w, h);
     
@@ -727,7 +765,6 @@ function drawLaserOpticsLayout(w, h) {
     let cx = w / 2, cy = h / 2 - 5;
     let beamOn = (wallGlow > 0 || Math.sin(anim * 1.5) > -0.3);
 
-    // Render Laser Emitter Box Left side
     let lx = w * 0.15, ly = cy;
     ctx.fillStyle = '#1e293b';
     ctx.strokeStyle = '#475569';
@@ -736,42 +773,34 @@ function drawLaserOpticsLayout(w, h) {
     ctx.fillStyle = '#ef4444';
     ctx.fillRect(lx + 15, ly - 5, 8, 10);
 
-    // Depending on question index, change the center target visual artifact
-    let type = qIndex % 4; // 0: Reflection, 1: Lenses, 2: Dispersion Prism, 3: Transmission/Straw
+    let type = qIndex % 4; 
 
     if (type === 0) {
-        // --- 0. PLANE/SPHERICAL MIRROR SETUP ---
         let mx = cx, my = cy;
-        // Draw Mirror Mount
         ctx.strokeStyle = '#64748b';
         ctx.lineWidth = 4;
         ctx.beginPath(); ctx.moveTo(mx, my - 35); ctx.lineTo(mx, my + 35); ctx.stroke();
-        // Back hatch markings for a mirror
         ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
         for (let r = -30; r <= 30; r += 10) {
             ctx.beginPath(); ctx.moveTo(mx, my + r); ctx.lineTo(mx + 8, my + r - 6); ctx.stroke();
         }
 
         if (beamOn) {
-            // Draw Incident Beam
             ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3.5;
             ctx.shadowBlur = 10; ctx.shadowColor = '#06b6d4';
             ctx.beginPath(); ctx.moveTo(lx + 20, ly); ctx.lineTo(mx, my); ctx.stroke();
 
-            // Draw Reflected Beam bouncing down-left
             ctx.strokeStyle = (wallGlow > 0) ? '#10b981' : '#06b6d4';
             ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(lx + 20, my + 45); ctx.stroke();
-            ctx.shadowBlur = 0; // reset
+            ctx.shadowBlur = 0;
         }
     } 
     else if (type === 1) {
-        // --- 1. SPHERICAL LENS SETUP ---
         let mx = cx, my = cy;
         ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
         ctx.strokeStyle = '#38bdf8';
         ctx.lineWidth = 2;
         
-        // Draw double convex lens silhouette shape
         ctx.beginPath();
         ctx.moveTo(mx, my - 35);
         ctx.quadraticCurveTo(mx + 15, my, mx, my + 35);
@@ -783,19 +812,16 @@ function drawLaserOpticsLayout(w, h) {
             ctx.shadowBlur = 10; ctx.shadowColor = '#6366f1';
             ctx.beginPath(); ctx.moveTo(lx + 20, ly); ctx.lineTo(mx, my); ctx.stroke();
 
-            // Focal convergence alignment behavior
             ctx.strokeStyle = (wallGlow > 0) ? '#10b981' : '#6366f1';
             ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(w * 0.85, my); ctx.stroke();
             ctx.shadowBlur = 0;
         }
     } 
     else if (type === 2) {
-        // --- 2. GLASS PRISM SPECTRUM SETUP ---
         let mx = cx, my = cy - 5;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.strokeStyle = '#94a3b8';
         ctx.lineWidth = 2;
-        // Equilateral triangle layout
         ctx.beginPath();
         ctx.moveTo(mx, my - 35);
         ctx.lineTo(mx + 35, my + 30);
@@ -803,12 +829,10 @@ function drawLaserOpticsLayout(w, h) {
         ctx.closePath(); ctx.fill(); ctx.stroke();
 
         if (beamOn) {
-            // Incident White light ray
             ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 3;
             ctx.shadowBlur = 8; ctx.shadowColor = '#f8fafc';
             ctx.beginPath(); ctx.moveTo(lx + 20, ly); ctx.lineTo(mx - 15, my + 10); ctx.stroke();
 
-            // Spectrum dispersion expansion fan array on right side
             ctx.shadowBlur = 0;
             let colors = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6', '#4f46e5', '#a855f7'];
             colors.forEach((col, idx) => {
@@ -823,14 +847,11 @@ function drawLaserOpticsLayout(w, h) {
         }
     } 
     else if (type === 3) {
-        // --- 3. RECTILINEAR PROPAGATION TEST BENCH ---
         let mx = cx, my = cy;
         ctx.fillStyle = '#b45309';
-        // Draw standard target pinhole barrier boards blockages
         ctx.fillRect(mx - 40, my - 35, 6, 70);
         ctx.fillRect(mx + 10, my - 35, 6, 70);
         
-        // Pinhole gaps hollow cuts
         ctx.fillStyle = '#060913';
         ctx.fillRect(mx - 40, my - 6, 6, 12);
         ctx.fillRect(mx + 10, my - 6, 6, 12);
@@ -841,10 +862,8 @@ function drawLaserOpticsLayout(w, h) {
             ctx.beginPath();
             ctx.moveTo(lx + 20, ly);
             if (wallGlow > 0) {
-                // Aligned straight through path trace line
                 ctx.lineTo(w * 0.85, ly);
             } else {
-                // Blocked or misaligned ray representation
                 ctx.lineTo(mx - 40, ly);
             }
             ctx.stroke();
@@ -852,7 +871,6 @@ function drawLaserOpticsLayout(w, h) {
         }
     }
 
-    // Console text readouts layout
     ctx.fillStyle = '#475569';
     ctx.font = '950 11px sans-serif';
     ctx.textAlign = 'center';
