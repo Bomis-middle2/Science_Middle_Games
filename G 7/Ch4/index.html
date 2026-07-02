@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Innovine - Grade 7 Cyber-Circuit Academy</title>
+    <title>Innovine - Circuit Overdrive Arcade</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #030712;
+            background-color: #020205;
             color: #f3f4f6;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Courier New', Courier, monospace, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -21,11 +21,11 @@
         }
         #canvasFrame {
             position: relative;
-            box-shadow: 0 0 50px rgba(59, 130, 246, 0.4);
-            border-radius: 24px;
+            box-shadow: 0 0 60px #bc13fe;
+            border-radius: 12px;
             overflow: hidden;
-            border: 4px solid #3b82f6;
-            background-color: #090d16;
+            border: 5px solid #ff007f;
+            background-color: #05050a;
         }
         canvas {
             display: block;
@@ -46,117 +46,137 @@
         const logoImg = new Image();
         logoImg.src = 'assets/logo.png';
 
-        // ENGINE STATES
-        let gameState = 'SPLASH'; // SPLASH -> MISSION_BRIEF -> SANDBOX -> SUCCESS -> GAMEOVER
+        // ARCADE STATE MACHINE
+        let gameState = 'SPLASH'; // SPLASH -> ACTION_GAME -> WIN_SCREEN -> GAME_OVER
         let splashTimeStart = Date.now();
         const SPLASH_LIMIT = 5000; // Locked 5 Seconds Splash
 
-        let currentStageIdx = 0;
-        let lives = 3;
-        let highscore = 0;
-        let ticks = 0;
+        let currentLevelIdx = 0;
+        let playerLives = 3;
+        let arcadeScore = 0;
+        let frameTicks = 0;
 
-        // SELECTION MECHANICS
-        let chosenHardware = null;
-        let energyFlowing = false;
-        let systemAlertText = "🔋 CORE STATUS: WAITING FOR COMPONENT... SNAP A TILE ONTO THE GOLD SOCKET GRID!";
-        let alertColor = "#38bdf8";
-        let compassAngle = 0;
-        let wireMelted = false;
+        // IN-GAME LEVEL BANNER ANIMATION TIMER
+        let introBannerTicks = 80; 
 
-        // INVENTORY COMPONENT DECK (GEARED TO G7 SYLLABUS WITH GAMIFIED ICONS)
-        const componentInventory = [
-            { id: "switch_closed", title: "Key Switch [ON]", note: "Locks down a clean, uninterrupted loop.", hue: "#2563eb", symbol: "🔑", volts: 0 },
-            { id: "battery_series", title: "Twin Battery", note: "Links cells (+ to -) for max electric punch.", hue: "#ec4899", symbol: "⚡🔋", volts: 3 },
-            { id: "nichrome_wire", title: "Nichrome Coil", note: "Super high resistance turns current into heat.", hue: "#a855f7", symbol: "🌀🔥", volts: 0 },
-            { id: "thin_fuse", title: "Alloy Fuse Wire", note: "The grid bodyguard! Melts down to save lines.", hue: "#f43f5e", symbol: "🛡️💥", volts: 0 },
-            { id: "compass_needle", title: "Field Compass", note: "Senses current magnetic force fields nearby.", hue: "#eab308", symbol: "🧭✨", volts: 0 },
-            { id: "nail_coiled", title: "Iron Core Inductor", note: "Becomes a super-magnet only when juice flows.", hue: "#10b981", symbol: "🧲⚙️", volts: 0 }
+        // MECHANICS AND SIMULATION ARRAYS
+        let equippedTile = null;
+        let powerGridActive = false;
+        let fuseSnapped = false;
+        let dialAngle = 0;
+        let activeParticles = [];
+
+        // RETRO RADICAL TOOLKIT DISPATCHER TILES
+        const componentDeck = [
+            { id: "switch_closed", tag: "SWITCH [ON]", icon: "🔑", hue: "#00f0ff", fx: "BRIDGES WIRE GAPS" },
+            { id: "battery_series", tag: "BOOST BATTERY", icon: "🔋⚡", hue: "#ff007f", fx: "DOUBLES POWER VOLTAGE" },
+            { id: "nichrome_wire", tag: "HEAT ELEMENT", icon: "🌀🔥", hue: "#bc13fe", fx: "TURNS JUICE TO GLOW HEAT" },
+            { id: "thin_fuse", tag: "SAFETY FUSE", icon: "🛡️💥", hue: "#ffb700", fx: "MELTS ON SURGE OVERLOAD" },
+            { id: "compass_needle", tag: "MAG-COMPASS", icon: "🧭✨", hue: "#00ff66", fx: "DETECTS WIRE FIELD RAYS" },
+            { id: "nail_coiled", tag: "MAG-MAGNET", icon: "🧲⚙️", hue: "#38bdf8", fx: "POWERED HEAVY MAGNET" }
         ];
 
-        const deckStartX = 35, deckStartY = 510, tileW = 145, tileH = 100;
+        const deckX = 25, deckY = 515, blockW = 146, blockH = 95;
 
-        // SCIENTIFIC NARRATIVE QUESTS
-        const campaignStages = [
+        // VISUAL ACTION LEVEL OBJECTIVES (SHOWS IN-WORLD OBJECTS INSTEAD OF QUIZ QUESTIONS)
+        const gameLevels = [
             {
-                heading: "QUEST 1: BRIDGE THE BLACKOUT GAP",
-                story: "Oh no! The backup computer power rail has an open circuit air gap, causing a total blackout. Drop the dynamic mechanical tool required to turn this into a standard closed circuit so the current can travel smoothly!",
-                solutionKey: "switch_closed",
-                targetTerminal: { x: 480, y: 300, name: "CENTRAL LINK GATE" }
+                alertSign: "🚨 DAMAGE ALERT: POWER GRID IS CURRENTLY CUT IN HALF!",
+                worldObject: "beacon_offline",
+                objectLabel: "OFFLINE CORES SIGNAL BEACON",
+                requiredPart: "switch_closed",
+                neonTheme: "#00f0ff"
             },
             {
-                heading: "QUEST 2: SUPERCHARGE THE ENGINE DRIVERS",
-                story: "The command ventilation thruster is struggling! A single chemical cell cannot generate enough voltage push to rotate the motor coils. Deploy a boosted electrical source combined in series (positive to negative terminals).",
-                solutionKey: "battery_series",
-                targetTerminal: { x: 480, y: 300, name: "SERIES VOLTAGE PORT" }
+                alertSign: "⚠️ CURRENT LOW: MOTOR ENGINE POWER IS SAGGING BELOW 10%!",
+                worldObject: "thruster_weak",
+                objectLabel: "LOW-VOLTAGE TURBO FAN MOTOR",
+                requiredPart: "battery_series",
+                neonTheme: "#ff007f"
             },
             {
-                heading: "QUEST 3: IGNITE THE RECOVERY RADIATOR",
-                story: "The space greenhouse is freezing! You need to mount a core element block that uses high resistance atomic drag to convert moving currents directly into extreme heating effects.",
-                solutionKey: "nichrome_wire",
-                targetTerminal: { x: 480, y: 300, name: "HEATER MATRIX" }
+                alertSign: "❄️ FREEZE CRITICAL: ROOM TEMPERATURE IS DROPPING FAST!",
+                worldObject: "heater_cold",
+                objectLabel: "FROZEN CRYOPOD WARMING SYSTEM",
+                requiredPart: "nichrome_wire",
+                neonTheme: "#bc13fe"
             },
             {
-                heading: "QUEST 4: DROP THE SURGE ACCIDENT BREAK",
-                story: "Warning! Solar flares are spiking heavy electricity lines. To prevent the computers from catching fire, lock in a safety valve designed to automatically melt and snap if excessive current flows through it.",
-                solutionKey: "thin_fuse",
-                targetTerminal: { x: 480, y: 300, name: "SAFETY FUSE VALVE" }
+                alertSign: "⚡ VOLTAGE SPIKE DETECTED! MAIN COMPUTER CHIPS WILL BURN!",
+                worldObject: "surge_vulnerable",
+                objectLabel: "UNPROTECTED COMPUTER MOTHERBOARD",
+                requiredPart: "thin_fuse",
+                neonTheme: "#ffb700"
             },
             {
-                heading: "QUEST 5: TRACE THE UNSEEN MAGNETIC CURRENT",
-                story: "A hidden power line is leaking an invisible field! Wire up a classic historical discovery device that uses a free-floating needle to visually swivel when an electric wire acts like a temporary magnet.",
-                solutionKey: "compass_needle",
-                targetTerminal: { x: 480, y: 300, name: "MAGNETIC EFFECT DETECTOR" }
+                alertSign: "🔍 SCANNING LINES: FIND THE HIDDEN LEAKING CURRENT MATRIX!",
+                worldObject: "conduit_invisible",
+                objectLabel: "CONCEALED WALL CABLE INDUCTION",
+                requiredPart: "compass_needle",
+                neonTheme: "#00ff66"
             },
             {
-                heading: "QUEST 6: ASSEMBLING THE MAGNETIC JUNK CARRIER",
-                story: "Time to load heavy iron payload pods! Wire an electromagnet that generates immense magnetic pull forces when the line is powered up, but instantly drops the payload completely when the switch breaks open.",
-                solutionKey: "nail_coiled",
-                targetTerminal: { x: 480, y: 300, name: "CORE APPARATUS ENGINE" }
+                alertSign: "🏗️ CRANE DEPLOYED: PACK AND PICK UP THE SCRAP METALS!",
+                worldObject: "crane_magnet",
+                objectLabel: "AUTOMATED SCRAP YARD BELL CRANE",
+                requiredPart: "nail_coiled",
+                neonTheme: "#38bdf8"
             }
         ];
 
-        // AUDIO EFFECTS SYSTEM
-        const SoundBox = {
+        // SYNTH SOUND EFFECTS ENGINE
+        const SoundFX = {
             audioCtx: null,
-            wake() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); },
-            beep() {
-                this.wake(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
-                osc.frequency.setValueAtTime(600, this.audioCtx.currentTime); g.gain.setValueAtTime(0.03, this.audioCtx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.06);
-                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.06);
+            boot() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); },
+            click() {
+                this.boot(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
+                osc.frequency.setValueAtTime(800, this.audioCtx.currentTime); g.gain.setValueAtTime(0.04, this.audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.05);
+                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.05);
             },
-            cheer() {
-                this.wake(); let osc1 = this.audioCtx.createOscillator(); let osc2 = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
-                osc1.frequency.setValueAtTime(523.25, this.audioCtx.currentTime); osc2.frequency.setValueAtTime(659.25, this.audioCtx.currentTime + 0.08);
-                g.gain.setValueAtTime(0.07, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
-                osc1.connect(g); osc2.connect(g); g.connect(this.audioCtx.destination); osc1.start(); osc2.start();
-                osc1.stop(this.audioCtx.currentTime + 0.4); osc2.stop(this.audioCtx.currentTime + 0.4);
+            combo() {
+                this.boot(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
+                osc.type = 'square'; osc.frequency.setValueAtTime(440, this.audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, this.audioCtx.currentTime + 0.08);
+                g.gain.setValueAtTime(0.06, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.3);
+                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.3);
             },
-            zap() {
-                this.wake(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, this.audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(30, this.audioCtx.currentTime + 0.25);
-                g.gain.setValueAtTime(0.15, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.25);
-                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.25);
+            explode() {
+                this.boot(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, this.audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(40, this.audioCtx.currentTime + 0.4);
+                g.gain.setValueAtTime(0.2, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
+                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.4);
             }
         };
 
-        function initSandboxLevel() {
-            chosenHardware = null;
-            energyFlowing = false;
-            wireMelted = false;
-            compassAngle = 0;
-            systemAlertText = "⚡ COIL MATRIX STATS: IDLE. DRAG OR CLICK A TECH PART TILE BELOW TO PATCH ENGINE CORE BOARD.";
-            alertColor = "#64748b";
+        function spawnSparkParticles(px, py, color) {
+            for(let i=0; i<25; i++) {
+                activeParticles.push({
+                    x: px, y: py,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 4 + 2,
+                    alpha: 1,
+                    color: color
+                });
+            }
         }
 
-        function engineFrameUpdate() {
+        function loadArcadeLevel() {
+            equippedTile = null;
+            powerGridActive = false;
+            fuseSnapped = false;
+            dialAngle = 0;
+            introBannerTicks = 80; // Triggers the animated cinematic stage banner overlay
+        }
+
+        function renderEngineTick() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ticks++;
+            frameTicks++;
 
             // ==========================================
-            // STATE 1: CORPORATE MINIMAL BRANDING INTRO
+            // STATE 1: REFINED BRANDING ENTRY SPLASH
             // ==========================================
             if (gameState === 'SPLASH') {
                 ctx.fillStyle = '#ffffff';
@@ -180,340 +200,330 @@
                 ctx.fillText('LIVE CIRCUIT SANDBOX & SIMULATION INTERACTIVE', cx, cy + 115);
 
                 ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 3; ctx.beginPath();
-                ctx.arc(cx, cy + 160, 14, ticks * 0.06, (ticks * 0.06) + (Math.PI * 0.5)); ctx.stroke();
+                ctx.arc(cx, cy + 160, 14, frameTicks * 0.06, (frameTicks * 0.06) + (Math.PI * 0.5)); ctx.stroke();
 
                 if (Date.now() - splashTimeStart > SPLASH_LIMIT) {
-                    gameState = 'MISSION_BRIEF';
-                    initSandboxLevel();
+                    gameState = 'ACTION_GAME';
+                    loadArcadeLevel();
                 }
             }
 
             // ==========================================
-            // STATE 2: SPACE ACADEMY MISSION BRIEFING
+            // STATE 2: LIVE ACTION CIRCUIT GAMEPAD WORKBENCH
             // ==========================================
-            else if (gameState === 'MISSION_BRIEF') {
-                let stageData = campaignStages[currentStageIdx];
+            else if (gameState === 'ACTION_GAME') {
+                let lvl = gameLevels[currentLevelIdx];
+
+                // Neon Cyber HUD Stats Header Bar
+                ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, canvas.width, 60);
+                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,60); ctx.lineTo(canvas.width,60); ctx.stroke();
+
+                ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px sans-serif';
+                ctx.fillText("🕹️ INNOVINE ELECTRON OVERDRIVE", 25, 36);
+
+                ctx.fillStyle = '#00f0ff'; ctx.fillText(`STAGE PORTAL: [0${currentLevelIdx+1}/06]`, 340, 36);
+                ctx.fillStyle = '#ffb700'; ctx.fillText(`SCORE ACCUMULATED: ${arcadeScore} XP`, 540, 36);
                 
-                // Deep starfield cosmic background
-                ctx.fillStyle = '#020617'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 1;
-                for(let x=0; x<canvas.width; x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
-                for(let y=0; y<canvas.height; y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
-
-                // Futuristic Card Frame
-                ctx.fillStyle = '#0b1329'; ctx.fillRect(80, 100, 800, 420);
-                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 3; ctx.strokeRect(80, 100, 800, 420);
-
-                // Cosmic Title header block
-                ctx.fillStyle = '#1d4ed8'; ctx.fillRect(80, 100, 800, 50);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'left';
-                ctx.fillText(`📡 INCOMING SPACE MISSION BROADCAST — STEP ${currentStageIdx+1}/6`, 110, 132);
-
-                ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 24px sans-serif';
-                ctx.fillText(stageData.heading, 110, 195);
-
-                ctx.fillStyle = '#e2e8f0'; ctx.font = '16px sans-serif';
-                printWrappedText(stageData.story, 110, 240, 740, 26);
-
-                // Neon Action Core Button
-                let pulseSize = Math.sin(ticks * 0.05) * 4;
-                ctx.fillStyle = '#10b981'; 
-                ctx.fillRect(330 - pulseSize/2, 420 - pulseSize/2, 300 + pulseSize, 50 + pulseSize);
-                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(330 - pulseSize/2, 420 - pulseSize/2, 300 + pulseSize, 50 + pulseSize);
-                
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText('INITIALIZE WORKBENCH GRID ⚙️', 480, 451);
-            }
-
-            // ==========================================
-            // STATE 3: ARCADE COIL ENERGY SANDBOX
-            // ==========================================
-            else if (gameState === 'SANDBOX') {
-                let stageData = campaignStages[currentStageIdx];
-
-                // Neon Gaming Header Controls
-                ctx.fillStyle = '#090d16'; ctx.fillRect(0, 0, canvas.width, 65);
-                ctx.strokeStyle = '#1e3a8a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,65); ctx.lineTo(canvas.width,65); ctx.stroke();
-
-                ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("🚀 INNOVINE CYBER-CIRCUIT LAB", 30, 38);
-
-                ctx.fillStyle = '#a855f7'; ctx.fillText(`GRID AREA: ${currentStageIdx+1}/6`, 350, 38);
-                ctx.fillStyle = '#facc15'; ctx.fillText(`⭐ XP POINTS: ${highscore}`, 510, 38);
-                ctx.fillStyle = '#ef4444'; ctx.fillText(`❤️ LIVES LEFT: ${lives}`, 690, 38);
-
-                // Active Circuit Board Core Layout Frame
-                ctx.fillStyle = '#050b18'; ctx.fillRect(20, 85, 920, 400);
-                ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2; ctx.strokeRect(20, 85, 920, 400);
-
-                // Animated Electrical Schematic rails
-                ctx.strokeStyle = energyFlowing ? '#3b82f6' : '#1e293b';
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(150, 240); ctx.lineTo(150, 310); ctx.lineTo(360, 310);
-                ctx.moveTo(600, 310); ctx.lineTo(810, 310); ctx.lineTo(810, 240);
-                ctx.stroke();
-
-                ctx.strokeStyle = energyFlowing ? '#10b981' : '#1e293b';
-                ctx.beginPath();
-                ctx.moveTo(150, 240); ctx.lineTo(480, 145); ctx.lineTo(810, 240);
-                ctx.stroke();
-
-                // Draw Animated Electron Flow particles along paths
-                if (energyFlowing && !wireMelted) {
-                    ctx.fillStyle = '#facc15';
-                    let particleOffset = (ticks * 4) % 180;
-                    ctx.beginPath(); ctx.arc(150 + particleOffset * 1.1, 310, 5, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(810 - particleOffset * 1.8, 200, 5, 0, Math.PI*2); ctx.fill();
+                // Graphical Hearts Bar
+                ctx.fillStyle = '#ff007f'; ctx.fillText("LIVES:", 760, 36);
+                for(let h=0; h<3; h++) {
+                    ctx.fillStyle = h < playerLives ? '#ff007f' : '#221e2b';
+                    ctx.font = '16px sans-serif';
+                    ctx.fillText("❤️", 820 + (h * 24), 38);
                 }
 
-                // Lab Appliance Schematic Symbols Graphic
-                ctx.fillStyle = energyFlowing && !wireMelted ? '#facc15' : '#475569';
-                ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(energyFlowing && !wireMelted ? "💥 [⚡ BULB GLOWING! ⚡]" : "💡 [BULB APPLIANCE]", 480, 125);
+                // In-World Environment Box Grid
+                ctx.fillStyle = '#020208'; ctx.fillRect(20, 75, 920, 420);
+                ctx.strokeStyle = '#1d1d35'; ctx.lineWidth = 2; ctx.strokeRect(20, 75, 920, 420);
 
-                // Render Targeted Core Socket Gate Terminal
-                let term = stageData.targetTerminal;
-                ctx.fillStyle = '#0f172a'; ctx.fillRect(term.x - 125, term.y - 45, 250, 90);
-                ctx.strokeStyle = '#eab308'; ctx.lineWidth = 3; ctx.strokeRect(term.x - 125, term.y - 45, 250, 90);
+                // Live Ticker Display Subtitle Alert
+                ctx.fillStyle = '#100a1c'; ctx.fillRect(30, 85, 900, 36);
+                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 1; ctx.strokeRect(30, 85, 900, 36);
+                
+                ctx.fillStyle = '#ff007f'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(lvl.alertSign, canvas.width/2, 107);
 
-                if (!chosenHardware) {
-                    ctx.fillStyle = 'rgba(234, 179, 8, 0.05)'; ctx.fillRect(term.x - 125, term.y - 45, 250, 90);
-                    ctx.fillStyle = '#eab308'; ctx.font = 'bold 11px sans-serif';
-                    ctx.fillText(`[ 🛰️ PLACE ${term.name} HERE ]`, term.x, term.y + 6);
+                // Render Background Blueprints Wire Routes
+                ctx.strokeStyle = powerGridActive ? '#00f0ff' : '#1b1b3a';
+                ctx.lineWidth = 5; ctx.beginPath();
+                ctx.moveTo(140, 260); ctx.lineTo(140, 330); ctx.lineTo(360, 330);
+                ctx.moveTo(600, 330); ctx.lineTo(820, 330); ctx.lineTo(820, 260);
+                ctx.stroke();
+
+                ctx.strokeStyle = powerGridActive && !fuseSnapped ? '#00ff66' : '#1b1b3a';
+                ctx.beginPath(); ctx.moveTo(140, 260); ctx.lineTo(480, 155); ctx.lineTo(820, 260); ctx.stroke();
+
+                // Electron Flow Particle Visual FX Stream
+                if (powerGridActive && !fuseSnapped) {
+                    ctx.fillStyle = '#ffffff';
+                    let flowX = (frameTicks * 5) % 220;
+                    ctx.beginPath(); ctx.arc(140 + flowX, 330, 4, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(820 - flowX, 240, 4, 0, Math.PI*2); ctx.fill();
                 }
 
-                // Render In-Slot Component Module with Physics System Vector Animations
-                if (chosenHardware) {
-                    ctx.fillStyle = chosenHardware.hue; ctx.fillRect(365, 265, 230, 70);
-                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.strokeRect(365, 265, 230, 70);
+                // RENDERING THE IN-WORLD INTERACTIVE OBJECT INSTEAD OF TEXT QUIZ
+                ctx.fillStyle = '#111126'; ctx.fillRect(400, 120, 160, 45);
+                ctx.strokeStyle = powerGridActive && !fuseSnapped ? '#00ff66' : '#475569';
+                ctx.lineWidth = 1.5; ctx.strokeRect(400, 120, 160, 45);
 
-                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
-                    ctx.fillText(`${chosenHardware.symbol} ${chosenHardware.title}`, 480, 295);
+                ctx.fillStyle = powerGridActive && !fuseSnapped ? '#00ff66' : '#94a3b8';
+                ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(lvl.objectLabel, 480, 146);
 
-                    if (energyFlowing) {
-                        // Animation 1: Nichrome High-resistance Loop overheating element glow
-                        if (chosenHardware.id === 'nichrome_wire') {
-                            ctx.strokeStyle = `rgb(${210 + Math.sin(ticks*0.25)*45}, 40, 40)`;
-                            ctx.lineWidth = 5; ctx.beginPath();
-                            for(let lx = 385; lx <= 575; lx += 12) {
-                                ctx.lineTo(lx, 318 + (lx%2===0 ? 9 : -9));
+                // Render Main Machine Wire Connection Slot
+                ctx.fillStyle = '#060614'; ctx.fillRect(360, 290, 240, 80);
+                ctx.strokeStyle = '#ffb700'; ctx.lineWidth = 2.5; ctx.strokeRect(360, 290, 240, 80);
+
+                if (!equippedTile) {
+                    ctx.fillStyle = 'rgba(255, 183, 0, 0.05)'; ctx.fillRect(360, 290, 240, 80);
+                    ctx.fillStyle = '#ffb700'; ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText("⚠️ [ SLAM OPERATIVE COMPONENT HERE ]", 480, 337);
+                }
+
+                // Render Slapped Component Inside Socket Matrix with Vector Arcade Animations
+                if (equippedTile) {
+                    ctx.fillStyle = equippedTile.hue; ctx.fillRect(365, 295, 230, 70);
+                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(365, 295, 230, 70);
+
+                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
+                    ctx.fillText(`${equippedTile.icon} ${equippedTile.tag}`, 480, 337);
+
+                    // --- ACTION ARCADE MATH ANIMATIONS ---
+                    if (powerGridActive) {
+                        if (equippedTile.id === 'nichrome_wire') {
+                            ctx.strokeStyle = `rgb(${220 + Math.sin(frameTicks*0.3)*35}, 30, 30)`;
+                            ctx.lineWidth = 6; ctx.beginPath();
+                            for(let xpos = 380; xpos <= 580; xpos += 15) {
+                                ctx.lineTo(xpos, 350 + (xpos%2===0 ? 10 : -10));
                             }
                             ctx.stroke();
                         }
-                        // Animation 2: Alloy low-melting wire breaking completely in half
-                        if (chosenHardware.id === 'thin_fuse') {
-                            ctx.strokeStyle = wireMelted ? '#64748b' : '#ef4444'; ctx.lineWidth = 4;
-                            ctx.beginPath(); ctx.moveTo(390, 318);
-                            if (wireMelted) {
-                                ctx.lineTo(470, 312); ctx.moveTo(490, 324); ctx.lineTo(570, 318);
-                                systemAlertText = "🛡️ SURGE DISCHARGED: Low melting-point alloy wire split completely to protect appliances!";
-                                alertColor = "#f43f5e";
-                            } else {
-                                ctx.lineTo(570, 318);
-                            }
+                        if (equippedTile.id === 'thin_fuse') {
+                            ctx.strokeStyle = fuseSnapped ? '#22223b' : '#ffb700'; ctx.lineWidth = 4;
+                            ctx.beginPath(); ctx.moveTo(385, 350);
+                            if (fuseSnapped) {
+                                ctx.lineTo(465, 344); ctx.moveTo(495, 356); ctx.lineTo(575, 350);
+                                ctx.fillStyle = '#ff007f'; ctx.font = 'bold 10px sans-serif';
+                                ctx.fillText("💥 FUSE BLOWN!", 480, 320);
+                            } else { ctx.lineTo(575, 350); }
                             ctx.stroke();
                         }
-                        // Animation 3: Floating Dial Compass Deflection mechanics
-                        if (chosenHardware.id === 'compass_needle') {
-                            compassAngle += (Math.PI * 0.35 - compassAngle) * 0.15;
-                            ctx.save(); ctx.translate(480, 320); ctx.rotate(compassAngle);
-                            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-18); ctx.stroke();
-                            ctx.strokeStyle = '#94a3b8'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,18); ctx.stroke();
+                        if (equippedTile.id === 'compass_needle') {
+                            dialAngle += (Math.PI * 0.4 - dialAngle) * 0.2;
+                            ctx.save(); ctx.translate(480, 352); ctx.rotate(dialAngle);
+                            ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-20); ctx.stroke();
+                            ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,20); ctx.stroke();
                             ctx.restore();
                         }
-                        // Animation 4: Coiled soft iron nail magnetic flux lines
-                        if (chosenHardware.id === 'nail_coiled') {
-                            ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)'; ctx.lineWidth = 2;
-                            ctx.beginPath(); ctx.ellipse(480, 318, 50 + Math.sin(ticks*0.4)*12, 14, 0, 0, Math.PI*2); ctx.stroke();
+                        if (equippedTile.id === 'nail_coiled') {
+                            ctx.strokeStyle = '#00ff66'; ctx.lineWidth = 2;
+                            ctx.beginPath(); ctx.ellipse(480, 350, 60 + Math.sin(frameTicks*0.5)*15, 12, 0, 0, Math.PI*2); ctx.stroke();
                         }
                     }
                 }
 
-                // Interactive Activity Terminal Dialogue Monitor Screen
-                ctx.fillStyle = '#020617'; ctx.fillRect(20, 405, 920, 40);
-                ctx.fillStyle = alertColor; ctx.font = 'bold 12.5px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(systemAlertText, canvas.width/2, 429);
+                // Big Operational Arcade Activation Button Strip
+                ctx.fillStyle = powerGridActive ? '#ff007f' : '#00f0ff';
+                ctx.fillRect(290, 442, 380, 40);
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.strokeRect(290, 442, 380, 40);
+                
+                ctx.fillStyle = powerGridActive ? '#ffffff' : '#020208'; 
+                ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(powerGridActive ? "⚡ RE-OPEN CURRENT CIRCUITS ⚡" : "⚡ SLAM THE MAIN CURRENT BREAKER SWITCH ⚡", 480, 467);
 
-                // Action Launch Ignition Command Button Box
-                ctx.fillStyle = energyFlowing ? '#ef4444' : '#2563eb';
-                ctx.fillRect(710, 452, 230, 33);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(energyFlowing ? "💥 DISCONNECT POWER LOOP" : "ENGAGE POWER IGNITION ⚡", 825, 473);
+                // Inventory Shelf Label Splitter
+                ctx.textAlign = 'left'; ctx.fillStyle = '#555577'; ctx.font = 'bold 11px sans-serif'; ctx.letterSpacing = "2px";
+                ctx.fillText("EQUIPMENT DISPATCH INVENTORY DECK PANELS", 30, 502); ctx.letterSpacing = "0px";
 
-                // Modular Asset Shelf Title
-                ctx.textAlign = 'left'; ctx.fillStyle = '#4b5563'; ctx.font = 'bold 11px sans-serif'; ctx.letterSpacing = "2px";
-                ctx.fillText("SPACE SHIP INVENTORY COMPONENT DOCK TILES", 35, 502); ctx.letterSpacing = "0px";
+                // Mapping Custom Dynamic Inventory Tiles
+                componentDeck.forEach((tile, index) => {
+                    let rx = deckX + (index * 154);
+                    ctx.fillStyle = '#0a0a1a'; ctx.fillRect(rx, deckY, blockW, blockH);
+                    ctx.strokeStyle = '#222244'; ctx.lineWidth = 2; ctx.strokeRect(rx, deckY, blockW, blockH);
 
-                // Generate Arcade Style Grid Tiles Selection Shelf
-                componentInventory.forEach((tile, index) => {
-                    let tx = deckStartX + (index * 152);
-                    ctx.fillStyle = '#0f172a'; ctx.fillRect(tx, deckStartY, tileW, tileH);
-                    ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2; ctx.strokeRect(tx, deckStartY, tileW, tileH);
+                    ctx.fillStyle = tile.hue; ctx.fillRect(rx+8, deckY+8, 6, 16);
+                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText(tile.tag, rx + 20, deckY + 22);
 
-                    ctx.fillStyle = tile.hue; ctx.fillRect(tx+8, deckStartY+8, 5, 15);
-                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif';
-                    ctx.fillText(tile.title, tx + 18, deckStartY + 20);
-
-                    ctx.fillStyle = '#94a3b8'; ctx.font = '10px sans-serif';
-                    printWrappedText(tile.note, tx + 10, deckStartY + 42, tileW - 16, 13);
+                    ctx.fillStyle = '#68688e'; ctx.font = '10px sans-serif';
+                    printWrappedLine(tile.fx, rx + 10, deckY + 45, blockW - 16, 14);
                 });
-            }
 
-            // ==========================================
-            // STATE 4: SUCCESS LEVEL CLEARED REWARD CARD
-            // ==========================================
-            else if (gameState === 'SUCCESS') {
-                let stageData = campaignStages[currentStageIdx];
-                ctx.fillStyle = '#030712'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Render Live Explosion Particle Loop
+                for (let p = activeParticles.length - 1; p >= 0; p--) {
+                    let pt = activeParticles[p];
+                    pt.x += pt.vx; pt.y += pt.vy; pt.alpha -= 0.02;
+                    if (pt.alpha <= 0) { activeParticles.splice(p, 1); }
+                    else {
+                        ctx.fillStyle = pt.color;
+                        ctx.globalAlpha = pt.alpha;
+                        ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
+                        ctx.globalAlpha = 1.0;
+                    }
+                }
 
-                ctx.fillStyle = '#10b981'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("🚀 CIRCUIT LEVEL FULLY SECURED!", canvas.width/2, 190);
+                // STAGE STARTING CINEMATIC FLYING OVERLAY BANNER
+                if (introBannerTicks > 0) {
+                    introBannerTicks--;
+                    ctx.fillStyle = 'rgba(5, 5, 15, 0.85)'; ctx.fillRect(0, 240, canvas.width, 110);
+                    ctx.strokeStyle = lvl.neonTheme; ctx.lineWidth = 3; 
+                    ctx.beginPath(); ctx.moveTo(0,240); ctx.lineTo(canvas.width,240); ctx.moveTo(0,350); ctx.lineTo(canvas.width,350); ctx.stroke();
 
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 15px sans-serif';
-                ctx.fillText("Grade 7 Electric Core Concept Mastered:", canvas.width/2, 250);
-
-                ctx.fillStyle = '#38bdf8'; ctx.font = 'italic 15px sans-serif';
-                printWrappedText(`"${stageData.story}"`, canvas.width/2, 290, 760, 24);
-
-                // Next Matrix Level Block Link
-                ctx.fillStyle = '#2563eb'; ctx.fillRect(360, 460, 240, 50);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("NEXT SCHEMATIC RADAR", canvas.width/2, 491);
-            }
-
-            // ==========================================
-            // STATE 5: SHUTDOWN POWER OVERLOAD RESET
-            // ==========================================
-            else if (gameState === 'GAMEOVER') {
-                ctx.fillStyle = '#110606'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ef4444'; ctx.font = 'bold 38px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("⚡ SHIP POWER OVERLOAD BREAKDOWN ⚡", canvas.width/2, 230);
-
-                ctx.fillStyle = '#94a3b8'; ctx.font = '16px sans-serif';
-                ctx.fillText("Impedance mismatch or open circuit fault caused a systems meltdown.", canvas.width/2, 290);
-
-                ctx.fillStyle = '#ef4444'; ctx.fillRect(360, 380, 240, 50);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("REBOOT CENTRAL SHIP REACTOR", canvas.width/2, 411);
-            }
-
-            requestAnimationFrame(engineFrameUpdate);
-        }
-
-        // TEXT MULTILINE PARSER WRAPPER CHOPPER
-        function printWrappedText(msg, x, y, maxW, lineSpc) {
-            let broken = msg.split(' '); let rowStr = ''; let targetY = y;
-            for (let i = 0; i < broken.length; i++) {
-                let testRow = rowStr + broken[i] + ' ';
-                if (ctx.measureText(testRow).width > maxW && i > 0) {
-                    ctx.fillText(rowStr, x, targetY); rowStr = broken[i] + ' '; targetY += lineSpc;
-                } else { rowStr = testRow; }
-            }
-            ctx.fillText(rowStr, x, targetY);
-        }
-
-        // UNIFIED CLICKS ENGINE MANAGEMENT MATH
-        function dispatchTapCoordinates(mx, my) {
-            if (gameState === 'MISSION_BRIEF') {
-                if (mx >= 330 && mx <= 630 && my >= 420 && my <= 470) {
-                    SoundBox.beep(); gameState = 'SANDBOX';
+                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(`⚡ INCOMING STAGE AREA 0${currentLevelIdx+1} ⚡`, canvas.width/2, 292);
+                    ctx.fillStyle = lvl.neonTheme; ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText("DEPLOY INTELLECTUAL ELECTRICAL SYSTEMS TO FIX THE MACHINERY INBOUND", canvas.width/2, 325);
                 }
             }
-            else if (gameState === 'SANDBOX') {
-                // Check shelf tile clicks to load parts
-                componentInventory.forEach((tile, idx) => {
-                    let tx = deckStartX + (idx * 152);
-                    if (mx >= tx && mx <= tx + tileW && my >= deckStartY && my <= deckStartY + tileH) {
-                        SoundBox.beep();
-                        chosenHardware = tile;
-                        energyFlowing = false;
-                        wireMelted = false;
-                        systemAlertText = `📡 MODULE SNAP-IN: ${tile.title} loaded into connection terminal block. Engage switch to evaluate current flow.`;
-                        alertColor = "#c084fc";
+
+            // ==========================================
+            // STATE 3: LEVEL CLEARED / ALL STAGES CLEAR REWARD CARD
+            // ==========================================
+            else if (gameState === 'WIN_SCREEN') {
+                ctx.fillStyle = '#020205'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Laser star cluster visual matrix fx background
+                ctx.fillStyle = '#00ff66';
+                for(let s=0; s<40; s++) { ctx.fillRect((s*33+frameTicks)%canvas.width, (s*19)%canvas.height, 3, 3); }
+
+                ctx.fillStyle = '#00ff66'; ctx.font = 'bold 42px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText("🏆 ALL CIRCUITS OVERDRIVE REPAIRED!", canvas.width/2, 240);
+
+                ctx.fillStyle = '#ffffff'; ctx.font = '20px sans-serif';
+                ctx.fillText(`FINAL GRADE ARCADE HIGH SCORE: ${arcadeScore} XP POINTS`, canvas.width/2, 310);
+
+                // Re-link core block button box layout
+                ctx.fillStyle = '#ff007f'; ctx.fillRect(360, 410, 240, 50);
+                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
+                ctx.fillText("RUN SIMULATOR AGAIN 🔄", canvas.width/2, 442);
+            }
+
+            // ==========================================
+            // STATE 4: SYSTEM FAILURE GAME OVER
+            // ==========================================
+            else if (gameState === 'GAME_OVER') {
+                ctx.fillStyle = '#0d0202'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff007f'; ctx.font = 'bold 44px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText("💥 TERMINAL FAILURE BURN OUT", canvas.width/2, 240);
+
+                ctx.fillStyle = '#68688e'; ctx.font = '16px sans-serif';
+                ctx.fillText("Incompatible component impedance loads crashed the breaker loop rails.", canvas.width/2, 300);
+
+                ctx.fillStyle = '#00f0ff'; ctx.fillRect(360, 390, 240, 50);
+                ctx.fillStyle = '#020208'; ctx.font = 'bold 14px sans-serif';
+                ctx.fillText("INSERT COIN / RESTART 🔄", canvas.width/2, 422);
+            }
+
+            requestAnimationFrame(renderEngineTick);
+        }
+
+        // TEXT LINE BREAKING HELPER UTILITY
+        function printWrappedLine(line, x, y, maxW, lineSpc) {
+            let chopped = line.split(' '); let compile = ''; let trackY = y;
+            for (let i = 0; i < chopped.length; i++) {
+                let test = compile + chopped[i] + ' ';
+                if (ctx.measureText(test).width > maxW && i > 0) {
+                    ctx.fillText(compile, x, trackY); compile = chopped[i] + ' '; trackY += lineSpc;
+                } else { compile = test; }
+            }
+            ctx.fillText(compile, x, trackY);
+        }
+
+        // UNIFIED CLICKS ADAPTER FOR ARCADE MANAGEMENT
+        function receiveClickAtCoord(mx, my) {
+            if (gameState === 'ACTION_GAME') {
+                if (introBannerTicks > 0) return; // Ignore input while banner flashes down
+
+                // Click Shelf Tiles to swap out inventory nodes
+                componentDeck.forEach((tile, index) => {
+                    let rx = deckX + (index * 154);
+                    if (mx >= rx && mx <= rx + blockW && my >= deckY && my <= deckY + blockH) {
+                        SoundFX.click();
+                        equippedTile = tile;
+                        powerGridActive = false;
+                        fuseSnapped = false;
                     }
                 });
 
-                // Check Action Button Click trigger matrix
-                if (mx >= 710 && mx <= 940 && my >= 452 && my <= 485) {
-                    SoundBox.beep();
-                    if (!chosenHardware) {
-                        systemAlertText = "⚠ SYSTEM WARNING: Unloaded grid node path. Drop a physics tool tile into the slot before turning on power!";
-                        alertColor = "#eab308";
+                // Click Breaker Power Engagement Strip Switch
+                if (mx >= 290 && mx <= 670 && my >= 442 && my <= 482) {
+                    if (!equippedTile) {
+                        SoundFX.explode();
                         return;
                     }
 
-                    energyFlowing = !energyFlowing;
+                    SoundFX.click();
+                    powerGridActive = !powerGridActive;
 
-                    if (energyFlowing) {
-                        let levelDef = campaignStages[currentStageIdx];
-                        if (chosenHardware.id === levelDef.solutionKey) {
-                            if (chosenHardware.id === 'thin_fuse') wireMelted = true;
-                            
-                            SoundBox.cheer();
-                            systemAlertText = "🟢 PATH CALIBRATION PASS: Complete loop verified. Electric current effects running within margins.";
-                            alertColor = "#10b981";
-                            highscore += 20;
+                    if (powerGridActive) {
+                        let currentLevel = gameLevels[currentLevelIdx];
+                        if (equippedTile.id === currentLevel.requiredPart) {
+                            if (equippedTile.id === 'thin_fuse') fuseSnapped = true;
 
-                            setTimeout(() => { gameState = 'SUCCESS'; }, 3200);
+                            SoundFX.combo();
+                            spawnSparkParticles(480, 330, '#00ff66');
+                            arcadeScore += 150;
+
+                            setTimeout(() => {
+                                currentLevelIdx++;
+                                if (currentLevelIdx >= gameLevels.length) {
+                                    gameState = 'WIN_SCREEN';
+                                } else {
+                                    loadArcadeLevel();
+                                }
+                            }, 2500);
                         } else {
-                            SoundBox.zap();
-                            systemAlertText = "🚨 IMPEDANCE FAULT CRASH: Incompatible electrical loop configuration or open circuit line! Restarting core node...";
-                            alertColor = "#f43f5e";
-                            lives--;
-                            energyFlowing = false;
+                            SoundFX.explode();
+                            spawnSparkParticles(480, 330, '#ff007f');
+                            playerLives--;
+                            powerGridActive = false;
 
-                            if (lives <= 0) {
-                                setTimeout(() => { gameState = 'GAMEOVER'; }, 1200);
+                            if (playerLives <= 0) {
+                                setTimeout(() => { gameState = 'GAME_OVER'; }, 1000);
                             }
                         }
                     }
                 }
             }
-            else if (gameState === 'SUCCESS') {
-                if (mx >= 360 && mx <= 600 && my >= 460 && my <= 510) {
-                    SoundBox.beep();
-                    currentStageIdx++;
-                    if (currentStageIdx >= campaignStages.length) {
-                        currentStageIdx = 0; highscore = 0; lives = 3;
+            else if (gameState === 'WIN_SCREEN' || gameState === 'GAME_OVER') {
+                let boundsMinX = 360, boundsMaxX = 600;
+                let boundsMinY = (gameState === 'WIN_SCREEN') ? 410 : 390;
+                let boundsMaxY = (gameState === 'WIN_SCREEN') ? 460 : 440;
+
+                if (mx >= boundsMinX && mx <= boundsMaxX && my >= boundsMinY && my <= boundsMaxY) {
+                    SoundFX.click();
+                    currentLevelIdx = 0; arcadeScore = 0; playerLives = 3;
+                    if (gameState === 'WIN_SCREEN') {
                         gameState = 'SPLASH';
                         splashTimeStart = Date.now();
                     } else {
-                        gameState = 'MISSION_BRIEF';
+                        gameState = 'ACTION_GAME';
                     }
-                    initSandboxLevel();
-                }
-            }
-            else if (gameState === 'GAMEOVER') {
-                if (mx >= 360 && mx <= 600 && my >= 380 && my <= 430) {
-                    SoundBox.beep();
-                    currentStageIdx = 0; highscore = 0; lives = 3;
-                    gameState = 'SANDBOX';
-                    initSandboxLevel();
+                    loadArcadeLevel();
                 }
             }
         }
 
-        // INPUT EVENT CAPTURE REGISTRATION
+        // BOUNDS CALCULATOR LISTENERS CAPTURING WINDOW POSITION MATRICES
         canvas.addEventListener('mousedown', (e) => {
-            const boundary = canvas.getBoundingClientRect();
-            let mouseX = (e.clientX - boundary.left) * (canvas.width / boundary.width);
-            let mouseY = (e.clientY - boundary.top) * (canvas.height / boundary.height);
-            dispatchTapCoordinates(mouseX, mouseY);
+            const area = canvas.getBoundingClientRect();
+            let mouseX = (e.clientX - area.left) * (canvas.width / area.width);
+            let mouseY = (e.clientY - area.top) * (canvas.height / area.height);
+            receiveClickAtCoord(mouseX, mouseY);
         });
 
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (e.touches.length > 0) {
-                const boundary = canvas.getBoundingClientRect();
-                let touchX = (e.touches[0].clientX - boundary.left) * (canvas.width / boundary.width);
-                let touchY = (e.touches[0].clientY - boundary.top) * (canvas.height / boundary.height);
-                dispatchTapCoordinates(touchX, touchY);
+                const area = canvas.getBoundingClientRect();
+                let touchX = (e.touches[0].clientX - area.left) * (canvas.width / area.width);
+                let touchY = (e.touches[0].clientY - area.top) * (canvas.height / area.height);
+                receiveClickAtCoord(touchX, touchY);
             }
         }, {passive: false});
 
-        // RUN ENGINE TICK OVERLOOP
-        engineFrameUpdate();
+        // IGNITE GRAPHICS TICK RUNNER
+        renderEngineTick();
     </script>
 </body>
 </html>
