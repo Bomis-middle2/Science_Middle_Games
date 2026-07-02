@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovine - Grade 7 Electrical Currents Lab</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #canvasFrame {
+            position: relative;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid #1e293b;
+            background-color: #0f172a;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvasFrame">
+        <canvas id="gameCanvas" width="960" height="640"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // BRANDING ASSETS
+        const logoImg = new Image();
+        logoImg.src = 'assets/logo.png';
+
+        // STATE CONTROLLERS
+        let gameState = 'SPLASH'; // SPLASH -> PLAYING -> SUMMARY
+        let splashTimeStart = Date.now();
+        const SPLASH_LIMIT = 5000; // EXACTLY 5 SECONDS LOCKED SPLASH
+
+        // GAMEPLAY DATA TRACKERS
+        let activeLevelIdx = 0;
+        let scoreStars = 0;
+        let coreIntegrity = 3;
+        let selectedInstrumentId = "";
+        let runningAnalysisAnim = false;
+        let feedbackString = "";
+        let feedbackColor = "#ffffff";
+        let cycleTicks = 0;
+
+        // GRADE 7 PHYSICAL LAB APPARATUS SELECTION (NO MULTIPLE CHOICE TEXT BUTTONS)
+        const instruments = [
+            { id: "circuit_switch", name: "Toggle Key Switch", action: "Closes broken wire gaps to establish complete current paths.", x: 60, y: 450, w: 185, h: 65, tint: "#3b82f6" },
+            { id: "nichrome_element", name: "High-Resistance Coil", action: "Examines the heating effect when current flows through an element.", x: 275, y: 450, w: 185, h: 65, tint: "#a855f7" },
+            { id: "safety_fuse", name: "Thin Alloy Fuse Wire", action: "Acts as a safety valve, melting to break paths under excess current.", x: 490, y: 450, w: 185, h: 65, tint: "#e11d48" },
+            { id: "iron_nail_coil", name: "Nail Electromagnet", action: "Tests for temporary magnetic attraction driven by electricity.", x: 705, y: 450, w: 185, h: 65, tint: "#10b981" },
+            { id: "magnetic_needle", name: "Compass Indicator", action: "Detects structural magnetic fields leaking around active wires.", x: 220, y: 535, w: 185, h: 65, tint: "#f59e0b" },
+            { id: "battery_bank", name: "Multi-Cell Battery Bank", action: "Combines multiple chemical cells in series to increase voltage.", x: 550, y: 535, w: 185, h: 65, tint: "#ec4899" }
+        ];
+
+        // GRADE 7 CURRENT & EFFECTS SCENARIOS
+        const scenarios = [
+            {
+                title: "Circuit Anomaly 1: The Dark Filament",
+                narrative: "A laboratory test loop has a perfectly good bulb and a charged battery cell, but the bulb refuses to glow. The wires run continuously except for an intentional break gap on the test table. Deploy the component to bridge the separation.",
+                targetTool: "circuit_switch",
+                insight: "An electric current can only flow when there is a closed, complete path with no breaks in the circuit.",
+                themeColor: "#3b82f6"
+            },
+            {
+                title: "Circuit Anomaly 2: Low-Voltage Weakness",
+                narrative: "You are testing a miniature electrical motor. It requires a significant electrical push to start spinning, but a single standard chemical cell is barely making it twitch. Deploy the component required to scale up the voltage source.",
+                targetTool: "battery_bank",
+                insight: "A battery is a combination of two or more cells linked in series (positive to negative terminals) to step up the electric driving force.",
+                themeColor: "#ec4899"
+            },
+            {
+                title: "Circuit Anomaly 3: The Appliance Heater",
+                narrative: "You are designing an electric bread toaster appliance module. You need a specialty component that safely generates strong heat energy across its tightly wound loops the moment an electric current passes through it.",
+                targetTool: "nichrome_element",
+                insight: "The heating effect occurs when current flows through a high-resistance wire, causing the tightly wound element to heat up.",
+                themeColor: "#a855f7"
+            },
+            {
+                title: "Circuit Anomaly 4: Overload Safety Prevention",
+                narrative: "A power surge is threatening to burn out expensive lab electronics because excessive current is rushing down the lines. Deploy a dynamic safety device that will sacrifice itself and break the link automatically.",
+                targetTool: "safety_fuse",
+                insight: "An electric fuse contains a low-melting alloy wire that breaks and opens the circuit safely when excessive current flows.",
+                themeColor: "#e11d48"
+            },
+            {
+                title: "Circuit Anomaly 5: The Invisible Field Invisible Force",
+                narrative: "Hans Christian Ørsted noticed that a nearby magnet moved whenever a switch closed on a plain copper wire circuit. Deploy the physical diagnostic instrument that can prove a current-carrying wire acts like a temporary magnet.",
+                targetTool: "magnetic_needle",
+                insight: "Electric current moving through a conducting wire produces a magnetic effect that deflects nearby compass needles.",
+                themeColor: "#f59e0b"
+            },
+            {
+                title: "Circuit Anomaly 6: The Scrap Separator",
+                narrative: "You are building an automated electric school bell. It needs a device that becomes incredibly magnetic to pull a metal clapper while the circuit is closed, but instantly drops the clapper the exact microsecond the switch opens.",
+                targetTool: "iron_nail_coil",
+                insight: "An electromagnet consists of insulated wire coiled around an iron core; it loses all its magnetism the moment current stops flowing.",
+                themeColor: "#10b981"
+            }
+        ];
+
+        // AUDIO GENERATION SYNTH
+        const SoundSystem = {
+            audioCtx: null,
+            startup() {
+                if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+            },
+            click() {
+                this.startup();
+                let osc = this.audioCtx.createOscillator();
+                let amp = this.audioCtx.createGain();
+                osc.frequency.setValueAtTime(580, this.audioCtx.currentTime);
+                amp.gain.setValueAtTime(0.03, this.audioCtx.currentTime);
+                amp.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.04);
+                osc.connect(amp); amp.connect(this.audioCtx.destination);
+                osc.start(); osc.stop(this.audioCtx.currentTime + 0.04);
+            },
+            success() {
+                this.startup();
+                let osc1 = this.audioCtx.createOscillator();
+                let osc2 = this.audioCtx.createOscillator();
+                let amp = this.audioCtx.createGain();
+                osc1.frequency.setValueAtTime(493, this.audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(659, this.audioCtx.currentTime + 0.07);
+                amp.gain.setValueAtTime(0.06, this.audioCtx.currentTime);
+                amp.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.45);
+                osc1.connect(amp); osc2.connect(amp); amp.connect(this.audioCtx.destination);
+                osc1.start(); osc2.start(); 
+                osc1.stop(this.audioCtx.currentTime + 0.45); osc2.stop(this.audioCtx.currentTime + 0.45);
+            },
+            error() {
+                this.startup();
+                let osc = this.audioCtx.createOscillator();
+                let amp = this.audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(98, this.audioCtx.currentTime);
+                amp.gain.setValueAtTime(0.14, this.audioCtx.currentTime);
+                amp.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.3);
+                osc.connect(amp); amp.connect(this.audioCtx.destination);
+                osc.start(); osc.stop(this.audioCtx.currentTime + 0.3);
+            }
+        };
+
+        function resetSimulation() {
+            activeLevelIdx = 0;
+            scoreStars = 0;
+            coreIntegrity = 3;
+            reloadNextField();
+        }
+
+        function reloadNextField() {
+            selectedInstrumentId = "";
+            feedbackString = "";
+            runningAnalysisAnim = false;
+        }
+
+        function processCoreEngineFrame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            cycleTicks++;
+
+            // ==========================================
+            // STATE 1: EXCLUSIVE BRANDING SPLASH (5 SECS)
+            // ==========================================
+            if (gameState === 'SPLASH') {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                let centerX = canvas.width / 2;
+                let centerY = canvas.height / 2;
+
+                if (logoImg.complete && logoImg.naturalWidth !== 0) {
+                    ctx.drawImage(logoImg, centerX - 75, centerY - 110, 150, 150);
+                } else {
+                    ctx.strokeStyle = '#2563eb';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY - 35, 45, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.fillStyle = '#2563eb';
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY - 35, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 46px sans-serif';
+                ctx.letterSpacing = "6px";
+                ctx.textAlign = 'center';
+                ctx.fillText('INNOVINE', centerX, centerY + 85);
+                
+                ctx.letterSpacing = "0px";
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('DIGITAL INTERACTIVE PHYSICS PLATFORM', centerX, centerY + 120);
+
+                ctx.strokeStyle = 'rgba(37, 99, 235, 0.15)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY + 160, 12, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.strokeStyle = '#2563eb';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY + 160, 12, cycleTicks * 0.05, (cycleTicks * 0.05) + (Math.PI * 0.6));
+                ctx.stroke();
+
+                if (Date.now() - splashTimeStart > SPLASH_LIMIT) {
+                    gameState = 'PLAYING';
+                    resetSimulation();
+                }
+
+            // ==========================================
+            // STATE 2: ACTIVE SANDBOX APPLICATION
+            // ==========================================
+            } else if (gameState === 'PLAYING') {
+                const step = scenarios[activeLevelIdx];
+
+                // Upper Status Console Header
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, canvas.width, 65);
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(0, 0, canvas.width, 65);
+
+                if (logoImg.complete && logoImg.naturalWidth !== 0) {
+                    ctx.drawImage(logoImg, 35, 17, 30, 30);
+                }
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText('INNOVINE CIRCUITS LAB', 75, 38);
+
+                ctx.fillStyle = '#6366f1';
+                ctx.fillText(`ANOMALY TARGET: ${activeLevelIdx + 1} / 6`, 340, 38);
+                ctx.fillStyle = '#facc15';
+                ctx.fillText(`⭐ BADGES ACQUIRED: ${scoreStars}`, 550, 38);
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText(`❤️ VOLTAGE BALANCE: ${coreIntegrity}`, 755, 38);
+
+                // Lab Desk Boundary Wall
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(25, 85, 910, 535);
+                ctx.strokeStyle = '#1e293b';
+                ctx.strokeRect(25, 85, 910, 535);
+
+                // Target Level Header Ribbon
+                ctx.fillStyle = step.themeColor;
+                ctx.fillRect(25, 85, 910, 42);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText(step.title, 45, 111);
+
+                // Incident Monitor Console
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(45, 145, 870, 110);
+                ctx.strokeStyle = '#334155';
+                ctx.strokeRect(45, 145, 870, 110);
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '15px sans-serif';
+                ctx.textAlign = 'center';
+                renderWrappedString(step.narrative, canvas.width / 2, 182, 810, 24);
+
+                // Electrical Circuit Current Wave Effects Animation
+                ctx.save();
+                ctx.translate(canvas.width / 2, 320);
+                for (let k = 1; k <= 5; k++) {
+                    ctx.strokeStyle = runningAnalysisAnim ? feedbackColor : `rgba(99, 102, 241, ${0.35 - (k * 0.05)})`;
+                    ctx.lineWidth = runningAnalysisAnim ? 2.5 : 1.5;
+                    let rx = 160 + k * 25 + Math.sin(cycleTicks * 0.07) * 10;
+                    let ry = 12 + k * 4;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                // Live Stream Output Text Block
+                ctx.textAlign = 'center';
+                if (feedbackString !== "") {
+                    ctx.fillStyle = feedbackColor;
+                    ctx.font = 'bold 13px sans-serif';
+                    ctx.fillText(feedbackString, canvas.width / 2, 324);
+                } else {
+                    ctx.fillStyle = '#475569';
+                    ctx.font = 'italic 13px sans-serif';
+                    ctx.fillText("⚡ [BENCH DISCONNECTED] Deploy the correct physical circuit apparatus block below to verify the path ⚡", canvas.width / 2, 324);
+                }
+
+                // Apparatus Title Panel Splitter
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#475569';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.letterSpacing = "2px";
+                ctx.fillText("GRADE 7 ELECTRICAL BENCH COMPONENT TOOLKIT", 50, 425);
+                ctx.letterSpacing = "0px";
+
+                // Map Instruments Grid Output
+                instruments.forEach((tool) => {
+                    let activeMatch = (selectedInstrumentId === tool.id);
+
+                    ctx.fillStyle = activeMatch ? '#1e3a8a' : '#1e293b';
+                    ctx.strokeStyle = activeMatch ? tool.tint : '#334155';
+                    ctx.lineWidth = activeMatch ? 3 : 1.5;
+
+                    ctx.fillRect(tool.x, tool.y, tool.w, tool.h);
+                    ctx.strokeRect(tool.x, tool.y, tool.w, tool.h);
+
+                    // Component Alignment Geometry Accent
+                    ctx.fillStyle = tool.tint;
+                    ctx.fillRect(tool.x + 12, tool.y + 12, 6, 6);
+
+                    // Instrument Header Label
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 12.5px sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(tool.name, tool.x + 25, tool.y + 20);
+
+                    // Capability Subtext description
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '10px sans-serif';
+                    renderWrappedString(tool.action, tool.x + 12, tool.y + 36, tool.w - 20, 13);
+                });
+
+            // ==========================================
+            // STATE 3: MISSION RECAP OVERVIEW
+            // ==========================================
+            } else if (gameState === 'SUMMARY') {
+                ctx.fillStyle = '#05070c';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                let winStatus = (coreIntegrity > 0 && scoreStars >= 4);
+
+                ctx.fillStyle = winStatus ? '#10b981' : '#ef4444';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(winStatus ? 'GRID CALIBRATION COMPLETE!' : 'ELECTRICAL OVERLOAD SAFETY FAIL', canvas.width / 2, 210);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '18px sans-serif';
+                ctx.fillText(`Total Stability Badges: ${scoreStars} / 6`, canvas.width / 2, 280);
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '15px sans-serif';
+                if (winStatus) {
+                    ctx.fillText('Excellent work. You successfully managed current paths, thermal elements, safety fuses, and electromagnets.', canvas.width / 2, 335);
+                } else {
+                    ctx.fillText('The network circuit failed. Re-verify loops, battery configurations, and effects of current to restart.', canvas.width / 2, 335);
+                }
+
+                // Reset Action Box
+                ctx.fillStyle = '#2563eb';
+                ctx.fillRect(375, 410, 210, 50);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText('RESTART BENCH DISK', canvas.width / 2, 441);
+            }
+        }
+
+        // TEXT MULTILINE BOUNDARY WRAPPING HELPER
+        function renderWrappedString(text, x, y, maxWidth, lineHeight) {
+            let words = text.split(' ');
+            let line = '';
+            let targetY = y;
+
+            for (let n = 0; n < words.length; n++) {
+                let testLine = line + words[n] + ' ';
+                let metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    ctx.fillText(line, x, targetY);
+                    line = words[n] + ' ';
+                    targetY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, targetY);
+        }
+
+        // UNIFIED MOUSE & TOUCH EVENT MANAGEMENT
+        function handleInteractionAtPoint(pX, pY) {
+            if (gameState === 'PLAYING') {
+                if (runningAnalysisAnim) return; // Freeze inputs during hardware verification delays
+
+                instruments.forEach((tool) => {
+                    if (pX >= tool.x && pX <= tool.x + tool.w && pY >= tool.y && pY <= tool.y + tool.h) {
+                        selectedInstrumentId = tool.id;
+                        SoundSystem.click();
+                        evaluateDeployedInstrument();
+                    }
+                });
+            } else if (gameState === 'SUMMARY') {
+                if (pX >= 375 && pX <= 585 && pY >= 410 && pY <= 460) {
+                    SoundSystem.click();
+                    gameState = 'PLAYING';
+                    resetSimulation();
+                }
+            }
+        }
+
+        // LAB SELECTION EVALUATION LOGIC
+        function evaluateDeployedInstrument() {
+            runningAnalysisAnim = true;
+            let step = scenarios[activeLevelIdx];
+
+            if (selectedInstrumentId === step.targetTool) {
+                SoundSystem.success();
+                feedbackColor = "#10b981";
+                feedbackString = `✅ PATH SYSTEM RECOVERY: ${step.insight}`;
+                scoreStars++;
+                
+                setTimeout(() => {
+                    activeLevelIdx++;
+                    if (activeLevelIdx >= scenarios.length) {
+                        gameState = 'SUMMARY';
+                    } else {
+                        reloadNextField();
+                    }
+                }, 4500);
+            } else {
+                SoundSystem.error();
+                feedbackColor = "#ef4444";
+                feedbackString = "❌ SYSTEM REJECTION: The selected element caused an impedance mismatch or unsafe loop termination. Recalibrating bench...";
+                coreIntegrity--;
+                
+                setTimeout(() => {
+                    if (coreIntegrity <= 0) {
+                        gameState = 'SUMMARY';
+                    } else {
+                        runningAnalysisAnim = false;
+                        selectedInstrumentId = "";
+                        feedbackString = "";
+                    }
+                }, 4000);
+            }
+        }
+
+        // BOUNDS OFFSETS CALCULATOR
+        function calculateOffsets(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        window.addEventListener('mousedown', (e) => {
+            let pts = calculateOffsets(e);
+            handleInteractionAtPoint(pts.x, pts.y);
+        });
+
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                let pts = calculateOffsets(e.touches[0]);
+                handleInteractionAtPoint(pts.x, pts.y);
+            }
+        }, {passive: false});
+
+        function runMainTick() {
+            processCoreEngineFrame();
+            requestAnimationFrame(runMainTick);
+        }
+
+        runMainTick();
+    </script>
+</body>
+</html>
