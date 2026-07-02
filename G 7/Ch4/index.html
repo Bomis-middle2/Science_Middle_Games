@@ -64,6 +64,10 @@
         let compassSpin = 0;
         let magicSparks = [];
 
+        // Animation helper variables for visual world objects
+        let blenderAngle = 0;
+        let craneY = 0;
+
         // TOYBOX TOOLBAR TILES (GAMIFIED ITEMS FOR GRADE 7 SCIENCE OUTCOMES)
         const magicToybox = [
             { id: "switch_closed", tag: "Loop Snapper", bubble: "🔑 Close the Gap", shade: "#4caf50", trick: "Snaps open wire paths back together!" },
@@ -80,37 +84,37 @@
         const happyQuests = [
             {
                 cryAlert: "🐰 Barnaby Bunny's bedroom nightlight wire has an open gap! Help him fix the wire path!",
-                targetZoneLabel: "BUNNY'S NIGHTLIGHT TRACK",
+                targetZoneLabel: "BUNNY'S NIGHTLIGHT",
                 neededKey: "switch_closed",
                 brightTone: "#4caf50"
             },
             {
                 cryAlert: "🐧 Penny Penguin's ice cream blender motor is spinning too slow! Give it double battery push!",
-                targetZoneLabel: "BLENDER TURBO BATTERY STATION",
+                targetZoneLabel: "ICE CREAM BLENDER",
                 neededKey: "battery_series",
                 brightTone: "#ff5722"
             },
             {
                 cryAlert: "🐶 Pip the Puppy is freezing! Drop a high-resistance element ribbon to warm his blanket!",
-                targetZoneLabel: "PUPPY BLANKET HEATING BOX",
+                targetZoneLabel: "COZY DOGGY BLANKET",
                 neededKey: "nichrome_wire",
                 brightTone: "#9c27b0"
             },
             {
                 cryAlert: "🐭 Mimi Mouse's dollhouse wire is getting too much electricity! Add a safety fuse wire to pop it!",
-                targetZoneLabel: "DOLLHOUSE VOLTAGE POP VALVE",
+                targetZoneLabel: "DOLLHOUSE SHIELD VALVE",
                 neededKey: "thin_fuse",
                 brightTone: "#ffeb3b"
             },
             {
-                cryAlert: " Olly the Owl lost his favorite metal toy key inside a hollow wall track! Use a detector dial!",
-                targetZoneLabel: "SECRET WALL WIRE DETECTOR",
+                cryAlert: "🦉 Olly the Owl lost his favorite metal toy key inside a hollow wall track! Use a detector dial!",
+                targetZoneLabel: "SECRET WALL TRACK",
                 neededKey: "compass_needle",
                 brightTone: "#2196f3"
             },
             {
                 cryAlert: "🐵 Max the Monkey wants to lift heavy metal blocks out of his sandbox! Make a powerful magnet!",
-                targetZoneLabel: "MONKEY'S POWER CRANE HOOK",
+                targetZoneLabel: "MONKEY'S TOY CRANE",
                 neededKey: "nail_coiled",
                 brightTone: "#e91e63"
             }
@@ -162,6 +166,7 @@
             safetyPopTriggered = false;
             compassSpin = 0;
             welcomeBannerTimer = 90;
+            craneY = 0;
         }
 
         function runGameLoop() {
@@ -244,7 +249,7 @@
                 ctx.stroke();
 
                 ctx.strokeStyle = wirePowerActive && !safetyPopTriggered ? '#4caf50' : '#d7ccc8';
-                ctx.beginPath(); ctx.moveTo(140, 260); ctx.lineTo(480, 160); ctx.lineTo(820, 260); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(140, 260); ctx.lineTo(480, 190); ctx.lineTo(820, 260); ctx.stroke();
 
                 // Cute Flow Dot Particles
                 if (wirePowerActive && !safetyPopTriggered) {
@@ -254,10 +259,69 @@
                     ctx.beginPath(); ctx.arc(820 - motionPos, 230, 6, 0, Math.PI*2); ctx.fill();
                 }
 
-                // Animal Toy Appliance Center Graphics Status
-                ctx.fillStyle = wirePowerActive && !safetyPopTriggered ? '#ff9800' : '#b0bec5';
-                ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(wirePowerActive && !safetyPopTriggered ? "🎉 ⚡ YAY! TOY ALIVE & HAPPY! ⚡ 🎉" : "💤 TOY OBJECT SLEEPING", 480, 150);
+                // --- DYNAMIC VISUAL WORLD OBJECTS ---
+                ctx.save();
+                ctx.translate(480, 150);
+                let isWorking = wirePowerActive && !safetyPopTriggered;
+
+                if (levelIdx === 0) { // Nightlight
+                    ctx.fillStyle = isWorking ? '#ffeb3b' : '#b0bec5';
+                    if (isWorking) {
+                        ctx.shadowBlur = 20; ctx.shadowColor = '#ffeb3b';
+                    }
+                    ctx.beginPath(); ctx.arc(0, -10, 20, 0, Math.PI, true); ctx.lineTo(10, 10); ctx.lineTo(-10, 10); ctx.closePath(); ctx.fill();
+                } 
+                else if (levelIdx === 1) { // Blender
+                    ctx.fillStyle = '#e0a899'; ctx.fillRect(-20, -10, 40, 30);
+                    ctx.fillStyle = '#b0bec5'; ctx.fillRect(-15, -25, 30, 15);
+                    if (isWorking) blenderAngle += 0.3;
+                    ctx.save(); ctx.translate(0, -17); ctx.rotate(blenderAngle);
+                    ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, 0); ctx.moveTo(0, -20); ctx.lineTo(0, 20); ctx.stroke();
+                    ctx.restore();
+                } 
+                else if (levelIdx === 2) { // Blanket
+                    ctx.fillStyle = isWorking ? '#ff4081' : '#b0bec5';
+                    ctx.fillRect(-35, -15, 70, 25);
+                    if (isWorking) {
+                        ctx.strokeStyle = '#ff9800'; ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        for (let wave = -25; wave <= 25; wave += 16) {
+                            ctx.moveTo(wave, -20);
+                            ctx.quadraticCurveTo(wave + 4, -25 + Math.sin(clockTicks * 0.1) * 3, wave + 8, -20);
+                        }
+                        ctx.stroke();
+                    }
+                } 
+                else if (levelIdx === 3) { // Dollhouse Shield
+                    ctx.fillStyle = '#cfd8dc'; ctx.fillRect(-25, -15, 50, 30);
+                    ctx.beginPath(); ctx.moveTo(-30, -15); ctx.lineTo(0, -35); ctx.lineTo(30, -15); ctx.closePath(); ctx.fillStyle = '#ff7043'; ctx.fill();
+                    if (isWorking) {
+                        ctx.strokeStyle = 'rgba(0, 230, 118, 0.6)'; ctx.lineWidth = 4;
+                        ctx.beginPath(); ctx.arc(0, -5, 45, 0, Math.PI * 2); ctx.stroke();
+                    }
+                } 
+                else if (levelIdx === 4) { // Secret Track Key Detector
+                    ctx.fillStyle = '#78909c'; ctx.fillRect(-40, -10, 80, 20);
+                    if (isWorking) {
+                        ctx.fillStyle = '#ffeb3b'; font = '16px sans-serif';
+                        ctx.fillText("🔑 FOUND!", 0, -20);
+                    }
+                } 
+                else if (levelIdx === 5) { // Crane Magnet
+                    ctx.fillStyle = '#546e7a'; ctx.fillRect(-10, -35, 20, 15);
+                    if (isWorking && craneY < 15) craneY += 1;
+                    if (!isWorking && craneY > 0) craneY -= 1;
+                    ctx.fillStyle = '#37474f'; ctx.fillRect(-15, -20 + craneY, 30, 10); // Magnet shoe
+                    if (isWorking) {
+                        ctx.fillStyle = '#cfd8dc'; ctx.fillRect(-10, -5 + craneY, 20, 10); // Lifted blocks
+                    }
+                }
+                ctx.restore();
+
+                // Object indicator tag text
+                ctx.fillStyle = '#78909c'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(round.targetZoneLabel, 480, 195);
 
                 // Main Drop Toy Block Socket Holder
                 ctx.fillStyle = '#ffffff'; ctx.fillRect(360, 290, 240, 80);
@@ -329,7 +393,7 @@
                     ctx.fillStyle = '#ffffff'; ctx.fillRect(rx, shelfY, cardW, cardH);
                     ctx.strokeStyle = '#eceff1'; ctx.lineWidth = 2; ctx.strokeRect(rx, shelfY, cardW, cardH);
 
-                    ctx.fillStyle = tile.shade; ctx.fillRect(rx+6, shelfY+6, tileW-12, 24);
+                    ctx.fillStyle = tile.shade; ctx.fillRect(rx+6, shelfY+6, cardW-12, 24);
                     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
                     ctx.fillText(tile.tag, rx + cardW/2, shelfY + 22);
 
