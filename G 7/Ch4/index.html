@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Innovine - Circuit Overdrive Arcade</title>
+    <title>Innovine - Magic Toybox Arcade</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #020205;
-            color: #f3f4f6;
-            font-family: 'Courier New', Courier, monospace, sans-serif;
+            background-color: #ffeff5;
+            color: #333333;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -21,11 +21,11 @@
         }
         #canvasFrame {
             position: relative;
-            box-shadow: 0 0 60px #bc13fe;
-            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.4);
+            border-radius: 30px;
             overflow: hidden;
-            border: 5px solid #ff007f;
-            background-color: #05050a;
+            border: 8px solid #ff69b4;
+            background-color: #ffffff;
         }
         canvas {
             display: block;
@@ -46,137 +46,130 @@
         const logoImg = new Image();
         logoImg.src = 'assets/logo.png';
 
-        // ARCADE STATE MACHINE
-        let gameState = 'SPLASH'; // SPLASH -> ACTION_GAME -> WIN_SCREEN -> GAME_OVER
+        // ENGINE STATES
+        let gameState = 'SPLASH'; // SPLASH -> TOY_GAME -> PARTY_WIN -> OOPS_OVER
         let splashTimeStart = Date.now();
-        const SPLASH_LIMIT = 5000; // Locked 5 Seconds Splash
+        const SPLASH_LIMIT = 5000; // Exact 5-second branding lock
 
-        let currentLevelIdx = 0;
-        let playerLives = 3;
-        let arcadeScore = 0;
-        let frameTicks = 0;
+        let levelIdx = 0;
+        let livesLeft = 3;
+        let starsCollected = 0;
+        let clockTicks = 0;
+        let welcomeBannerTimer = 90;
 
-        // IN-GAME LEVEL BANNER ANIMATION TIMER
-        let introBannerTicks = 80; 
+        // SELECTION VARIABLES
+        let activeToyItem = null;
+        let wirePowerActive = false;
+        let safetyPopTriggered = false;
+        let compassSpin = 0;
+        let magicSparks = [];
 
-        // MECHANICS AND SIMULATION ARRAYS
-        let equippedTile = null;
-        let powerGridActive = false;
-        let fuseSnapped = false;
-        let dialAngle = 0;
-        let activeParticles = [];
-
-        // RETRO RADICAL TOOLKIT DISPATCHER TILES
-        const componentDeck = [
-            { id: "switch_closed", tag: "SWITCH [ON]", icon: "🔑", hue: "#00f0ff", fx: "BRIDGES WIRE GAPS" },
-            { id: "battery_series", tag: "BOOST BATTERY", icon: "🔋⚡", hue: "#ff007f", fx: "DOUBLES POWER VOLTAGE" },
-            { id: "nichrome_wire", tag: "HEAT ELEMENT", icon: "🌀🔥", hue: "#bc13fe", fx: "TURNS JUICE TO GLOW HEAT" },
-            { id: "thin_fuse", tag: "SAFETY FUSE", icon: "🛡️💥", hue: "#ffb700", fx: "MELTS ON SURGE OVERLOAD" },
-            { id: "compass_needle", tag: "MAG-COMPASS", icon: "🧭✨", hue: "#00ff66", fx: "DETECTS WIRE FIELD RAYS" },
-            { id: "nail_coiled", tag: "MAG-MAGNET", icon: "🧲⚙️", hue: "#38bdf8", fx: "POWERED HEAVY MAGNET" }
+        // TOYBOX TOOLBAR TILES (GAMIFIED ITEMS FOR GRADE 7 SCIENCE OUTCOMES)
+        const magicToybox = [
+            { id: "switch_closed", tag: "Loop Snapper", bubble: "🔑 Close the Gap", shade: "#4caf50", trick: "Snaps open wire paths back together!" },
+            { id: "battery_series", tag: "Super Double Juice", bubble: "🔋⚡ Extra Power", shade: "#ff5722", trick: "Stacks two power cells for double speed!" },
+            { id: "nichrome_wire", tag: "Toasty Glow Ribbon", bubble: "🌀🔥 Warm Coil", shade: "#9c27b0", trick: "Squeezes current to make cozy heat waves!" },
+            { id: "thin_fuse", tag: "Safety Pop Ribbon", bubble: "🛡️💥 Pop Shield", shade: "#ffeb3b", trick: "Melts and breaks safely to stop big surges!" },
+            { id: "compass_needle", tag: "Wiggle Dial Finder", bubble: "🧭✨ Magic Arrow", shade: "#2196f3", trick: "Spins and points whenever wire power is close!" },
+            { id: "nail_coiled", tag: "Clicky Toy Magnet", bubble: "🧲⚙️ Heavy Lifter", shade: "#e91e63", trick: "Becomes a super strong metal lifter with power!" }
         ];
 
-        const deckX = 25, deckY = 515, blockW = 146, blockH = 95;
+        const shelfX = 25, shelfY = 515, cardW = 146, cardH = 95;
 
-        // VISUAL ACTION LEVEL OBJECTIVES (SHOWS IN-WORLD OBJECTS INSTEAD OF QUIZ QUESTIONS)
-        const gameLevels = [
+        // RE-IMAGINED CHILD-FRIENDLY MISSIONS (NO TECH TEXT CORES)
+        const happyQuests = [
             {
-                alertSign: "🚨 DAMAGE ALERT: POWER GRID IS CURRENTLY CUT IN HALF!",
-                worldObject: "beacon_offline",
-                objectLabel: "OFFLINE CORES SIGNAL BEACON",
-                requiredPart: "switch_closed",
-                neonTheme: "#00f0ff"
+                cryAlert: "🐰 Barnaby Bunny's bedroom nightlight wire has an open gap! Help him fix the wire path!",
+                targetZoneLabel: "BUNNY'S NIGHTLIGHT TRACK",
+                neededKey: "switch_closed",
+                brightTone: "#4caf50"
             },
             {
-                alertSign: "⚠️ CURRENT LOW: MOTOR ENGINE POWER IS SAGGING BELOW 10%!",
-                worldObject: "thruster_weak",
-                objectLabel: "LOW-VOLTAGE TURBO FAN MOTOR",
-                requiredPart: "battery_series",
-                neonTheme: "#ff007f"
+                cryAlert: "🐧 Penny Penguin's ice cream blender motor is spinning too slow! Give it double battery push!",
+                targetZoneLabel: "BLENDER TURBO BATTERY STATION",
+                neededKey: "battery_series",
+                brightTone: "#ff5722"
             },
             {
-                alertSign: "❄️ FREEZE CRITICAL: ROOM TEMPERATURE IS DROPPING FAST!",
-                worldObject: "heater_cold",
-                objectLabel: "FROZEN CRYOPOD WARMING SYSTEM",
-                requiredPart: "nichrome_wire",
-                neonTheme: "#bc13fe"
+                cryAlert: "🐶 Pip the Puppy is freezing! Drop a high-resistance element ribbon to warm his blanket!",
+                targetZoneLabel: "PUPPY BLANKET HEATING BOX",
+                neededKey: "nichrome_wire",
+                brightTone: "#9c27b0"
             },
             {
-                alertSign: "⚡ VOLTAGE SPIKE DETECTED! MAIN COMPUTER CHIPS WILL BURN!",
-                worldObject: "surge_vulnerable",
-                objectLabel: "UNPROTECTED COMPUTER MOTHERBOARD",
-                requiredPart: "thin_fuse",
-                neonTheme: "#ffb700"
+                cryAlert: "🐭 Mimi Mouse's dollhouse wire is getting too much electricity! Add a safety fuse wire to pop it!",
+                targetZoneLabel: "DOLLHOUSE VOLTAGE POP VALVE",
+                neededKey: "thin_fuse",
+                brightTone: "#ffeb3b"
             },
             {
-                alertSign: "🔍 SCANNING LINES: FIND THE HIDDEN LEAKING CURRENT MATRIX!",
-                worldObject: "conduit_invisible",
-                objectLabel: "CONCEALED WALL CABLE INDUCTION",
-                requiredPart: "compass_needle",
-                neonTheme: "#00ff66"
+                cryAlert: " Olly the Owl lost his favorite metal toy key inside a hollow wall track! Use a detector dial!",
+                targetZoneLabel: "SECRET WALL WIRE DETECTOR",
+                neededKey: "compass_needle",
+                brightTone: "#2196f3"
             },
             {
-                alertSign: "🏗️ CRANE DEPLOYED: PACK AND PICK UP THE SCRAP METALS!",
-                worldObject: "crane_magnet",
-                objectLabel: "AUTOMATED SCRAP YARD BELL CRANE",
-                requiredPart: "nail_coiled",
-                neonTheme: "#38bdf8"
+                cryAlert: "🐵 Max the Monkey wants to lift heavy metal blocks out of his sandbox! Make a powerful magnet!",
+                targetZoneLabel: "MONKEY'S POWER CRANE HOOK",
+                neededKey: "nail_coiled",
+                brightTone: "#e91e63"
             }
         ];
 
-        // SYNTH SOUND EFFECTS ENGINE
-        const SoundFX = {
-            audioCtx: null,
-            boot() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); },
-            click() {
-                this.boot(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
-                osc.frequency.setValueAtTime(800, this.audioCtx.currentTime); g.gain.setValueAtTime(0.04, this.audioCtx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.05);
-                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.05);
+        // FUN AUDIO SYSTEM
+        const ToyAudio = {
+            ctx: null,
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            clickPop() {
+                this.init(); let osc = this.ctx.createOscillator(); let g = this.ctx.createGain();
+                osc.frequency.setValueAtTime(700, this.ctx.currentTime); g.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+                osc.connect(g); g.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.06);
             },
-            combo() {
-                this.boot(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
-                osc.type = 'square'; osc.frequency.setValueAtTime(440, this.audioCtx.currentTime);
-                osc.frequency.setValueAtTime(880, this.audioCtx.currentTime + 0.08);
-                g.gain.setValueAtTime(0.06, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.3);
-                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.3);
+            happyDing() {
+                this.init(); let o1 = this.ctx.createOscillator(); let o2 = this.ctx.createOscillator(); let g = this.ctx.createGain();
+                o1.type = 'triangle'; o1.frequency.setValueAtTime(523.25, this.ctx.currentTime);
+                o2.type = 'triangle'; o2.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.08);
+                g.gain.setValueAtTime(0.08, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+                o1.connect(g); o2.connect(g); g.connect(this.ctx.destination); o1.start(); o2.start();
+                o1.stop(this.ctx.currentTime + 0.35); o2.stop(this.ctx.currentTime + 0.35);
             },
-            explode() {
-                this.boot(); let osc = this.audioCtx.createOscillator(); let g = this.audioCtx.createGain();
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, this.audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(40, this.audioCtx.currentTime + 0.4);
-                g.gain.setValueAtTime(0.2, this.audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
-                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + 0.4);
+            sadBuzz() {
+                this.init(); let osc = this.ctx.createOscillator(); let g = this.ctx.createGain();
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(60, this.ctx.currentTime + 0.3);
+                g.gain.setValueAtTime(0.12, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+                osc.connect(g); g.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.3);
             }
         };
 
-        function spawnSparkParticles(px, py, color) {
-            for(let i=0; i<25; i++) {
-                activeParticles.push({
-                    x: px, y: py,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
-                    size: Math.random() * 4 + 2,
-                    alpha: 1,
-                    color: color
+        function createSparkleGroup(sx, sy, hue) {
+            for(let i=0; i<30; i++) {
+                magicSparks.push({
+                    x: sx, y: sy,
+                    dx: (Math.random() - 0.5) * 7,
+                    dy: (Math.random() - 0.5) * 7,
+                    r: Math.random() * 5 + 3,
+                    opacity: 1,
+                    hue: hue
                 });
             }
         }
 
-        function loadArcadeLevel() {
-            equippedTile = null;
-            powerGridActive = false;
-            fuseSnapped = false;
-            dialAngle = 0;
-            introBannerTicks = 80; // Triggers the animated cinematic stage banner overlay
+        function resetToyRound() {
+            activeToyItem = null;
+            wirePowerActive = false;
+            safetyPopTriggered = false;
+            compassSpin = 0;
+            welcomeBannerTimer = 90;
         }
 
-        function renderEngineTick() {
+        function runGameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            frameTicks++;
+            clockTicks++;
 
             // ==========================================
-            // STATE 1: REFINED BRANDING ENTRY SPLASH
+            // STATE 1: CORPORATE MINIMAL BRANDING INTRO
             // ==========================================
             if (gameState === 'SPLASH') {
                 ctx.fillStyle = '#ffffff';
@@ -200,330 +193,323 @@
                 ctx.fillText('LIVE CIRCUIT SANDBOX & SIMULATION INTERACTIVE', cx, cy + 115);
 
                 ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 3; ctx.beginPath();
-                ctx.arc(cx, cy + 160, 14, frameTicks * 0.06, (frameTicks * 0.06) + (Math.PI * 0.5)); ctx.stroke();
+                ctx.arc(cx, cy + 160, 14, clockTicks * 0.06, (clockTicks * 0.06) + (Math.PI * 0.5)); ctx.stroke();
 
                 if (Date.now() - splashTimeStart > SPLASH_LIMIT) {
-                    gameState = 'ACTION_GAME';
-                    loadArcadeLevel();
+                    gameState = 'TOY_GAME';
+                    resetToyRound();
                 }
             }
 
             // ==========================================
-            // STATE 2: LIVE ACTION CIRCUIT GAMEPAD WORKBENCH
+            // STATE 2: ACTIVE PLAY TOYBOX ARCADE BOARD
             // ==========================================
-            else if (gameState === 'ACTION_GAME') {
-                let lvl = gameLevels[currentLevelIdx];
+            else if (gameState === 'TOY_GAME') {
+                let round = happyQuests[levelIdx];
 
-                // Neon Cyber HUD Stats Header Bar
-                ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, canvas.width, 60);
-                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,60); ctx.lineTo(canvas.width,60); ctx.stroke();
+                // Cute Candy Header Top Dashboard
+                ctx.fillStyle = '#fff0f5'; ctx.fillRect(0, 0, canvas.width, 65);
+                ctx.strokeStyle = '#ff69b4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0,65); ctx.lineTo(canvas.width,65); ctx.stroke();
 
-                ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px sans-serif';
-                ctx.fillText("🕹️ INNOVINE ELECTRON OVERDRIVE", 25, 36);
+                ctx.textAlign = 'left'; ctx.fillStyle = '#ff1493'; ctx.font = 'bold 16px sans-serif';
+                ctx.fillText("🎈 CUTE TOYBOX ANIMAL RESCUE!", 25, 38);
 
-                ctx.fillStyle = '#00f0ff'; ctx.fillText(`STAGE PORTAL: [0${currentLevelIdx+1}/06]`, 340, 36);
-                ctx.fillStyle = '#ffb700'; ctx.fillText(`SCORE ACCUMULATED: ${arcadeScore} XP`, 540, 36);
+                ctx.fillStyle = '#9c27b0'; ctx.fillText(`ROOM: ${levelIdx+1} / 6`, 360, 38);
+                ctx.fillStyle = '#ff9800'; ctx.fillText(`⭐ GOLD STARS: ${starsCollected}`, 510, 38);
                 
-                // Graphical Hearts Bar
-                ctx.fillStyle = '#ff007f'; ctx.fillText("LIVES:", 760, 36);
-                for(let h=0; h<3; h++) {
-                    ctx.fillStyle = h < playerLives ? '#ff007f' : '#221e2b';
-                    ctx.font = '16px sans-serif';
-                    ctx.fillText("❤️", 820 + (h * 24), 38);
+                // Kid-friendly heart score counters
+                ctx.fillStyle = '#e91e63'; ctx.fillText("LIVES:", 740, 38);
+                for(let k=0; k<3; k++) {
+                    ctx.fillStyle = k < livesLeft ? '#e91e63' : '#e0e0e0';
+                    ctx.font = '20px sans-serif';
+                    ctx.fillText(k < livesLeft ? "❤️" : "🤍", 815 + (k * 26), 41);
                 }
 
-                // In-World Environment Box Grid
-                ctx.fillStyle = '#020208'; ctx.fillRect(20, 75, 920, 420);
-                ctx.strokeStyle = '#1d1d35'; ctx.lineWidth = 2; ctx.strokeRect(20, 75, 920, 420);
+                // Toy Board Center Frame Workspace
+                ctx.fillStyle = '#fffdf9'; ctx.fillRect(20, 80, 920, 415);
+                ctx.strokeStyle = '#ffe4e1'; ctx.lineWidth = 3; ctx.strokeRect(20, 80, 920, 415);
 
-                // Live Ticker Display Subtitle Alert
-                ctx.fillStyle = '#100a1c'; ctx.fillRect(30, 85, 900, 36);
-                ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 1; ctx.strokeRect(30, 85, 900, 36);
+                // Upper bubble containing the animal request ticker
+                ctx.fillStyle = '#e0f7fa'; ctx.fillRect(35, 95, 890, 42);
+                ctx.strokeStyle = '#00bcd4'; ctx.lineWidth = 1.5; ctx.strokeRect(35, 95, 890, 42);
                 
-                ctx.fillStyle = '#ff007f'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(lvl.alertSign, canvas.width/2, 107);
+                ctx.fillStyle = '#006064'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(round.cryAlert, canvas.width/2, 121);
 
-                // Render Background Blueprints Wire Routes
-                ctx.strokeStyle = powerGridActive ? '#00f0ff' : '#1b1b3a';
-                ctx.lineWidth = 5; ctx.beginPath();
+                // Render Magical Colored Connecting Track Wire Tracks
+                ctx.strokeStyle = wirePowerActive ? '#ffeb3b' : '#d7ccc8';
+                ctx.lineWidth = 6; ctx.beginPath();
                 ctx.moveTo(140, 260); ctx.lineTo(140, 330); ctx.lineTo(360, 330);
                 ctx.moveTo(600, 330); ctx.lineTo(820, 330); ctx.lineTo(820, 260);
                 ctx.stroke();
 
-                ctx.strokeStyle = powerGridActive && !fuseSnapped ? '#00ff66' : '#1b1b3a';
-                ctx.beginPath(); ctx.moveTo(140, 260); ctx.lineTo(480, 155); ctx.lineTo(820, 260); ctx.stroke();
+                ctx.strokeStyle = wirePowerActive && !safetyPopTriggered ? '#4caf50' : '#d7ccc8';
+                ctx.beginPath(); ctx.moveTo(140, 260); ctx.lineTo(480, 160); ctx.lineTo(820, 260); ctx.stroke();
 
-                // Electron Flow Particle Visual FX Stream
-                if (powerGridActive && !fuseSnapped) {
-                    ctx.fillStyle = '#ffffff';
-                    let flowX = (frameTicks * 5) % 220;
-                    ctx.beginPath(); ctx.arc(140 + flowX, 330, 4, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(820 - flowX, 240, 4, 0, Math.PI*2); ctx.fill();
+                // Cute Flow Dot Particles
+                if (wirePowerActive && !safetyPopTriggered) {
+                    ctx.fillStyle = '#ffeb3b';
+                    let motionPos = (clockTicks * 6) % 220;
+                    ctx.beginPath(); ctx.arc(140 + motionPos, 330, 6, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(820 - motionPos, 230, 6, 0, Math.PI*2); ctx.fill();
                 }
 
-                // RENDERING THE IN-WORLD INTERACTIVE OBJECT INSTEAD OF TEXT QUIZ
-                ctx.fillStyle = '#111126'; ctx.fillRect(400, 120, 160, 45);
-                ctx.strokeStyle = powerGridActive && !fuseSnapped ? '#00ff66' : '#475569';
-                ctx.lineWidth = 1.5; ctx.strokeRect(400, 120, 160, 45);
+                // Animal Toy Appliance Center Graphics Status
+                ctx.fillStyle = wirePowerActive && !safetyPopTriggered ? '#ff9800' : '#b0bec5';
+                ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(wirePowerActive && !safetyPopTriggered ? "🎉 ⚡ YAY! TOY ALIVE & HAPPY! ⚡ 🎉" : "💤 TOY OBJECT SLEEPING", 480, 150);
 
-                ctx.fillStyle = powerGridActive && !fuseSnapped ? '#00ff66' : '#94a3b8';
-                ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(lvl.objectLabel, 480, 146);
+                // Main Drop Toy Block Socket Holder
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(360, 290, 240, 80);
+                ctx.strokeStyle = '#ff9800'; ctx.lineWidth = 3; ctx.strokeRect(360, 290, 240, 80);
 
-                // Render Main Machine Wire Connection Slot
-                ctx.fillStyle = '#060614'; ctx.fillRect(360, 290, 240, 80);
-                ctx.strokeStyle = '#ffb700'; ctx.lineWidth = 2.5; ctx.strokeRect(360, 290, 240, 80);
-
-                if (!equippedTile) {
-                    ctx.fillStyle = 'rgba(255, 183, 0, 0.05)'; ctx.fillRect(360, 290, 240, 80);
-                    ctx.fillStyle = '#ffb700'; ctx.font = 'bold 11px sans-serif';
-                    ctx.fillText("⚠️ [ SLAM OPERATIVE COMPONENT HERE ]", 480, 337);
+                if (!activeToyItem) {
+                    ctx.fillStyle = 'rgba(255, 152, 0, 0.04)'; ctx.fillRect(360, 290, 240, 80);
+                    ctx.fillStyle = '#ff9800'; ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText("🎁 [ CLAP A FUN MAGIC TILE HERE ]", 480, 336);
                 }
 
-                // Render Slapped Component Inside Socket Matrix with Vector Arcade Animations
-                if (equippedTile) {
-                    ctx.fillStyle = equippedTile.hue; ctx.fillRect(365, 295, 230, 70);
+                // Render Active Placed Toy Block with Interactive Simple Animations
+                if (activeToyItem) {
+                    ctx.fillStyle = activeToyItem.shade; ctx.fillRect(365, 295, 230, 70);
                     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(365, 295, 230, 70);
 
                     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
-                    ctx.fillText(`${equippedTile.icon} ${equippedTile.tag}`, 480, 337);
+                    ctx.fillText(`${activeToyItem.bubble}`, 480, 337);
 
-                    // --- ACTION ARCADE MATH ANIMATIONS ---
-                    if (powerGridActive) {
-                        if (equippedTile.id === 'nichrome_wire') {
-                            ctx.strokeStyle = `rgb(${220 + Math.sin(frameTicks*0.3)*35}, 30, 30)`;
-                            ctx.lineWidth = 6; ctx.beginPath();
-                            for(let xpos = 380; xpos <= 580; xpos += 15) {
-                                ctx.lineTo(xpos, 350 + (xpos%2===0 ? 10 : -10));
+                    // Child-friendly Physics Effect Graphics
+                    if (wirePowerActive) {
+                        if (activeToyItem.id === 'nichrome_wire') {
+                            ctx.strokeStyle = '#ff1493'; ctx.lineWidth = 6; ctx.beginPath();
+                            for(let jx = 380; jx <= 580; jx += 16) {
+                                ctx.lineTo(jx, 350 + (jx%2===0 ? 8 : -8));
                             }
                             ctx.stroke();
                         }
-                        if (equippedTile.id === 'thin_fuse') {
-                            ctx.strokeStyle = fuseSnapped ? '#22223b' : '#ffb700'; ctx.lineWidth = 4;
-                            ctx.beginPath(); ctx.moveTo(385, 350);
-                            if (fuseSnapped) {
-                                ctx.lineTo(465, 344); ctx.moveTo(495, 356); ctx.lineTo(575, 350);
-                                ctx.fillStyle = '#ff007f'; ctx.font = 'bold 10px sans-serif';
-                                ctx.fillText("💥 FUSE BLOWN!", 480, 320);
-                            } else { ctx.lineTo(575, 350); }
+                        if (activeToyItem.id === 'thin_fuse') {
+                            ctx.strokeStyle = safetyPopTriggered ? '#90a4ae' : '#ffeb3b'; ctx.lineWidth = 5;
+                            ctx.beginPath(); ctx.moveTo(380, 350);
+                            if (safetyPopTriggered) {
+                                ctx.lineTo(460, 345); ctx.moveTo(500, 355); ctx.lineTo(580, 350);
+                                ctx.fillStyle = '#e91e63'; ctx.font = 'bold 11px sans-serif';
+                                ctx.fillText("💥 POP! SHIELD BROKE SAFELY!", 480, 322);
+                            } else { ctx.lineTo(580, 350); }
                             ctx.stroke();
                         }
-                        if (equippedTile.id === 'compass_needle') {
-                            dialAngle += (Math.PI * 0.4 - dialAngle) * 0.2;
-                            ctx.save(); ctx.translate(480, 352); ctx.rotate(dialAngle);
-                            ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-20); ctx.stroke();
-                            ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,20); ctx.stroke();
+                        if (activeToyItem.id === 'compass_needle') {
+                            compassSpin += (Math.PI * 0.45 - compassSpin) * 0.15;
+                            ctx.save(); ctx.translate(480, 350); ctx.rotate(compassSpin);
+                            ctx.strokeStyle = '#ff1493'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-20); ctx.stroke();
+                            ctx.strokeStyle = '#b0bec5'; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,20); ctx.stroke();
                             ctx.restore();
                         }
-                        if (equippedTile.id === 'nail_coiled') {
-                            ctx.strokeStyle = '#00ff66'; ctx.lineWidth = 2;
-                            ctx.beginPath(); ctx.ellipse(480, 350, 60 + Math.sin(frameTicks*0.5)*15, 12, 0, 0, Math.PI*2); ctx.stroke();
+                        if (activeToyItem.id === 'nail_coiled') {
+                            ctx.strokeStyle = '#00bcd4'; ctx.lineWidth = 3;
+                            ctx.beginPath(); ctx.ellipse(480, 350, 55 + Math.sin(clockTicks*0.4)*12, 10, 0, 0, Math.PI*2); ctx.stroke();
                         }
                     }
                 }
 
-                // Big Operational Arcade Activation Button Strip
-                ctx.fillStyle = powerGridActive ? '#ff007f' : '#00f0ff';
-                ctx.fillRect(290, 442, 380, 40);
-                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.strokeRect(290, 442, 380, 40);
+                // Big Round Bouncing Switch Bar Button
+                let bounceVal = Math.sin(clockTicks * 0.08) * 2;
+                ctx.fillStyle = wirePowerActive ? '#ff4081' : '#00e676';
+                ctx.fillRect(260 - bounceVal, 440, 440 + bounceVal*2, 40);
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(260 - bounceVal, 440, 440 + bounceVal*2, 40);
                 
-                ctx.fillStyle = powerGridActive ? '#ffffff' : '#020208'; 
-                ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText(powerGridActive ? "⚡ RE-OPEN CURRENT CIRCUITS ⚡" : "⚡ SLAM THE MAIN CURRENT BREAKER SWITCH ⚡", 480, 467);
+                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(wirePowerActive ? "🎈 CLICK TO TURN POWER COILS OFF" : "⭐ FLIP THE MAGIC SWITCH POWER ON! ⭐", 480, 465);
 
-                // Inventory Shelf Label Splitter
-                ctx.textAlign = 'left'; ctx.fillStyle = '#555577'; ctx.font = 'bold 11px sans-serif'; ctx.letterSpacing = "2px";
-                ctx.fillText("EQUIPMENT DISPATCH INVENTORY DECK PANELS", 30, 502); ctx.letterSpacing = "0px";
+                // Dynamic Ribbon Header Labels
+                ctx.textAlign = 'left'; ctx.fillStyle = '#b0bec5'; ctx.font = 'bold 11px sans-serif'; ctx.letterSpacing = "2px";
+                ctx.fillText("PICK A TOY ITEM TILE TO FIX THE ANIMAL ROOMS", 35, 501); ctx.letterSpacing = "0px";
 
-                // Mapping Custom Dynamic Inventory Tiles
-                componentDeck.forEach((tile, index) => {
-                    let rx = deckX + (index * 154);
-                    ctx.fillStyle = '#0a0a1a'; ctx.fillRect(rx, deckY, blockW, blockH);
-                    ctx.strokeStyle = '#222244'; ctx.lineWidth = 2; ctx.strokeRect(rx, deckY, blockW, blockH);
+                // Map Cute Toolbar Tiles Choice Shelf
+                magicToybox.forEach((tile, ind) => {
+                    let rx = shelfX + (ind * 154);
+                    ctx.fillStyle = '#ffffff'; ctx.fillRect(rx, shelfY, cardW, cardH);
+                    ctx.strokeStyle = '#eceff1'; ctx.lineWidth = 2; ctx.strokeRect(rx, shelfY, cardW, cardH);
 
-                    ctx.fillStyle = tile.hue; ctx.fillRect(rx+8, deckY+8, 6, 16);
-                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
-                    ctx.fillText(tile.tag, rx + 20, deckY + 22);
+                    ctx.fillStyle = tile.shade; ctx.fillRect(rx+6, shelfY+6, tileW-12, 24);
+                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(tile.tag, rx + cardW/2, shelfY + 22);
 
-                    ctx.fillStyle = '#68688e'; ctx.font = '10px sans-serif';
-                    printWrappedLine(tile.fx, rx + 10, deckY + 45, blockW - 16, 14);
+                    ctx.fillStyle = '#78909c'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+                    wrapChildText(tile.trick, rx + 10, shelfY + 46, cardW - 16, 14);
                 });
 
-                // Render Live Explosion Particle Loop
-                for (let p = activeParticles.length - 1; p >= 0; p--) {
-                    let pt = activeParticles[p];
-                    pt.x += pt.vx; pt.y += pt.vy; pt.alpha -= 0.02;
-                    if (pt.alpha <= 0) { activeParticles.splice(p, 1); }
+                // Particle Spawner Loop
+                for (let s = magicSparks.length - 1; s >= 0; s--) {
+                    let sp = magicSparks[s];
+                    sp.x += sp.dx; sp.y += sp.dy; sp.opacity -= 0.02;
+                    if (sp.opacity <= 0) { magicSparks.splice(s, 1); }
                     else {
-                        ctx.fillStyle = pt.color;
-                        ctx.globalAlpha = pt.alpha;
-                        ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
+                        ctx.fillStyle = sp.hue; ctx.globalAlpha = sp.opacity;
+                        ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI*2); ctx.fill();
                         ctx.globalAlpha = 1.0;
                     }
                 }
 
-                // STAGE STARTING CINEMATIC FLYING OVERLAY BANNER
-                if (introBannerTicks > 0) {
-                    introBannerTicks--;
-                    ctx.fillStyle = 'rgba(5, 5, 15, 0.85)'; ctx.fillRect(0, 240, canvas.width, 110);
-                    ctx.strokeStyle = lvl.neonTheme; ctx.lineWidth = 3; 
+                // STAGE WELCOME ANIMATED ALERT OVERLAY
+                if (welcomeBannerTimer > 0) {
+                    welcomeBannerTimer--;
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; ctx.fillRect(0, 240, canvas.width, 110);
+                    ctx.strokeStyle = round.brightTone; ctx.lineWidth = 4;
                     ctx.beginPath(); ctx.moveTo(0,240); ctx.lineTo(canvas.width,240); ctx.moveTo(0,350); ctx.lineTo(canvas.width,350); ctx.stroke();
 
-                    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
-                    ctx.fillText(`⚡ INCOMING STAGE AREA 0${currentLevelIdx+1} ⚡`, canvas.width/2, 292);
-                    ctx.fillStyle = lvl.neonTheme; ctx.font = 'bold 12px sans-serif';
-                    ctx.fillText("DEPLOY INTELLECTUAL ELECTRICAL SYSTEMS TO FIX THE MACHINERY INBOUND", canvas.width/2, 325);
+                    ctx.fillStyle = '#ff1493'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(`🐾 ROOM STEP 0${levelIdx+1} GO! 🐾`, canvas.width/2, 292);
+                    ctx.fillStyle = '#555555'; ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText("CHOOSE THE BEST TOY OBJECT FROM THE BOTTOM SHELF TO CURE THE PROBLEM!", canvas.width/2, 324);
                 }
             }
 
             // ==========================================
-            // STATE 3: LEVEL CLEARED / ALL STAGES CLEAR REWARD CARD
+            // STATE 3: CELEBRATION WIN PARTY
             // ==========================================
-            else if (gameState === 'WIN_SCREEN') {
-                ctx.fillStyle = '#020205'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            else if (gameState === 'PARTY_WIN') {
+                ctx.fillStyle = '#e8f5e9'; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Laser star cluster visual matrix fx background
-                ctx.fillStyle = '#00ff66';
-                for(let s=0; s<40; s++) { ctx.fillRect((s*33+frameTicks)%canvas.width, (s*19)%canvas.height, 3, 3); }
+                // Fun Confetti rain loop
+                ctx.fillStyle = '#ffcf33';
+                for(let c=0; c<50; c++) { ctx.fillRect((c*45+clockTicks*2)%canvas.width, (c*23)%canvas.height, 6, 6); }
 
-                ctx.fillStyle = '#00ff66'; ctx.font = 'bold 42px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("🏆 ALL CIRCUITS OVERDRIVE REPAIRED!", canvas.width/2, 240);
+                ctx.fillStyle = '#4caf50'; ctx.font = 'bold 36px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText("🏆 HURRAY! YOU SAVED ALL THE LITTLE ANIMALS!", canvas.width/2, 240);
 
-                ctx.fillStyle = '#ffffff'; ctx.font = '20px sans-serif';
-                ctx.fillText(`FINAL GRADE ARCADE HIGH SCORE: ${arcadeScore} XP POINTS`, canvas.width/2, 310);
+                ctx.fillStyle = '#ff9800'; ctx.font = 'bold 20px sans-serif';
+                ctx.fillText(`⭐ YOU EARNED A HIGHSCORE OF: ${starsCollected} STARS! ⭐`, canvas.width/2, 310);
 
-                // Re-link core block button box layout
-                ctx.fillStyle = '#ff007f'; ctx.fillRect(360, 410, 240, 50);
+                ctx.fillStyle = '#ff4081'; ctx.fillRect(360, 400, 240, 50);
                 ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("RUN SIMULATOR AGAIN 🔄", canvas.width/2, 442);
+                ctx.fillText("PLAY AGAIN FOR FUN 🔄", canvas.width/2, 432);
             }
 
             // ==========================================
-            // STATE 4: SYSTEM FAILURE GAME OVER
+            // STATE 4: OOPSIE RESET SCREEN
             // ==========================================
-            else if (gameState === 'GAME_OVER') {
-                ctx.fillStyle = '#0d0202'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ff007f'; ctx.font = 'bold 44px sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText("💥 TERMINAL FAILURE BURN OUT", canvas.width/2, 240);
+            else if (gameState === 'OOPS_OVER') {
+                ctx.fillStyle = '#fff5f5'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#f44336'; ctx.font = 'bold 40px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText("😭 OOPS! SYSTEMS GOT POOPED OUT!", canvas.width/2, 240);
 
-                ctx.fillStyle = '#68688e'; ctx.font = '16px sans-serif';
-                ctx.fillText("Incompatible component impedance loads crashed the breaker loop rails.", canvas.width/2, 300);
+                ctx.fillStyle = '#757575'; ctx.font = '15px sans-serif';
+                ctx.fillText("The toy elements mismatched or lines were broken. Let's reset and help them again!", canvas.width/2, 300);
 
-                ctx.fillStyle = '#00f0ff'; ctx.fillRect(360, 390, 240, 50);
-                ctx.fillStyle = '#020208'; ctx.font = 'bold 14px sans-serif';
-                ctx.fillText("INSERT COIN / RESTART 🔄", canvas.width/2, 422);
+                ctx.fillStyle = '#00bcd4'; ctx.fillRect(360, 380, 240, 50);
+                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px sans-serif';
+                ctx.fillText("TRY THE TOYBOX AGAIN 🔄", canvas.width/2, 412);
             }
 
-            requestAnimationFrame(renderEngineTick);
+            requestAnimationFrame(runGameLoop);
         }
 
-        // TEXT LINE BREAKING HELPER UTILITY
-        function printWrappedLine(line, x, y, maxW, lineSpc) {
-            let chopped = line.split(' '); let compile = ''; let trackY = y;
-            for (let i = 0; i < chopped.length; i++) {
-                let test = compile + chopped[i] + ' ';
-                if (ctx.measureText(test).width > maxW && i > 0) {
-                    ctx.fillText(compile, x, trackY); compile = chopped[i] + ' '; trackY += lineSpc;
-                } else { compile = test; }
+        // TEXT WORD WRAPPING CHOP MATRIX
+        function wrapChildText(msg, x, y, maxW, lineSpc) {
+            let spaceTokens = msg.split(' '); let buffer = ''; let currY = y;
+            for (let i = 0; i < spaceTokens.length; i++) {
+                let checkRow = buffer + spaceTokens[i] + ' ';
+                if (ctx.measureText(checkRow).width > maxW && i > 0) {
+                    ctx.fillText(buffer, x, currY); buffer = spaceTokens[i] + ' '; currY += lineSpc;
+                } else { buffer = checkRow; }
             }
-            ctx.fillText(compile, x, trackY);
+            ctx.fillText(buffer, x, currY);
         }
 
-        // UNIFIED CLICKS ADAPTER FOR ARCADE MANAGEMENT
-        function receiveClickAtCoord(mx, my) {
-            if (gameState === 'ACTION_GAME') {
-                if (introBannerTicks > 0) return; // Ignore input while banner flashes down
+        // CLICK EVENT LISTENER ROUTER
+        function executeClickActions(mx, my) {
+            if (gameState === 'TOY_GAME') {
+                if (welcomeBannerTimer > 0) return; // Disallow taps while the stage banner plays
 
-                // Click Shelf Tiles to swap out inventory nodes
-                componentDeck.forEach((tile, index) => {
-                    let rx = deckX + (index * 154);
-                    if (mx >= rx && mx <= rx + blockW && my >= deckY && my <= deckY + blockH) {
-                        SoundFX.click();
-                        equippedTile = tile;
-                        powerGridActive = false;
-                        fuseSnapped = false;
+                // Tap shelf cards to lock tools
+                magicToybox.forEach((tile, index) => {
+                    let rx = shelfX + (index * 154);
+                    if (mx >= rx && mx <= rx + cardW && my >= shelfY && my <= shelfY + cardH) {
+                        ToyAudio.clickPop();
+                        activeToyItem = tile;
+                        wirePowerActive = false;
+                        safetyPopTriggered = false;
                     }
                 });
 
-                // Click Breaker Power Engagement Strip Switch
-                if (mx >= 290 && mx <= 670 && my >= 442 && my <= 482) {
-                    if (!equippedTile) {
-                        SoundFX.explode();
+                // Tap bottom switch launcher bars
+                if (mx >= 260 && mx <= 700 && my >= 440 && my <= 480) {
+                    if (!activeToyItem) {
+                        ToyAudio.sadBuzz();
                         return;
                     }
 
-                    SoundFX.click();
-                    powerGridActive = !powerGridActive;
+                    ToyAudio.clickPop();
+                    wirePowerActive = !wirePowerActive;
 
-                    if (powerGridActive) {
-                        let currentLevel = gameLevels[currentLevelIdx];
-                        if (equippedTile.id === currentLevel.requiredPart) {
-                            if (equippedTile.id === 'thin_fuse') fuseSnapped = true;
+                    if (wirePowerActive) {
+                        let activeQuest = happyQuests[levelIdx];
+                        if (activeToyItem.id === activeQuest.neededKey) {
+                            if (activeToyItem.id === 'thin_fuse') safetyPopTriggered = true;
 
-                            SoundFX.combo();
-                            spawnSparkParticles(480, 330, '#00ff66');
-                            arcadeScore += 150;
+                            ToyAudio.happyDing();
+                            createSparkleGroup(480, 330, '#ffeb3b');
+                            starsCollected += 100;
 
                             setTimeout(() => {
-                                currentLevelIdx++;
-                                if (currentLevelIdx >= gameLevels.length) {
-                                    gameState = 'WIN_SCREEN';
+                                levelIdx++;
+                                if (levelIdx >= happyQuests.length) {
+                                    gameState = 'PARTY_WIN';
                                 } else {
-                                    loadArcadeLevel();
+                                    resetToyRound();
                                 }
                             }, 2500);
                         } else {
-                            SoundFX.explode();
-                            spawnSparkParticles(480, 330, '#ff007f');
-                            playerLives--;
-                            powerGridActive = false;
+                            ToyAudio.sadBuzz();
+                            createSparkleGroup(480, 330, '#f44336');
+                            livesLeft--;
+                            wirePowerActive = false;
 
-                            if (playerLives <= 0) {
-                                setTimeout(() => { gameState = 'GAME_OVER'; }, 1000);
+                            if (livesLeft <= 0) {
+                                setTimeout(() => { gameState = 'OOPS_OVER'; }, 1000);
                             }
                         }
                     }
                 }
             }
-            else if (gameState === 'WIN_SCREEN' || gameState === 'GAME_OVER') {
-                let boundsMinX = 360, boundsMaxX = 600;
-                let boundsMinY = (gameState === 'WIN_SCREEN') ? 410 : 390;
-                let boundsMaxY = (gameState === 'WIN_SCREEN') ? 460 : 440;
+            else if (gameState === 'PARTY_WIN' || gameState === 'OOPS_OVER') {
+                let minX = 360, maxX = 600;
+                let minY = (gameState === 'PARTY_WIN') ? 400 : 380;
+                let maxY = (gameState === 'PARTY_WIN') ? 450 : 430;
 
-                if (mx >= boundsMinX && mx <= boundsMaxX && my >= boundsMinY && my <= boundsMaxY) {
-                    SoundFX.click();
-                    currentLevelIdx = 0; arcadeScore = 0; playerLives = 3;
-                    if (gameState === 'WIN_SCREEN') {
+                if (mx >= minX && mx <= maxX && my >= minY && my <= maxY) {
+                    ToyAudio.clickPop();
+                    levelIdx = 0; starsCollected = 0; livesLeft = 3;
+                    if (gameState === 'PARTY_WIN') {
                         gameState = 'SPLASH';
                         splashTimeStart = Date.now();
                     } else {
-                        gameState = 'ACTION_GAME';
+                        gameState = 'TOY_GAME';
                     }
-                    loadArcadeLevel();
+                    resetToyRound();
                 }
             }
         }
 
-        // BOUNDS CALCULATOR LISTENERS CAPTURING WINDOW POSITION MATRICES
+        // BOUNDS EVENTS CAPTURER ADAPTERS
         canvas.addEventListener('mousedown', (e) => {
-            const area = canvas.getBoundingClientRect();
-            let mouseX = (e.clientX - area.left) * (canvas.width / area.width);
-            let mouseY = (e.clientY - area.top) * (canvas.height / area.height);
-            receiveClickAtCoord(mouseX, mouseY);
+            const loc = canvas.getBoundingClientRect();
+            let clickX = (e.clientX - loc.left) * (canvas.width / loc.width);
+            let clickY = (e.clientY - loc.top) * (canvas.height / loc.height);
+            executeClickActions(clickX, clickY);
         });
 
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (e.touches.length > 0) {
-                const area = canvas.getBoundingClientRect();
-                let touchX = (e.touches[0].clientX - area.left) * (canvas.width / area.width);
-                let touchY = (e.touches[0].clientY - area.top) * (canvas.height / area.height);
-                receiveClickAtCoord(touchX, touchY);
+                const loc = canvas.getBoundingClientRect();
+                let touchX = (e.touches[0].clientX - loc.left) * (canvas.width / loc.width);
+                let touchY = (e.touches[0].clientY - loc.top) * (canvas.height / loc.height);
+                executeClickActions(touchX, touchY);
             }
         }, {passive: false});
 
-        // IGNITE GRAPHICS TICK RUNNER
-        renderEngineTick();
+        // ACTIVATE GRAPHICS RENDERING SYSTEM
+        runGameLoop();
     </script>
 </body>
 </html>
