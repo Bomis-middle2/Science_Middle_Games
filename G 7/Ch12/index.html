@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>OpticsLab Simulator - Grade 7 Light & Reflection</title>
+<style>
+:root {
+    --ink: #0f172a;
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #f59e0b;
+    --blue: #06b6d4;
+    --indigo: #6366f1;
+    --cream: #fafaf9;
+    --card: #ffffff;
+    --line: #e2e8f0;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    color: var(--ink);
+    background: linear-gradient(180deg, #fefeff 0%, #f0fdfa 50%, #e0f2fe 100%);
+}
+body:before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    opacity: .45;
+    pointer-events: none;
+    background: 
+        radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.15), transparent 22%),
+        radial-gradient(circle at 90% 15%, rgba(245, 158, 11, 0.15), transparent 20%),
+        radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.12), transparent 25%);
+}
+#splash {
+    position: fixed;
+    inset: 0;
+    background: #090d16;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity .5s ease;
+    color: #fff;
+}
+#splash-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(45deg, #06b6d4, #6366f1, #f43f5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+}
+.loader {
+    position: absolute;
+    bottom: 18%;
+    width: 190px;
+    height: 8px;
+    background: #1e293b;
+    border-radius: 50px;
+    overflow: hidden;
+}
+.loader div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #06b6d4, #10b981, #f59e0b);
+}
+#root {
+    height: 100%;
+    max-height: 760px;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(7px, 1.2vh, 11px);
+    padding: clamp(8px, 1.8vw, 15px);
+    opacity: 0;
+    transition: opacity .45s ease;
+    position: relative;
+}
+.screen {
+    position: absolute;
+    inset: clamp(8px, 1.8vw, 15px);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.introCard, .endCard {
+    width: min(650px, 96%);
+    background: rgba(255, 255, 255, 0.97);
+    border: 2px solid var(--blue);
+    border-radius: 24px;
+    padding: clamp(18px, 4vw, 30px);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15);
+}
+h1 {
+    font-size: clamp(1.45rem, 4.5vw, 2.2rem);
+    color: #0891b2;
+    margin-bottom: 12px;
+    font-weight: 950;
+}
+.introCard p, .endCard p {
+    font-size: clamp(.96rem, 2.5vw, 1.08rem);
+    line-height: 1.5;
+    color: #475569;
+    margin-bottom: 18px;
+}
+.rules {
+    display: grid;
+    gap: 10px;
+    text-align: left;
+    margin: 14px auto 18px;
+    max-width: 460px;
+}
+.rules div {
+    background: #ecfeff;
+    border: 2px solid #a5f3fc;
+    border-radius: 16px;
+    padding: 12px;
+    font-weight: 700;
+    color: #0369a1;
+}
+.btn {
+    border: 0;
+    border-radius: 17px;
+    padding: clamp(12px, 2.6vw, 15px) 22px;
+    background: linear-gradient(135deg, #06b6d4, #6366f1);
+    color: white;
+    font-weight: 950;
+    font-size: clamp(.92rem, 2.6vw, 1.05rem);
+    cursor: pointer;
+    box-shadow: 0 9px 18px rgba(6, 182, 212, 0.25);
+    letter-spacing: .3px;
+}
+.btn:disabled {
+    background: #cbd5e1;
+    color: #64748b;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+.topbar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.stat {
+    background: rgba(255, 255, 255, .9);
+    border: 2px solid #cbd5e1;
+    border-radius: 16px;
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 950;
+    color: #334155;
+    font-size: clamp(.78rem, 2.1vw, .96rem);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.03);
+}
+.main {
+    min-height: 0;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 10px;
+}
+.panel {
+    background: rgba(255, 255, 255, .9);
+    border: 2px solid #cbd5e1;
+    border-radius: 22px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+.workshop {
+    position: relative;
+    min-height: 0;
+    background: #090d16;
+}
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.challenge {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(10px, 2vw, 14px);
+    gap: 10px;
+}
+.prompt {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 18px;
+    padding: clamp(10px, 2.2vw, 14px);
+    text-align: center;
+}
+.expr {
+    font-size: clamp(1.02rem, 3.3vw, 1.35rem);
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 5px;
+    line-height: 1.35;
+}
+.instruction {
+    font-size: clamp(.83rem, 2.1vw,.94rem);
+    color: #64748b;
+    text-align: center;
+    font-weight: 750;
+}
+.dropRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+.drop {
+    min-height: 75px;
+    border: 3px dashed #bae6fd;
+    background: #f0f9ff;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-weight: 800;
+    color: #64748b;
+    transition: .2s;
+    text-align: center;
+    padding: 8px;
+}
+.drop.active {
+    background: #e0f2fe;
+    border-color: #06b6d4;
+}
+.drop.filled {
+    border-style: solid;
+    background: #fff;
+    color: #0f172a;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+}
+.drop.correct {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+}
+.drop.wrong {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+    margin-top: auto;
+}
+.tile {
+    min-height: 56px;
+    border: 2px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px;
+    font-size: clamp(.83rem, 2.3vw, .98rem);
+    font-weight: 700;
+    color: #334155;
+    cursor: grab;
+    transition: .15s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+.tile:active {
+    cursor: grabbing;
+}
+.tile.selected {
+    outline: 3px solid var(--gold);
+    transform: translateY(-2px);
+    background: #fffbeb;
+    border-color: #fde047;
+}
+.tile.used {
+    opacity: .22;
+    pointer-events: none;
+    transform: scale(.96);
+}
+.feedback {
+    min-height: 34px;
+    text-align: center;
+    font-size: clamp(.82rem, 2vw, .95rem);
+    font-weight: 700;
+    line-height: 1.35;
+    color: #475569;
+}
+.actions {
+    display: flex;
+    gap: 9px;
+}
+.actions .btn {
+    flex: 1;
+}
+.ghost {
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+    box-shadow: 0 9px 18px rgba(100, 116, 139, 0.2);
+}
+.confetti {
+    position: fixed;
+    top: -12px;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    z-index: 10000;
+    pointer-events: none;
+    animation: fall 1.4s linear forwards;
+}
+@keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@media(max-width:760px) {
+    #root { max-width: 520px; }
+    .main { grid-template-columns: 1fr; grid-template-rows: .82fr 1fr; }
+    .workshop { min-height: 220px; }
+    .drop { min-height: 62px; }
+    .tiles { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:390px) {
+    #root { padding: 7px; gap: 7px; }
+    .stat { padding: 7px 5px; }
+    .challenge { gap: 8px; }
+    .tile { min-height: 47px; }
+    .drop { min-height: 56px; }
+    .feedback { min-height: 30px; }
+    .introCard, .endCard { padding: 16px; }
+}
+@media(max-height:650px) {
+    #root { max-height: none; gap: 7px; }
+    .panel.challenge { padding: 8px; }
+    .prompt { padding: 8px; }
+    .tile { min-height: 42px; padding: 6px; }
+    .drop { min-height: 50px; }
+    .feedback { min-height: 24px; }
+    .btn { padding: 10px 14px; }
+    .rules { display: none; }
+    .introCard p { margin-bottom: 13px; }
+    .workshop { min-height: 180px; }
+}
+</style>
+</head>
+<body>
+<audio id="correctSound" src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAA/f39/f39/v7+/v7+/v79/f39/f39/f39/f39/f39/f39/f39/f39/f35+fn5+fn5+fn5+fn5+Q==" preload="auto"></audio>
+<div id="splash"><div id="splash-title">INNOVINE</div><div class="loader"><div id="loadFill"></div></div></div>
+<div id="root">
+  <div id="intro" class="screen">
+    <div class="introCard">
+      <h1>🧱 OpticsLab Studio</h1>
+      <p>Master the properties of light, reflection, lenses, and color spectrums. Match the correct optical pairs to repair the laser pathways on the diagnostic lab terminal.</p>
+      <div class="rules">
+        <div>🔦 Calibrate the ray pathways.</div>
+        <div>🌈 Explore mirrors, spherical lenses, and color dispersion.</div>
+        <div>✌️ You get 2 diagnostic attempts per experiment setup.</div>
+      </div>
+      <button class="btn" onclick="startGame()">Boot Optical Console</button>
+    </div>
+  </div>
+  <div class="topbar">
+    <div class="stat">🔬 Experiments: <span id="count">0</span>/10</div>
+    <div class="stat">⭐ Luminous Flux: <span id="score">0</span>lm</div>
+    <div class="stat">❤️ Tries: <span id="tries">2</span></div>
+  </div>
+  <div class="main">
+    <div class="panel workshop"><canvas id="scene"></canvas></div>
+    <div class="panel challenge">
+      <div class="prompt"><div id="question" class="expr">Loading Optical Bench...</div></div>
+      <div class="instruction">Match the optical pairs into the testing slots below:</div>
+      <div class="dropRow">
+        <div class="drop" id="drop0" data-slot="0">Optic Factor A</div>
+        <div class="drop" id="drop1" data-slot="1">Optic Factor B</div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <div class="feedback" id="feedback">Analyze the beam setup.</div>
+      <div class="actions">
+        <button class="btn" id="checkBtn" onclick="checkAnswer()">Verify Light Path</button>
+        <button class="btn ghost" onclick="clearDrops()">Clear Bench</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let canvas, ctx, items = [], qIndex = 0, score = 0, tries = 2, selected = null, placed = [null, null], locked = false, wallGlow = 0, shake = 0, anim = 0;
+
+// Grade 7 Light Syllabus Dataset mapped into logical paired matching challenges
+const questions = [
+    {
+        q: 'How does light travel from a flashlight through space, and what happens when you look through a bent straw?',
+        a: ['Straight Line Path', 'Rectilinear Propagation'],
+        tiles: ['Straight Line Path', 'Rectilinear Propagation', 'Curved Wavefront', 'Bending Around Edges'],
+        exp: 'Light travels strictly along straight lines, a phenomenon known as the rectilinear propagation of light.'
+    },
+    {
+        q: 'What basic event occurs when a beam hits a highly polished plane mirror, and what is this modification of path called?',
+        a: ['Direction Change', 'Reflection of Light'],
+        tiles: ['Direction Change', 'Reflection of Light', 'Complete Absorption', 'Color Splitting'],
+        exp: 'When light bouncing off a surface flips direction, it undergoes reflection.'
+    },
+    {
+        q: 'When you stand directly in front of a flat plane mirror, what kind of image is produced, and what is its specific orientation?',
+        a: ['Erect Image', 'Same Size as Object'],
+        tiles: ['Erect Image', 'Same Size as Object', 'Inverted Orientation', 'Magnified Detail'],
+        exp: 'A plane mirror always forms an erect image that is exactly the same scale as the real-world object.'
+    },
+    {
+        q: 'Why does the word AMBULANCE look inverted backwards on the front of emergency vehicles when viewed through a rearview mirror?',
+        a: ['Left-Right Swapping', 'Lateral Inversion'],
+        tiles: ['Left-Right Swapping', 'Lateral Inversion', 'Upside-Down Flip', 'Focal Distortion'],
+        exp: 'Lateral inversion causes the left side of an object to appear on the right side in its mirror image.'
+    },
+    {
+        q: 'Identify a mirror type with an inwardly curved reflecting surface, and state what type of real focal point image it can cast.',
+        a: ['Concave Mirror', 'Real and Inverted'],
+        tiles: ['Concave Mirror', 'Real and Inverted', 'Convex Mirror', 'Virtual and Erect Only'],
+        exp: 'A concave mirror features an inwardly curved reflective face and can create real, upside-down images.'
+    },
+    {
+        q: 'Which reflective device curves outward like a shiny security dome, and what kind of field of view image does it produce?',
+        a: ['Convex Mirror', 'Diminished Wide View'],
+        tiles: ['Convex Mirror', 'Diminished Wide View', 'Concave Lens', 'Perfect Unchanged Plane'],
+        exp: 'Convex mirrors curve outward to compress a wide panoramic field into small, upright, diminished images.'
+    },
+    {
+        q: 'What is a glass lens that is thick at the center and thin at the borders called, and what does it do to incoming rays?',
+        a: ['Convex Lens', 'Converging Power'],
+        tiles: ['Convex Lens', 'Converging Power', 'Concave Lens', 'Diverging Power'],
+        exp: 'A convex lens tapers toward the edges, acting as a magnifying glass that focuses or converges light rays.'
+    },
+    {
+        q: 'Identify a glass component that is thinner at its central midpoint than its edges, and explain its functional ray pattern.',
+        a: ['Concave Lens', 'Diverging Power'],
+        tiles: ['Concave Lens', 'Diverging Power', 'Convex Mirror', 'Converging Power'],
+        exp: 'A concave lens is hollowed out in the middle, scattering or diverging light beams outward.'
+    },
+    {
+        q: 'What beautiful event occurs when sharp white sunlight shoots through a triangular glass prism component?',
+        a: ['Dispersion of Light', 'Seven Constituent Colors'],
+        tiles: ['Dispersion of Light', 'Seven Constituent Colors', 'Total Internal Deflection', 'Rectilinear Blockage'],
+        exp: 'Dispersion is the separation of white light into its multi-colored structural spectrum.'
+    },
+    {
+        q: 'What acronym records the sequence of colors generated in a rainbow spectrum, and what is this collective band of light named?',
+        a: ['VIBGYOR Sequence', 'Visible Spectrum'],
+        tiles: ['VIBGYOR Sequence', 'Visible Spectrum', 'RGB Mixing Matrix', 'Monochromatic Ray'],
+        exp: 'White light consists of seven basic colors arranged sequentially by the acronym VIBGYOR.'
+    }
+];
+
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+let load = 0, timer = setInterval(() => {
+    load += 2;
+    $('loadFill').style.width = load + '%';
+    if (load >= 100) {
+        clearInterval(timer);
+        $('splash').style.opacity = 0;
+        setTimeout(() => {
+            $('splash').remove();
+            $('root').style.opacity = 1;
+            init();
+        }, 520);
+    }
+}, 100);
+
+function init() {
+    canvas = $('scene');
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+    shuffle(questions);
+    loadQuestion();
+    loop();
+}
+
+function startGame() {
+    $('intro').remove();
+}
+
+function resize() {
+    let r = canvas.getBoundingClientRect();
+    canvas.width = Math.max(300, Math.floor(r.width));
+    canvas.height = Math.max(180, Math.floor(r.height));
+}
+
+function norm(x) {
+    return String(x).replace(/\s+/g, '').toLowerCase();
+}
+
+function loadQuestion() {
+    locked = false;
+    tries = 2;
+    placed = [null, null];
+    selected = null;
+    wallGlow = 0;
+    shake = 0;
+    $('tries').innerText = tries;
+    $('count').innerText = qIndex;
+    $('question').innerText = questions[qIndex].q;
+    $('feedback').innerText = 'Select matching properties to align the test bench.';
+    $('feedback').style.color = '#475569';
+    $('checkBtn').disabled = false;
+    renderTiles();
+    renderDrops();
+}
+
+function renderTiles() {
+    let box = $('tiles');
+    box.innerHTML = '';
+    items = questions[qIndex].tiles.map((t, i) => ({ text: t, id: 'tile' + i, used: false }));
+    shuffle(items);
+    items.forEach((it) => {
+        let d = document.createElement('div');
+        d.className = 'tile';
+        d.draggable = true;
+        d.id = it.id;
+        d.textContent = it.text;
+        d.dataset.text = it.text;
+        d.addEventListener('click', () => tapTile(d));
+        d.addEventListener('dragstart', e => {
+            if (locked || d.classList.contains('used')) return e.preventDefault();
+            e.dataTransfer.setData('text/plain', d.dataset.text);
+        });
+        box.appendChild(d);
+    });
+}
+
+function renderDrops() {
+    [0, 1].forEach(i => {
+        let d = $('drop' + i);
+        d.className = 'drop' + (placed[i] ? ' filled' : '');
+        d.textContent = placed[i] || ('Optic Factor ' + (i === 0 ? 'A' : 'B'));
+        d.ondragover = e => { e.preventDefault(); d.classList.add('active'); };
+        d.ondragleave = () => d.classList.remove('active');
+        d.ondrop = e => {
+            e.preventDefault();
+            d.classList.remove('active');
+            placeTile(e.dataTransfer.getData('text/plain'), i);
+        };
+    });
+}
+
+function tapTile(el) {
+    if (locked || el.classList.contains('used')) return;
+    document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+    selected = el.dataset.text;
+    el.classList.add('selected');
+}
+
+document.addEventListener('click', e => {
+    if (e.target.classList.contains('drop') && selected && !locked) {
+        placeTile(selected, Number(e.target.dataset.slot));
+        document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+        selected = null;
+    }
+});
+
+function placeTile(text, slot) {
+    if (locked) return;
+    let previous = placed[slot];
+    if (previous) markUsed(previous, false);
+    placed[slot] = text;
+    markUsed(text, true);
+    renderDrops();
+    if (placed[0] && placed[1]) {
+        $('feedback').innerText = 'Calibration configuration set. Ready to verify.';
+    }
+}
+
+function markUsed(text, used) {
+    let candidates = [...document.querySelectorAll('.tile')].filter(el => el.dataset.text === text);
+    let el = used ? candidates.find(x => !x.classList.contains('used')) : candidates.find(x => x.classList.contains('used'));
+    if (el) el.classList.toggle('used', used);
+}
+
+function clearDrops() {
+    if (locked) return;
+    placed = [null, null];
+    document.querySelectorAll('.tile').forEach(t => t.classList.remove('used', 'selected'));
+    selected = null;
+    renderDrops();
+    $('feedback').innerText = 'Testing slots cleared.';
+    $('feedback').style.color = '#475569';
+}
+
+function checkAnswer() {
+    if (locked) return;
+    if (!placed[0] || !placed[1]) {
+        $('feedback').innerText = 'Error: Fill both configuration slots first.';
+        $('feedback').style.color = '#b45309';
+        return;
+    }
+    let ans = questions[qIndex].a.map(norm).sort().join('|');
+    let got = placed.map(norm).sort().join('|');
+    if (ans === got) {
+        correct();
+    } else {
+        wrong();
+    }
+}
+
+function correct() {
+    locked = true;
+    $('checkBtn').disabled = true;
+    score += 15;
+    $('score').innerText = score;
+    $('feedback').innerText = 'Path Calibrated! ' + questions[qIndex].exp;
+    $('feedback').style.color = '#10b981';
+    [0, 1].forEach(i => $('drop'+i).className = 'drop correct');
+    sound('correctSound');
+    wallGlow = 80;
+    confetti();
+    setTimeout(() => {
+        qIndex++;
+        if (qIndex >= questions.length) finish();
+        else loadQuestion();
+    }, 3500);
+}
+
+function wrong() {
+    tries--;
+    shake = 25;
+    [0, 1].forEach(i => $('drop'+i).className = 'drop wrong');
+    $('tries').innerText = tries;
+    if (tries > 0) {
+        $('feedback').innerText = 'Optic Alignment Failure. Recalibrating laser beam matrix...';
+        $('feedback').style.color = '#ef4444';
+        setTimeout(() => {
+            clearDrops();
+            [0, 1].forEach(i => $('drop'+i).className = 'drop');
+        }, 1200);
+    } else {
+        locked = true;
+        $('checkBtn').disabled = true;
+        let q = questions[qIndex];
+        $('feedback').innerText = 'Correct Setup: ' + q.a.join(' & ') + '. ' + q.exp;
+        $('feedback').style.color = '#ef4444';
+        setTimeout(() => {
+            qIndex++;
+            if (qIndex >= questions.length) finish();
+            else loadQuestion();
+        }, 4500);
+    }
+}
+
+function sound(id) {
+    let a = $(id);
+    if (!a) return;
+    try { a.currentTime = 0; a.play().catch(() => {}); } catch(e) {}
+}
+
+function finish() {
+    let acc = Math.round((score / (questions.length * 15)) * 100);
+    $('root').innerHTML = `<div class="screen"><div class="endCard"><h1>🏆 Optics Lab Complete!</h1><p>You have aligned all 10 experiment stations successfully.<br><b>Final Luminous Flux: ${score} lm</b><br><b>Calibration Accuracy: ${acc}%</b></p><button class="btn" onclick="location.reload()">Reboot Lab Terminal</button></div></div>`;
+}
+
+function confetti() {
+    for (let i = 0; i < 24; i++) {
+        let p = document.createElement('div');
+        p.className = 'confetti';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.background = ['#06b6d4', '#10b981', '#f59e0b', '#6366f1', '#ec4899'][Math.floor(Math.random() * 5)];
+        p.style.animationDelay = (Math.random() * .25) + 's';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1700);
+    }
+}
+
+function draw() {
+    let w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    
+    // Tech Lab Space Canvas Styling
+    ctx.fillStyle = '#060913';
+    ctx.fillRect(0, 0, w, h);
+    
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1;
+    let gridS = 22;
+    for (let x = 0; x < w; x += gridS) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (let y = 0; y < h; y += gridS) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+    anim += 0.04;
+    let sx = shake ? Math.sin(shake) * 4 : 0;
+    if (shake) shake--;
+    
+    ctx.save();
+    ctx.translate(sx, 0);
+    drawLaserOpticsLayout(w, h);
+    ctx.restore();
+
+    if (wallGlow > 0) {
+        wallGlow--;
+        ctx.save();
+        ctx.globalAlpha = wallGlow / 80;
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.12)';
+        ctx.beginPath(); ctx.arc(w * .5, h * .5, Math.max(w, h) * .4, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+}
+
+function drawLaserOpticsLayout(w, h) {
+    let cx = w / 2, cy = h / 2 - 5;
+    let beamOn = (wallGlow > 0 || Math.sin(anim * 1.5) > -0.3);
+
+    // Render Laser Emitter Box Left side
+    let lx = w * 0.15, ly = cy;
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    round(lx - 25, ly - 15, 45, 30, 6, true, true);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(lx + 15, ly - 5, 8, 10);
+
+    // Depending on question index, change the center target visual artifact
+    let type = qIndex % 4; // 0: Reflection, 1: Lenses, 2: Dispersion Prism, 3: Transmission/Straw
+
+    if (type === 0) {
+        // --- 0. PLANE/SPHERICAL MIRROR SETUP ---
+        let mx = cx, my = cy;
+        // Draw Mirror Mount
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(mx, my - 35); ctx.lineTo(mx, my + 35); ctx.stroke();
+        // Back hatch markings for a mirror
+        ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+        for (let r = -30; r <= 30; r += 10) {
+            ctx.beginPath(); ctx.moveTo(mx, my + r); ctx.lineTo(mx + 8, my + r - 6); ctx.stroke();
+        }
+
+        if (beamOn) {
+            // Draw Incident Beam
+            ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3.5;
+            ctx.shadowBlur = 10; ctx.shadowColor = '#06b6d4';
+            ctx.beginPath(); ctx.moveTo(lx + 20, ly); ctx.lineTo(mx, my); ctx.stroke();
+
+            // Draw Reflected Beam bouncing down-left
+            ctx.strokeStyle = (wallGlow > 0) ? '#10b981' : '#06b6d4';
+            ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(lx + 20, my + 45); ctx.stroke();
+            ctx.shadowBlur = 0; // reset
+        }
+    } 
+    else if (type === 1) {
+        // --- 1. SPHERICAL LENS SETUP ---
+        let mx = cx, my = cy;
+        ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        
+        // Draw double convex lens silhouette shape
+        ctx.beginPath();
+        ctx.moveTo(mx, my - 35);
+        ctx.quadraticCurveTo(mx + 15, my, mx, my + 35);
+        ctx.quadraticCurveTo(mx - 15, my, mx, my - 35);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+
+        if (beamOn) {
+            ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3.5;
+            ctx.shadowBlur = 10; ctx.shadowColor = '#6366f1';
+            ctx.beginPath(); ctx.moveTo(lx + 20, ly); ctx.lineTo(mx, my); ctx.stroke();
+
+            // Focal convergence alignment behavior
+            ctx.strokeStyle = (wallGlow > 0) ? '#10b981' : '#6366f1';
+            ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(w * 0.85, my); ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+    } 
+    else if (type === 2) {
+        // --- 2. GLASS PRISM SPECTRUM SETUP ---
+        let mx = cx, my = cy - 5;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        // Equilateral triangle layout
+        ctx.beginPath();
+        ctx.moveTo(mx, my - 35);
+        ctx.lineTo(mx + 35, my + 30);
+        ctx.lineTo(mx - 35, my + 30);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+
+        if (beamOn) {
+            // Incident White light ray
+            ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 3;
+            ctx.shadowBlur = 8; ctx.shadowColor = '#f8fafc';
+            ctx.beginPath(); ctx.moveTo(lx + 20, ly); ctx.lineTo(mx - 15, my + 10); ctx.stroke();
+
+            // Spectrum dispersion expansion fan array on right side
+            ctx.shadowBlur = 0;
+            let colors = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#3b82f6', '#4f46e5', '#a855f7'];
+            colors.forEach((col, idx) => {
+                ctx.strokeStyle = col;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(mx - 15, my + 10);
+                ctx.lineTo(mx + 10, my + 12);
+                ctx.lineTo(w * 0.85, my - 20 + (idx * 9));
+                ctx.stroke();
+            });
+        }
+    } 
+    else if (type === 3) {
+        // --- 3. RECTILINEAR PROPAGATION TEST BENCH ---
+        let mx = cx, my = cy;
+        ctx.fillStyle = '#b45309';
+        // Draw standard target pinhole barrier boards blockages
+        ctx.fillRect(mx - 40, my - 35, 6, 70);
+        ctx.fillRect(mx + 10, my - 35, 6, 70);
+        
+        // Pinhole gaps hollow cuts
+        ctx.fillStyle = '#060913';
+        ctx.fillRect(mx - 40, my - 6, 6, 12);
+        ctx.fillRect(mx + 10, my - 6, 6, 12);
+
+        if (beamOn) {
+            ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 3.5;
+            ctx.shadowBlur = 10; ctx.shadowColor = '#f43f5e';
+            ctx.beginPath();
+            ctx.moveTo(lx + 20, ly);
+            if (wallGlow > 0) {
+                // Aligned straight through path trace line
+                ctx.lineTo(w * 0.85, ly);
+            } else {
+                // Blocked or misaligned ray representation
+                ctx.lineTo(mx - 40, ly);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    // Console text readouts layout
+    ctx.fillStyle = '#475569';
+    ctx.font = '950 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = "1.5px";
+    ctx.fillText('OPTICAL BENCH LIVE SCHEMATIC', cx, cy - 65);
+    ctx.letterSpacing = "0px";
+}
+
+function round(x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();if(fill)ctx.fill();if(stroke)ctx.stroke()}
+function loop() { draw(); requestAnimationFrame(loop); }
+</script>
+</body>
+</html>
