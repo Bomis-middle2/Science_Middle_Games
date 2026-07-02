@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Shadows & Reflection Laboratory</title>
+<style>
+:root {
+    --ink: #0f172a;
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #f59e0b;
+    --blue: #06b6d4;
+    --indigo: #6366f1;
+    --purple: #a855f7;
+    --card: #ffffff;
+    --line: #e2e8f0;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    color: var(--ink);
+    background: linear-gradient(180deg, #fafafa 0%, #f1f5f9 100%);
+}
+body:before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    opacity: .4;
+    pointer-events: none;
+    background: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.15), transparent 25%);
+}
+#splash {
+    position: fixed;
+    inset: 0;
+    background: #090d16;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity .5s ease;
+    color: #fff;
+}
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+.app-brand-logo {
+    width: clamp(95px, 16vw, 130px);
+    height: auto;
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.6));
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+#splash-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(45deg, #06b6d4, #6366f1, #f43f5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.loader {
+    position: absolute;
+    bottom: 18%;
+    width: 190px;
+    height: 8px;
+    background: #1e293b;
+    border-radius: 50px;
+    overflow: hidden;
+}
+.loader div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #6366f1, #a855f7, #06b6d4);
+}
+#root {
+    height: 100%;
+    max-height: 780px;
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(7px, 1.2vh, 11px);
+    padding: clamp(8px, 1.8vw, 15px);
+    opacity: 0;
+    transition: opacity .45s ease;
+    position: relative;
+}
+.screen {
+    position: absolute;
+    inset: clamp(8px, 1.8vw, 15px);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.introCard, .endCard {
+    width: min(650px, 96%);
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid var(--indigo);
+    border-radius: 24px;
+    padding: clamp(18px, 4vw, 32px);
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+}
+h1 {
+    font-size: clamp(1.4rem, 4.2vw, 2.1rem);
+    color: #4f46e5;
+    margin-bottom: 12px;
+    font-weight: 950;
+}
+.introCard p, .endCard p {
+    font-size: clamp(.95rem, 2.4vw, 1.05rem);
+    line-height: 1.52;
+    color: #475569;
+    margin-bottom: 18px;
+}
+.rules {
+    display: grid;
+    gap: 10px;
+    text-align: left;
+    margin: 14px auto 18px;
+    max-width: 480px;
+}
+.rules div {
+    background: #f5f3ff;
+    border: 2px solid #ddd6fe;
+    border-radius: 16px;
+    padding: 12px;
+    font-weight: 700;
+    color: #5b21b6;
+}
+.btn {
+    border: 0;
+    border-radius: 17px;
+    padding: clamp(12px, 2.6vw, 15px) 24px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    font-weight: 950;
+    font-size: clamp(.92rem, 2.6vw, 1.05rem);
+    cursor: pointer;
+    box-shadow: 0 9px 18px rgba(99, 102, 241, 0.25);
+    letter-spacing: .3px;
+}
+.btn:disabled {
+    background: #cbd5e1;
+    color: #64748b;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+.topbar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.stat {
+    background: rgba(255, 255, 255, .9);
+    border: 2px solid #cbd5e1;
+    border-radius: 16px;
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 950;
+    color: #334155;
+    font-size: clamp(.78rem, 2.1vw, .95rem);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+.main {
+    min-height: 0;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 11px;
+}
+.panel {
+    background: rgba(255, 255, 255, .9);
+    border: 2px solid #cbd5e1;
+    border-radius: 22px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+.workshop {
+    position: relative;
+    min-height: 0;
+    background: #0b0f19;
+}
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.challenge {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(10px, 2vw, 14px);
+    gap: 10px;
+}
+.prompt {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 18px;
+    padding: clamp(10px, 2.2vw, 14px);
+    text-align: center;
+}
+.expr {
+    font-size: clamp(1.02rem, 3.2vw, 1.25rem);
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 4px;
+    line-height: 1.38;
+}
+.instruction {
+    font-size: clamp(.83rem, 2.1vw, .94rem);
+    color: #64748b;
+    text-align: center;
+    font-weight: 750;
+}
+.dropRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+.drop {
+    min-height: 75px;
+    border: 3px dashed #e9d5ff;
+    background: #faf5ff;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+    font-weight: 800;
+    color: #7c3aed;
+    transition: .2s;
+    text-align: center;
+    padding: 8px;
+}
+.drop.active {
+    background: #f3e8ff;
+    border-color: #a855f7;
+}
+.drop.filled {
+    border-style: solid;
+    background: #fff;
+    color: #0f172a;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+.drop.correct {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+}
+.drop.wrong {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+    margin-top: auto;
+}
+.tile {
+    min-height: 56px;
+    border: 2px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px;
+    font-size: clamp(.83rem, 2.3vw, .95rem);
+    font-weight: 700;
+    color: #334155;
+    cursor: grab;
+    transition: .15s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+.tile:active {
+    cursor: grabbing;
+}
+.tile.selected {
+    outline: 3px solid var(--gold);
+    transform: translateY(-2px);
+    background: #fffbeb;
+    border-color: #fde047;
+}
+.tile.used {
+    opacity: .22;
+    pointer-events: none;
+    transform: scale(.96);
+}
+.feedback {
+    min-height: 34px;
+    text-align: center;
+    font-size: clamp(.82rem, 2vw, .95rem);
+    font-weight: 700;
+    line-height: 1.35;
+    color: #475569;
+}
+.actions {
+    display: flex;
+    gap: 9px;
+}
+.actions .btn {
+    flex: 1;
+}
+.ghost {
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+    box-shadow: 0 9px 18px rgba(100, 116, 139, 0.2);
+}
+.confetti {
+    position: fixed;
+    top: -12px;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    z-index: 10000;
+    pointer-events: none;
+    animation: fall 1.4s linear forwards;
+}
+@keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.4)); }
+    50% { transform: scale(1.03); filter: drop-shadow(0 0 22px rgba(99, 102, 241, 0.7)); }
+}
+@media(max-width:760px) {
+    #root { max-width: 520px; }
+    .main { grid-template-columns: 1fr; grid-template-rows: .85fr 1fr; }
+    .workshop { min-height: 210px; }
+    .drop { min-height: 62px; }
+}
+@media(max-height:650px) {
+    #root { max-height: none; gap: 7px; }
+    .panel.challenge { padding: 8px; }
+    .tile { min-height: 42px; padding: 6px; }
+    .drop { min-height: 50px; }
+    .rules { display: none; }
+    .workshop { min-height: 170px; }
+}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo-container">
+    <img src="assets/logo.png" alt="Innovine Logo" class="app-brand-logo" />
+    <div id="splash-title">INNOVINE</div>
+  </div>
+  <div class="loader"><div id="loadFill"></div></div>
+</div>
+
+<div id="root">
+  <div id="intro" class="screen">
+    <div class="introCard">
+      <h1>🕯️ Shadows & Reflection Terminal</h1>
+      <p>Configure the physical properties of light vectors, occlusions, and boundaries to pass the diagnostic assessment checks.</p>
+      <div class="rules">
+        <div>💡 Map active radiation sources against opaque blocks.</div>
+        <div>📐 Trace Umbra structures and regular reflective profiles.</div>
+        <div>✌️ You have 2 calibration verification counts per setup.</div>
+      </div>
+      <button class="btn" onclick="startGame()">Initialize Optical Deck</button>
+    </div>
+  </div>
+  
+  <div class="topbar">
+    <div class="stat">📑 Assessment: <span id="count">0</span>/10</div>
+    <div class="stat">⚡ Radiant Flux: <span id="score">0</span>lm</div>
+    <div class="stat">❤️ Tries Left: <span id="tries">2</span></div>
+  </div>
+  
+  <div class="main">
+    <div class="panel workshop"><canvas id="scene"></canvas></div>
+    <div class="panel challenge">
+      <div class="prompt"><div id="question" class="expr">Loading Test Bench Parameters...</div></div>
+      <div class="instruction">Map the correct component blocks into the matching slots:</div>
+      <div class="dropRow">
+        <div class="drop" id="drop0" data-slot="0">Parameter Slot A</div>
+        <div class="drop" id="drop1" data-slot="1">Parameter Slot B</div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <div class="feedback" id="feedback">Analyze the interactive schematic layout.</div>
+      <div class="actions">
+        <button class="btn" id="checkBtn" onclick="checkAnswer()">Verify Configuration</button>
+        <button class="btn ghost" onclick="clearDrops()">Reset Slots</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let canvas, ctx, qIndex = 0, score = 0, tries = 2, selected = null, placed = [null, null], locked = false, beamGlow = 0, shake = 0, ticks = 0;
+
+const questions = [
+    {
+        q: 'What type of energy source emits its own structural rays, and what classification belongs to a glowing firefly or the sun?',
+        a: ['Luminous Objects', 'Natural Source'],
+        tiles: ['Luminous Objects', 'Natural Source', 'Non-Luminous Objects', 'Artificial Source'],
+        exp: 'Luminous objects emit light directly, and the sun and fireflies are examples of natural sources.'
+    },
+    {
+        q: 'How does light migrate through space according to its fundamental trajectory, and what proof is demonstrated by a simple linear pinhole experiment?',
+        a: ['Rectilinear Propagation', 'Straight Line Traveling'],
+        tiles: ['Rectilinear Propagation', 'Straight Line Traveling', 'Diffused Refraction', 'Curved Wavefronts'],
+        exp: 'Light exhibits rectilinear propagation, which means it travels along straight lines in a medium.'
+    },
+    {
+        q: 'Which structural classification describes a clear window sheet, and how much incident light passes through it?',
+        a: ['Transparent Material', 'Allows Complete Passage'],
+        tiles: ['Transparent Material', 'Allows Complete Passage', 'Translucent Base', 'Total Ray Blockage'],
+        exp: 'Transparent materials allow nearly all light to pass directly through them without scattering.'
+    },
+    {
+        q: 'What material type matches frosted privacy glass, and what describes the character of light rays emerging through it?',
+        a: ['Translucent Object', 'Partial Scattered Light'],
+        tiles: ['Translucent Object', 'Partial Scattered Light', 'Opaque Barrier', 'Perfect Image Reflection'],
+        exp: 'Translucent objects allow only a partial, scattered portion of light to cross their boundary.'
+    },
+    {
+        q: 'What specific condition is required to form a sharp shadow silhouette on an external screen panel?',
+        a: ['Opaque Object', 'Light Obstruction'],
+        tiles: ['Opaque Object', 'Light Obstruction', 'Transparent Window', 'Reflective Interface'],
+        exp: 'A shadow forms when an opaque object completely obstructs or cuts off the propagation path of light.'
+    },
+    {
+        q: 'What is the absolute dark inner core of a projection shadow called, and what defines its outer partially lit boundary rim?',
+        a: ['Umbra Zone', 'Penumbra Region'],
+        tiles: ['Umbra Zone', 'Penumbra Region', 'Diffused Focus', 'Reflected Focal Plane'],
+        exp: 'The umbra is the central area of complete darkness, while the penumbra forms the outer fuzzy zone of partial light.'
+    },
+    {
+        q: 'What happens when parallel light vectors encounter a perfectly smooth polished silver flat plane mirror surface?',
+        a: ['Regular Reflection', 'Bouncing in Uniform Direction'],
+        tiles: ['Regular Reflection', 'Bouncing in Uniform Direction', 'Diffused Scattering', 'Rectilinear Absorption'],
+        exp: 'Smooth surfaces yield regular reflection, where incoming parallel rays bounce off at uniform matching angles.'
+    },
+    {
+        q: 'Why do parallel light beams scatter in completely random directions when they collide with a rough wooden panel block?',
+        a: ['Diffused Reflection', 'Irregular Surface Contours'],
+        tiles: ['Diffused Reflection', 'Irregular Surface Contours', 'Regular Reflection', 'Specular Plane Mapping'],
+        exp: 'Rough or uneven boundaries cause irregular or diffused reflection, throwing light paths in random directions.'
+    },
+    {
+        q: 'What celestial alignment happens during a solar eclipse event, and which celestial body casts the blocking shadow?',
+        a: ['Moon Between Earth And Sun', 'Lunar Shadow Cast'],
+        tiles: ['Moon Between Earth And Sun', 'Lunar Shadow Cast', 'Earth Between Moon And Sun', 'Solar Corona Inversion'],
+        exp: 'A solar eclipse occurs when the Moon passes directly between the Sun and Earth, casting its shadow on Earth.'
+    },
+    {
+        q: 'What structural change describes the transformation of a beam hitting an object, and what is this physical phenomena named?',
+        a: ['Direction Alternation', 'Reflection of Light'],
+        tiles: ['Direction Alternation', 'Reflection of Light', 'Rectilinear Bending', 'Transparent Absorption'],
+        exp: 'Reflection is defined as the change in direction of light after it falls on and bounces off a surface.'
+    }
+];
+
+let load = 0, timer = setInterval(() => {
+    load += 25;
+    $('loadFill').style.width = load + '%';
+    if (load >= 100) {
+        clearInterval(timer);
+        $('splash').style.opacity = 0;
+        setTimeout(() => {
+            $('splash').remove();
+            $('root').style.opacity = 1;
+            init();
+        }, 500);
+    }
+}, 150);
+
+function init() {
+    canvas = $('scene');
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+    shuffle(questions);
+    loadQuestion();
+    loop();
+}
+
+function startGame() {
+    $('intro').remove();
+}
+
+function resize() {
+    let r = canvas.getBoundingClientRect();
+    canvas.width = Math.max(300, Math.floor(r.width));
+    canvas.height = Math.max(160, Math.floor(r.height));
+}
+
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function norm(x) {
+    return String(x).replace(/\s+/g, '').toLowerCase();
+}
+
+function loadQuestion() {
+    locked = false;
+    tries = 2;
+    placed = [null, null];
+    selected = null;
+    beamGlow = 0;
+    shake = 0;
+    $('tries').innerText = tries;
+    $('count').innerText = qIndex;
+    $('question').innerText = questions[qIndex].q;
+    $('feedback').innerText = 'Select system variables to balance the experiment deck layout.';
+    $('feedback').style.color = '#475569';
+    $('checkBtn').disabled = false;
+    renderTiles();
+    renderDrops();
+}
+
+function renderTiles() {
+    let box = $('tiles');
+    box.innerHTML = '';
+    let arr = questions[qIndex].tiles.map((t, i) => ({ text: t, id: 'tile_' + i }));
+    shuffle(arr);
+    arr.forEach(it => {
+        let d = document.createElement('div');
+        d.className = 'tile';
+        d.draggable = true;
+        d.textContent = it.text;
+        d.dataset.text = it.text;
+        d.addEventListener('click', () => {
+            if (locked || d.classList.contains('used')) return;
+            document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+            selected = d.dataset.text;
+            d.classList.add('selected');
+        });
+        d.addEventListener('dragstart', e => {
+            if (locked || d.classList.contains('used')) return e.preventDefault();
+            e.dataTransfer.setData('text/plain', d.dataset.text);
+        });
+        box.appendChild(d);
+    });
+}
+
+function renderDrops() {
+    [0, 1].forEach(i => {
+        let d = $('drop' + i);
+        d.className = 'drop' + (placed[i] ? ' filled' : '');
+        d.textContent = placed[i] || ('Parameter Slot ' + (i === 0 ? 'A' : 'B'));
+        d.ondragover = e => { e.preventDefault(); d.classList.add('active'); };
+        d.ondragleave = () => d.classList.remove('active');
+        d.ondrop = e => {
+            e.preventDefault();
+            d.classList.remove('active');
+            placeTile(e.dataTransfer.getData('text/plain'), i);
+        };
+    });
+}
+
+document.addEventListener('click', e => {
+    if (e.target.classList.contains('drop') && selected && !locked) {
+        placeTile(selected, Number(e.target.dataset.slot));
+        document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+        selected = null;
+    }
+});
+
+function placeTile(text, slot) {
+    if (locked || !text) return;
+    let fallback = placed[slot];
+    if (fallback) markUsed(fallback, false);
+    placed[slot] = text;
+    markUsed(text, true);
+    renderDrops();
+}
+
+function markUsed(text, state) {
+    let tiles = [...document.querySelectorAll('.tile')].filter(el => el.dataset.text === text);
+    let target = state ? tiles.find(x => !x.classList.contains('used')) : tiles.find(x => x.classList.contains('used'));
+    if (target) target.classList.toggle('used', state);
+}
+
+function clearDrops() {
+    if (locked) return;
+    placed = [null, null];
+    document.querySelectorAll('.tile').forEach(t => t.classList.remove('used', 'selected'));
+    selected = null;
+    renderDrops();
+    $('feedback').innerText = 'Slots purged. Ready for alternate assignment input.';
+    $('feedback').style.color = '#475569';
+}
+
+function checkAnswer() {
+    if (locked) return;
+    if (!placed[0] || !placed[1]) {
+        $('feedback').innerText = 'System Warning: Both active target parameter slots must be defined.';
+        $('feedback').style.color = '#b45309';
+        return;
+    }
+    let ans = questions[qIndex].a.map(norm).sort().join('::');
+    let user = placed.map(norm).sort().join('::');
+    if (ans === user) {
+        locked = true;
+        score += 10;
+        $('score').innerText = score;
+        $('feedback').innerText = 'Verification Successful! ' + questions[qIndex].exp;
+        $('feedback').style.color = '#10b981';
+        [0, 1].forEach(i => $('drop' + i).className = 'drop correct');
+        beamGlow = 75;
+        spawnConfetti();
+        setTimeout(() => {
+            qIndex++;
+            if (qIndex >= questions.length) endLab();
+            else loadQuestion();
+        }, 3600);
+    } else {
+        tries--;
+        shake = 20;
+        [0, 1].forEach(i => $('drop' + i).className = 'drop wrong');
+        $('tries').innerText = tries;
+        if (tries > 0) {
+            $('feedback').innerText = 'Matrix Disparate. Wavefront geometry alignment failure.';
+            $('feedback').style.color = '#ef4444';
+            setTimeout(() => {
+                clearDrops();
+                [0, 1].forEach(i => $('drop' + i).className = 'drop');
+            }, 1200);
+        } else {
+            locked = true;
+            $('feedback').innerText = 'Lockout Override. Correct Configuration: ' + questions[qIndex].a.join(' & ');
+            $('feedback').style.color = '#b91c1c';
+            setTimeout(() => {
+                qIndex++;
+                if (qIndex >= questions.length) endLab();
+                else loadQuestion();
+            }, 4200);
+        }
+    }
+}
+
+function endLab() {
+    let pass = Math.round((score / (questions.length * 10)) * 100);
+    $('root').innerHTML = `
+    <div class="screen">
+        <div class="endCard">
+            <img src="assets/logo.png" alt="Innovine Complete" style="width:75px; height:auto; margin-bottom:12px;" />
+            <h1>🏆 Laboratory Evaluation Complete!</h1>
+            <p>You have resolved all physical shadow and reflection benches.<br><b>Final Radiant Flux: ${score} lm</b><br><b>Calibration Rating: ${pass}%</b></p>
+            <button class="btn" onclick="location.reload()">Re-initialize Deck</button>
+        </div>
+    </div>`;
+}
+
+function spawnConfetti() {
+    for (let i = 0; i < 20; i++) {
+        let p = document.createElement('div');
+        p.className = 'confetti';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.background = ['#6366f1', '#a855f7', '#06b6d4', '#10b981', '#f59e0b'][Math.floor(Math.random() * 5)];
+        p.style.animationDelay = (Math.random() * .2) + 's';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1500);
+    }
+}
+
+function loop() {
+    ticks++;
+    let w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#090c15';
+    ctx.fillRect(0, 0, w, h);
+
+    // Instrument Grid Overlay
+    ctx.strokeStyle = '#131928';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (let y = 0; y < h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+    let sx = shake ? Math.sin(shake) * 4 : 0;
+    if (shake) shake--;
+
+    ctx.save();
+    ctx.translate(sx, 0);
+    renderOpticsSimulation(w, h);
+    ctx.restore();
+
+    if (beamGlow > 0) beamGlow--;
+    requestAnimationFrame(loop);
+}
+
+function renderOpticsSimulation(w, h) {
+    let cx = w / 2, cy = h / 2 - 5;
+    let mode = qIndex % 4; 
+    let stateActive = (beamGlow > 0 || Math.sin(ticks * 0.05) > -0.4);
+
+    // Render Source Emitter Box
+    let ex = w * 0.15, ey = cy;
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(ex - 20, ey - 15, 40, 30, 6);
+    ctx.fill(); ctx.stroke();
+    
+    ctx.fillStyle = '#eab308';
+    ctx.beginPath(); ctx.arc(ex + 18, ey, 5, 0, Math.PI * 2); ctx.fill();
+
+    if (mode === 0) {
+        // Mode 0: Rectilinear Propagation / Straight Path test
+        if (stateActive) {
+            ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3;
+            ctx.shadowBlur = 10; ctx.shadowColor = '#6366f1';
+            ctx.beginPath(); ctx.moveTo(ex + 20, ey); ctx.lineTo(w * 0.85, ey); ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            // Pinhole Cardboards
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(cx - 30, cy - 30, 4, 60);
+            ctx.fillRect(cx + 30, cy - 30, 4, 60);
+            // Clear pinhole gaps
+            ctx.clearRect(cx - 31, cy - 4, 6, 8);
+            ctx.clearRect(cx + 29, cy - 4, 6, 8);
+        }
+    } 
+    else if (mode === 1) {
+        // Mode 1: Shadow Formation Geometry (Umbra/Penumbra Setup)
+        let ox = cx - 20, oy = cy;
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath(); ctx.arc(ox, oy, 15, 0, Math.PI * 2); ctx.fill();
+
+        if (stateActive) {
+            // Penumbra outer fan boundaries
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.beginPath();
+            ctx.moveTo(ex + 20, ey);
+            ctx.lineTo(w * 0.85, cy - 45);
+            ctx.lineTo(w * 0.85, cy + 45);
+            ctx.closePath(); ctx.fill();
+
+            // Core dark Umbra space projection
+            ctx.fillStyle = 'rgba(0,0,0,0.65)';
+            ctx.beginPath();
+            ctx.moveTo(ox, oy - 15);
+            ctx.lineTo(w * 0.85, cy - 20);
+            ctx.lineTo(w * 0.85, cy + 20);
+            ctx.lineTo(ox, oy + 15);
+            ctx.closePath(); ctx.fill();
+        }
+        // Drawing right display capture wall screen
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(w * 0.85, cy - 50, 6, 100);
+    } 
+    else if (mode === 2) {
+        // Mode 2: Specular / Regular Reflection
+        let mx = cx, my = cy + 20;
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(mx - 40, my); ctx.lineTo(mx + 40, my); ctx.stroke();
+
+        if (stateActive) {
+            ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2.5;
+            // Ray 1
+            ctx.beginPath(); ctx.moveTo(ex, ey - 10); ctx.lineTo(mx - 15, my); ctx.lineTo(cx + 35, ey - 10); ctx.stroke();
+            // Ray 2
+            ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(mx, my); ctx.lineTo(cx + 40, ey + 10); ctx.stroke();
+        }
+    } 
+    else if (mode === 3) {
+        // Mode 3: Diffused Scattering Reflection
+        let mx = cx, my = cy + 15;
+        ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 3;
+        // Uneven rough block drawing lines
+        ctx.beginPath();
+        ctx.moveTo(mx - 40, my);
+        ctx.lineTo(mx - 20, my - 4); ctx.lineTo(mx, my + 5); ctx.lineTo(mx + 20, my - 3); ctx.lineTo(mx + 40, my);
+        ctx.stroke();
+
+        if (stateActive) {
+            ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 2;
+            // Incident paths hitting rough surfaces scatter arbitrarily
+            ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(mx - 15, my - 2); ctx.lineTo(mx - 5, ey - 35); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(mx + 10, my - 2); ctx.lineTo(mx + 45, ey + 35); ctx.stroke();
+        }
+    }
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = '900 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = "1.5px";
+    ctx.fillText('LIVE PROPAGATION DECK MATRIX', cx, cy - 60);
+}
+</script>
+</body>
+</html>
