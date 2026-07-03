@@ -3,74 +3,94 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Friction Physics Lab: Drag & Drop Bench</title>
+<title>TriboMech: Friction Engineering Lab</title>
 <style>
 :root {
-    --bg: #0b0f19;
-    --panel-bg: #131a26;
-    --text: #f8fafc;
-    --text-muted: #64748b;
-    --cyan: #38bdf8;
-    --amber: #fbbf24;
-    --emerald: #34d399;
-    --rose: #f87171;
+    --bg-industrial: #1c1d22;
+    --panel-iron: #282a30;
+    --steel-border: #4a4d56;
+    --text-bright: #f1f2f6;
+    --text-dark: #8e929f;
+    --hazard-orange: #f97316;
+    --laser-amber: #eab308;
+    --system-green: #22c55e;
+    --system-red: #ef4444;
 }
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 body {
-    background-color: var(--bg);
-    color: var(--text);
+    background-color: var(--bg-industrial);
+    color: var(--text-bright);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     user-select: none;
+    background-image: radial-gradient(var(--panel-iron) 1px, transparent 1px);
+    background-size: 20px 20px;
 }
 #game-container {
     width: 100%;
-    max-width: 900px;
-    background: var(--panel-bg);
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 950px;
+    background: var(--panel-iron);
+    border-radius: 6px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    border: 1px solid #1e293b;
+    gap: 25px;
+    border: 2px solid var(--steel-border);
+    position: relative;
 }
+/* Corner industrial rivets decoration */
+#game-container::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; width: 6px; height: 6px;
+    background: var(--steel-border); border-radius: 50%;
+    box-shadow: 928px 0 0 var(--steel-border), 0 578px 0 var(--steel-border), 928px 578px 0 var(--steel-border);
+}
+
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #1e293b;
-    padding-bottom: 15px;
+    border-bottom: 3px solid var(--steel-border);
+    padding-bottom: 18px;
 }
 .title {
-    font-size: 1.3rem;
-    color: var(--cyan);
-    font-weight: bold;
-    letter-spacing: 0.5px;
+    font-size: 1.4rem;
+    color: var(--text-bright);
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.title span {
+    color: var(--hazard-orange);
 }
 .status-bar {
     display: flex;
-    gap: 20px;
-    font-weight: bold;
-    font-size: 0.95rem;
+    gap: 25px;
+    font-family: monospace;
+    font-size: 1rem;
 }
-.progress { color: var(--amber); }
-.chances { color: var(--rose); }
+.progress { color: var(--laser-amber); background: #131417; padding: 4px 10px; border-radius: 4px; border: 1px solid #3f414a; }
+.chances { color: var(--system-red); background: #131417; padding: 4px 10px; border-radius: 4px; border: 1px solid #3f414a; }
 
-/* Workspace Layout */
+/* Workbench Layout */
 .workbench {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr;
-    gap: 25px;
-    min-height: 220px;
+    gap: 30px;
+    min-height: 250px;
 }
 @media(max-width: 768px) {
     .workbench { grid-template-columns: 1fr; }
@@ -80,123 +100,129 @@ body {
 .drop-area {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    background: #04060a;
-    border: 2px dashed #334155;
-    border-radius: 10px;
-    padding: 25px;
-    text-align: center;
+    justify-content: space-between;
+    background: #131417;
+    border: 2px solid #3f414a;
+    border-radius: 4px;
+    padding: 30px;
     position: relative;
-    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
 }
 .drop-area.hovered {
-    border-color: var(--cyan);
-    background: #0c1524;
+    border-color: var(--hazard-orange);
+    background: #191b20;
 }
 .question-text {
-    font-size: 1.1rem;
-    line-height: 1.5;
-    margin-bottom: 20px;
+    font-size: 1.15rem;
+    line-height: 1.6;
     color: #e2e8f0;
+    font-weight: 500;
 }
 .target-slot {
-    border: 2px dashed #475569;
-    background: #111827;
-    border-radius: 8px;
-    min-height: 55px;
+    border: 2px dashed var(--steel-border);
+    background: #1c1d22;
+    border-radius: 4px;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 1.1rem;
-    color: var(--cyan);
+    font-size: 1.15rem;
+    color: var(--hazard-orange);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 20px;
     transition: all 0.2s ease;
 }
 .target-slot.filled {
     border-style: solid;
-    background: #1e293b;
+    background: #282a30;
 }
 
 /* Draggable Items Bank */
 .bank-panel {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
 }
 .bank-title {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-muted);
-    font-weight: bold;
+    letter-spacing: 1.5px;
+    color: var(--text-dark);
+    font-weight: 700;
 }
 .options-bank {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 .drag-item {
-    background: #243147;
-    border: 1px solid #334155;
-    color: var(--text);
-    padding: 14px;
-    border-radius: 8px;
+    background: #363942;
+    border: 1px solid var(--steel-border);
+    color: var(--text-bright);
+    padding: 15px;
+    border-radius: 4px;
     cursor: grab;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 1rem;
     text-align: center;
-    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.15s, background 0.15s, border-color 0.15s;
 }
 .drag-item:hover {
-    background: #2e3f5c;
-    border-color: var(--cyan);
+    background: #414550;
+    border-color: var(--hazard-orange);
 }
 .drag-item:active {
     cursor: grabbing;
 }
 .drag-item.dragging {
-    opacity: 0.4;
-    transform: scale(0.98);
+    opacity: 0.3;
+    transform: scale(0.97);
 }
 
 /* Feedback Box */
 .feedback-container {
-    background: #090d16;
-    border-radius: 8px;
-    padding: 15px;
-    min-height: 50px;
+    background: #131417;
+    border-radius: 4px;
+    padding: 18px;
+    min-height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    border: 1px solid #1e293b;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    border: 1px solid #3f414a;
 }
 
 #end-screen {
     text-align: center;
-    padding: 40px 20px;
+    padding: 50px 20px;
     display: none;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
 }
-#end-screen h2 { color: var(--emerald); font-size: 2.2rem; }
-#end-screen p { color: var(--text-muted); font-size: 1.1rem; }
+#end-screen h2 { color: var(--system-green); font-size: 2.4rem; text-transform: uppercase; letter-spacing: 1px; }
+#end-screen p { color: var(--text-dark); font-size: 1.15rem; line-height: 1.6; }
 .reset-btn {
-    background: var(--cyan);
-    color: #0f172a;
+    background: var(--hazard-orange);
+    color: white;
     border: 0;
-    padding: 14px 30px;
+    padding: 15px 35px;
     font-weight: bold;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     align-self: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     transition: background 0.2s;
 }
-.reset-btn:hover { background: #0ea5e9; }
+.reset-btn:hover { background: #ea580c; }
 </style>
 </head>
 <body>
@@ -206,40 +232,40 @@ body {
 
 <div id="game-container">
   <div class="header">
-    <div class="title">⚙️ Friction Mechanics Lab: Drag & Drop Bench</div>
+    <div class="title">🛠️ TriboMech <span>// Friction Lab Bench</span></div>
     <div class="status-bar">
-      <div class="progress">Concept: <span id="lbl-question">1</span>/10</div>
-      <div class="chances">Attempts Left for this Question: <span id="lbl-chances">2</span></div>
+      <div class="progress">TASK: <span id="lbl-question">1</span>/10</div>
+      <div class="chances">ATTEMPTS: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
   <div class="workbench" id="main-layout">
     <div class="drop-area" id="drop-zone">
-      <div class="question-text" id="question-box">Loading parameter data...</div>
-      <div class="target-slot" id="target-slot">Drop Correct Friction Term Here</div>
+      <div class="question-text" id="question-box">Loading tribology diagnostics...</div>
+      <div class="target-slot" id="target-slot">Insert Matching Core Term</div>
     </div>
 
     <div class="bank-panel">
-      <div class="bank-title">Available Science Terms</div>
+      <div class="bank-title">Component Inventory</div>
       <div class="options-bank" id="options-bank"></div>
     </div>
   </div>
 
   <div class="feedback-container" id="feedback-text">
-    Drag the corresponding physics parameter from the right bank into the target zone.
+    Drag the corresponding physics parameter from the right inventory bank into the target zone.
   </div>
 
   <div id="end-screen">
-    <h2>🏆 Tribology Lab Certification Attained!</h2>
-    <p>Incredible work! You have perfectly mastered all core concepts of friction, resistances, fluid drag, and structural surface optimization rules.</p>
-    <button class="reset-btn" onclick="location.reload()">Restart Lab Simulator</button>
+    <h2>🔧 Systems Calibrated & Verified</h2>
+    <p>All mechanical trials successfully completed. Your performance metrics match structural safety requirements for friction analysis, resistance control, and boundary lubrication laws.</p>
+    <button class="reset-btn" onclick="location.reload()">Restart Workbench</button>
   </div>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
 let currentQuestion = 0;
-let attemptsLeft = 2; // Tracked strictly per question
+let attemptsLeft = 2;
 let draggedText = "";
 
 const database = [
@@ -299,7 +325,7 @@ function playSound(type) {
     const audio = $(`audio-${type}`);
     if (audio) {
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio play delayed until user focus action."));
+        audio.play().catch(e => console.log("Audio playback waiting for manual gesture."));
     }
 }
 
@@ -311,24 +337,24 @@ function loadQuestion() {
         return;
     }
 
-    attemptsLeft = 2; // Strict 2 chances per individual question refresh
+    attemptsLeft = 2; 
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
-    $('feedback-text').innerText = "Drag the correct term from the bank and release it inside the drop slot.";
-    $('feedback-text').style.color = "var(--text-muted)";
+    $('feedback-text').innerText = "Select a component element from the inventory and align it inside the diagnostic slot.";
+    $('feedback-text').style.color = "var(--text-dark)";
 
     let data = database[currentQuestion];
     $('question-box').innerText = data.q;
 
     // Reset Target Area Box
     let slot = $('target-slot');
-    slot.innerText = "Drop Correct Friction Term Here";
+    slot.innerText = "Insert Matching Core Term";
     slot.className = "target-slot";
     slot.style.borderColor = "";
     slot.style.color = "";
     slot.style.backgroundColor = "";
 
-    // Generate Question Shuffled Options
+    // Generate Question Options
     let bank = $('options-bank');
     bank.innerHTML = '';
     data.options.forEach(opt => {
@@ -355,7 +381,6 @@ function loadQuestion() {
 function setupDragDropHandlers() {
     let zone = $('drop-zone');
 
-    // Clean up old listener attachments safely
     const newZone = zone.cloneNode(true);
     zone.parentNode.replaceChild(newZone, zone);
 
@@ -380,15 +405,14 @@ function processDroppedAnswer(answer) {
     let slot = $('target-slot');
 
     if (answer === data.answer) {
-        // Correct Item Placement logic
         playSound('correct');
         slot.innerText = answer;
         slot.className = "target-slot filled";
-        slot.style.backgroundColor = "#064e3b";
-        slot.style.borderColor = "var(--emerald)";
-        slot.style.color = "var(--emerald)";
-        $('feedback-text').innerText = "🎯 Correct! You verified the friction model safely.";
-        $('feedback-text').style.color = "var(--emerald)";
+        slot.style.backgroundColor = "#14532d";
+        slot.style.borderColor = "var(--system-green)";
+        slot.style.color = "var(--system-green)";
+        $('feedback-text').innerText = "✓ METRIC VERIFIED: Parameter configuration successfully matched to system physics.";
+        $('feedback-text').style.color = "var(--system-green)";
         disableCurrentBank();
         
         setTimeout(() => {
@@ -397,28 +421,25 @@ function processDroppedAnswer(answer) {
         }, 2500);
 
     } else {
-        // Incorrect Item Placement logic
         attemptsLeft--;
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
-            // Attempt 1 Failure -> Prompt Retry
             playSound('wrong');
-            $('feedback-text').innerText = "❌ Incorrect properties. Opposing force vectors mismatched! Try again. (1 attempt left)";
-            $('feedback-text').style.color = "var(--amber)";
+            $('feedback-text').innerText = "✗ CALIBRATION ERROR: Mechanical resistances do not balance. Resetting slot...";
+            $('feedback-text').style.color = "var(--laser-amber)";
             
-            slot.innerText = "Drop Correct Friction Term Here";
+            slot.innerText = "Insert Matching Core Term";
             slot.className = "target-slot";
         } else {
-            // Attempt 2 Failure -> Reveal correct answer, then proceed to next question automatically
             playSound('wrong');
             slot.innerText = data.answer;
             slot.className = "target-slot filled";
             slot.style.backgroundColor = "#7f1d1d";
-            slot.style.borderColor = "var(--rose)";
-            slot.style.color = "var(--rose)";
-            $('feedback-text').innerText = `⚠️ 0 attempts left. Scientific Law: The correct match is "${data.answer}". Advancing to next station...`;
-            $('feedback-text').style.color = "var(--rose)";
+            slot.style.borderColor = "var(--system-red)";
+            slot.style.color = "var(--system-red)";
+            $('feedback-text').innerText = `⚠️ CORE OVERRIDE: 0 remaining attempts. The authentic fact is "${data.answer}". Synchronizing next matrix...`;
+            $('feedback-text').style.color = "var(--system-red)";
             disableCurrentBank();
 
             setTimeout(() => {
@@ -434,7 +455,7 @@ function disableCurrentBank() {
     items.forEach(item => {
         item.draggable = false;
         item.style.cursor = 'not-allowed';
-        item.style.opacity = '0.3';
+        item.style.opacity = '0.2';
     });
 }
 
