@@ -2,584 +2,390 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>The Inverted Detective - Science Physics Lab</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Optics Lab - Concept Quest</title>
 <style>
 :root {
-    --bg-dark: #090d16;
-    --card-bg: #111724;
-    --text-light: #f8fafc;
-    --text-muted: #64748b;
-    --cyan: #06b6d4;
-    --amber: #f59e0b;
-    --emerald: #10b981;
-    --rose: #ef4444;
+    --bg: #0f172a;
+    --panel-bg: #1e293b;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --cyan: #38bdf8;
+    --amber: #fbbf24;
+    --emerald: #34d399;
+    --rose: #f87171;
 }
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, sans-serif;
     user-select: none;
 }
-html, body {
-    height: 100%;
-    width: 100%;
-    background-color: var(--bg-dark);
-    color: var(--text-light);
-    overflow: hidden;
-}
-
-/* Splash Screen Styles */
-#splash {
-    position: fixed;
-    inset: 0;
-    background: #05070b;
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
-    transition: opacity .4s ease;
+    padding: 20px;
 }
-.logo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 25px;
-}
-.innovine-logo {
-    width: 110px;
-    height: 110px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.4));
-}
-.loader {
-    position: absolute;
-    bottom: 20%;
-    width: 180px;
-    height: 5px;
-    background: #1e293b;
-    border-radius: 50px;
-    overflow: hidden;
-}
-.loader div {
-    height: 100%;
-    width: 0;
-    background: var(--cyan);
-}
-
-/* Game Framework */
 #game-container {
-    height: 100%;
-    max-height: 850px;
     width: 100%;
-    max-width: 1150px;
-    margin: 0 auto;
+    max-width: 950px;
+    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     display: flex;
     flex-direction: column;
-    padding: clamp(10px, 2vw, 20px);
     gap: 15px;
-    opacity: 0;
-    transition: opacity .5s ease;
 }
-.header-bar {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--card-bg);
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: 1px solid #1e293b;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 12px;
 }
-.game-title {
-    font-size: clamp(1rem, 2.5vw, 1.3rem);
-    font-weight: 800;
+.title {
+    font-size: 1.4rem;
     color: var(--cyan);
+    font-weight: bold;
 }
-.score-board {
-    font-weight: 700;
+.score {
+    font-weight: bold;
     color: var(--amber);
 }
-
-/* Lab Interface Layout */
-.main-workbench {
-    flex: 1;
+.layout {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 15px;
-    min-height: 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
-.panel {
-    background: var(--card-bg);
-    border: 1px solid #1e293b;
-    border-radius: 12px;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    min-height: 0;
+@media(max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
 }
-.simulation-box {
-    flex: 1;
-    background: #04060a;
+.canvas-container {
+    background: #090d16;
+    border: 1px solid #334155;
     border-radius: 8px;
+    height: 280px;
     position: relative;
-    overflow: hidden;
-    border: 1px solid #1e293b;
 }
 canvas {
     width: 100%;
     height: 100%;
-    display: block;
 }
-.tool-label {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(9, 13, 22, 0.9);
-    padding: 6px 14px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border: 1px solid #334155;
-    color: var(--cyan);
-}
-
-/* Physics Calibration Controls */
-.calibration-controls {
-    background: #161e2e;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #24334d;
-}
-.slider-group {
+.quiz-panel {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
 }
-.slider-group label {
-    font-size: 0.8rem;
-    color: var(--amber);
-    font-weight: 700;
-}
-.slider-group input[type="range"] {
-    width: 100%;
-    accent-color: var(--cyan);
-    cursor: pointer;
-}
-
-/* Scientific Concept Assessment Box */
-.assessment-zone {
-    background: #090d16;
-    border: 1px dashed #334155;
-    border-radius: 8px;
+.question-box {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.4;
+    background: #111827;
     padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid var(--cyan);
+}
+.options-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-.question-text {
-    font-size: 0.85rem;
-    color: #e2e8f0;
-    line-height: 1.4;
-    font-weight: 700;
-}
-.options-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-}
 .option-btn {
-    background: #1e293b;
-    border: 1px solid #334155;
-    color: #cbd5e1;
-    padding: 10px;
-    border-radius: 4px;
+    background: #334155;
+    border: 1px solid #475569;
+    color: var(--text);
+    padding: 12px;
+    border-radius: 6px;
     text-align: left;
-    font-size: 0.8rem;
     cursor: pointer;
-    transition: 0.15s;
+    font-size: 0.95rem;
+    transition: background 0.2s;
 }
 .option-btn:hover {
-    background: #27354d;
-    border-color: var(--cyan);
+    background: #475569;
 }
-
-/* Feedback Layout */
-.feedback-msg {
-    font-size: 0.8rem;
+.feedback {
+    min-height: 40px;
+    font-size: 0.9rem;
     line-height: 1.4;
-    min-height: 38px;
     color: var(--text-muted);
+    font-weight: 500;
 }
-
 #end-screen {
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 7, 11, 0.98);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
-.end-card {
-    background: var(--card-bg);
-    border: 1px solid var(--emerald);
-    border-radius: 8px;
-    padding: 40px;
-    max-width: 550px;
     text-align: center;
+    padding: 40px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 15px;
 }
-.end-card h2 { color: var(--emerald); margin-bottom: 15px; }
-.end-card p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; }
-.restart-btn { background: var(--emerald); color: white; border:0; padding:12px 30px; cursor:pointer; font-weight:700; }
-
-@media(max-width: 850px) {
-    .main-workbench { grid-template-columns: 1fr; grid-template-rows: 1fr 1.3fr; }
+#end-screen h2 { color: var(--emerald); font-size: 2rem; }
+.reset-btn {
+    background: var(--cyan);
+    color: #0f172a;
+    border: 0;
+    padding: 12px 25px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: center;
 }
 </style>
 </head>
 <body>
 
-<audio id="successSound" src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAA/f39/f39/v7+/v7+/v79/f39/f39/f39/f39/f39/f39/f39/f39/f35+fn5+fn5+fn5+fn5+Q==" preload="auto"></audio>
-
-<div id="splash">
-  <div class="logo-container"><img src="assets/logo.png" alt="Logo" class="innovine-logo" /></div>
-  <div class="loader"><div id="loadFill"></div></div>
-</div>
-
 <div id="game-container">
-  <div class="header-bar">
-    <div class="game-title">🔬 OPTICS LAB SIMULATOR: Light & Reflection</div>
-    <div class="score-board">Stations Calibrated: <span id="cracked-count">0</span>/4</div>
+  <div class="header">
+    <div class="title">🕵️‍♂️ Optics Lab: Secret Science Decoder</div>
+    <div class="score">Progress: <span id="progress-idx">0</span>/5 Completed</div>
   </div>
 
-  <div class="main-workbench">
-    <div class="panel">
-      <div class="simulation-box">
-        <div class="tool-label" id="tool-mode-title">OPTICAL BENCH MATRIX</div>
-        <canvas id="opticsCanvas"></canvas>
-      </div>
-      
-      <div class="calibration-controls" id="controls-panel">
-        </div>
+  <div class="layout" id="main-layout">
+    <div class="canvas-container">
+      <canvas id="labCanvas"></canvas>
     </div>
 
-    <div class="panel style="overflow-y:auto;">
-      <div style="background:#0b111a; border-left:4px solid var(--cyan); padding:12px; border-radius:4px;">
-        <h3 style="font-size:0.9rem; color:var(--cyan); margin-bottom:4px;" id="station-name">Station Alpha</h3>
-        <p style="font-size:0.8rem; color:#94a3b8; line-height:1.4;" id="station-desc">Loading parameters...</p>
-      </div>
-
-      <div class="assessment-zone">
-        <div style="font-size:0.7rem; color:var(--amber); font-weight:900; margin-bottom:2px;">LAB VALIDATION QUESTION:</div>
-        <div class="question-text" id="quiz-question">Concept evaluation prompt goes here?</div>
-        <div class="options-grid" id="quiz-options"></div>
-      </div>
-
-      <div class="feedback-msg" id="status-feedback">Calibrate the apparatus parameters first to clear up the data resolution.</div>
+    <div class="quiz-panel">
+      <div class="question-box" id="q-text">Loading question data...</div>
+      <div class="options-list" id="options-box"></div>
+      <div class="feedback" id="feedback-text">Select an option to test your science knowledge.</div>
     </div>
   </div>
-</div>
 
-<div id="end-screen">
-  <div class="end-card">
-    <h2>🔬 OPTICAL LAB CERTIFIED!</h2>
-    <p>Fantastic work! You successfully demonstrated mastery over the Rectilinear Propagation of light within pinholes and the distance/parity invariants of Plane Mirror reflections.</p>
-    <button class="restart-btn" onclick="location.reload()">RELOAD OPTICS CONSOLE</button>
+  <div id="end-screen">
+    <h2>🏆 Lab Assistant Certification Complete!</h2>
+    <p>You have correctly solved all five core science concept benchmarks for Light, Shadows, and Reflections.</p>
+    <button class="reset-btn" onclick="location.reload()">Restart Lab Session</button>
   </div>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
-let canvas, ctx, currentStage = 0, currentSliderVal = 50;
+let canvas, ctx, currentLevel = 0;
 
-// Scientific curriculum parameter challenges
-const database = [
+const levels = [
     {
-        title: "Station 1: Pinhole Rectilinear Ray Geometry",
-        desc: "A target transmission code is being sent through a pinhole camera box. Light travels in straight lines (rectilinear propagation), causing the top rays and bottom rays to cross, making it look upside-down. Adjust the slider to make the pinhole size small enough for a sharp image, but open enough to get brightness!",
-        word: "RAY-7F",
-        type: "pinhole",
-        sliderLabel: "🔬 Adjust Pinhole Diameter Aperture (mm):",
-        targetMin: 12, // Perfect sharp point bounds
-        targetMax: 22,
-        question: "Why does the code appear completely upside-down (inverted) on the pinhole camera screen plane?",
-        options: [
-            "Light rays travel in straight lines, causing top and bottom paths to cross through the tiny aperture point.",
-            "The screen absorbs the light and bends the rays backwards via regular refraction.",
-            "The light waves undergo lateral reflection inside the transparent plastic cover lens."
-        ],
-        correctOpt: 0
+        question: "What is the dark patch called that forms on a wall when an opaque object blocks the path of light?",
+        options: ["A Reflection", "A Shadow", "A Spectrum"],
+        correct: 1,
+        type: "shadow",
+        explanation: "Correct! A shadow forms because light cannot pass through an opaque object."
     },
     {
-        title: "Station 2: Plane Mirror Invariant Distance Field",
-        desc: "A backward laser stamp needs calibration. In a flat plane mirror, the distance from the real object to the mirror is exactly equal to the distance from the virtual image inside the mirror. Move the desk slider until the object distance exactly balances the image plane focus matrix!",
-        word: "M-40X",
-        type: "mirror",
-        sliderLabel: "📏 Adjust Object Distance from Mirror Plane (cm):",
-        targetMin: 75, // Matches the virtual image rendering layer exactly
-        targetMax: 85,
-        question: "If a spy stands 40 cm away from a flat plane mirror, what is the exact scientific distance between the spy and their virtual reflection image?",
-        options: [
-            "40 cm",
-            "80 cm (40 cm object distance + 40 cm image distance)",
-            "0 cm (Virtual images have no coordinate paths)"
-        ],
-        correctOpt: 1
+        question: "Which type of material allows ALL light to pass through it cleanly, letting you see objects on the other side perfectly?",
+        options: ["Transparent material", "Translucent material", "Opaque material"],
+        correct: 0,
+        type: "materials",
+        explanation: "Correct! Transparent materials like clear glass allow light to pass completely through."
     },
     {
-        title: "Station 3: Pinhole Aperture Blurring Effect",
-        desc: "The diagnostic code is highly distorted. If a pinhole aperture becomes too wide, it acts like a cluster of many small pinholes combined, creating blurred, overlapping images. Reduce the aperture scale to isolate individual straight light paths.",
-        word: "LAMP9",
-        type: "pinhole",
-        sliderLabel: "🔬 Regulate Pinhole Slit Width (μm):",
-        targetMin: 15,
-        targetMax: 25,
-        question: "What happens to the visual output on a pinhole camera trace screen if you make the pinhole very large?",
-        options: [
-            "The image disappears completely because light can no longer pass through.",
-            "The image becomes extremely bright but completely blurred due to overlapping ray clusters.",
-            "The image turns perfectly upright because light stops traveling in straight lines."
-        ],
-        correctOpt: 1
+        question: "What property of light is demonstrated when you look through a bent straw and can no longer see a burning candle flame?",
+        options: ["Dispersion of light", "Lateral inversion", "Rectilinear propagation (Light travels in straight lines)"],
+        correct: 2,
+        type: "rectilinear",
+        explanation: "Correct! Light only travels in straight lines, so it cannot curve around a bent straw."
     },
     {
-        title: "Station 4: Lateral Inversion Vector Analysis",
-        desc: "A secure digital ledger matrix shows backward writing. This sideways reversal is called Lateral Inversion. Set the calibration distance of your tracking scanner to reflect the correct parity vector line.",
-        word: "W-35K",
-        type: "mirror",
-        sliderLabel: "📏 Synchronize Mirror Optical Axis Alignment (nm):",
-        targetMin: 45,
-        targetMax: 55,
-        question: "When looking into a standard flat plane mirror, what kind of image shift is taking place during Lateral Inversion?",
-        options: [
-            "The top of the object shifts to the bottom layer, creating an inverted real image.",
-            "The left side of the object appears as the right side of the virtual reflection image.",
-            "Light rays stop bouncing, causing a diffused shadow patch on the glass face."
-        ],
-        correctOpt: 1
+        question: "When a shadow is cast by a large light source, what is the central, completely dark region of that shadow called?",
+        options: ["The Penumbra", "The Umbra", "The Lateral Patch"],
+        correct: 1,
+        type: "regions",
+        explanation: "Correct! The Umbra is the central darkest part, while the Penumbra is the outer partial shadow."
+    },
+    {
+        question: "What is the phenomenon called when you lift your right hand in front of a plane mirror, but your reflection appears to lift its left hand?",
+        options: ["Lateral inversion", "Regular reflection", "Bending of a beam"],
+        correct: 0,
+        type: "inversion",
+        explanation: "Correct! Lateral inversion is the left-to-right sideways reversal caused by a flat plane mirror."
     }
 ];
 
-let loadPct = 0;
-let launcher = setInterval(() => {
-    loadPct += 4;
-    $('loadFill').style.width = loadPct + '%';
-    if (loadPct >= 100) {
-        clearInterval(launcher);
-        $('splash').style.opacity = 0;
-        setTimeout(() => {
-            $('splash').remove();
-            $('game-container').style.opacity = 1;
-            initSystem();
-        }, 400);
-    }
-}, 30);
-
-function initSystem() {
-    canvas = $('opticsCanvas');
+window.onload = () => {
+    canvas = $('labCanvas');
     ctx = canvas.getContext('2d');
-    window.addEventListener('resize', resizeBench);
-    resizeBench();
-    loadCurrentChallenge();
-    window.requestAnimationFrame(renderLoop);
-}
+    window.addEventListener('resize', drawDiagram);
+    loadLevel();
+};
 
-function resizeBench() {
-    let b = canvas.parentElement;
-    canvas.width = b.clientWidth;
-    canvas.height = b.clientHeight || 260;
-}
-
-function loadCurrentChallenge() {
-    let currentData = database[currentStage];
-    $('station-name').innerText = currentData.title;
-    $('station-desc').innerText = currentData.desc;
-    $('cracked-count').innerText = currentStage;
-    
-    // Create scientific simulation controls dynamically
-    let ctrlBox = $('controls-panel');
-    ctrlBox.innerHTML = `
-        <div class="slider-group">
-            <label id="slider-txt-id">${currentData.sliderLabel} 50</label>
-            <input type="range" id="opticsSlider" min="5" max="100" value="50" oninput="updateSliderVal(this.value)">
-        </div>
-    `;
-    currentSliderVal = 50;
-    updateSliderVal(50);
-    
-    // Populate concept evaluation multi-choice block
-    $('quiz-question').innerText = currentData.question;
-    let optContainer = $('quiz-options');
-    optContainer.innerHTML = '';
-    
-    currentData.options.forEach((opt, idx) => {
-        let btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.innerText = `${idx + 1}. ${opt}`;
-        btn.onclick = () => evaluationAnswerClick(idx, btn);
-        optContainer.appendChild(btn);
-    });
-
-    $('status-feedback').innerText = "CALIBRATION REQ: Adjust the optical sliders until the projection renders completely clean and sharp.";
-    $('status-feedback').style.color = '#64748b';
-}
-
-function updateSliderVal(v) {
-    currentSliderVal = Number(v);
-    $('slider-txt-id').innerText = `${database[currentStage].sliderLabel} ${v}`;
-    
-    if (isCalibrated()) {
-        $('status-feedback').innerText = "[✓] APPARATUS FOCUS OPTIMIZED. Select the correct science concept answer to submit.";
-        $('status-feedback').style.color = varColorHex('--emerald');
-    } else {
-        $('status-feedback').innerText = "[!] WARNING: Apparatus out of phase. Adjust slider parameters to resolve image distortion.";
-        $('status-feedback').style.color = varColorHex('--amber');
-    }
-}
-
-function isCalibrated() {
-    let stage = database[currentStage];
-    return (currentSliderVal >= stage.targetMin && currentSliderVal <= stage.targetMax);
-}
-
-function evaluationAnswerClick(chosenIdx, clickedBtn) {
-    if (!isCalibrated()) {
-        $('status-feedback').innerText = "⛔ SUBMISSION LOCKED: You must slide the physical instrument alignment parameters to a clean focus setting before answering.";
-        $('status-feedback').style.color = varColorHex('--rose');
+function loadLevel() {
+    if (currentLevel >= levels.length) {
+        $('main-layout').style.display = 'none';
+        $('end-screen').style.display = 'flex';
+        $('progress-idx').innerText = currentLevel;
         return;
     }
 
-    let stage = database[currentStage];
-    if (chosenIdx === stage.correctOpt) {
-        try { $('successSound').play(); } catch(e){}
-        clickedBtn.style.background = varColorHex('--emerald');
-        clickedBtn.style.borderColor = varColorHex('--emerald');
-        clickedBtn.style.color = '#fff';
-        $('status-feedback').innerText = "🎯 EXCELLENT: Physics configuration validated! Moving to next diagnostics bay...";
-        $('status-feedback').style.color = varColorHex('--emerald');
+    let data = levels[currentLevel];
+    $('progress-idx').innerText = currentLevel;
+    $('q-text').innerText = data.question;
+    $('feedback-text').innerText = "Analyze the diagram and pick the correct option.";
+    $('feedback-text').style.color = "#94a3b8";
+
+    let optBox = $('options-box');
+    optBox.innerHTML = '';
+    data.options.forEach((opt, idx) => {
+        let btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(idx, btn);
+        optBox.appendChild(btn);
+    });
+
+    drawDiagram();
+}
+
+function checkAnswer(chosen, btn) {
+    let data = levels[currentLevel];
+    if (chosen === data.correct) {
+        btn.style.background = "#059669";
+        btn.style.borderColor = "#10b981";
+        $('feedback-text').innerText = "🎯 " + data.explanation;
+        $('feedback-text').style.color = "#34d399";
         
+        // Block other buttons
+        let buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(b => b.onclick = null);
+
         setTimeout(() => {
-            currentStage++;
-            if (currentStage >= database.length) {
-                $('cracked-count').innerText = currentStage;
-                $('end-screen').style.display = 'flex';
-            } else {
-                loadCurrentChallenge();
-            }
-        }, 2200);
+            currentLevel++;
+            loadLevel();
+        }, 3000);
     } else {
-        clickedBtn.style.background = varColorHex('--rose');
-        clickedBtn.style.borderColor = varColorHex('--rose');
-        clickedBtn.style.color = '#fff';
-        $('status-feedback').innerText = "❌ CONCEPT ERROR: Mismatch in physics definitions. Re-evaluate why that phenomenon occurs.";
-        $('status-feedback').style.color = varColorHex('--rose');
+        btn.style.background = "#dc2626";
+        btn.style.borderColor = "#f87171";
+        $('feedback-text').innerText = "❌ Incorrect definition. Review the textbook chapter details and try another choice.";
+        $('feedback-text').style.color = "#f87171";
     }
 }
 
-function renderLoop() {
-    drawOpticalEnvironment();
-    window.requestAnimationFrame(renderLoop);
-}
+function drawDiagram() {
+    let w = canvas.width = canvas.parentElement.clientWidth;
+    let h = canvas.height = canvas.parentElement.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    
+    let type = levels[currentLevel].type;
+    ctx.lineWidth = 2;
 
-function drawOpticalEnvironment() {
-    let w = canvas.width, h = canvas.height;
-    ctx.clearRect(0,0,w,h);
-    
-    // Background space network grid
-    ctx.fillStyle = '#03060d';
-    ctx.fillRect(0,0,w,h);
-    ctx.strokeStyle = '#0e131f';
-    ctx.lineWidth = 1;
-    for(let x=0; x<w; x+=25) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-    for(let y=0; y<h; y+=25) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
-    
-    let stage = database[currentStage];
-    
-    if (stage.type === 'pinhole') {
-        let mx = w * 0.45;
-        let my = h / 2;
+    if (type === "shadow") {
+        // Bulb
+        ctx.fillStyle = "#fbbf24";
+        ctx.beginPath(); ctx.arc(40, h/2, 15, 0, Math.PI*2); ctx.fill();
+        ctx.fillText("Light Source", 15, h/2 - 25);
         
-        // Pinhole partitions
-        ctx.strokeStyle = '#1e293b';
+        // Light rays
+        ctx.strokeStyle = "rgba(251, 191, 36, 0.3)";
+        ctx.beginPath(); ctx.moveTo(40, h/2); ctx.lineTo(w-50, h/2 - 50); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(40, h/2); ctx.lineTo(w-50, h/2 + 50); ctx.stroke();
+
+        // Opaque Block
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(w/2 - 20, h/2 - 25, 40, 50);
+        ctx.fillStyle = "#fff";
+        ctx.font = "11px sans-serif";
+        ctx.fillText("Opaque Object", w/2 - 35, h/2 - 35);
+
+        // Screen & Shadow Patch
+        ctx.fillStyle = "#475569";
+        ctx.fillRect(w - 40, 20, 15, h - 40);
+        ctx.fillStyle = "#0f172a"; // Dark shadow patch
+        ctx.fillRect(w - 40, h/2 - 25, 15, 50);
+        ctx.fillStyle = "#fff";
+        ctx.fillText("Dark Shadow", w - 110, h/2 + 5);
+
+    } else if (type === "materials") {
+        // Flashlight beam hitting a divider
+        ctx.fillStyle = "#38bdf8";
+        ctx.fillRect(20, h/2 - 10, w/3, 20);
+        ctx.fillText("Incoming Light", 20, h/2 - 20);
+
+        ctx.strokeStyle = "#fff";
+        ctx.strokeRect(w/2 - 10, 40, 20, h - 80);
+        ctx.fillStyle = "rgba(255,255,255,0.1)";
+        ctx.fillRect(w/2 - 10, 40, 20, h - 80);
+        ctx.fillStyle = "#fff";
+        ctx.fillText("Test Material", w/2 - 35, 30);
+
+        // Light exiting clean
+        ctx.fillStyle = "#38bdf8";
+        ctx.fillRect(w/2 + 10, h/2 - 10, w/3, 20);
+        ctx.fillText("Passes Through Fully", w/2 + 20, h/2 - 20);
+
+    } else if (type === "rectilinear") {
+        // Draw straight line versus blocked path
+        ctx.strokeStyle = "#34d399";
+        ctx.beginPath(); ctx.moveTo(30, h/2); ctx.lineTo(w - 50, h/2); ctx.stroke();
+        ctx.fillStyle = "#34d399";
+        ctx.beginPath(); ctx.arc(30, h/2, 6, 0, Math.PI*2); ctx.fill();
+        ctx.fillText("Light travel track (Straight Only)", 40, h/2 - 15);
+
+        // Bent Straw Indicator Lines
+        ctx.strokeStyle = "#ef4444";
         ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(mx, 10); ctx.lineTo(mx, my - 20); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(mx, my + 20); ctx.lineTo(mx, h - 10); ctx.stroke();
-        
-        // Render dynamic slider aperture diameter opening
-        let gapSize = Math.abs(currentSliderVal - 17) * 0.7 + 2; 
-        ctx.fillStyle = 'rgba(6, 182, 212, 0.2)';
-        ctx.fillRect(mx - 4, my - gapSize, 8, gapSize*2);
-        
-        // Draw crossing rays
-        ctx.strokeStyle = 'rgba(6,182,212,0.3)';
-        ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(30, my - 30); ctx.lineTo(w - 30, my + 30); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(30, my + 30); ctx.lineTo(w - 30, my - 30); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w/2 - 40, h/2 + 40);
+        ctx.lineTo(w/2, h/2 + 40);
+        ctx.lineTo(w/2 + 40, h/2 + 80);
+        ctx.stroke();
+        ctx.fillStyle = "#ef4444";
+        ctx.fillText("Bent Pathway Blocks Ray", w/2 - 60, h/2 + 25);
 
-        // Render the image with blur calculations based on calibration error
-        ctx.save();
-        let error = Math.abs(currentSliderVal - 17); // Distance from target 17
-        if (error < 4) error = 0; // Lock cleanly to clear sharpness if close enough
+    } else if (type === "regions") {
+        // Extended light source showing Umbra and Penumbra
+        ctx.fillStyle = "#fbbf24";
+        ctx.beginPath(); ctx.arc(40, h/2 - 20, 10, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(40, h/2 + 20, 10, 0, Math.PI*2); ctx.fill();
+        ctx.fillText("Large Light", 15, h/2 - 40);
+
+        ctx.fillStyle = "#64748b";
+        ctx.beginPath(); ctx.arc(w/2, h/2, 20, 0, Math.PI*2); ctx.fill();
+
+        // Draw overlapping region shadows
+        ctx.fillStyle = "rgba(255,255,255,0.05)";
+        ctx.fillRect(w-60, 20, 20, h-40);
         
-        ctx.filter = `blur(${error * 0.4}px)`;
-        ctx.translate(w * 0.75, my);
-        ctx.scale(-1, -1); // Rectilinear straight ray inversion matrix
+        ctx.fillStyle = "rgba(0,0,0,0.4)"; // Penumbra
+        ctx.fillRect(w-60, h/2 - 40, 20, 80);
         
-        ctx.fillStyle = '#22d3ee';
-        ctx.font = '900 32px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(stage.word, 0, 0);
-        ctx.restore();
-        
-        ctx.fillStyle = '#64748b';
-        ctx.font = '10px monospace';
-        ctx.fillText("PINHOLE SCREEN LAYER (PROJECTION)", w * 0.58, h - 15);
-        
-    } else {
-        // Plane Mirror Configuration
-        let mirrorY = h * 0.4;
-        
-        // Mirror element boundary
-        ctx.strokeStyle = '#475569';
+        ctx.fillStyle = "#000"; // Umbra
+        ctx.fillRect(w-60, h/2 - 15, 20, 30);
+
+        ctx.fillStyle = "#38bdf8";
+        ctx.fillText("Umbra (Darkest)", w - 160, h/2 + 5);
+        ctx.fillText("Penumbra (Partial)", w - 170, h/2 - 25);
+
+    } else if (type === "inversion") {
+        // Plane Mirror Left-Right Swap illustration
+        ctx.strokeStyle = "#e2e8f0";
         ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(20, mirrorY); ctx.lineTo(w - 20, mirrorY); ctx.stroke();
-        
-        // Back silvered glass shading hatchings
-        ctx.strokeStyle = '#161f30';
-        for(let j=25; j<w-20; j+=15) {
-            ctx.beginPath(); ctx.moveTo(j, mirrorY); ctx.lineTo(j + 6, mirrorY - 6); ctx.stroke();
-        }
-        
-        // Render mirror image depending on matching distance values
+        ctx.beginPath(); ctx.moveTo(w/2, 30); ctx.lineTo(w/2, h - 30); ctx.stroke();
+        ctx.fillStyle = "#fff";
+        ctx.fillText("PLANE MIRROR", w/2 - 40, 20);
+
+        // Object Letter F
+        ctx.fillStyle = "#fbbf24";
+        ctx.font = "bold 40px monospace";
+        ctx.fillText("F", w/4, h/2 + 15);
+        ctx.font = "12px sans-serif";
+        ctx.fillText("Real Object", w/4 - 15, h/2 + 40);
+
+        // Flipped Virtual Mirror Image
         ctx.save();
-        let targetVal = 80;
-        let distError = Math.abs(currentSliderVal - targetVal);
-        if (distError < 5) distError = 0;
-        
-        ctx.filter = `blur(${distError * 0.3}px)`;
-        ctx.translate(w / 2, mirrorY - 40);
-        ctx.scale(-1, 1); // Literal left-to-right lateral inversion transformation matrix
-        
-        ctx.fillStyle = '#f59e0b';
-        ctx.font = '900 32px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(stage.word, 0, 0);
+        ctx.translate(w * 0.75, h/2);
+        ctx.scale(-1, 1); // Sideways lateral inversion flip
+        ctx.fillStyle = "#34d399";
+        ctx.font = "bold 40px monospace";
+        ctx.fillText("F", 0, 15);
         ctx.restore();
         
-        ctx.fillStyle = '#475569';
-        ctx.font = '10px monospace';
-        ctx.fillText("VIRTUAL REFLECTION PLANE INSIDE MIRROR", 25, 25);
+        ctx.fillStyle = "#34d399";
+        ctx.fillText("Laterally Inverted Image", w * 0.6, h/2 + 40);
     }
-}
-
-function varColorHex(varName) {
-    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 </script>
 </body>
