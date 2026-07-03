@@ -3,23 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>The Inverted Detective - Optics Simulation</title>
+<title>The Inverted Detective - Expert Terminal</title>
 <style>
 :root {
-    --bg-dark: #0f141d;
-    --card-bg: #1e2633;
-    --text-light: #f8fafc;
-    --text-muted: #94a3b8;
+    --bg-dark: #0a0e14;
+    --card-bg: #131924;
+    --text-light: #f1f5f9;
+    --text-muted: #64748b;
     --cyan: #06b6d4;
     --amber: #f59e0b;
     --emerald: #10b981;
-    --rose: #f43f5e;
+    --rose: #ef4444;
 }
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    font-family: 'Consolas', 'Courier New', monospace;
     user-select: none;
 }
 html, body {
@@ -34,7 +34,7 @@ html, body {
 #splash {
     position: fixed;
     inset: 0;
-    background: #090d16;
+    background: #05070b;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -52,14 +52,14 @@ html, body {
     width: 120px;
     height: 120px;
     object-fit: contain;
-    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.6));
+    filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.4));
     animation: pulseGlow 3s ease-in-out infinite;
 }
 .loader {
     position: absolute;
     bottom: 18%;
     width: 190px;
-    height: 8px;
+    height: 6px;
     background: #1e293b;
     border-radius: 50px;
     overflow: hidden;
@@ -67,19 +67,19 @@ html, body {
 .loader div {
     height: 100%;
     width: 0;
-    background: linear-gradient(90deg, var(--cyan), var(--emerald), var(--amber));
+    background: var(--cyan);
 }
 
 /* Main Game Layout */
 #game-container {
     height: 100%;
-    max-height: 800px;
+    max-height: 850px;
     width: 100%;
-    max-width: 1024px;
+    max-width: 1100px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    padding: clamp(10px, 2vw, 20px);
+    padding: clamp(10px, 2vw, 25px);
     gap: 15px;
     opacity: 0;
     transition: opacity .5s ease;
@@ -91,50 +91,52 @@ html, body {
     justify-content: space-between;
     align-items: center;
     background: var(--card-bg);
-    padding: 12px 20px;
-    border-radius: 16px;
-    border: 1px solid #2e3b4e;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 1px solid #1e293b;
 }
 .game-title {
-    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
     font-weight: 800;
     color: var(--cyan);
+    letter-spacing: 1px;
 }
 .score-board {
     font-weight: 700;
     color: var(--amber);
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    font-size: clamp(0.85rem, 2vw, 1rem);
 }
 
 /* Workspace Blocks */
 .main-workbench {
     flex: 1;
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
+    grid-template-columns: 1.11fr 0.9fr;
     gap: 15px;
     min-height: 0;
 }
 .panel {
     background: var(--card-bg);
-    border: 1px solid #2e3b4e;
-    border-radius: 20px;
-    padding: 15px;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
     min-height: 0;
 }
 
-/* Left Panel - Optical Tools Simulation Canvas */
+/* Left Panel - Simulation Canvas */
 .simulation-box {
     flex: 1;
-    background: #090d16;
-    border-radius: 14px;
+    background: #05070b;
+    border-radius: 8px;
     position: relative;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid #1e293b;
 }
 canvas {
     width: 100%;
@@ -143,16 +145,16 @@ canvas {
 }
 .tool-label {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.6);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
+    top: 12px;
+    left: 12px;
+    background: rgba(10, 14, 20, 0.85);
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     border: 1px solid #334155;
+    color: var(--cyan);
 }
 
 /* Right Panel - Case File & Controls */
@@ -160,20 +162,21 @@ canvas {
     overflow-y: auto;
 }
 .briefing-box {
-    background: #151b26;
-    border-left: 4px solid var(--cyan);
-    padding: 12px;
-    border-radius: 8px;
+    background: #0b111a;
+    border-left: 4px solid var(--amber);
+    padding: 14px;
+    border-radius: 4px;
 }
 .briefing-box h3 {
-    font-size: 1rem;
-    color: var(--cyan);
-    margin-bottom: 4px;
+    font-size: 0.95rem;
+    color: var(--amber);
+    margin-bottom: 6px;
+    text-transform: uppercase;
 }
 .briefing-box p {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    line-height: 1.4;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.5;
 }
 .tool-switcher {
     display: grid;
@@ -181,84 +184,80 @@ canvas {
     gap: 10px;
 }
 .toggle-btn {
-    background: #242f42;
-    border: 1px solid #384961;
-    color: var(--text-light);
-    padding: 10px;
-    border-radius: 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    padding: 12px;
+    border-radius: 6px;
     font-weight: 700;
     cursor: pointer;
+    font-size: 0.8rem;
     transition: 0.2s;
 }
 .toggle-btn.active {
-    background: linear-gradient(135deg, var(--cyan), #2563eb);
-    border-color: var(--cyan);
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    background: #0284c7;
+    border-color: #38bdf8;
+    color: white;
 }
 
 /* Decoder Mechanics */
 .decoder-workspace {
-    background: #151b26;
-    border-radius: 12px;
-    padding: 15px;
+    background: #0b111a;
+    border-radius: 6px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
-}
-.secret-display {
-    font-size: 1.8rem;
-    font-weight: 800;
-    letter-spacing: 4px;
-    background: #090d16;
-    padding: 10px 20px;
-    border-radius: 8px;
-    width: 100%;
-    text-align: center;
     border: 1px dashed #334155;
-    color: #e2e8f0;
 }
 .input-row {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
 }
 .input-box {
     flex: 1;
-    background: #090d16;
-    border: 1px solid #384961;
-    border-radius: 8px;
+    background: #05070b;
+    border: 1px solid #334155;
+    border-radius: 4px;
     color: white;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 700;
     text-align: center;
     text-transform: uppercase;
     outline: none;
+    letter-spacing: 2px;
+    padding: 8px;
 }
 .input-box:focus {
     border-color: var(--cyan);
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.2);
 }
 .action-btn {
-    background: linear-gradient(135deg, var(--amber), #d97706);
+    background: linear-gradient(135deg, var(--cyan), #0284c7);
     color: white;
     border: 0;
-    padding: 0 20px;
-    border-radius: 8px;
+    padding: 0 25px;
+    border-radius: 4px;
     font-weight: 700;
     cursor: pointer;
+    letter-spacing: 1px;
 }
 .feedback-msg {
     text-align: center;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    min-height: 24px;
+    min-height: 32px;
+    line-height: 1.4;
+    color: #64748b;
 }
 
 /* End Game Modal Overlay */
 #end-screen {
     position: fixed;
     inset: 0;
-    background: rgba(9, 13, 22, 0.95);
+    background: rgba(5, 7, 11, 0.98);
     z-index: 1000;
     display: none;
     align-items: center;
@@ -267,49 +266,49 @@ canvas {
 }
 .end-card {
     background: var(--card-bg);
-    border: 2px solid var(--cyan);
-    border-radius: 24px;
-    padding: 30px;
-    max-width: 500px;
+    border: 1px solid var(--cyan);
+    border-radius: 8px;
+    padding: 40px;
+    max-width: 520px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 .end-card h2 {
     color: var(--cyan);
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin-bottom: 15px;
+    letter-spacing: 1px;
 }
 .end-card p {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    line-height: 1.5;
-    margin-bottom: 25px;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
 }
 .restart-btn {
-    background: linear-gradient(135deg, var(--cyan), #2563eb);
+    background: #0284c7;
     color: white;
     border: 0;
-    padding: 12px 30px;
-    border-radius: 12px;
+    padding: 12px 35px;
+    border-radius: 4px;
     font-weight: 700;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
 }
 
 @keyframes pulseGlow {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.4)); }
-    50% { transform: scale(1.05); filter: drop-shadow(0 0 22px rgba(6, 182, 212, 0.8)); }
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.03); opacity: 1; }
 }
 
-/* Responsive Grid Conversions */
-@media(max-width: 768px) {
+@media(max-width: 820px) {
     .main-workbench {
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr 1.2fr;
+        grid-template-rows: 1fr 1.11fr;
     }
     .simulation-box {
-        min-height: 200px;
+        min-height: 250px;
     }
 }
 </style>
@@ -327,47 +326,46 @@ canvas {
 
 <div id="game-container">
   <div class="header-bar">
-    <div class="game-title">🕵️‍♂️ The Inverted Detective</div>
-    <div class="score-board">🔓 Codes Cracked: <span id="cracked-count">0</span>/5</div>
+    <div class="game-title">⚡ CRYPTO-OPTICS MAIN_TERMINAL v2.06</div>
+    <div class="score-board">🔓 DECRYPTED ARCHIVES: <span id="cracked-count">0</span>/5</div>
   </div>
 
   <div class="main-workbench">
     <div class="panel">
       <div class="simulation-box">
-        <div class="tool-label" id="tool-mode-title">Pinhole Camera Lens View</div>
+        <div class="tool-label" id="tool-mode-title">PROJECTION BENCH LOADING...</div>
         <canvas id="opticsCanvas"></canvas>
       </div>
     </div>
 
     <div class="panel case-file">
       <div class="briefing-box">
-        <h3 id="case-title">Case File #1: The Inverted Blueprint</h3>
-        <p id="case-desc">A spy intercepted a secret code, but it was viewed through a pinhole camera aperture. Remember: light travels in straight lines, causing the image to flip completely upside-down! Read the true orientation code below.</p>
+        <h3 id="case-title">INTERCEPT MATRIX SECURED</h3>
+        <p id="case-desc">Analyzing incoming light spectrum variables...</p>
       </div>
 
-      <div class="tool-switcher">
-        <button class="toggle-btn active" id="btn-pinhole" onclick="switchTool('pinhole')">🔦 Pinhole Camera View</button>
-        <button class="toggle-btn" id="btn-mirror" onclick="switchTool('mirror')">🪞 Plane Mirror Desk</button>
+      <div class="tool-switcher" style="display:none;">
+        <button class="toggle-btn" id="btn-pinhole">Pinhole View</button>
+        <button class="toggle-btn" id="btn-mirror">Mirror Desk</button>
       </div>
 
       <div class="decoder-workspace">
-        <div class="secret-display" id="cipher-output">ABCD</div>
         <div class="input-row">
-          <input type="text" class="input-box" id="guess-input" placeholder="Enter decrypted text..." maxlength="6" autocomplete="off">
-          <button class="action-btn" onclick="verifyDecryption()">Submit</button>
+          <input type="text" class="input-box" id="guess-input" placeholder="DECODE CODENAME" autocomplete="off">
+          <button class="action-btn" onclick="verifyDecryption()">DECRYPT</button>
         </div>
       </div>
 
-      <div class="feedback-msg" id="status-feedback">Analyze the properties of light propagation to decode the cipher text.</div>
+      <div class="feedback-msg" id="status-feedback">Initialize scanning systems...</div>
     </div>
   </div>
 </div>
 
 <div id="end-screen">
   <div class="end-card">
-    <h2>🏆 Case Closed, Detective!</h2>
-    <p>You successfully mastered the principles of light reflection and rectilinear propagation to unlock the secret spy terminal archives.</p>
-    <button class="restart-btn" onclick="location.reload()">Reboot Terminal Console</button>
+    <h2>[✓] MAINBOARD ACCESS GRANTED</h2>
+    <p>All intercepted data arrays successfully translated. True orientation coordinates calibrated based on Class 7 physics calculations.</p>
+    <button class="restart-btn" onclick="location.reload()">FLUSH AND SYSTEM REBOOT</button>
   </div>
 </div>
 
@@ -376,49 +374,43 @@ const $ = id => document.getElementById(id);
 let canvas, ctx, currentTool = 'pinhole', currentStage = 0;
 let animationFrameId, animTimer = 0;
 
-// Content database aligned with Class 7 Light/Shadow benchmarks
+// High-difficulty data parameters containing tricky shapes (X, A, T, H, 1, 7, 0, D)
 const levels = [
     {
-        title: "Case File #1: The Inverted Blueprint",
-        desc: "A spy code was captured inside a dark pinhole box camera. Because light rays cross straight through the tiny pinhole, the image forms completely upside-down. Read the real code!",
-        word: "LIGHT",
-        displayWord: "LIGHT", // Manipulated programmatically on canvas
+        title: "Dossier Alpha: Ray Matrix Intercept",
+        desc: "CRITICAL: A spy's laser codename is projecting through a pinhole camera box. Because light travels in perfect straight lines, the raw object rays cross inside the small aperture, reversing the image vertically and horizontally. Trace the rays to calculate the original input.",
+        word: "X-71A",
         tool: "pinhole"
     },
     {
-        title: "Case File #2: The Vanity Counter-Espionage",
-        desc: "A secret sequence was written backward on carbon paper. Hold it up to our simulated Plane Mirror to counteract its lateral inversion (left-to-right swap) and read the text.",
-        word: "REFLECT",
-        displayWord: "REFLECT",
+        title: "Dossier Beta: Mirror-Inverted Stamp",
+        desc: "CRITICAL: An advanced laser stamp leaves a reverse signature pattern. The image inside the Plane Mirror exhibits absolute lateral inversion (swapping the horizontal vector). Look closely at how symmetric/asymmetric vectors reverse to pull out the code.",
+        word: "T-04H",
         tool: "mirror"
     },
     {
-        title: "Case File #3: The Upside-Down Transmission",
-        desc: "Another pinhole camera snapshot has arrived from the laboratory team. Turn the inverted image back upright in your head to enter the valid passcode.",
-        word: "SHADOW",
-        displayWord: "SHADOW",
+        title: "Dossier Gamma: Pinhole Aperture Trap",
+        desc: "CRITICAL: A complex transmission contains numbers and letters mixed together. Reverse the upside-down matrix mentally. Watch out for characters that look misleading when inverted vertically!",
+        word: "A-9D0",
         tool: "pinhole"
     },
     {
-        title: "Case File #4: The Laterally Inverted Seal",
-        desc: "An experimental laser stamp leaves completely backward imprints. View it using the flat plane mirror desk workspace to decrypt the sequence.",
-        word: "MIRROR",
-        displayWord: "MIRROR",
+        title: "Dossier Delta: Carbon-Copy Reflector",
+        desc: "CRITICAL: Security logs were captured as a backward imprint. Calibrate the plane mirror axis to read the code sequence. Don't let letters with local symmetry confuse your reading order.",
+        word: "K-85W",
         tool: "mirror"
     },
     {
-        title: "Case File #5: Ultimate Optical Sequence",
-        desc: "Final master security lock code. It has been exposed to a pinhole camera screen block. Reverse the vertical orientation to extract the solution word.",
-        word: "PRISM",
-        displayWord: "PRISM",
+        title: "Dossier Epsilon: Apex Encryption Wave",
+        desc: "CRITICAL: Final master gateway code. It is projected directly inside a sealed pinhole terminal screen. Apply the inverse rectilinear propagation theorem to read the hidden code.",
+        word: "Z-62E",
         tool: "pinhole"
     }
 ];
 
-// Linear Simulated Engine Launcher
 let progress = 0;
 let loadInterval = setInterval(() => {
-    progress += 4;
+    progress += 5;
     $('loadFill').style.width = progress + '%';
     if (progress >= 100) {
         clearInterval(loadInterval);
@@ -429,7 +421,7 @@ let loadInterval = setInterval(() => {
             setupGame();
         }, 500);
     }
-}, 80);
+}, 40);
 
 function setupGame() {
     canvas = $('opticsCanvas');
@@ -443,7 +435,7 @@ function setupGame() {
 function resizeCanvas() {
     let box = canvas.parentElement;
     canvas.width = box.clientWidth;
-    canvas.height = box.clientHeight || 250;
+    canvas.height = box.clientHeight || 280;
 }
 
 function loadStage() {
@@ -454,31 +446,15 @@ function loadStage() {
     $('guess-input').maxLength = stage.word.length;
     $('cracked-count').innerText = currentStage;
     
-    // Set up the static text shown on the HTML workspace helper UI
-    if(stage.tool === 'pinhole') {
-        $('cipher-output').innerText = "Inverted Screen Mode";
-        switchTool('pinhole');
+    currentTool = stage.tool;
+    if (currentTool === 'pinhole') {
+        $('tool-mode-title').innerText = "PINHOLE SCREEN REALTIME PROJECTION";
     } else {
-        // Provide the text in a laterally inverted format for the mirror prompt display
-        $('cipher-output').innerText = stage.word.split('').reverse().join('');
-        switchTool('mirror');
+        $('tool-mode-title').innerText = "VIRTUAL PLANE MIRROR ANALYSIS FIELD";
     }
     
-    $('status-feedback').innerText = "Optical elements calibrated. Ready for decoding.";
-    $('status-feedback').style.color = '#94a3b8';
-}
-
-function switchTool(tool) {
-    currentTool = tool;
-    if (tool === 'pinhole') {
-        $('btn-pinhole').classList.add('active');
-        $('btn-mirror').classList.remove('active');
-        $('tool-mode-title').innerText = "Pinhole Camera Screen View";
-    } else {
-        $('btn-mirror').classList.add('active');
-        $('btn-pinhole').classList.remove('active');
-        $('tool-mode-title').innerText = "Plane Mirror Reflection Desk";
-    }
+    $('status-feedback').innerText = "SYSTEM STATUS: Awaiting matching verification string inputs.";
+    $('status-feedback').style.color = '#64748b';
 }
 
 function verifyDecryption() {
@@ -488,7 +464,7 @@ function verifyDecryption() {
     if (input === target) {
         try { $('successSound').play(); } catch(e){}
         currentStage++;
-        $('status-feedback').innerText = "🎯 Security Code accepted! Loading next data packet...";
+        $('status-feedback').innerText = "SUCCESS: Decryption verified. Local matrix updated.";
         $('status-feedback').style.color = '#10b981';
         
         setTimeout(() => {
@@ -498,10 +474,10 @@ function verifyDecryption() {
             } else {
                 loadStage();
             }
-        }, 2000);
+        }, 1500);
     } else {
-        $('status-feedback').innerText = "❌ Decryption error. Alignment mismatch, try looking closely at the optical projection.";
-        $('status-feedback').style.color = '#f43f5e';
+        $('status-feedback').innerText = "ERROR: Decryption failure. Mismatch in orientation parity matrix. Re-verify the geometry.";
+        $('status-feedback').style.color = '#ef4444';
         $('guess-input').focus();
     }
 }
@@ -517,127 +493,121 @@ function drawSimulation() {
     let h = canvas.height;
     ctx.clearRect(0, 0, w, h);
     
-    // Draw Dark Laboratory Background Grid lines
-    ctx.strokeStyle = '#1e293b';
+    // Tech-style grid background
+    ctx.strokeStyle = '#111827';
     ctx.lineWidth = 1;
-    let gap = 20;
-    for(let x=0; x<w; x+=gap) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-    for(let y=0; y<h; y+=gap) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    let step = 25;
+    for(let x=0; x<w; x+=step) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=0; y<h; y+=step) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
     
     let stage = levels[currentStage];
-    let wordToRender = stage.word;
-    
-    ctx.save();
+    let word = stage.word;
     
     if (currentTool === 'pinhole') {
-        // Draw the components of a physical virtual pinhole camera setup
-        // Left side: Original object representation
-        ctx.fillStyle = '#64748b';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText("OBJECT SOURCE", 15, 30);
+        let midX = w * 0.44;
+        let midY = h / 2;
         
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
-        ctx.fillRect(10, h/2 - 30, w*0.25, 60);
-        ctx.fillStyle = '#f59e0b';
-        ctx.font = '900 24px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(wordToRender, w*0.13, h/2 + 8);
-        
-        // Pinhole central partition barrier card
-        let midX = w * 0.5;
-        ctx.strokeStyle = '#475569';
+        // Left Side: Original Hidden Object Area (Obscured intentionally for challenge)
+        ctx.fillStyle = '#334155';
+        ctx.font = '10px monospace';
+        ctx.fillText("OBJECT AREA [REDACTED]", 15, 30);
+        ctx.strokeStyle = '#1e293b';
+        ctx.strokeRect(15, midY - 35, w*0.2, 70);
+        ctx.fillStyle = '#1e293b';
+        ctx.font = '800 13px monospace';
+        ctx.fillText("????", w*0.08, midY + 5);
+
+        // Pinhole camera aperture partition wall
+        ctx.strokeStyle = '#334155';
         ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(midX, 20); ctx.lineTo(midX, h/2 - 10); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(midX, h/2 + 10); ctx.lineTo(midX, h - 20); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(midX, 15); ctx.lineTo(midX, midY - 12); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(midX, midY + 12); ctx.lineTo(midX, h - 15); ctx.stroke();
         
-        // The tiny aperture hole indicator label
-        ctx.fillStyle = '#22d3ee';
-        ctx.beginPath(); ctx.arc(midX, h/2, 5, 0, Math.PI*2); ctx.fill();
-        ctx.font = '8px sans-serif';
-        ctx.fillText("PINHOLE", midX - 25, h/2 - 15);
+        // Pinhole Aperture
+        ctx.fillStyle = varColorHex('--cyan');
+        ctx.beginPath(); ctx.arc(midX, midY, 4, 0, Math.PI*2); ctx.fill();
         
-        // Simulated Ray Pathways (Rectilinear Propagation lines crossing over)
-        ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([4, 4]);
-        // Ray from top-left to bottom-right
-        ctx.beginPath(); ctx.moveTo(w*0.13, h/2 - 20); ctx.lineTo(w*0.85, h/2 + 40); ctx.stroke();
-        // Ray from bottom-left to top-right
-        ctx.beginPath(); ctx.moveTo(w*0.13, h/2 + 20); ctx.lineTo(w*0.85, h/2 - 40); ctx.stroke();
-        ctx.setLineDash([]);
-        
-        // Right side: Screen displaying completely inverted image
+        // Rays showing rectilinear crossing pathways
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(w*0.1, midY - 20); ctx.lineTo(w*0.8, midY + 25); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w*0.1, midY + 20); ctx.lineTo(w*0.8, midY - 25); ctx.stroke();
+
+        // Right Side: Pinhole Capture Screen
         ctx.fillStyle = '#64748b';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText("PINHOLE SCREEN", w*0.65, 30);
+        ctx.font = '10px monospace';
+        ctx.fillText("INTERCEPTED SCREEN LAYER", w*0.6, 30);
+        
+        let screenW = w * 0.36;
+        let screenH = h * 0.55;
+        let screenX = w * 0.58;
+        let screenY = midY - (screenH / 2);
         
         ctx.fillStyle = '#020617';
-        ctx.fillRect(w*0.65, h/2 - 45, w*0.3, 90);
-        ctx.strokeStyle = varColorHex('--cyan');
-        ctx.strokeRect(w*0.65, h/2 - 45, w*0.3, 90);
-        
-        // Apply vertical inversion transformation matrix onto the text rendering engine
+        ctx.fillRect(screenX, screenY, screenW, screenH);
+        ctx.strokeStyle = '#1e293b';
+        ctx.strokeRect(screenX, screenY, screenW, screenH);
+
+        // Render fully inverted image (flipped vertically AND horizontally by straight rays)
         ctx.save();
-        ctx.translate(w * 0.8, h / 2);
-        ctx.scale(1, -1); // Completely Upside Down flip transformation
+        ctx.translate(screenX + screenW/2, midY);
+        ctx.scale(-1, -1); // Pure 180 degree rotation/inversion
         ctx.fillStyle = '#22d3ee';
-        ctx.font = '900 26px monospace';
+        ctx.font = '900 34px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(wordToRender, 0, 0);
+        ctx.fillText(word, 0, 0);
         ctx.restore();
         
     } else {
-        // Draw Plane Mirror Reflection desk space diagram
-        let mirrorY = h * 0.45;
+        // Plane Mirror Reflection Desk space
+        let mirrorY = h * 0.42;
         
-        // Draw the reflecting glass line block
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 6;
-        ctx.beginPath(); ctx.moveTo(30, mirrorY); ctx.lineTo(w - 30, mirrorY); ctx.stroke();
-        
-        // Mirror back silvered surface hatch lines
+        // Mirror Line
         ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 2;
-        for(let mx = 35; mx < w - 30; mx += 15) {
-            ctx.beginPath(); ctx.moveTo(mx, mirrorY); ctx.lineTo(mx + 8, mirrorY - 8); ctx.stroke();
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(25, mirrorY); ctx.lineTo(w - 25, mirrorY); ctx.stroke();
+        
+        // Silvered backing hatching patterns
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1.5;
+        for(let mx = 30; mx < w - 25; mx += 12) {
+            ctx.beginPath(); ctx.moveTo(mx, mirrorY); ctx.lineTo(mx + 6, mirrorY - 6); ctx.stroke();
         }
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText("PLANE MIRROR REFLECTING SURFACE", 40, mirrorY - 15);
+        ctx.fillStyle = '#475569';
+        ctx.font = '10px monospace';
+        ctx.fillText("PLANE MIRROR SURFACE INTERFACE", 30, mirrorY - 12);
         
-        // Bottom Space: Real Object Space
+        // Bottom Area: The real item space (Hidden to force decoding from mirror reflection)
+        ctx.fillStyle = '#334155';
+        ctx.font = '10px monospace';
+        ctx.fillText("DESK WORKSPACE SOURCE [BLINDED]", 30, h - 20);
+        
+        // Top Area: The Virtual Image inside the mirror bounds exhibiting true lateral inversion
+        let boxW = w - 60;
+        let boxH = mirrorY - 35;
+        ctx.fillStyle = '#030712';
+        ctx.fillRect(30, 20, boxW, boxH);
+        ctx.strokeStyle = '#1e293b';
+        ctx.strokeRect(30, 20, boxW, boxH);
+        
         ctx.fillStyle = '#64748b';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText("REAL TEXT PATTERN ON DESK", 30, h - 20);
+        ctx.font = '10px monospace';
+        ctx.fillText("VIRTUAL CAPTURE ARRAY", 40, 40);
         
-        // Render laterally inverted word on desk
-        let backwardWord = wordToRender.split('').reverse().join('');
-        ctx.fillStyle = varColorHex('--amber');
-        ctx.font = '900 28px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(backwardWord, w/2, h * 0.75);
-        
-        // Top Space: Virtual reflection image inside the mirror bounds
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
-        ctx.fillRect(40, 20, w - 80, mirrorY - 40);
-        
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText("VIRTUAL IMAGE (INSIDE MIRROR)", 50, 40);
-        
-        // Render correct output transformed laterally back to normal scale coordinates
+        // Render laterally inverted word (reversing letter layout sequence and matching flipped text coordinates)
         ctx.save();
-        ctx.translate(w / 2, mirrorY - 45);
-        ctx.fillStyle = '#10b981';
-        ctx.font = '900 28px monospace';
+        ctx.translate(w / 2, 20 + boxH / 2);
+        ctx.scale(-1, 1); // Flip individual canvas horizontal pixels (Lateral Transformation)
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = '900 34px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(wordToRender, 0, 0);
+        ctx.textBaseline = 'middle';
+        
+        // Write standard word, scale(-1, 1) accurately performs natural geometric lateral inversion
+        ctx.fillText(word, 0, 0);
         ctx.restore();
     }
-    
-    ctx.restore();
 }
 
 function varColorHex(varName) {
