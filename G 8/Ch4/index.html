@@ -6,18 +6,19 @@
 <title>Audiology Lab: Clinical Diagnostic Suite</title>
 <style>
 :root {
-    --bg-clinic: #f0f4f8;
+    --bg-clinic: #f3f7f9;
     --panel-sheet: #ffffff;
-    --teal-primary: #2d6a4f;
-    --eucalyptus-success: #d8f3dc;
-    --eucalyptus-text: #1b4332;
-    --salmon-warning: #f9dcc4;
-    --salmon-text: #c1121f;
-    --border-soft: #d3d3d3;
-    --text-charcoal: #2b2d42;
+    --teal-primary: #28524b;
+    --teal-accent: #3b7a6e;
+    --eucalyptus-success: #dcefe3;
+    --eucalyptus-text: #19432c;
+    --salmon-warning: #fcdfd7;
+    --salmon-text: #9e2a2b;
+    --border-soft: #dbe3e6;
+    --text-charcoal: #2d3142;
     --text-gray: #7f8c8d;
 }
-*{
+* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -32,37 +33,42 @@ body {
     justify-content: center;
     padding: 20px;
     user-select: none;
-    background-image: linear-gradient(0deg, #e2e8f0 1px, transparent 1px), 
-                      linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
-    background-size: 50px 50px;
+    background-image: radial-gradient(#d1dcde 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
 }
 #game-container {
     width: 100%;
-    max-width: 850px;
+    max-width: 760px;
     background: var(--panel-sheet);
-    border-radius: 20px;
-    padding: 35px;
-    box-shadow: 0 12px 30px rgba(45, 106, 79, 0.08);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 35px rgba(40, 82, 75, 0.06);
     border: 1px solid var(--border-soft);
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 28px;
 }
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid var(--bg-clinic);
-    padding-bottom: 20px;
+    padding-bottom: 22px;
+}
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.logo-icon {
+    width: 42px;
+    height: 42px;
 }
 .title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.3px;
     color: var(--teal-primary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 .title span {
     font-weight: 400;
@@ -73,7 +79,7 @@ body {
     gap: 12px;
 }
 .clinic-badge {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     padding: 6px 14px;
     border-radius: 6px;
@@ -81,91 +87,107 @@ body {
     letter-spacing: 0.5px;
 }
 #progress-pill {
-    background-color: #e2eff1;
-    color: #0077b6;
+    background-color: #e3eff2;
+    color: #1d7082;
 }
 #attempt-pill {
-    background-color: #fff0f3;
-    color: #ff4d6d;
+    background-color: #fcece9;
+    color: #c94a3a;
 }
 
 /* Clinical Test Monitor */
 .test-monitor {
-    background: #f8fafc;
-    border: 1px dashed var(--teal-primary);
+    background: #f8fafb;
+    border: 1px solid var(--border-soft);
     border-radius: 12px;
-    padding: 30px;
-    min-height: 130px;
+    padding: 35px;
+    min-height: 140px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
+    position: relative;
 }
 .patient-observation {
     font-size: 1.15rem;
     line-height: 1.6;
     font-weight: 600;
     color: var(--text-charcoal);
-    max-width: 720px;
+    max-width: 620px;
 }
 
-/* Diagnostic Option Layout */
-.diagnostic-panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+/* Console Input Controls */
+.input-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
-@media(max-width: 600px) {
-    .diagnostic-panel { grid-template-columns: 1fr; }
+.input-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-gray);
+    letter-spacing: 0.5px;
 }
-.diagnostic-pill {
+.interactive-form {
+    display: flex;
+    gap: 12px;
+}
+.diagnostic-input {
+    flex: 1;
     background: #ffffff;
-    border: 1px solid var(--border-soft);
-    padding: 18px 22px;
-    border-radius: 10px;
-    font-size: 1rem;
+    border: 2px solid var(--border-soft);
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 1.05rem;
     font-weight: 600;
     color: var(--text-charcoal);
-    cursor: pointer;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.2s ease-in-out;
+    outline: none;
+    transition: all 0.2s ease;
 }
-.diagnostic-pill:hover {
-    background: #f4fbf7;
-    border-color: var(--teal-primary);
-    box-shadow: 0 4px 12px rgba(45, 106, 79, 0.08);
-    transform: translateY(-1.5px);
+.diagnostic-input:focus {
+    border-color: var(--teal-accent);
+    box-shadow: 0 0 0 3px rgba(59, 122, 110, 0.1);
 }
-.pill-letter {
-    width: 24px;
-    height: 24px;
-    background: var(--bg-clinic);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    color: var(--teal-primary);
+.diagnostic-input:disabled {
+    background: #f1f5f6;
+    color: var(--text-gray);
+    cursor: not-allowed;
+}
+.submit-btn {
+    background: var(--teal-primary);
+    color: #ffffff;
+    border: none;
+    padding: 0 30px;
+    font-size: 0.95rem;
     font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.submit-btn:hover {
+    background: var(--teal-accent);
+}
+.submit-btn:disabled {
+    background: var(--border-soft);
+    cursor: not-allowed;
 }
 
 /* Lab Activity Status Log */
 .lab-log {
     background: var(--bg-clinic);
     border-radius: 8px;
-    padding: 15px;
-    min-height: 55px;
+    padding: 18px;
+    min-height: 58px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #526266;
+    border-left: 4px solid var(--border-soft);
 }
 
 #finish-screen {
@@ -186,41 +208,56 @@ body {
     cursor: pointer;
     font-size: 1rem;
     align-self: center;
-    box-shadow: 0 4px 10px rgba(45, 106, 79, 0.2);
+    box-shadow: 0 4px 10px rgba(40, 82, 75, 0.2);
     transition: background 0.2s;
 }
-.reset-btn:hover { background: #1b4332; }
+.reset-btn:hover { background: var(--teal-accent); }
 </style>
 </head>
 <body>
 
-<audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
-<audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="audio-correct"></audio>
+<audio id="audio-wrong"></audio>
 
 <div id="game-container">
   <div class="header">
-    <div class="title">🩺 Audiology Workstation <span>// Wave Diagnosis</span></div>
+    <div class="brand-wrapper">
+      <svg class="logo-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="30" fill="#f0f6f6" />
+        <path d="M16 24C16 16 24 14 30 14M16 28C16 42 26 48 34 48C44 48 48 38 48 30C48 22 42 20 38 20" stroke="#28524b" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 28C24 36 30 40 35 40C40 40 42 34 42 30" stroke="#3b7a6e" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <line x1="32" y1="20" x2="32" y2="44" stroke="#e63946" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 4"/>
+        <circle cx="32" cy="32" r="3" fill="#28524b" />
+      </svg>
+      <div class="title">🩺 Audiology Workstation <span>// System Core</span></div>
+    </div>
     <div class="status-bar">
-      <div class="clinic-badge" id="progress-pill">Test: <span id="lbl-question">1</span>/10</div>
-      <div class="clinic-badge" id="attempt-pill">Chances Left: <span id="lbl-chances">2</span></div>
+      <div class="clinic-badge" id="progress-pill">Telemetry: <span id="lbl-question">1</span>/10</div>
+      <div class="clinic-badge" id="attempt-pill">Chances: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
-  <div id="main-layout" style="display: flex; flex-direction: column; gap: 25px;">
+  <div id="main-layout" style="display: flex; flex-direction: column; gap: 28px;">
     <div class="test-monitor">
-      <div class="patient-observation" id="question-box">Loading audio sensor feeds...</div>
+      <div class="patient-observation" id="question-box">Initializing audio sensor feeds...</div>
     </div>
 
-    <div class="diagnostic-panel" id="options-grid"></div>
+    <div class="input-workspace">
+      <div class="input-label">Analyze Parameter Definition & Input Core Term Below:</div>
+      <form class="interactive-form" id="diagnostic-form" onsubmit="evaluateEntry(event)">
+        <input type="text" id="user-term" class="diagnostic-input" placeholder="Type verified textbook definition term here..." autocomplete="off" spellcheck="false" required>
+        <button type="submit" id="btn-submit" class="submit-btn">Verify Term</button>
+      </form>
+    </div>
   </div>
 
   <div class="lab-log" id="feedback-box">
-    Review the acoustic wave telemetry data above and verify the correct anatomical factor.
+    Enter the specific scientific parameter defined in the monitor screen above.
   </div>
 
   <div id="finish-screen">
     <h2>📋 Diagnostics Run Complete</h2>
-    <p>Patient examination successful. All wave metrics, ear structures, inner cochlear functions, and audible spectrum thresholds are locked and verified.</p>
+    <p>Patient profile parsing complete. All physical wave dimensions, ear pathways, structural sound velocities, and audible registers match standard medical records.</p>
     <button class="reset-btn" onclick="location.reload()">Examine Next Patient</button>
   </div>
 </div>
@@ -231,66 +268,80 @@ let currentQuestion = 0;
 let attemptsLeft = 2;
 let blockInputs = false;
 
+// Synthetic Audio Engine to generate telemetry sounds without requiring mp3 assets
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSynthSound(type) {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'correct') {
+        // High-low cheerful chime
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // A5
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+    } else if (type === 'wrong') {
+        // Low industrial error buzz
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140.00, audioCtx.currentTime); 
+        osc.frequency.linearRampToValueAtTime(100.00, audioCtx.currentTime + 0.25);
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+}
+
 const database = [
     {
         q: "The maximum displacement of a vibrating body from its mean central position is designated as:",
-        options: ["Amplitude", "Frequency", "Pitch", "Time Period"],
         answer: "Amplitude"
     },
     {
         q: "The exact number of total oscillations or vibrations executed by a moving body in one full second is called:",
-        options: ["Frequency", "Time Period", "Loudness", "Echo"],
         answer: "Frequency"
     },
     {
         q: "The specific unit measurement index utilized internationally to compute and track sound loudness is:",
-        options: ["Decibel", "Hertz", "Meter", "Second"],
         answer: "Decibel"
     },
     {
         q: "Sound waves operating with mechanical frequencies registered strictly below the 20 Hz threshold are defined as:",
-        options: ["Infrasonic sound", "Audible sound", "Ultrasonic sound", "Music"],
         answer: "Infrasonic sound"
     },
     {
         q: "The physical sensory perception of a sound wave that depends entirely on its specific high or low frequency rate is:",
-        options: ["Pitch", "Amplitude", "Loudness", "Time Period"],
         answer: "Pitch"
     },
     {
         q: "The distinct repetition of sound caused entirely by the physical reflection of sound waves bouncing back from an obstacle is an:",
-        options: ["Echo", "Vibration", "Noise", "Decibel scale"],
         answer: "Echo"
     },
     {
         q: "The human ear can normally detect and register sound parameters only within which specific audible frequency band?",
-        options: ["20 Hz to 20,000 Hz", "Below 20 Hz", "Above 20,000 Hz", "10 Hz to 10,000 Hz"],
         answer: "20 Hz to 20,000 Hz"
     },
     {
         q: "Which internal anatomical section of the human ear resembles a coiled fluid-filled shell that directly processes sound elements for hearing?",
-        options: ["Cochlea", "Pinna", "Tympanum", "Malleus"],
         answer: "Cochlea"
     },
     {
         q: "A thin, sensitive membrane that completely separates the external ear canal path from the middle ear assembly is the:",
-        options: ["Tympanum (Ear drum)", "Pinna flap", "Auditory nerve", "Incus bone"],
-        answer: "Tympanum (Ear drum)"
+        answer: "Tympanum"
     },
     {
         q: "Sound waves cannot propagate or travel through which of the following due to a total lack of any physical material molecules?",
-        options: ["Vacuum", "Water liquid", "Iron steel", "Air gases"],
         answer: "Vacuum"
     }
 ];
-
-function playSound(type) {
-    const audio = $(`audio-${type}`);
-    if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio awaiting diagnostic event."));
-    }
-}
 
 function loadQuestion() {
     if (currentQuestion >= database.length) {
@@ -302,42 +353,42 @@ function loadQuestion() {
 
     attemptsLeft = 2;
     blockInputs = false;
+    
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
-    $('feedback-box').innerText = "Review the acoustic wave telemetry data above and verify the correct anatomical factor.";
-    $('feedback-box').style.color = "#4a5568";
+    
+    $('user-term').value = "";
+    $('user-term').disabled = false;
+    $('btn-submit').disabled = false;
+    $('user-term').focus();
+
+    $('feedback-box').innerText = "Enter the specific scientific parameter defined in the monitor screen above.";
+    $('feedback-box').style.color = "#526266";
     $('feedback-box').style.backgroundColor = "var(--bg-clinic)";
+    $('feedback-box').style.borderLeftColor = "var(--border-soft)";
 
     let data = database[currentQuestion];
     $('question-box').innerText = data.q;
-
-    let grid = $('options-grid');
-    grid.innerHTML = '';
-
-    const alpha = ['A', 'B', 'C', 'D'];
-    data.options.forEach((opt, idx) => {
-        let btn = document.createElement('button');
-        btn.className = 'diagnostic-pill';
-        btn.innerHTML = `<span class="pill-letter">${alpha[idx]}</span> ${opt}`;
-        btn.onclick = () => checkDiagnosis(opt, btn);
-        grid.appendChild(btn);
-    });
 }
 
-function checkDiagnosis(selectedOption, elementNode) {
+function evaluateEntry(event) {
+    event.preventDefault();
     if (blockInputs) return;
+
+    let userInput = $('user-term').value.trim();
     let data = database[currentQuestion];
 
-    if (selectedOption === data.answer) {
+    if (userInput.toLowerCase() === data.answer.toLowerCase()) {
         blockInputs = true;
-        playSound('correct');
-        elementNode.style.backgroundColor = "var(--eucalyptus-success)";
-        elementNode.style.borderColor = "#74c69d";
-        elementNode.style.color = "var(--eucalyptus-text)";
+        playSynthSound('correct');
         
-        $('feedback-box').innerText = "✓ DIAGNOSIS VERIFIED: Parameter securely validated inside clinical database.";
+        $('user-term').disabled = true;
+        $('btn-submit').disabled = true;
+
+        $('feedback-box').innerText = `✓ DATA RECORDED: "${data.answer}" matches the calibration files perfectly.`;
         $('feedback-box').style.color = "var(--eucalyptus-text)";
-        $('feedback-box').style.backgroundColor = "#e8f5e9";
+        $('feedback-box').style.backgroundColor = "var(--eucalyptus-success)";
+        $('feedback-box').style.borderLeftColor = "#52b788";
 
         setTimeout(() => {
             currentQuestion++;
@@ -349,34 +400,26 @@ function checkDiagnosis(selectedOption, elementNode) {
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
-            playSound('wrong');
-            elementNode.style.backgroundColor = "var(--salmon-warning)";
-            elementNode.style.borderColor = "#ffb3c1";
-            elementNode.style.color = "var(--salmon-text)";
-            elementNode.disabled = true;
+            playSynthSound('wrong');
+            $('user-term').value = "";
+            $('user-term').focus();
             
-            $('feedback-box').innerText = "✕ SIGNAL MISMATCH: Sensor mismatch on item pathway. Recalibrating... (1 attempt left)";
+            $('feedback-box').innerText = "✕ MISMATCH: Input core string does not register. Check your spelling and verify. (1 attempt left)";
             $('feedback-box').style.color = "var(--salmon-text)";
-            $('feedback-box').style.backgroundColor = "#fff5f5";
+            $('feedback-box').style.backgroundColor = "var(--salmon-warning)";
+            $('feedback-box').style.borderLeftColor = "#e63946";
         } else {
             blockInputs = true;
-            playSound('wrong');
+            playSynthSound('wrong');
             
-            let nodes = document.querySelectorAll('.diagnostic-pill');
-            nodes.forEach(node => node.style.opacity = '0.4');
+            $('user-term').disabled = true;
+            $('btn-submit').disabled = true;
+            $('user-term').value = data.answer;
 
-            nodes.forEach(node => {
-                if (node.innerText.includes(data.answer)) {
-                    node.style.opacity = '1';
-                    node.style.backgroundColor = "var(--salmon-warning)";
-                    node.style.borderColor = "#ff4d6d";
-                    node.style.color = "var(--salmon-text)";
-                }
-            });
-
-            $('feedback-box').innerText = `⚠️ SYSTEM OVERRIDE: Log updated. Textbook Fact: The valid entry is "${data.answer}".`;
+            $('feedback-box').innerText = `⚠️ CORE PATCH APPLIED: 0 chances remaining. The authenticated textbook fact is "${data.answer}".`;
             $('feedback-box').style.color = "var(--salmon-text)";
-            $('feedback-box').style.backgroundColor = "#fff5f5";
+            $('feedback-box').style.backgroundColor = "var(--salmon-warning)";
+            $('feedback-box').style.borderLeftColor = "#e63946";
 
             setTimeout(() => {
                 currentQuestion++;
