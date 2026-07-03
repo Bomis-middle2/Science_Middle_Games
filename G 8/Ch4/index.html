@@ -3,47 +3,47 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sound Decryption: Signal Grid Lab</title>
+<title>Audiology Lab: Clinical Diagnostic Suite</title>
 <style>
 :root {
-    --bg-pastel: #f7f9fa;
-    --card-white: #ffffff;
-    --sage-green: #e2ecc8;
-    --sage-dark: #556b2f;
-    --lavender-border: #e1dbf4;
-    --lavender-accent: #8e7cc3;
-    --pastel-rose: #f5cdcb;
-    --rose-dark: #b84a47;
-    --text-slate: #2c3e50;
-    --text-dim: #7f8c8d;
+    --bg-clinic: #f0f4f8;
+    --panel-sheet: #ffffff;
+    --teal-primary: #2d6a4f;
+    --eucalyptus-success: #d8f3dc;
+    --eucalyptus-text: #1b4332;
+    --salmon-warning: #f9dcc4;
+    --salmon-text: #c1121f;
+    --border-soft: #d3d3d3;
+    --text-charcoal: #2b2d42;
+    --text-gray: #7f8c8d;
 }
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 body {
-    background-color: var(--bg-pastel);
-    color: var(--text-slate);
+    background-color: var(--bg-clinic);
+    color: var(--text-charcoal);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     user-select: none;
-    background-image: linear-gradient(rgba(225, 219, 244, 0.4) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(225, 219, 244, 0.4) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background-image: linear-gradient(0deg, #e2e8f0 1px, transparent 1px), 
+                      linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+    background-size: 50px 50px;
 }
 #game-container {
     width: 100%;
     max-width: 850px;
-    background: var(--card-white);
-    border-radius: 24px;
+    background: var(--panel-sheet);
+    border-radius: 20px;
     padding: 35px;
-    box-shadow: 0 15px 45px rgba(142, 124, 195, 0.1);
-    border: 1px solid var(--lavender-border);
+    box-shadow: 0 12px 30px rgba(45, 106, 79, 0.08);
+    border: 1px solid var(--border-soft);
     display: flex;
     flex-direction: column;
     gap: 25px;
@@ -52,106 +52,112 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid var(--bg-pastel);
+    border-bottom: 2px solid var(--bg-clinic);
     padding-bottom: 20px;
 }
 .title {
-    font-size: 1.35rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--text-slate);
+    letter-spacing: -0.3px;
+    color: var(--teal-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .title span {
-    color: var(--lavender-accent);
+    font-weight: 400;
+    color: var(--text-gray);
 }
 .status-bar {
     display: flex;
-    gap: 15px;
+    gap: 12px;
 }
-.counter-pill {
+.clinic-badge {
     font-size: 0.85rem;
     font-weight: 700;
-    padding: 6px 16px;
-    border-radius: 30px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 #progress-pill {
-    background-color: #ebf5fb;
-    color: #2980b9;
+    background-color: #e2eff1;
+    color: #0077b6;
 }
 #attempt-pill {
-    background-color: #fef9e7;
-    color: #d35400;
+    background-color: #fff0f3;
+    color: #ff4d6d;
 }
 
-/* Terminal Screen Area */
-.display-terminal {
-    background: #fafbfc;
-    border: 1px solid var(--lavender-border);
-    border-radius: 16px;
+/* Clinical Test Monitor */
+.test-monitor {
+    background: #f8fafc;
+    border: 1px dashed var(--teal-primary);
+    border-radius: 12px;
     padding: 30px;
-    min-height: 140px;
+    min-height: 130px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
 }
-.signal-prompt {
+.patient-observation {
     font-size: 1.15rem;
     line-height: 1.6;
     font-weight: 600;
-    max-width: 700px;
+    color: var(--text-charcoal);
+    max-width: 720px;
 }
 
-/* Response Grid Layout */
-.grid-matrix {
+/* Diagnostic Option Layout */
+.diagnostic-panel {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
 @media(max-width: 600px) {
-    .grid-matrix { grid-template-columns: 1fr; }
+    .diagnostic-panel { grid-template-columns: 1fr; }
 }
-.matrix-node {
-    background: var(--bg-pastel);
-    border: 1px solid var(--lavender-border);
-    padding: 20px;
-    border-radius: 14px;
+.diagnostic-pill {
+    background: #ffffff;
+    border: 1px solid var(--border-soft);
+    padding: 18px 22px;
+    border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-slate);
+    color: var(--text-charcoal);
     cursor: pointer;
     text-align: left;
     display: flex;
     align-items: center;
-    gap: 12px;
-    transition: all 0.2s ease;
+    gap: 15px;
+    transition: all 0.2s ease-in-out;
 }
-.matrix-node:hover {
-    background: #ffffff;
-    border-color: var(--lavender-accent);
-    box-shadow: 0 4px 15px rgba(142, 124, 195, 0.15);
-    transform: translateY(-2px);
+.diagnostic-pill:hover {
+    background: #f4fbf7;
+    border-color: var(--teal-primary);
+    box-shadow: 0 4px 12px rgba(45, 106, 79, 0.08);
+    transform: translateY(-1.5px);
 }
-.node-index {
-    width: 26px;
-    height: 26px;
-    background: #ffffff;
-    border: 1px solid var(--lavender-border);
-    border-radius: 50%;
+.pill-letter {
+    width: 24px;
+    height: 24px;
+    background: var(--bg-clinic);
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
-    color: var(--text-dim);
+    font-size: 0.75rem;
+    color: var(--teal-primary);
+    font-weight: 700;
 }
 
-/* Interactive Feedback Banner */
-.status-log {
-    background: var(--bg-pastel);
-    border-radius: 12px;
-    padding: 18px;
+/* Lab Activity Status Log */
+.lab-log {
+    background: var(--bg-clinic);
+    border-radius: 8px;
+    padding: 15px;
     min-height: 55px;
     display: flex;
     align-items: center;
@@ -159,7 +165,7 @@ body {
     text-align: center;
     font-size: 0.95rem;
     font-weight: 600;
-    color: var(--text-dim);
+    color: #4a5568;
 }
 
 #finish-screen {
@@ -169,21 +175,21 @@ body {
     flex-direction: column;
     gap: 20px;
 }
-#finish-screen h2 { color: var(--lavender-accent); font-size: 2.2rem; }
-.action-btn {
-    background: var(--lavender-accent);
+#finish-screen h2 { color: var(--teal-primary); font-size: 2rem; }
+.reset-btn {
+    background: var(--teal-primary);
     color: white;
     border: 0;
     padding: 14px 35px;
     font-weight: bold;
-    border-radius: 30px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
     align-self: center;
-    box-shadow: 0 4px 15px rgba(142, 124, 195, 0.3);
+    box-shadow: 0 4px 10px rgba(45, 106, 79, 0.2);
     transition: background 0.2s;
 }
-.action-btn:hover { background: #7665a9; }
+.reset-btn:hover { background: #1b4332; }
 </style>
 </head>
 <body>
@@ -193,29 +199,29 @@ body {
 
 <div id="game-container">
   <div class="header">
-    <div class="title">🔊 AudioWave <span>// Cipher Network</span></div>
+    <div class="title">🩺 Audiology Workstation <span>// Wave Diagnosis</span></div>
     <div class="status-bar">
-      <div class="counter-pill" id="progress-pill">NODE: <span id="lbl-question">1</span>/10</div>
-      <div class="counter-pill" id="attempt-pill">ATTEMPTS REMAINING: <span id="lbl-chances">2</span></div>
+      <div class="clinic-badge" id="progress-pill">Test: <span id="lbl-question">1</span>/10</div>
+      <div class="clinic-badge" id="attempt-pill">Chances Left: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
   <div id="main-layout" style="display: flex; flex-direction: column; gap: 25px;">
-    <div class="display-terminal">
-      <div class="signal-prompt" id="question-box">Establishing connection to sound wave matrix...</div>
+    <div class="test-monitor">
+      <div class="patient-observation" id="question-box">Loading audio sensor feeds...</div>
     </div>
 
-    <div class="grid-matrix" id="options-grid"></div>
+    <div class="diagnostic-panel" id="options-grid"></div>
   </div>
 
-  <div class="status-log" id="feedback-box">
-    Analyze the wave characteristics definition above and log the matching answer channel.
+  <div class="lab-log" id="feedback-box">
+    Review the acoustic wave telemetry data above and verify the correct anatomical factor.
   </div>
 
   <div id="finish-screen">
-    <h2>🎯 Audio Decryption Complete!</h2>
-    <p>All human ear structures, frequencies, wave dimensions, and velocity mechanics are successfully verified into memory.</p>
-    <button class="action-btn" onclick="location.reload()">Reboot Audio Network</button>
+    <h2>📋 Diagnostics Run Complete</h2>
+    <p>Patient examination successful. All wave metrics, ear structures, inner cochlear functions, and audible spectrum thresholds are locked and verified.</p>
+    <button class="reset-btn" onclick="location.reload()">Examine Next Patient</button>
   </div>
 </div>
 
@@ -223,7 +229,7 @@ body {
 const $ = id => document.getElementById(id);
 let currentQuestion = 0;
 let attemptsLeft = 2;
-let locksActive = false;
+let blockInputs = false;
 
 const database = [
     {
@@ -282,7 +288,7 @@ function playSound(type) {
     const audio = $(`audio-${type}`);
     if (audio) {
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio awaiting gesture interaction."));
+        audio.play().catch(e => console.log("Audio awaiting diagnostic event."));
     }
 }
 
@@ -295,12 +301,12 @@ function loadQuestion() {
     }
 
     attemptsLeft = 2;
-    locksActive = false;
+    blockInputs = false;
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
-    $('feedback-box').innerText = "Analyze the wave characteristics definition above and log the matching answer channel.";
-    $('feedback-box').style.color = "var(--text-dim)";
-    $('feedback-box').style.backgroundColor = "var(--bg-pastel)";
+    $('feedback-box').innerText = "Review the acoustic wave telemetry data above and verify the correct anatomical factor.";
+    $('feedback-box').style.color = "#4a5568";
+    $('feedback-box').style.backgroundColor = "var(--bg-clinic)";
 
     let data = database[currentQuestion];
     $('question-box').innerText = data.q;
@@ -311,27 +317,27 @@ function loadQuestion() {
     const alpha = ['A', 'B', 'C', 'D'];
     data.options.forEach((opt, idx) => {
         let btn = document.createElement('button');
-        btn.className = 'matrix-node';
-        btn.innerHTML = `<span class="node-index">${alpha[idx]}</span> ${opt}`;
-        btn.onclick = () => verifySelection(opt, btn);
+        btn.className = 'diagnostic-pill';
+        btn.innerHTML = `<span class="pill-letter">${alpha[idx]}</span> ${opt}`;
+        btn.onclick = () => checkDiagnosis(opt, btn);
         grid.appendChild(btn);
     });
 }
 
-function verifySelection(selectedOption, elementNode) {
-    if (locksActive) return; // Prevent clicks during processing periods
+function checkDiagnosis(selectedOption, elementNode) {
+    if (blockInputs) return;
     let data = database[currentQuestion];
 
     if (selectedOption === data.answer) {
-        locksActive = true;
+        blockInputs = true;
         playSound('correct');
-        elementNode.style.backgroundColor = "var(--sage-green)";
-        elementNode.style.borderColor = "var(--sage-dark)";
-        elementNode.style.color = "var(--sage-dark)";
+        elementNode.style.backgroundColor = "var(--eucalyptus-success)";
+        elementNode.style.borderColor = "#74c69d";
+        elementNode.style.color = "var(--eucalyptus-text)";
         
-        $('feedback-box').innerText = "✓ CHANNEL DECRYPTED: Frequency phase alignment verified successfully.";
-        $('feedback-box').style.color = "var(--sage-dark)";
-        $('feedback-box').style.backgroundColor = "#f1f9e7";
+        $('feedback-box').innerText = "✓ DIAGNOSIS VERIFIED: Parameter securely validated inside clinical database.";
+        $('feedback-box').style.color = "var(--eucalyptus-text)";
+        $('feedback-box').style.backgroundColor = "#e8f5e9";
 
         setTimeout(() => {
             currentQuestion++;
@@ -344,35 +350,33 @@ function verifySelection(selectedOption, elementNode) {
 
         if (attemptsLeft > 0) {
             playSound('wrong');
-            elementNode.style.backgroundColor = "var(--pastel-rose)";
-            elementNode.style.borderColor = "var(--rose-dark)";
-            elementNode.style.color = "var(--rose-dark)";
-            elementNode.disabled = true; // Disable this incorrect button
+            elementNode.style.backgroundColor = "var(--salmon-warning)";
+            elementNode.style.borderColor = "#ffb3c1";
+            elementNode.style.color = "var(--salmon-text)";
+            elementNode.disabled = true;
             
-            $('feedback-box').innerText = "✕ SIGNAL MISMATCH: Interference detected. Recalibrating... Try again.";
-            $('feedback-box').style.color = "var(--rose-dark)";
-            $('feedback-box').style.backgroundColor = "#fdf2f2";
+            $('feedback-box').innerText = "✕ SIGNAL MISMATCH: Sensor mismatch on item pathway. Recalibrating... (1 attempt left)";
+            $('feedback-box').style.color = "var(--salmon-text)";
+            $('feedback-box').style.backgroundColor = "#fff5f5";
         } else {
-            locksActive = true;
+            blockInputs = true;
             playSound('wrong');
             
-            // Disable all entries instantly
-            let nodes = document.querySelectorAll('.matrix-node');
+            let nodes = document.querySelectorAll('.diagnostic-pill');
             nodes.forEach(node => node.style.opacity = '0.4');
 
-            // Force locate and highlight correct button item template
             nodes.forEach(node => {
                 if (node.innerText.includes(data.answer)) {
                     node.style.opacity = '1';
-                    node.style.backgroundColor = "var(--pastel-rose)";
-                    node.style.borderColor = "var(--rose-dark)";
-                    node.style.color = "var(--rose-dark)";
+                    node.style.backgroundColor = "var(--salmon-warning)";
+                    node.style.borderColor = "#ff4d6d";
+                    node.style.color = "var(--salmon-text)";
                 }
             });
 
-            $('feedback-box').innerText = `⚠️ OVERRIDE: Data node locked. Textbook Fact: Correct answer is "${data.answer}".`;
-            $('feedback-box').style.color = "var(--rose-dark)";
-            $('feedback-box').style.backgroundColor = "#fdf2f2";
+            $('feedback-box').innerText = `⚠️ SYSTEM OVERRIDE: Log updated. Textbook Fact: The valid entry is "${data.answer}".`;
+            $('feedback-box').style.color = "var(--salmon-text)";
+            $('feedback-box').style.backgroundColor = "#fff5f5";
 
             setTimeout(() => {
                 currentQuestion++;
