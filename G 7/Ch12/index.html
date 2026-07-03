@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>OpticsLab- Light & Reflection</title>
+<title>OpticsLab Simulator - Grade 7 Light & Reflection</title>
 <style>
 :root {
     --ink: #0f172a;
@@ -61,14 +61,15 @@ body:before {
     gap: 15px;
     margin-bottom: 30px;
 }
-.app-brand-logo {
-    width: clamp(90px, 15vw, 130px);
-    height: auto;
+.innovine-logo {
     filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.6));
     animation: pulseGlow 3s ease-in-out infinite;
 }
+.laser-dot {
+    animation: beamSync 1.5s alternate infinite;
+}
 #splash-title {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     font-weight: 900;
     letter-spacing: 3px;
     background: linear-gradient(45deg, #06b6d4, #6366f1, #f43f5e);
@@ -219,7 +220,7 @@ canvas {
     text-align: center;
 }
 .expr {
-    font-size: clamp(1.02rem, 3.3vw, 1.35rem);
+    font-size: clamp(1.02rem, 3.3vw, 1.25rem);
     font-weight: 800;
     color: #0f172a;
     margin-top: 5px;
@@ -244,7 +245,7 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-size: clamp(0.85rem, 2.3vw, 1.02rem);
     font-weight: 800;
     color: #64748b;
     transition: .2s;
@@ -287,7 +288,7 @@ canvas {
     justify-content: center;
     text-align: center;
     padding: 8px;
-    font-size: clamp(.83rem, 2.3vw, .98rem);
+    font-size: clamp(.83rem, 2.3vw, .95rem);
     font-weight: 700;
     color: #334155;
     cursor: grab;
@@ -344,6 +345,10 @@ canvas {
     0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.5)); }
     50% { transform: scale(1.04); filter: drop-shadow(0 0 25px rgba(244, 63, 94, 0.8)); }
 }
+@keyframes beamSync {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; fill: #06b6d4; }
+}
 @media(max-width:760px) {
     #root { max-width: 520px; }
     .main { grid-template-columns: 1fr; grid-template-rows: .82fr 1fr; }
@@ -359,6 +364,10 @@ canvas {
     .drop { min-height: 56px; }
     .feedback { min-height: 30px; }
     .introCard, .endCard { padding: 16px; }
+}
+@media(max-width:760px) {
+    .main { display: flex; flex-direction: column; }
+    .workshop { height: 240px; min-height: 240px; }
 }
 @media(max-height:650px) {
     #root { max-height: none; gap: 7px; }
@@ -379,7 +388,19 @@ canvas {
 
 <div id="splash">
   <div class="logo-container">
-    <img src="assets/logo.png" alt="Logo" class="app-brand-logo" />
+    <svg class="innovine-logo" viewBox="0 0 100 100" width="90" height="90">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#06b6d4" />
+          <stop offset="50%" stop-color="#6366f1" />
+          <stop offset="100%" stop-color="#f43f5e" />
+        </linearGradient>
+      </defs>
+      <path d="M 30,50 C 30,35 45,30 50,50 C 55,70 70,65 70,50 C 70,35 55,30 50,50 C 45,70 30,65 30,50 Z" 
+            fill="none" stroke="url(#grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="50" cy="50" r="3" fill="#ffffff" class="laser-dot" />
+    </svg>
+    <div id="splash-title">INNOVINE</div>
   </div>
   <div class="loader"><div id="loadFill"></div></div>
 </div>
@@ -426,64 +447,64 @@ let canvas, ctx, items = [], qIndex = 0, score = 0, tries = 2, selected = null, 
 
 const questions = [
     {
-        q: 'How does light travel from a flashlight through space, and what happens when you look through a bent straw?',
-        a: ['Straight Line Path', 'Rectilinear Propagation'],
-        tiles: ['Straight Line Path', 'Rectilinear Propagation', 'Curved Wavefront', 'Bending Around Edges'],
-        exp: 'Light travels strictly along straight lines, a phenomenon known as the rectilinear propagation of light.'
+        q: 'What occurs when you bend a light-viewing straw slightly during the experiment, and what physical principle does this show?',
+        a: ['Light rays not seen', 'Rectilinear Propagation'],
+        tiles: ['Light rays not seen', 'Rectilinear Propagation', 'Light bends cleanly', 'Lateral Displacement'],
+        exp: 'Bending the straw blocks the ray, proving light travels strictly in a straight line.'
     },
     {
-        q: 'What basic event occurs when a beam hits a highly polished plane mirror, and what is this modification of path called?',
-        a: ['Direction Change', 'Reflection of Light'],
-        tiles: ['Direction Change', 'Reflection of Light', 'Complete Absorption', 'Color Splitting'],
-        exp: 'When light bouncing off a surface flips direction, it undergoes reflection.'
+        q: 'What type of illusionary representation is cast by a flat plane mirror, and what can be said about its placement when a screen is added?',
+        a: ['Virtual Image', 'Cannot display on screen'],
+        tiles: ['Virtual Image', 'Cannot display on screen', 'Real Image', 'Projects onto screen'],
+        exp: 'A plane mirror creates a virtual image because light rays only appear to originate from behind it; no real rays converge there.'
     },
     {
-        q: 'When you stand directly in front of a flat plane mirror, what kind of image is produced, and what is its specific orientation?',
-        a: ['Erect Image', 'Same Size as Object'],
-        tiles: ['Erect Image', 'Same Size as Object', 'Inverted Orientation', 'Magnified Detail'],
-        exp: 'A plane mirror always forms an erect image that is exactly the same scale as the real-world object.'
+        q: 'State the law governing the angles when a sunbeam strikes a polished mirror plane, along with the alignment plane of the three primary rays.',
+        a: ['Angle of Incidence = Reflection', 'All lie on the same plane'],
+        tiles: ['Angle of Incidence = Reflection', 'All lie on the same plane', 'Angle of Incidence > Reflection', 'Normal is at 45 degrees'],
+        exp: 'The angle of incidence strictly equals the angle of reflection, and the incident, normal, and reflected rays lie on a uniform plane.'
     },
     {
-        q: 'Why does the word AMBULANCE look inverted backwards on the front of emergency vehicles when viewed through a rearview mirror?',
-        a: ['Left-Right Swapping', 'Lateral Inversion'],
-        tiles: ['Left-Right Swapping', 'Lateral Inversion', 'Upside-Down Flip', 'Focal Distortion'],
-        exp: 'Lateral inversion causes the left side of an object to appear on the right side in its mirror image.'
+        q: 'Which spherical component curves inward like the inside of a polished spoon, and what happens to a flashlight beam bounced off it?',
+        a: ['Concave Mirror', 'Converges at Focal Point'],
+        tiles: ['Concave Mirror', 'Converges at Focal Point', 'Convex Mirror', 'Diverges widely'],
+        exp: 'An inwardly curved concave mirror functions as a converging device, concentrating light rays together at a distinct focus.'
     },
     {
-        q: 'Identify a mirror type with an inwardly curved reflecting surface, and state what type of real focal point image it can cast.',
-        a: ['Concave Mirror', 'Real and Inverted'],
-        tiles: ['Concave Mirror', 'Real and Inverted', 'Convex Mirror', 'Virtual and Erect Only'],
-        exp: 'A concave mirror features an inwardly curved reflective face and can create real, upside-down images.'
+        q: 'Which spherical surface device curves outward like a side-view auto mirror, and how does it manipulate reflected rays?',
+        a: ['Convex Mirror', 'Diverges/Spreads out rays'],
+        tiles: ['Convex Mirror', 'Diverges/Spreads out rays', 'Concave Mirror', 'Focuses rays inward'],
+        exp: 'Convex mirrors curve outward to spread out (diverge) rays, providing a wider field of view with diminished images.'
     },
     {
-        q: 'Which reflective device curves outward like a shiny security dome, and what kind of field of view image does it produce?',
-        a: ['Convex Mirror', 'Diminished Wide View'],
-        tiles: ['Convex Mirror', 'Diminished Wide View', 'Concave Lens', 'Perfect Unchanged Plane'],
-        exp: 'Convex mirrors curve outward to compress a wide panoramic field into small, upright, diminished images.'
+        q: 'What is the exact algebraic definition relating the Radius of Curvature (R) to Focal Length (f) for a sphere segment mirror?',
+        a: ['Formula R = 2f', 'Focus lies midway to C'],
+        tiles: ['Formula R = 2f', 'Focus lies midway to C', 'Formula f = 2R', 'Focus is located at C'],
+        exp: 'The principal focus sits exactly halfway between the pole and the center of curvature, represented as R = 2f.'
     },
     {
-        q: 'What is a glass lens that is thick at the center and thin at the borders called, and what does it do to incoming rays?',
-        a: ['Convex Lens', 'Converging Power'],
-        tiles: ['Convex Lens', 'Converging Power', 'Concave Lens', 'Diverging Power'],
-        exp: 'A convex lens tapers toward the edges, acting as a magnifying glass that focuses or converges light rays.'
+        q: 'What transparent tool is thickest at its midpoint and tapers at its borders, and how does it alter incoming light pathways?',
+        a: ['Convex Lens', 'Bends rays inwards'],
+        tiles: ['Convex Lens', 'Bends rays inwards', 'Concave Lens', 'Separates rays outwards'],
+        exp: 'A convex lens acts as a converging element, bending rays inwards toward a common focal point.'
     },
     {
-        q: 'Identify a glass component that is thinner at its central midpoint than its edges, and explain its functional ray pattern.',
-        a: ['Concave Lens', 'Diverging Power'],
-        tiles: ['Concave Lens', 'Diverging Power', 'Convex Mirror', 'Converging Power'],
-        exp: 'A concave lens is hollowed out in the middle, scattering or diverging light beams outward.'
+        q: 'Describe the complete image structure generated by a standard concave lens regardless of how far or close you set the object.',
+        a: ['Virtual and Erect', 'Smaller than object'],
+        tiles: ['Virtual and Erect', 'Smaller than object', 'Real and Inverted', 'Magnified and Real'],
+        exp: 'A concave lens consistently yields a diminished, erect, and virtual image across all object positions.'
     },
     {
-        q: 'What beautiful event occurs when sharp white sunlight shoots through a triangular glass prism component?',
-        a: ['Dispersion of Light', 'Seven Constituent Colors'],
-        tiles: ['Dispersion of Light', 'Seven Constituent Colors', 'Total Internal Deflection', 'Rectilinear Blockage'],
-        exp: 'Dispersion is the separation of white light into its multi-colored structural spectrum.'
+        q: 'What real structural image output is cast on the wax paper window of a pinhole camera box, and what makes it occur?',
+        a: ['Inverted Image', 'Rays cross through aperture'],
+        tiles: ['Inverted Image', 'Rays cross through aperture', 'Erect Image', 'Total internal absorption'],
+        exp: 'Straight line light rays cross through the narrow pinhole aperture, projecting a real, upside-down image on the opposite screen.'
     },
     {
-        q: 'What acronym records the sequence of colors generated in a rainbow spectrum, and what is this collective band of light named?',
-        a: ['VIBGYOR Sequence', 'Visible Spectrum'],
-        tiles: ['VIBGYOR Sequence', 'Visible Spectrum', 'RGB Mixing Matrix', 'Monochromatic Ray'],
-        exp: 'White light consists of seven basic colors arranged sequentially by the acronym VIBGYOR.'
+        q: 'What physical phenomenon takes place when a beam enters a glass prism, and what appears when you rapidly spin a cardboard disc painted with the VIBGYOR bands?',
+        a: ['Dispersion of Light', 'Disc blends into white light'],
+        tiles: ['Dispersion of Light', 'Disc blends into white light', 'Monochromatic filter', 'Disc displays a rainbow'],
+        exp: 'Prisms split white light into its seven constituent colors via dispersion, which reverse-blends back to white when spun rapidly.'
     }
 ];
 
@@ -697,14 +718,7 @@ function sound(id) {
 
 function finish() {
     let acc = Math.round((score / (questions.length * 15)) * 100);
-    $('root').innerHTML = `
-    <div class="screen">
-        <div class="endCard">
-            <h1>🏆 Optics Lab Complete!</h1>
-            <p>You have aligned all 10 experiment stations successfully.<br><b>Final Luminous Flux: ${score} lm</b><br><b>Calibration Accuracy: ${acc}%</b></p>
-            <button class="btn" onclick="location.reload()">Reboot Lab Terminal</button>
-        </div>
-    </div>`;
+    $('root').innerHTML = `<div class="screen"><div class="endCard"><h1>🏆 Optics Lab Complete!</h1><p>You have aligned all 10 experiment stations successfully.<br><b>Final Luminous Flux: ${score} lm</b><br><b>Calibration Accuracy: ${acc}%</b></p><button class="btn" onclick="location.reload()">Reboot Lab Terminal</button></div></div>`;
 }
 
 function confetti() {
