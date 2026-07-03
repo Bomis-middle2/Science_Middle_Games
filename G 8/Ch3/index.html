@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Friction Physics Lab: Drag & Drop Bench</title>
+<style>
+:root {
+    --bg: #0b0f19;
+    --panel-bg: #131a26;
+    --text: #f8fafc;
+    --text-muted: #64748b;
+    --cyan: #38bdf8;
+    --amber: #fbbf24;
+    --emerald: #34d399;
+    --rose: #f87171;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    user-select: none;
+}
+#game-container {
+    width: 100%;
+    max-width: 900px;
+    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: 1px solid #1e293b;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1e293b;
+    padding-bottom: 15px;
+}
+.title {
+    font-size: 1.3rem;
+    color: var(--cyan);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+.status-bar {
+    display: flex;
+    gap: 20px;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+.progress { color: var(--amber); }
+.chances { color: var(--rose); }
+
+/* Workspace Layout */
+.workbench {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 25px;
+    min-height: 220px;
+}
+@media(max-width: 768px) {
+    .workbench { grid-template-columns: 1fr; }
+}
+
+/* Drop Zone Styles */
+.drop-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #04060a;
+    border: 2px dashed #334155;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.drop-area.hovered {
+    border-color: var(--cyan);
+    background: #0c1524;
+}
+.question-text {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    color: #e2e8f0;
+}
+.target-slot {
+    border: 2px dashed #475569;
+    background: #111827;
+    border-radius: 8px;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--cyan);
+    transition: all 0.2s ease;
+}
+.target-slot.filled {
+    border-style: solid;
+    background: #1e293b;
+}
+
+/* Draggable Items Bank */
+.bank-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.bank-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-weight: bold;
+}
+.options-bank {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.drag-item {
+    background: #243147;
+    border: 1px solid #334155;
+    color: var(--text);
+    padding: 14px;
+    border-radius: 8px;
+    cursor: grab;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    transition: transform 0.2s, background 0.2s;
+}
+.drag-item:hover {
+    background: #2e3f5c;
+    border-color: var(--cyan);
+}
+.drag-item:active {
+    cursor: grabbing;
+}
+.drag-item.dragging {
+    opacity: 0.4;
+    transform: scale(0.98);
+}
+
+/* Feedback Box */
+.feedback-container {
+    background: #090d16;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border: 1px solid #1e293b;
+}
+
+#end-screen {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+}
+#end-screen h2 { color: var(--emerald); font-size: 2.2rem; }
+#end-screen p { color: var(--text-muted); font-size: 1.1rem; }
+.reset-btn {
+    background: var(--cyan);
+    color: #0f172a;
+    border: 0;
+    padding: 14px 30px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    align-self: center;
+    transition: background 0.2s;
+}
+.reset-btn:hover { background: #0ea5e9; }
+</style>
+</head>
+<body>
+
+<audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+
+<div id="game-container">
+  <div class="header">
+    <div class="title">⚙️ Friction Mechanics Lab: Drag & Drop Bench</div>
+    <div class="status-bar">
+      <div class="progress">Concept: <span id="lbl-question">1</span>/10</div>
+      <div class="chances">Attempts Left for this Question: <span id="lbl-chances">2</span></div>
+    </div>
+  </div>
+
+  <div class="workbench" id="main-layout">
+    <div class="drop-area" id="drop-zone">
+      <div class="question-text" id="question-box">Loading parameter data...</div>
+      <div class="target-slot" id="target-slot">Drop Correct Friction Term Here</div>
+    </div>
+
+    <div class="bank-panel">
+      <div class="bank-title">Available Science Terms</div>
+      <div class="options-bank" id="options-bank"></div>
+    </div>
+  </div>
+
+  <div class="feedback-container" id="feedback-text">
+    Drag the corresponding physics parameter from the right bank into the target zone.
+  </div>
+
+  <div id="end-screen">
+    <h2>🏆 Tribology Lab Certification Attained!</h2>
+    <p>Incredible work! You have perfectly mastered all core concepts of friction, resistances, fluid drag, and structural surface optimization rules.</p>
+    <button class="reset-btn" onclick="location.reload()">Restart Lab Simulator</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentQuestion = 0;
+let attemptsLeft = 2; // Tracked strictly per question
+let draggedText = "";
+
+const database = [
+    {
+        q: "The force that acts along the two surfaces in contact and always opposes the relative motion of one body over the other is defined as:",
+        options: ["Friction", "Mass", "Acceleration", "Streamlining"],
+        answer: "Friction"
+    },
+    {
+        q: "The frictional force that exists between a completely stationary object and the surface on which it is resting is called:",
+        options: ["Static Friction", "Sliding Friction", "Rolling Friction", "Fluid Friction"],
+        answer: "Static Friction"
+    },
+    {
+        q: "The friction acting on a body when it is actively sliding over a surface is classified as:",
+        options: ["Sliding Friction", "Static Friction", "Rolling Friction", "Drag"],
+        answer: "Sliding Friction"
+    },
+    {
+        q: "The specific friction arising when one surface rolls easily over another surface, which is always less than sliding friction, is:",
+        options: ["Rolling Friction", "Static Friction", "Sliding Friction", "Fluid Friction"],
+        answer: "Rolling Friction"
+    },
+    {
+        q: "The force of friction exerted specifically by fluids (gases or liquids) on objects moving through them is called:",
+        options: ["Drag", "Lubrication", "Static Lock", "Polishing"],
+        answer: "Drag"
+    },
+    {
+        q: "A special body contour design that allows air or water to flow around it easily while offering minimum frictional resistance is a:",
+        options: ["Streamlined shape", "Rough surface", "Dry configuration", "Spherical mold"],
+        answer: "Streamlined shape"
+    },
+    {
+        q: "Special substances like oil, grease, or graphite applied between mechanical parts to minimize wear and reduce friction are:",
+        options: ["Lubricants", "Brake pads", "Interlock grids", "Fluids"],
+        answer: "Lubricants"
+    },
+    {
+        q: "When an object moves forward, the opposing force of friction always acts in which directional vector orientation?",
+        options: ["Backward direction", "Forward direction", "Perpendicular direction", "Downward direction"],
+        answer: "Backward direction"
+    },
+    {
+        q: "Wrestlers smear themselves with oil before a match, and machine parts wear down over time because friction generates what form of energy?",
+        options: ["Heat", "Light", "Chemical energy", "Magnetic force"],
+        answer: "Heat"
+    },
+    {
+        q: "To increase friction deliberately for safety controls, which of the following mechanical parts or actions is utilized?",
+        options: ["Using brake pads", "Polishing surfaces", "Applying ball bearings", "Adding fine lubricants"],
+        answer: "Using brake pads"
+    }
+];
+
+function playSound(type) {
+    const audio = $(`audio-${type}`);
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio play delayed until user focus action."));
+    }
+}
+
+function loadQuestion() {
+    if (currentQuestion >= database.length) {
+        $('main-layout').style.display = 'none';
+        $('feedback-container').style.display = 'none';
+        $('end-screen').style.display = 'flex';
+        return;
+    }
+
+    attemptsLeft = 2; // Strict 2 chances per individual question refresh
+    $('lbl-question').innerText = currentQuestion + 1;
+    $('lbl-chances').innerText = attemptsLeft;
+    $('feedback-text').innerText = "Drag the correct term from the bank and release it inside the drop slot.";
+    $('feedback-text').style.color = "var(--text-muted)";
+
+    let data = database[currentQuestion];
+    $('question-box').innerText = data.q;
+
+    // Reset Target Area Box
+    let slot = $('target-slot');
+    slot.innerText = "Drop Correct Friction Term Here";
+    slot.className = "target-slot";
+    slot.style.borderColor = "";
+    slot.style.color = "";
+    slot.style.backgroundColor = "";
+
+    // Generate Question Shuffled Options
+    let bank = $('options-bank');
+    bank.innerHTML = '';
+    data.options.forEach(opt => {
+        let div = document.createElement('div');
+        div.className = 'drag-item';
+        div.innerText = opt;
+        div.draggable = true;
+        
+        div.addEventListener('dragstart', (e) => {
+            div.classList.add('dragging');
+            draggedText = opt;
+        });
+
+        div.addEventListener('dragend', () => {
+            div.classList.remove('dragging');
+        });
+
+        bank.appendChild(div);
+    });
+
+    setupDragDropHandlers();
+}
+
+function setupDragDropHandlers() {
+    let zone = $('drop-zone');
+
+    // Clean up old listener attachments safely
+    const newZone = zone.cloneNode(true);
+    zone.parentNode.replaceChild(newZone, zone);
+
+    newZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        newZone.classList.add('hovered');
+    });
+
+    newZone.addEventListener('dragleave', () => {
+        newZone.classList.remove('hovered');
+    });
+
+    newZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        newZone.classList.remove('hovered');
+        processDroppedAnswer(draggedText);
+    });
+}
+
+function processDroppedAnswer(answer) {
+    let data = database[currentQuestion];
+    let slot = $('target-slot');
+
+    if (answer === data.answer) {
+        // Correct Item Placement logic
+        playSound('correct');
+        slot.innerText = answer;
+        slot.className = "target-slot filled";
+        slot.style.backgroundColor = "#064e3b";
+        slot.style.borderColor = "var(--emerald)";
+        slot.style.color = "var(--emerald)";
+        $('feedback-text').innerText = "🎯 Correct! You verified the friction model safely.";
+        $('feedback-text').style.color = "var(--emerald)";
+        disableCurrentBank();
+        
+        setTimeout(() => {
+            currentQuestion++;
+            loadQuestion();
+        }, 2500);
+
+    } else {
+        // Incorrect Item Placement logic
+        attemptsLeft--;
+        $('lbl-chances').innerText = attemptsLeft;
+
+        if (attemptsLeft > 0) {
+            // Attempt 1 Failure -> Prompt Retry
+            playSound('wrong');
+            $('feedback-text').innerText = "❌ Incorrect properties. Opposing force vectors mismatched! Try again. (1 attempt left)";
+            $('feedback-text').style.color = "var(--amber)";
+            
+            slot.innerText = "Drop Correct Friction Term Here";
+            slot.className = "target-slot";
+        } else {
+            // Attempt 2 Failure -> Reveal correct answer, then proceed to next question automatically
+            playSound('wrong');
+            slot.innerText = data.answer;
+            slot.className = "target-slot filled";
+            slot.style.backgroundColor = "#7f1d1d";
+            slot.style.borderColor = "var(--rose)";
+            slot.style.color = "var(--rose)";
+            $('feedback-text').innerText = `⚠️ 0 attempts left. Scientific Law: The correct match is "${data.answer}". Advancing to next station...`;
+            $('feedback-text').style.color = "var(--rose)";
+            disableCurrentBank();
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 3500);
+        }
+    }
+}
+
+function disableCurrentBank() {
+    let items = document.querySelectorAll('.drag-item');
+    items.forEach(item => {
+        item.draggable = false;
+        item.style.cursor = 'not-allowed';
+        item.style.opacity = '0.3';
+    });
+}
+
+window.onload = loadQuestion;
+</script>
+</body>
+</html>
