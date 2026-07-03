@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Friction Study: Pastel STEM Lab</title>
 <style>
 :root {
@@ -31,9 +31,61 @@ body {
     justify-content: center;
     padding: 20px;
     user-select: none;
+    -webkit-user-select: none;
     background-image: radial-gradient(#e0e5ec 1.5px, transparent 1.5px);
     background-size: 24px 24px;
 }
+
+/* Splash Screen Styles */
+#splash {
+    position: fixed;
+    inset: 0;
+    background: #090d16;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity .5s ease;
+    color: #fff;
+}
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+.app-brand-logo {
+    width: clamp(90px, 15vw, 130px);
+    height: auto;
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.5));
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+#splash-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(45deg, #06b6d4, #6366f1, #f43f5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.loader {
+    position: absolute;
+    bottom: 18%;
+    width: 190px;
+    height: 8px;
+    background: #1e293b;
+    border-radius: 50px;
+    overflow: hidden;
+}
+.loader div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #06b6d4, #10b981, #f59e0b);
+}
+
+/* Main Game Layout */
 #game-container {
     width: 100%;
     max-width: 900px;
@@ -45,6 +97,8 @@ body {
     flex-direction: column;
     gap: 25px;
     border: 1px solid var(--lavender-border);
+    opacity: 0;
+    transition: opacity 0.45s ease;
 }
 
 .header {
@@ -182,10 +236,11 @@ body {
 
 #end-screen {
     text-align: center;
-    padding: 50px 20px;
+    padding: 40px 20px;
     display: none;
     flex-direction: column;
-    gap: 25px;
+    align-items: center;
+    gap: 22px;
 }
 #end-screen h2 { color: #6096ba; font-size: 2.2rem; }
 #end-screen p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
@@ -202,12 +257,25 @@ body {
     transition: all 0.2s ease;
 }
 .reset-btn:hover { background: #1d3557; }
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.5)); }
+    50% { transform: scale(1.04); filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.8)); }
+}
 </style>
 </head>
 <body>
 
 <audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
 <audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+
+<div id="splash">
+  <div class="logo-container">
+    <img src="assets/logo.png" alt="Innovine Logo" class="app-brand-logo" />
+    <div id="splash-title">INNOVINE</div>
+  </div>
+  <div class="loader"><div id="loadFill"></div></div>
+</div>
 
 <div id="game-container">
   <div class="header">
@@ -235,6 +303,7 @@ body {
   </div>
 
   <div id="end-screen">
+    <img src="assets/logo.png" alt="Innovine" style="width:75px; height:auto; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1));" />
     <h2>✨ Review Session Finished!</h2>
     <p>Wonderful! You have neatly cataloged all 10 foundational laws of friction, resisting forces, dynamic configurations, and surface modifiers from Chapter 3.</p>
     <button class="reset-btn" onclick="location.reload()">Review Workbook Again</button>
@@ -300,18 +369,33 @@ const database = [
     }
 ];
 
+// Smooth Splash Screen Controller
+let load = 0, loadTimer = setInterval(() => {
+    load += 4;
+    $('loadFill').style.width = load + '%';
+    if (load >= 100) {
+        clearInterval(loadTimer);
+        $('splash').style.opacity = 0;
+        setTimeout(() => {
+            $('splash').remove();
+            $('game-container').style.opacity = 1;
+            loadQuestion();
+        }, 500);
+    }
+}, 40);
+
 function playSound(type) {
     const audio = $(`audio-${type}`);
     if (audio) {
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio waiting for system gesture context."));
+        audio.play().catch(e => console.log("Audio gesture channel pending interaction context."));
     }
 }
 
 function loadQuestion() {
     if (currentQuestion >= database.length) {
         $('main-layout').style.display = 'none';
-        $('feedback-container').style.display = 'none';
+        $('feedback-text').parentNode.style.display = 'none';
         $('end-screen').style.display = 'flex';
         return;
     }
@@ -437,8 +521,6 @@ function disableCurrentBank() {
         item.style.opacity = '0.2';
     });
 }
-
-window.onload = loadQuestion;
 </script>
 </body>
 </html>
