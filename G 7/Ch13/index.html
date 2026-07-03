@@ -328,7 +328,7 @@ function loadQuestion() {
     slot.style.color = "";
     slot.style.backgroundColor = "";
 
-    // Generate Bank Shuffled Options List
+    // Generate Bank Options List
     let bank = $('options-bank');
     bank.innerHTML = '';
     data.options.forEach(opt => {
@@ -356,18 +356,22 @@ function setupDragDropHandlers() {
     let slot = $('target-slot');
     let zone = $('drop-zone');
 
-    zone.addEventListener('dragover', (e) => {
+    // Clean up older listeners to prevent duplicate triggers
+    const newZone = zone.cloneNode(true);
+    zone.parentNode.replaceChild(newZone, zone);
+
+    newZone.addEventListener('dragover', (e) => {
         e.preventDefault();
-        zone.classList.add('hovered');
+        newZone.classList.add('hovered');
     });
 
-    zone.addEventListener('dragleave', () => {
-        zone.classList.remove('hovered');
+    newZone.addEventListener('dragleave', () => {
+        newZone.classList.remove('hovered');
     });
 
-    zone.addEventListener('drop', (e) => {
+    newZone.addEventListener('drop', (e) => {
         e.preventDefault();
-        zone.classList.remove('hovered');
+        newZone.classList.remove('hovered');
         processDroppedAnswer(draggedText);
     });
 }
@@ -377,7 +381,7 @@ function processDroppedAnswer(answer) {
     let slot = $('target-slot');
 
     if (answer === data.answer) {
-        // Correct Execution
+        // Correct Choice Match
         playSound('correct');
         slot.innerText = answer;
         slot.className = "target-slot filled";
@@ -394,23 +398,28 @@ function processDroppedAnswer(answer) {
         }, 2500);
 
     } else {
-        // Incorrect Execution
+        // Incorrect Choice Match
         attemptsLeft--;
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
+            // First Wrong Attempt
             playSound('wrong');
             $('feedback-text').innerText = "❌ That parameter does not match this concept. Try again! 1 attempt remaining.";
             $('feedback-text').style.color = "var(--amber)";
+            
+            // Snap back item visual hint reset
+            slot.innerText = "Drop Correct Term Here";
+            slot.className = "target-slot";
         } else {
-            // Out of chances - Reveal Answer automatically
+            // Second Wrong Attempt -> Reveal answer and move forward automatically
             playSound('wrong');
             slot.innerText = data.answer;
             slot.className = "target-slot filled";
             slot.style.backgroundColor = "#7f1d1d";
             slot.style.borderColor = "var(--rose)";
             slot.style.color = "var(--rose)";
-            $('feedback-text').innerText = `⚠️ Out of attempts. Scientific Fact: The correct answer is "${data.answer}". Moving to next field...`;
+            $('feedback-text').innerText = `⚠️ Out of attempts. Scientific Fact: The correct answer is "${data.answer}". Moving forward...`;
             $('feedback-text').style.color = "var(--rose)";
             disableCurrentBank();
 
