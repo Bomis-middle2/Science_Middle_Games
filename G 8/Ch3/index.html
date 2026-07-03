@@ -3,89 +3,76 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TriboMech: Friction Engineering Lab</title>
+<title>Friction Study: Pastel STEM Lab</title>
 <style>
 :root {
-    --bg-industrial: #1c1d22;
-    --panel-iron: #282a30;
-    --steel-border: #4a4d56;
-    --text-bright: #f1f2f6;
-    --text-dark: #8e929f;
-    --hazard-orange: #f97316;
-    --laser-amber: #eab308;
-    --system-green: #22c55e;
-    --system-red: #ef4444;
+    --bg-pastel: #f4f6f8;
+    --panel-white: #ffffff;
+    --lavender-border: #dcd6f7;
+    --text-charcoal: #333333;
+    --text-muted: #7e8492;
+    --pastel-blue: #a8dadc;
+    --pastel-peach: #f4a261;
+    --pastel-mint: #a7c957;
+    --pastel-rose: #f28482;
 }
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 body {
-    background-color: var(--bg-industrial);
-    color: var(--text-bright);
+    background-color: var(--bg-pastel);
+    color: var(--text-charcoal);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     user-select: none;
-    background-image: radial-gradient(var(--panel-iron) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: radial-gradient(#e0e5ec 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
 }
 #game-container {
     width: 100%;
-    max-width: 950px;
-    background: var(--panel-iron);
-    border-radius: 6px;
-    padding: 30px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    max-width: 900px;
+    background: var(--panel-white);
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 10px 40px rgba(167, 174, 191, 0.15);
     display: flex;
     flex-direction: column;
     gap: 25px;
-    border: 2px solid var(--steel-border);
-    position: relative;
-}
-/* Corner industrial rivets decoration */
-#game-container::before {
-    content: '';
-    position: absolute;
-    top: 8px; left: 8px; width: 6px; height: 6px;
-    background: var(--steel-border); border-radius: 50%;
-    box-shadow: 928px 0 0 var(--steel-border), 0 578px 0 var(--steel-border), 928px 578px 0 var(--steel-border);
+    border: 1px solid var(--lavender-border);
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 3px solid var(--steel-border);
-    padding-bottom: 18px;
+    border-bottom: 2px solid var(--bg-pastel);
+    padding-bottom: 20px;
 }
 .title {
     font-size: 1.4rem;
-    color: var(--text-bright);
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    color: var(--text-charcoal);
+    font-weight: 700;
+    letter-spacing: -0.3px;
 }
 .title span {
-    color: var(--hazard-orange);
+    color: #457b9d;
 }
 .status-bar {
     display: flex;
-    gap: 25px;
-    font-family: monospace;
-    font-size: 1rem;
+    gap: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
-.progress { color: var(--laser-amber); background: #131417; padding: 4px 10px; border-radius: 4px; border: 1px solid #3f414a; }
-.chances { color: var(--system-red); background: #131417; padding: 4px 10px; border-radius: 4px; border: 1px solid #3f414a; }
+.progress { color: #457b9d; background: #e6394615; padding: 6px 14px; border-radius: 30px; }
+.chances { color: #e63946; background: #e6394610; padding: 6px 14px; border-radius: 30px; }
 
-/* Workbench Layout */
+/* Workspace Layout */
 .workbench {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr;
@@ -101,42 +88,38 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: #131417;
-    border: 2px solid #3f414a;
-    border-radius: 4px;
+    background: #fdfefe;
+    border: 2px dashed var(--lavender-border);
+    border-radius: 16px;
     padding: 30px;
     position: relative;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
 }
 .drop-area.hovered {
-    border-color: var(--hazard-orange);
-    background: #191b20;
+    border-color: #457b9d;
+    background: #f1faee;
 }
 .question-text {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     line-height: 1.6;
-    color: #e2e8f0;
+    color: var(--text-charcoal);
     font-weight: 500;
 }
 .target-slot {
-    border: 2px dashed var(--steel-border);
-    background: #1c1d22;
-    border-radius: 4px;
+    border: 2px dashed #b8c0d2;
+    background: #f8f9fa;
+    border-radius: 12px;
     min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 1.15rem;
-    color: var(--hazard-orange);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-muted);
     margin-top: 20px;
     transition: all 0.2s ease;
 }
 .target-slot.filled {
     border-style: solid;
-    background: #282a30;
 }
 
 /* Draggable Items Bank */
@@ -146,10 +129,10 @@ body {
     gap: 15px;
 }
 .bank-title {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text-dark);
+    letter-spacing: 1px;
+    color: var(--text-muted);
     font-weight: 700;
 }
 .options-bank {
@@ -158,44 +141,43 @@ body {
     gap: 12px;
 }
 .drag-item {
-    background: #363942;
-    border: 1px solid var(--steel-border);
-    color: var(--text-bright);
+    background: var(--bg-pastel);
+    border: 1px solid transparent;
+    color: var(--text-charcoal);
     padding: 15px;
-    border-radius: 4px;
+    border-radius: 12px;
     cursor: grab;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: transform 0.15s, background 0.15s, border-color 0.15s;
+    transition: all 0.2s ease;
 }
 .drag-item:hover {
-    background: #414550;
-    border-color: var(--hazard-orange);
+    background: #ffffff;
+    border-color: #457b9d;
+    box-shadow: 0 5px 15px rgba(69, 123, 157, 0.12);
+    transform: translateY(-1px);
 }
 .drag-item:active {
     cursor: grabbing;
 }
 .drag-item.dragging {
     opacity: 0.3;
-    transform: scale(0.97);
 }
 
 /* Feedback Box */
 .feedback-container {
-    background: #131417;
-    border-radius: 4px;
+    background: var(--bg-pastel);
+    border-radius: 12px;
     padding: 18px;
     min-height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    color: var(--text-dark);
-    border: 1px solid #3f414a;
+    color: #5c626e;
 }
 
 #end-screen {
@@ -205,24 +187,21 @@ body {
     flex-direction: column;
     gap: 25px;
 }
-#end-screen h2 { color: var(--system-green); font-size: 2.4rem; text-transform: uppercase; letter-spacing: 1px; }
-#end-screen p { color: var(--text-dark); font-size: 1.15rem; line-height: 1.6; }
+#end-screen h2 { color: #6096ba; font-size: 2.2rem; }
+#end-screen p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
 .reset-btn {
-    background: var(--hazard-orange);
+    background: #457b9d;
     color: white;
     border: 0;
     padding: 15px 35px;
     font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
     font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    align-self: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    transition: background 0.2s;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(69, 123, 157, 0.2);
+    transition: all 0.2s ease;
 }
-.reset-btn:hover { background: #ea580c; }
+.reset-btn:hover { background: #1d3557; }
 </style>
 </head>
 <body>
@@ -232,33 +211,33 @@ body {
 
 <div id="game-container">
   <div class="header">
-    <div class="title">🛠️ TriboMech <span>// Friction Lab Bench</span></div>
+    <div class="title">✏️ Physics Notebook <span>// Friction Concepts</span></div>
     <div class="status-bar">
-      <div class="progress">TASK: <span id="lbl-question">1</span>/10</div>
-      <div class="chances">ATTEMPTS: <span id="lbl-chances">2</span></div>
+      <div class="progress">Concept: <span id="lbl-question">1</span>/10</div>
+      <div class="chances">Attempts Left: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
   <div class="workbench" id="main-layout">
     <div class="drop-area" id="drop-zone">
-      <div class="question-text" id="question-box">Loading tribology diagnostics...</div>
-      <div class="target-slot" id="target-slot">Insert Matching Core Term</div>
+      <div class="question-text" id="question-box">Loading study material notes...</div>
+      <div class="target-slot" id="target-slot">Place Matching Term Here</div>
     </div>
 
     <div class="bank-panel">
-      <div class="bank-title">Component Inventory</div>
+      <div class="bank-title">Word Bank</div>
       <div class="options-bank" id="options-bank"></div>
     </div>
   </div>
 
   <div class="feedback-container" id="feedback-text">
-    Drag the corresponding physics parameter from the right inventory bank into the target zone.
+    Pick up a term from the word bank and slide it into the notebook slot.
   </div>
 
   <div id="end-screen">
-    <h2>🔧 Systems Calibrated & Verified</h2>
-    <p>All mechanical trials successfully completed. Your performance metrics match structural safety requirements for friction analysis, resistance control, and boundary lubrication laws.</p>
-    <button class="reset-btn" onclick="location.reload()">Restart Workbench</button>
+    <h2>✨ Review Session Finished!</h2>
+    <p>Wonderful! You have neatly cataloged all 10 foundational laws of friction, resisting forces, dynamic configurations, and surface modifiers from Chapter 3.</p>
+    <button class="reset-btn" onclick="location.reload()">Review Workbook Again</button>
   </div>
 </div>
 
@@ -325,7 +304,7 @@ function playSound(type) {
     const audio = $(`audio-${type}`);
     if (audio) {
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio playback waiting for manual gesture."));
+        audio.play().catch(e => console.log("Audio waiting for system gesture context."));
     }
 }
 
@@ -340,15 +319,15 @@ function loadQuestion() {
     attemptsLeft = 2; 
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
-    $('feedback-text').innerText = "Select a component element from the inventory and align it inside the diagnostic slot.";
-    $('feedback-text').style.color = "var(--text-dark)";
+    $('feedback-text').innerText = "Pick up a term from the word bank and slide it into the notebook slot.";
+    $('feedback-text').style.color = "var(--text-muted)";
 
     let data = database[currentQuestion];
     $('question-box').innerText = data.q;
 
     // Reset Target Area Box
     let slot = $('target-slot');
-    slot.innerText = "Insert Matching Core Term";
+    slot.innerText = "Place Matching Term Here";
     slot.className = "target-slot";
     slot.style.borderColor = "";
     slot.style.color = "";
@@ -408,11 +387,11 @@ function processDroppedAnswer(answer) {
         playSound('correct');
         slot.innerText = answer;
         slot.className = "target-slot filled";
-        slot.style.backgroundColor = "#14532d";
-        slot.style.borderColor = "var(--system-green)";
-        slot.style.color = "var(--system-green)";
-        $('feedback-text').innerText = "✓ METRIC VERIFIED: Parameter configuration successfully matched to system physics.";
-        $('feedback-text').style.color = "var(--system-green)";
+        slot.style.backgroundColor = "#eaf4f4";
+        slot.style.borderColor = "var(--pastel-mint)";
+        slot.style.color = "#4f772d";
+        $('feedback-text').innerText = "✓ Splendid! That matches the definition precisely.";
+        $('feedback-text').style.color = "#4f772d";
         disableCurrentBank();
         
         setTimeout(() => {
@@ -426,20 +405,20 @@ function processDroppedAnswer(answer) {
 
         if (attemptsLeft > 0) {
             playSound('wrong');
-            $('feedback-text').innerText = "✗ CALIBRATION ERROR: Mechanical resistances do not balance. Resetting slot...";
-            $('feedback-text').style.color = "var(--laser-amber)";
+            $('feedback-text').innerText = "✕ Not quite right. Let's think about how forces interact and try again! (1 try left)";
+            $('feedback-text').style.color = "var(--pastel-peach)";
             
-            slot.innerText = "Insert Matching Core Term";
+            slot.innerText = "Place Matching Term Here";
             slot.className = "target-slot";
         } else {
             playSound('wrong');
             slot.innerText = data.answer;
             slot.className = "target-slot filled";
-            slot.style.backgroundColor = "#7f1d1d";
-            slot.style.borderColor = "var(--system-red)";
-            slot.style.color = "var(--system-red)";
-            $('feedback-text').innerText = `⚠️ CORE OVERRIDE: 0 remaining attempts. The authentic fact is "${data.answer}". Synchronizing next matrix...`;
-            $('feedback-text').style.color = "var(--system-red)";
+            slot.style.backgroundColor = "#ffe3e3";
+            slot.style.borderColor = "var(--pastel-rose)";
+            slot.style.color = "#c94a47";
+            $('feedback-text').innerText = `✏️ Moving on. The textbook states that the correct term is "${data.answer}".`;
+            $('feedback-text').style.color = "#c94a47";
             disableCurrentBank();
 
             setTimeout(() => {
