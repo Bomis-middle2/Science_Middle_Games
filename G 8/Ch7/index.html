@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Natural Phenomena: Planetary Command Grid</title>
+<style>
+:root {
+    --bg-space: #f1f5f9;
+    --panel-base: #ffffff;
+    --cosmic-indigo: #2d3748;
+    --plasma-blue: #3182ce;
+    --aurora-bg: #ebf8ff;
+    --aurora-text: #2b6cb0;
+    --magma-alert: #fff5f5;
+    --magma-text: #c53030;
+    --laser-glow: #63b3ed;
+    --border-clean: #cbd5e0;
+    --text-main: #1a202c;
+    --text-muted: #718096;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+body {
+    background-color: var(--bg-space);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    user-select: none;
+    overflow: hidden;
+    background-image: radial-gradient(#cbd5e0 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+#game-container {
+    width: 100%;
+    max-width: 850px;
+    background: var(--panel-base);
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 0 20px 40px rgba(45, 55, 72, 0.05);
+    border: 1px solid var(--border-clean);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+}
+
+/* Strategic Dashboard Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--bg-space);
+    padding-bottom: 18px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--cosmic-indigo);
+}
+.brand svg {
+    width: 32px;
+    height: 32px;
+    fill: none;
+    stroke: var(--plasma-blue);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+.status-indicators {
+    display: flex;
+    gap: 12px;
+}
+.hud-pill {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+#progress-hud { background: #e2e8f0; color: #4a5568; }
+#shield-hud { background: #feebc8; color: #c05621; }
+
+/* The Atmospheric Threat Canvas Viewport */
+.atmosphere-viewport {
+    height: 300px;
+    background: linear-gradient(to bottom, #ffffff, #f7fafc);
+    border: 2px solid var(--border-clean);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.descending-anomaly {
+    position: absolute;
+    top: 15px;
+    width: 85%;
+    max-width: 680px;
+    background: #ffffff;
+    border: 1px solid var(--border-clean);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.6;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    animation: sweepDescend 9s linear infinite;
+    transform-origin: top center;
+}
+@keyframes sweepDescend {
+    0% { transform: translateY(0px) scale(1); opacity: 1; }
+    90% { transform: translateY(140px) scale(0.98); opacity: 1; }
+    100% { transform: translateY(165px) scale(0.95); opacity: 0; }
+}
+
+/* Interceptor Grid Control Panel */
+.defense-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.panel-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+.interceptor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.interceptor-node {
+    background: #ffffff;
+    border: 2px solid var(--border-clean);
+    padding: 18px 25px;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cosmic-indigo);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s ease-in-out;
+}
+.interceptor-node:hover {
+    border-color: var(--plasma-blue);
+    background: #fafafa;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(49, 130, 206, 0.1);
+}
+.grid-terminal-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border-clean);
+    display: inline-block;
+}
+
+/* Safety Logger Activity Feed */
+.safety-logger {
+    background: #ffffff;
+    border-left: 4px solid var(--border-clean);
+    border-radius: 6px;
+    padding: 16px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+/* Plasma Discharge Graphics */
+.discharge-beam {
+    position: absolute;
+    bottom: 0;
+    width: 6px;
+    background: var(--laser-glow);
+    box-shadow: 0 0 20px 6px rgba(99, 179, 237, 0.7);
+    display: none;
+    z-index: 5;
+}
+#left-discharger { left: 25%; }
+#right-discharger { left: 75%; }
+
+#finish-screen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #ffffff;
+    border-radius: 24px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    z-index: 50;
+    gap: 20px;
+}
+#finish-screen h2 { color: var(--plasma-blue); font-size: 2.2rem; }
+.reboot-btn {
+    background: var(--cosmic-indigo);
+    color: white;
+    border: 0;
+    padding: 15px 40px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 6px 15px rgba(45, 55, 72, 0.15);
+}
+.reboot-btn:hover { background: #1a202c; }
+</style>
+</head>
+<body>
+
+<audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+
+<div id="game-container">
+  <div class="header">
+    <div class="brand">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2L2 22h20L12 2zm0 14h.01M12 10v4" stroke-linejoin="round"/>
+      </svg>
+      Planetary Command Grid
+    </div>
+    <div class="status-indicators">
+      <div class="hud-pill" id="progress-hud">Anomalies Checked: <span id="lbl-question">1</span>/10</div>
+      <div class="hud-pill" id="shield-hud">Shield Fuses: <span id="lbl-chances">2</span></div>
+    </div>
+  </div>
+
+  <div class="atmosphere-viewport">
+    <div id="left-discharger" class="discharge-beam"></div>
+    <div id="right-discharger" class="discharge-beam"></div>
+    <div class="descending-anomaly" id="anomaly-display">Loading atmospheric sensor metrics...</div>
+  </div>
+
+  <div class="defense-panel">
+    <div class="panel-title">Deploy Deflector Array Channel to Safe-Zone Anomaly:</div>
+    <div class="interceptor-grid">
+      <button class="interceptor-node" id="btn-left" onclick="deployPulse(0)">
+        <span class="grid-terminal-light" id="light-left"></span>
+        <span id="text-left">Deflector Alpha</span>
+      </button>
+      <button class="interceptor-node" id="btn-right" onclick="deployPulse(1)">
+        <span class="grid-terminal-light" id="light-right"></span>
+        <span id="text-right">Deflector Beta</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="safety-logger" id="feedback-box">
+    Track the falling environmental hazard data and execute the true interceptor sequence.
+  </div>
+
+  <div id="finish-screen">
+    <h2>🌍 Planetary Shield Secured</h2>
+    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 580px; line-height: 1.6;">
+      All atmospheric tremors, static clouds, lightning vectors, earthquake wave modulations, and celestial moon cycles from Chapter 7 are safely integrated into the command grid database.
+    </p>
+    <button class="reboot-btn" onclick="location.reload()">Reset Command Array</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentQuestion = 0;
+let attemptsLeft = 2;
+let blockControls = false;
+
+// Authenticated Chapter 7 Dataset
+const database = [
+    { q: "Any sudden vibration or movement of a part of the Earth's crust caused by natural or man-made forces is an:", answer: "Earthquake", wrong: "Lightning" },
+    { q: "The specific deep underground physical waves produced through the bedrock during a sudden earthquake are:", answer: "Seismic waves", wrong: "Anions" },
+    { q: "A highly sensitive mechanical laboratory instrument used to explicitly measure and record seismic waves is a:", answer: "Seismograph", wrong: "Electroscope" },
+    { q: "A form of electricity comprised of accumulated surface electrical charges that remain completely stationary and do not flow is:", answer: "Static electricity", wrong: "Seismic waves" },
+    { q: "A specialized physical laboratory device constructed of conducting materials used for detecting and testing the presence of electric charge on a body is an:", answer: "Electroscope", wrong: "Seismograph" },
+    { q: "Highly active particles or groups of atoms that carry net positive or negative electrical charges due to electron imbalance are:", answer: "Ions", wrong: "Asteroids" },
+    { q: "A specific structural molecular ion configuration that carries a net positive charge is a:", answer: "Cation", wrong: "Anion" },
+    { q: "A specific electrical ion configuration that carries a net negative charge is an:", answer: "Anion", wrong: "Cation" },
+    { q: "Small rocky or metallic objects occupying space that form a distinct belt primarily between the planetary tracks of Mars and Jupiter are:", answer: "Asteroids", wrong: "Constellations" },
+    { q: "Identifiable groups of stars that form a particular configuration, shape, or recognizable pattern in the open night sky are:", answer: "Constellations", wrong: "Asteroids" }
+];
+
+let leftSideIsTrue = false;
+
+function playSound(type) {
+    const audio = $(`audio-${type}`);
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio waiting for system framework gesture."));
+    }
+}
+
+function loadQuestion() {
+    if (currentQuestion >= database.length) {
+        $('anomaly-display').style.display = 'none';
+        $('finish-screen').style.display = 'flex';
+        return;
+    }
+
+    attemptsLeft = 2;
+    blockControls = false;
+    
+    $('lbl-question').innerText = currentQuestion + 1;
+    $('lbl-chances').innerText = attemptsLeft;
+    
+    $('feedback-box').innerText = "Track the falling environmental hazard data and execute the true interceptor sequence.";
+    $('feedback-box').style.backgroundColor = "#ffffff";
+    $('feedback-box').style.color = "var(--text-main)";
+    $('feedback-box').style.borderLeftColor = "var(--border-clean)";
+
+    let data = database[currentQuestion];
+    $('anomaly-display').innerText = data.q;
+
+    // Reset fallback animation node cleanly
+    let anomalyNode = $('anomaly-display');
+    anomalyNode.style.animation = 'none';
+    anomalyNode.offsetHeight; /* Trigger system frame step */
+    anomalyNode.style.animation = 'sweepDescend 9s linear infinite';
+
+    // Radially alternate core structural options
+    leftSideIsTrue = Math.random() > 0.5;
+    if (leftSideIsTrue) {
+        $('text-left').innerText = data.answer;
+        $('text-right').innerText = data.wrong;
+        $('light-left').style.backgroundColor = "var(--plasma-blue)";
+        $('light-right').style.backgroundColor = "var(--border-clean)";
+    } else {
+        $('text-left').innerText = data.wrong;
+        $('text-right').innerText = data.answer;
+        $('light-left').style.backgroundColor = "var(--border-clean)";
+        $('light-right').style.backgroundColor = "var(--plasma-blue)";
+    }
+}
+
+function deployPulse(chosenSide) {
+    if (blockControls) return;
+    
+    let data = database[currentQuestion];
+    let isCorrect = (chosenSide === 0 && leftSideIsTrue) || (chosenSide === 1 && !leftSideIsTrue);
+    let dischargerID = chosenSide === 0 ? 'left-discharger' : 'right-discharger';
+
+    // Flash beam sequence visual triggers
+    let beam = $(dischargerID);
+    beam.style.display = 'block';
+    beam.style.height = '100%';
+    setTimeout(() => {
+        beam.style.display = 'none';
+        beam.style.height = '0px';
+    }, 250);
+
+    if (isCorrect) {
+        blockControls = true;
+        playSound('correct');
+        $('anomaly-display').style.animationPlayState = 'paused';
+
+        $('feedback-box').innerText = `✓ ANOMALY NEUTRALIZED: "${data.answer}" has been logged safely into environmental registers.`;
+        $('feedback-box').style.backgroundColor = "var(--aurora-bg)";
+        $('feedback-box').style.color = "var(--aurora-text)";
+        $('feedback-box').style.borderLeftColor = "var(--plasma-blue)";
+
+        setTimeout(() => {
+            currentQuestion++;
+            loadQuestion();
+        }, 2200);
+
+    } else {
+        attemptsLeft--;
+        $('lbl-chances').innerText = attemptsLeft;
+
+        if (attemptsLeft > 0) {
+            playSound('wrong');
+            $('feedback-box').innerText = "✕ MISALIGNED DISCHARGE: Atmospheric interference detected. Readjust deflector fuses! (1 fuse left)";
+            $('feedback-box').style.backgroundColor = "var(--magma-alert)";
+            $('feedback-box').style.color = "var(--magma-text)";
+            $('feedback-box').style.borderLeftColor = "#e53e3e";
+        } else {
+            blockControls = true;
+            playSound('wrong');
+            $('anomaly-display').style.animationPlayState = 'paused';
+
+            $('feedback-box').innerText = `⚠️ SYSTEM OVERRIDE: Terminal balanced. The valid textbook phenomenon is "${data.answer}".`;
+            $('feedback-box').style.backgroundColor = "var(--magma-alert)";
+            $('feedback-box').style.color = "var(--magma-text)";
+            $('feedback-box').style.borderLeftColor = "#e53e3e";
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 3500);
+        }
+    }
+}
+
+window.onload = loadQuestion;
+</script>
+</body>
+</html>
