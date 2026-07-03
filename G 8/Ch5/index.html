@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thunderbolt Circuit Defense</title>
+<style>
+:root {
+    --bg-lab: #f4f7f6;
+    --panel-sheet: #ffffff;
+    --mint-primary: #3d7a6e;
+    --mint-bright: #52b788;
+    --mint-light: #d8f3dc;
+    --mint-text: #1b4332;
+    --coral-alert: #fcdfd7;
+    --coral-text: #9e2a2b;
+    --lavender-beam: #b39ddb;
+    --border-soft: #cfdad7;
+    --text-slate: #2f3542;
+    --text-gray: #747d8c;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+body {
+    background-color: var(--bg-lab);
+    color: var(--text-slate);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    user-select: none;
+    overflow: hidden;
+    background-image: radial-gradient(var(--border-soft) 1.5px, transparent 1.5px);
+    background-size: 25px 25px;
+}
+#game-container {
+    width: 100%;
+    max-width: 850px;
+    background: var(--panel-sheet);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 40px rgba(61, 122, 110, 0.08);
+    border: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+/* Header Scoring Bar */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--bg-lab);
+    padding-bottom: 15px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--mint-primary);
+}
+.brand svg {
+    width: 30px;
+    height: 30px;
+    fill: none;
+    stroke: var(--mint-bright);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+.status-bar {
+    display: flex;
+    gap: 12px;
+}
+.badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+#progress-pill { background: #e3eff2; color: #1d7082; }
+#chances-pill { background: #fcece9; color: #c94a3a; }
+
+/* The Dynamic Threat Zone (Canvas Simulation area) */
+.arcade-viewport {
+    height: 320px;
+    background: linear-gradient(to bottom, #fafdfd, #f4f9f8);
+    border: 2px dashed var(--mint-primary);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.falling-core {
+    position: absolute;
+    top: 15px;
+    width: 85%;
+    max-width: 650px;
+    background: #ffffff;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.5;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+    animation: descend 9s linear infinite;
+    transform-origin: top center;
+}
+@keyframes descend {
+    0% { transform: translateY(0px) scale(1); opacity: 1; }
+    90% { transform: translateY(160px) scale(0.98); opacity: 1; }
+    100% { transform: translateY(180px) scale(0.95); opacity: 0; }
+}
+
+/* Fire Batteries Interface Controls */
+.battery-terminal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.terminal-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-gray);
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+.battery-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.battery-node {
+    background: #ffffff;
+    border: 2px solid var(--border-soft);
+    padding: 16px 25px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-slate);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+.battery-node:hover {
+    border-color: var(--mint-primary);
+    background: var(--bg-lab);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(61, 122, 110, 0.1);
+}
+.battery-fuse {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--border-soft);
+    display: inline-block;
+}
+
+/* Bottom Terminal Ticker Console */
+.console-ticker {
+    background: #ffffff;
+    border-left: 4px solid var(--border-soft);
+    border-radius: 6px;
+    padding: 15px;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4b5251;
+}
+
+/* Laser Blast Overlay Sheet */
+.laser-beam {
+    position: absolute;
+    bottom: 0;
+    width: 4px;
+    background: var(--lavender-beam);
+    box-shadow: 0 0 15px 4px rgba(179, 157, 219, 0.8);
+    display: none;
+    z-index: 5;
+}
+#left-beam { left: 25%; }
+#right-beam { left: 75%; }
+
+#finish-screen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #ffffff;
+    border-radius: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    z-index: 50;
+    gap: 22px;
+}
+#finish-screen h2 { color: var(--mint-bright); font-size: 2.2rem; }
+.reset-btn {
+    background: var(--mint-primary);
+    color: white;
+    border: 0;
+    padding: 14px 35px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(61, 122, 110, 0.2);
+}
+.reset-btn:hover { background: var(--mint-primary); }
+</style>
+</head>
+<body>
+
+<audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+
+<div id="game-container">
+  <div class="header">
+    <div class="brand">
+      <svg viewBox="0 0 24 24">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+      Thunderbolt Circuit Defense
+    </div>
+    <div class="status-bar">
+      <div class="badge" id="progress-pill">Threat Wave: <span id="lbl-question">1</span>/10</div>
+      <div class="badge" id="chances-pill">Shield Fuses: <span id="lbl-chances">2</span></div>
+    </div>
+  </div>
+
+  <div class="arcade-viewport">
+    <div id="left-beam" class="laser-beam"></div>
+    <div id="right-beam" class="laser-beam"></div>
+    <div class="falling-core" id="core-display">Loading core grid parameters...</div>
+  </div>
+
+  <div class="battery-terminal">
+    <div class="terminal-label">Tap Correct Battery Channel Below to Fire Turret Beam:</div>
+    <div class="battery-grid">
+      <button class="battery-node" id="btn-left" onclick="fireTurret(0)">
+        <span class="battery-fuse" id="fuse-left"></span>
+        <span id="text-left">Battery Alpha</span>
+      </button>
+      <button class="battery-node" id="btn-right" onclick="fireTurret(1)">
+        <span class="battery-fuse" id="fuse-right"></span>
+        <span id="text-right">Battery Beta</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="console-ticker" id="feedback-box">
+    Analyze the falling power core telemetry and fire the matching battery cell.
+  </div>
+
+  <div id="finish-screen">
+    <h2>⚡ Grid Defenses Synchronized!</h2>
+    <p style="color: var(--text-gray); font-size: 1.1rem; max-width: 550px; line-height: 1.6;">
+      Core mainframe cleared. All electrochemical cells, conductors, potential barriers, magnetic fields, and induced currents from Chapter 6 have successfully integrated into memory buffers.
+    </p>
+    <button class="reset-btn" onclick="location.reload()">Reboot Core Grid</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentQuestion = 0;
+let attemptsLeft = 2;
+let blockControls = false;
+
+const database = [
+    { q: "A secondary source of energy that we get from the conversion of other natural sources of energy is:", answer: "Electricity", wrong: "Voltmeter" },
+    { q: "The ongoing continuous vector flow of electric charge particles through an open or closed wire pathway is called:", answer: "Current", wrong: "Insulator" },
+    { q: "A complete circular closed loop track configuration through which an electric current can safely travel around is a:", answer: "Circuit", wrong: "Ammeter" },
+    { q: "Materials or substances that offer little to no resistance to moving electrons, allowing electricity to pass easily are:", answer: "Conductors", wrong: "Cathode" },
+    { q: "Substances or structural materials that block and do not allow electricity or electronic streams to pass through them are:", answer: "Insulators", wrong: "Conductors" },
+    { q: "The explicit amount of mechanical work needed to move a unit charge from an external reference point to a specific spot against an electric field is:", answer: "Electric Potential", wrong: "Circuit" },
+    { q: "A highly sensitive metric laboratory tool or instrument utilized specifically for measuring electric current in Amperes is an:", answer: "Ammeter", wrong: "Voltmeter" },
+    { q: "An instrument utilized explicitly for measuring the spatial electrical potential difference scale values between two points is a:", answer: "Voltmeter", wrong: "Anode" },
+    { q: "The precise active negative terminal link position or electrode node sitting inside an operational electrolytic chemical cell is the:", answer: "Anode", wrong: "Cathode" },
+    { q: "The valid corresponding positive terminal link interface position inside an operational chemical electrolyte vessel is the:", answer: "Cathode", wrong: "Anode" }
+];
+
+let leftOptionIsCorrect = false;
+
+function playSound(type) {
+    const audio = $(`audio-${type}`);
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio waiting for system gesture context."));
+    }
+}
+
+function loadQuestion() {
+    if (currentQuestion >= database.length) {
+        $('core-display').style.display = 'none';
+        $('finish-screen').style.display = 'flex';
+        return;
+    }
+
+    attemptsLeft = 2;
+    blockControls = false;
+    
+    $('lbl-question').innerText = currentQuestion + 1;
+    $('lbl-chances').innerText = attemptsLeft;
+    
+    $('feedback-box').innerText = "Analyze the falling power core telemetry and fire the matching battery cell.";
+    $('feedback-box').style.backgroundColor = "#ffffff";
+    $('feedback-box').style.color = "var(--text-slate)";
+    $('feedback-box').style.borderLeftColor = "var(--border-soft)";
+
+    let data = database[currentQuestion];
+    $('core-display').innerText = data.q;
+
+    // Reset element animation timeline state seamlessly
+    let core = $('core-display');
+    core.style.animation = 'none';
+    core.offsetHeight; /* Trigger system reflow */
+    core.style.animation = 'descend 9s linear infinite';
+
+    // Randomize choice distribution layout (Left vs Right flanking channels)
+    leftOptionIsCorrect = Math.random() > 0.5;
+    if (leftOptionIsCorrect) {
+        $('text-left').innerText = data.answer;
+        $('text-right').innerText = data.wrong;
+        $('fuse-left').style.backgroundColor = "var(--mint-bright)";
+        $('fuse-right').style.backgroundColor = "#b0bec5";
+    } else {
+        $('text-left').innerText = data.wrong;
+        $('text-right').innerText = data.answer;
+        $('fuse-left').style.backgroundColor = "#b0bec5";
+        $('fuse-right').style.backgroundColor = "var(--mint-bright)";
+    }
+}
+
+function fireTurret(chosenSide) {
+    if (blockControls) return;
+    
+    let data = database[currentQuestion];
+    let isCorrect = (chosenSide === 0 && leftOptionIsCorrect) || (chosenSide === 1 && !leftOptionIsCorrect);
+    let beamID = chosenSide === 0 ? 'left-beam' : 'right-beam';
+
+    // Core Flash Lightning Animation trigger loop
+    let beam = $(beamID);
+    beam.style.display = 'block';
+    beam.style.height = '100%';
+    setTimeout(() => {
+        beam.style.display = 'none';
+        beam.style.height = '0px';
+    }, 250);
+
+    if (isCorrect) {
+        blockControls = true;
+        playSound('correct');
+        
+        $('core-display').style.animationPlayState = 'paused';
+
+        $('feedback-box').innerText = `✓ MAIN DETONATED: "${data.answer}" has successfully neutralized the wave.`;
+        $('feedback-box').style.backgroundColor = "var(--mint-light)";
+        $('feedback-box').style.color = "var(--mint-text)";
+        $('feedback-box').style.borderLeftColor = "var(--mint-bright)";
+
+        setTimeout(() => {
+            currentQuestion++;
+            loadQuestion();
+        }, 2200);
+
+    } else {
+        attemptsLeft--;
+        $('lbl-chances').innerText = attemptsLeft;
+
+        if (attemptsLeft > 0) {
+            playSound('wrong');
+            $('feedback-box').innerText = "✕ TURRET MISFIRE: Resistance value spiked. Recalibrate deflection angle! (1 fuse remaining)";
+            $('feedback-box').style.backgroundColor = "var(--coral-alert)";
+            $('feedback-box').style.color = "var(--coral-text)";
+            $('feedback-box').style.borderLeftColor = "#ff4d4d";
+        } else {
+            blockControls = true;
+            playSound('wrong');
+            $('core-display').style.animationPlayState = 'paused';
+
+            $('feedback-box').innerText = `⚠️ EMERGENCY GROUND: Mainframe override active. Textbook Fact: The true element is "${data.answer}".`;
+            $('feedback-box').style.backgroundColor = "var(--coral-alert)";
+            $('feedback-box').style.color = "var(--coral-text)";
+            $('feedback-box').style.borderLeftColor = "#ff4d4d";
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 3500);
+        }
+    }
+}
+
+window.onload = loadQuestion;
+</script>
+</body>
+</html>
