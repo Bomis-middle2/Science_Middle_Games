@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sound Decryption: Signal Grid Lab</title>
+<style>
+:root {
+    --bg-pastel: #f7f9fa;
+    --card-white: #ffffff;
+    --sage-green: #e2ecc8;
+    --sage-dark: #556b2f;
+    --lavender-border: #e1dbf4;
+    --lavender-accent: #8e7cc3;
+    --pastel-rose: #f5cdcb;
+    --rose-dark: #b84a47;
+    --text-slate: #2c3e50;
+    --text-dim: #7f8c8d;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+    background-color: var(--bg-pastel);
+    color: var(--text-slate);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    user-select: none;
+    background-image: linear-gradient(rgba(225, 219, 244, 0.4) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(225, 219, 244, 0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+#game-container {
+    width: 100%;
+    max-width: 850px;
+    background: var(--card-white);
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 0 15px 45px rgba(142, 124, 195, 0.1);
+    border: 1px solid var(--lavender-border);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--bg-pastel);
+    padding-bottom: 20px;
+}
+.title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-slate);
+}
+.title span {
+    color: var(--lavender-accent);
+}
+.status-bar {
+    display: flex;
+    gap: 15px;
+}
+.counter-pill {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 30px;
+}
+#progress-pill {
+    background-color: #ebf5fb;
+    color: #2980b9;
+}
+#attempt-pill {
+    background-color: #fef9e7;
+    color: #d35400;
+}
+
+/* Terminal Screen Area */
+.display-terminal {
+    background: #fafbfc;
+    border: 1px solid var(--lavender-border);
+    border-radius: 16px;
+    padding: 30px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+}
+.signal-prompt {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    font-weight: 600;
+    max-width: 700px;
+}
+
+/* Response Grid Layout */
+.grid-matrix {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+@media(max-width: 600px) {
+    .grid-matrix { grid-template-columns: 1fr; }
+}
+.matrix-node {
+    background: var(--bg-pastel);
+    border: 1px solid var(--lavender-border);
+    padding: 20px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-slate);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+.matrix-node:hover {
+    background: #ffffff;
+    border-color: var(--lavender-accent);
+    box-shadow: 0 4px 15px rgba(142, 124, 195, 0.15);
+    transform: translateY(-2px);
+}
+.node-index {
+    width: 26px;
+    height: 26px;
+    background: #ffffff;
+    border: 1px solid var(--lavender-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+}
+
+/* Interactive Feedback Banner */
+.status-log {
+    background: var(--bg-pastel);
+    border-radius: 12px;
+    padding: 18px;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dim);
+}
+
+#finish-screen {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+}
+#finish-screen h2 { color: var(--lavender-accent); font-size: 2.2rem; }
+.action-btn {
+    background: var(--lavender-accent);
+    color: white;
+    border: 0;
+    padding: 14px 35px;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    align-self: center;
+    box-shadow: 0 4px 15px rgba(142, 124, 195, 0.3);
+    transition: background 0.2s;
+}
+.action-btn:hover { background: #7665a9; }
+</style>
+</head>
+<body>
+
+<audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+
+<div id="game-container">
+  <div class="header">
+    <div class="title">🔊 AudioWave <span>// Cipher Network</span></div>
+    <div class="status-bar">
+      <div class="counter-pill" id="progress-pill">NODE: <span id="lbl-question">1</span>/10</div>
+      <div class="counter-pill" id="attempt-pill">ATTEMPTS REMAINING: <span id="lbl-chances">2</span></div>
+    </div>
+  </div>
+
+  <div id="main-layout" style="display: flex; flex-direction: column; gap: 25px;">
+    <div class="display-terminal">
+      <div class="signal-prompt" id="question-box">Establishing connection to sound wave matrix...</div>
+    </div>
+
+    <div class="grid-matrix" id="options-grid"></div>
+  </div>
+
+  <div class="status-log" id="feedback-box">
+    Analyze the wave characteristics definition above and log the matching answer channel.
+  </div>
+
+  <div id="finish-screen">
+    <h2>🎯 Audio Decryption Complete!</h2>
+    <p>All human ear structures, frequencies, wave dimensions, and velocity mechanics are successfully verified into memory.</p>
+    <button class="action-btn" onclick="location.reload()">Reboot Audio Network</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentQuestion = 0;
+let attemptsLeft = 2;
+let locksActive = false;
+
+const database = [
+    {
+        q: "The maximum displacement of a vibrating body from its mean central position is designated as:",
+        options: ["Amplitude", "Frequency", "Pitch", "Time Period"],
+        answer: "Amplitude"
+    },
+    {
+        q: "The exact number of total oscillations or vibrations executed by a moving body in one full second is called:",
+        options: ["Frequency", "Time Period", "Loudness", "Echo"],
+        answer: "Frequency"
+    },
+    {
+        q: "The specific unit measurement index utilized internationally to compute and track sound loudness is:",
+        options: ["Decibel", "Hertz", "Meter", "Second"],
+        answer: "Decibel"
+    },
+    {
+        q: "Sound waves operating with mechanical frequencies registered strictly below the 20 Hz threshold are defined as:",
+        options: ["Infrasonic sound", "Audible sound", "Ultrasonic sound", "Music"],
+        answer: "Infrasonic sound"
+    },
+    {
+        q: "The physical sensory perception of a sound wave that depends entirely on its specific high or low frequency rate is:",
+        options: ["Pitch", "Amplitude", "Loudness", "Time Period"],
+        answer: "Pitch"
+    },
+    {
+        q: "The distinct repetition of sound caused entirely by the physical reflection of sound waves bouncing back from an obstacle is an:",
+        options: ["Echo", "Vibration", "Noise", "Decibel scale"],
+        answer: "Echo"
+    },
+    {
+        q: "The human ear can normally detect and register sound parameters only within which specific audible frequency band?",
+        options: ["20 Hz to 20,000 Hz", "Below 20 Hz", "Above 20,000 Hz", "10 Hz to 10,000 Hz"],
+        answer: "20 Hz to 20,000 Hz"
+    },
+    {
+        q: "Which internal anatomical section of the human ear resembles a coiled fluid-filled shell that directly processes sound elements for hearing?",
+        options: ["Cochlea", "Pinna", "Tympanum", "Malleus"],
+        answer: "Cochlea"
+    },
+    {
+        q: "A thin, sensitive membrane that completely separates the external ear canal path from the middle ear assembly is the:",
+        options: ["Tympanum (Ear drum)", "Pinna flap", "Auditory nerve", "Incus bone"],
+        answer: "Tympanum (Ear drum)"
+    },
+    {
+        q: "Sound waves cannot propagate or travel through which of the following due to a total lack of any physical material molecules?",
+        options: ["Vacuum", "Water liquid", "Iron steel", "Air gases"],
+        answer: "Vacuum"
+    }
+];
+
+function playSound(type) {
+    const audio = $(`audio-${type}`);
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio awaiting gesture interaction."));
+    }
+}
+
+function loadQuestion() {
+    if (currentQuestion >= database.length) {
+        $('main-layout').style.display = 'none';
+        $('feedback-box').style.display = 'none';
+        $('finish-screen').style.display = 'flex';
+        return;
+    }
+
+    attemptsLeft = 2;
+    locksActive = false;
+    $('lbl-question').innerText = currentQuestion + 1;
+    $('lbl-chances').innerText = attemptsLeft;
+    $('feedback-box').innerText = "Analyze the wave characteristics definition above and log the matching answer channel.";
+    $('feedback-box').style.color = "var(--text-dim)";
+    $('feedback-box').style.backgroundColor = "var(--bg-pastel)";
+
+    let data = database[currentQuestion];
+    $('question-box').innerText = data.q;
+
+    let grid = $('options-grid');
+    grid.innerHTML = '';
+
+    const alpha = ['A', 'B', 'C', 'D'];
+    data.options.forEach((opt, idx) => {
+        let btn = document.createElement('button');
+        btn.className = 'matrix-node';
+        btn.innerHTML = `<span class="node-index">${alpha[idx]}</span> ${opt}`;
+        btn.onclick = () => verifySelection(opt, btn);
+        grid.appendChild(btn);
+    });
+}
+
+function verifySelection(selectedOption, elementNode) {
+    if (locksActive) return; // Prevent clicks during processing periods
+    let data = database[currentQuestion];
+
+    if (selectedOption === data.answer) {
+        locksActive = true;
+        playSound('correct');
+        elementNode.style.backgroundColor = "var(--sage-green)";
+        elementNode.style.borderColor = "var(--sage-dark)";
+        elementNode.style.color = "var(--sage-dark)";
+        
+        $('feedback-box').innerText = "✓ CHANNEL DECRYPTED: Frequency phase alignment verified successfully.";
+        $('feedback-box').style.color = "var(--sage-dark)";
+        $('feedback-box').style.backgroundColor = "#f1f9e7";
+
+        setTimeout(() => {
+            currentQuestion++;
+            loadQuestion();
+        }, 2500);
+
+    } else {
+        attemptsLeft--;
+        $('lbl-chances').innerText = attemptsLeft;
+
+        if (attemptsLeft > 0) {
+            playSound('wrong');
+            elementNode.style.backgroundColor = "var(--pastel-rose)";
+            elementNode.style.borderColor = "var(--rose-dark)";
+            elementNode.style.color = "var(--rose-dark)";
+            elementNode.disabled = true; // Disable this incorrect button
+            
+            $('feedback-box').innerText = "✕ SIGNAL MISMATCH: Interference detected. Recalibrating... Try again.";
+            $('feedback-box').style.color = "var(--rose-dark)";
+            $('feedback-box').style.backgroundColor = "#fdf2f2";
+        } else {
+            locksActive = true;
+            playSound('wrong');
+            
+            // Disable all entries instantly
+            let nodes = document.querySelectorAll('.matrix-node');
+            nodes.forEach(node => node.style.opacity = '0.4');
+
+            // Force locate and highlight correct button item template
+            nodes.forEach(node => {
+                if (node.innerText.includes(data.answer)) {
+                    node.style.opacity = '1';
+                    node.style.backgroundColor = "var(--pastel-rose)";
+                    node.style.borderColor = "var(--rose-dark)";
+                    node.style.color = "var(--rose-dark)";
+                }
+            });
+
+            $('feedback-box').innerText = `⚠️ OVERRIDE: Data node locked. Textbook Fact: Correct answer is "${data.answer}".`;
+            $('feedback-box').style.color = "var(--rose-dark)";
+            $('feedback-box').style.backgroundColor = "#fdf2f2";
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 3500);
+        }
+    }
+}
+
+window.onload = loadQuestion;
+</script>
+</body>
+</html>
