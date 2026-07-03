@@ -209,7 +209,7 @@ body {
     <div class="title">🔬 Optics Laboratory: Drag & Drop Bench</div>
     <div class="status-bar">
       <div class="progress">Question: <span id="lbl-question">1</span>/10</div>
-      <div class="chances">Attempts Left: <span id="lbl-chances">2</span></div>
+      <div class="chances">Chances Left for this Question: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
@@ -239,7 +239,7 @@ body {
 <script>
 const $ = id => document.getElementById(id);
 let currentQuestion = 0;
-let attemptsLeft = 2;
+let attemptsLeft = 2; // Tracking strictly per question
 let draggedText = "";
 
 const database = [
@@ -299,7 +299,7 @@ function playSound(type) {
     const audio = $(`audio-${type}`);
     if (audio) {
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio play blocked until user interaction."));
+        audio.play().catch(e => console.log("Audio playback waiting for user context."));
     }
 }
 
@@ -311,7 +311,7 @@ function loadQuestion() {
         return;
     }
 
-    attemptsLeft = 2;
+    attemptsLeft = 2; // Resets cleanly for each new question item
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     $('feedback-text').innerText = "Drag the correct term from the bank and release it inside the drop slot.";
@@ -328,7 +328,7 @@ function loadQuestion() {
     slot.style.color = "";
     slot.style.backgroundColor = "";
 
-    // Generate Bank Options List
+    // Generate Options Bank List
     let bank = $('options-bank');
     bank.innerHTML = '';
     data.options.forEach(opt => {
@@ -353,10 +353,9 @@ function loadQuestion() {
 }
 
 function setupDragDropHandlers() {
-    let slot = $('target-slot');
     let zone = $('drop-zone');
 
-    // Clean up older listeners to prevent duplicate triggers
+    // Clean old duplicate event bindings
     const newZone = zone.cloneNode(true);
     zone.parentNode.replaceChild(newZone, zone);
 
@@ -381,7 +380,7 @@ function processDroppedAnswer(answer) {
     let slot = $('target-slot');
 
     if (answer === data.answer) {
-        // Correct Choice Match
+        // Success Logic Action
         playSound('correct');
         slot.innerText = answer;
         slot.className = "target-slot filled";
@@ -398,28 +397,27 @@ function processDroppedAnswer(answer) {
         }, 2500);
 
     } else {
-        // Incorrect Choice Match
+        // Failure Logic Deductions
         attemptsLeft--;
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
-            // First Wrong Attempt
+            // First attempt wrong -> Allow retry on this question
             playSound('wrong');
-            $('feedback-text').innerText = "❌ That parameter does not match this concept. Try again! 1 attempt remaining.";
+            $('feedback-text').innerText = "❌ Incorrect option. Try again! You have 1 attempt remaining for this question.";
             $('feedback-text').style.color = "var(--amber)";
             
-            // Snap back item visual hint reset
             slot.innerText = "Drop Correct Term Here";
             slot.className = "target-slot";
         } else {
-            // Second Wrong Attempt -> Reveal answer and move forward automatically
+            // Second attempt wrong -> Reveal the answer of this question and skip to the next
             playSound('wrong');
             slot.innerText = data.answer;
             slot.className = "target-slot filled";
             slot.style.backgroundColor = "#7f1d1d";
             slot.style.borderColor = "var(--rose)";
             slot.style.color = "var(--rose)";
-            $('feedback-text').innerText = `⚠️ Out of attempts. Scientific Fact: The correct answer is "${data.answer}". Moving forward...`;
+            $('feedback-text').innerText = `⚠️ 0 attempts left. Scientific Fact: The correct answer is "${data.answer}". Moving to next question...`;
             $('feedback-text').style.color = "var(--rose)";
             disableCurrentBank();
 
