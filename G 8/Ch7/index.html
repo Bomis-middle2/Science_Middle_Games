@@ -244,7 +244,6 @@ body::before {
     overflow: hidden;
 }
 
-/* Light up active console module frames */
 .interceptor-node::before {
     content: '';
     position: absolute;
@@ -264,7 +263,6 @@ body::before {
     transform: translateY(1px);
 }
 
-/* Custom Modifiers Controlled Via Javascript Switches */
 .interceptor-node.primed-left { border-color: var(--neon-blue); }
 .interceptor-node.primed-left::before { background: var(--neon-blue); }
 .interceptor-node.primed-left:hover { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
@@ -435,18 +433,16 @@ function playSynthSound(type) {
     gainNode.connect(audioCtx.destination);
 
     if (type === 'correct') {
-        // High-tech plasma lock sequence
         osc.type = 'sine';
         subOsc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.08); // G5
-        subOsc.frequency.setValueAtTime(261.63, audioCtx.currentTime); // C4
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.08); 
+        subOsc.frequency.setValueAtTime(261.63, audioCtx.currentTime); 
         gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
         osc.start(); subOsc.start();
         osc.stop(audioCtx.currentTime + 0.45); subOsc.stop(audioCtx.currentTime + 0.45);
     } else if (type === 'wrong') {
-        // Hull breach shield overload alert
         osc.type = 'sawtooth';
         subOsc.type = 'square';
         osc.frequency.setValueAtTime(160, audioCtx.currentTime); 
@@ -498,11 +494,10 @@ function loadQuestion() {
     let anomalyNode = $('anomaly-display');
     anomalyNode.innerText = data.q;
     anomalyNode.style.animation = 'none';
-    anomalyNode.offsetHeight; /* Pipeline layout sync */
+    anomalyNode.offsetHeight; 
     anomalyNode.style.animation = 'tacticalDescend 10s linear infinite';
     anomalyNode.style.animationPlayState = 'running';
 
-    // Remove old state modifiers cleanly
     $('btn-left').className = "interceptor-node";
     $('btn-right').className = "interceptor-node";
 
@@ -533,7 +528,6 @@ function deployPulse(chosenSide) {
     let isCorrect = (chosenSide === 0 && leftSideIsTrue) || (chosenSide === 1 && !leftSideIsTrue);
     let dischargerID = chosenSide === 0 ? 'left-discharger' : 'right-discharger';
 
-    // Fire laser trace graphic animation
     let beam = $(dischargerID);
     beam.style.display = 'block';
     beam.style.height = '100%';
