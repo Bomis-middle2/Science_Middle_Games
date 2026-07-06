@@ -14,7 +14,6 @@
     --mint-text: #1b4332;
     --coral-alert: #fcdfd7;
     --coral-text: #9e2a2b;
-    --lavender-beam: #b39ddb;
     --border-soft: #cfdad7;
     --text-slate: #2f3542;
     --text-gray: #747d8c;
@@ -37,8 +36,76 @@ body {
     overflow: hidden;
     background-image: radial-gradient(var(--border-soft) 1.5px, transparent 1.5px);
     background-size: 25px 25px;
+    position: relative;
 }
+
+/* TIMELINE PHASE 1: 5-Second Pure White Screen Overlay */
+#splash-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#splash-overlay img {
+    max-width: 260px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* TIMELINE PHASE 2: Clinical Instructions Overlay */
+#instruction-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #fbfdfd 0%, #e6eeee 100%);
+    z-index: 8888;
+    display: none; /* Regulated via Timeline Initialization Matrix */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.instruction-card {
+    background: var(--panel-sheet);
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 15px 40px rgba(61, 122, 110, 0.1);
+    border-radius: 20px;
+    max-width: 580px;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+}
+.instruction-card h2 {
+    color: var(--mint-primary);
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+.instruction-card p {
+    color: var(--text-slate);
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-align: left;
+}
+.start-btn {
+    background: var(--mint-primary);
+    color: #ffffff;
+    font-weight: 700;
+    border: 0; padding: 14px 35px;
+    border-radius: 8px; cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(61, 122, 110, 0.2);
+    transition: background 0.2s;
+}
+.start-btn:hover {
+    background: #2f5e55;
+}
+
+/* TIMELINE PHASE 3: Main Active Game Workspace */
 #game-container {
+    display: none; /* Concealed systematically during introductory sequences */
     width: 100%;
     max-width: 850px;
     background: var(--panel-sheet);
@@ -46,7 +113,6 @@ body {
     padding: 30px;
     box-shadow: 0 12px 40px rgba(61, 122, 110, 0.08);
     border: 1px solid var(--border-soft);
-    display: flex;
     flex-direction: column;
     gap: 20px;
     position: relative;
@@ -91,9 +157,9 @@ body {
 #progress-pill { background: #e3eff2; color: #1d7082; }
 #chances-pill { background: #fcece9; color: #c94a3a; }
 
-/* The Dynamic Threat Zone (Canvas Simulation area) */
+/* The Dynamic Threat Zone Terminal Screen */
 .arcade-viewport {
-    height: 320px;
+    height: 140px;
     background: linear-gradient(to bottom, #fafdfd, #f4f9f8);
     border: 2px dashed var(--mint-primary);
     border-radius: 12px;
@@ -102,35 +168,23 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
 }
 .falling-core {
-    position: absolute;
-    top: 15px;
-    width: 85%;
-    max-width: 650px;
-    background: #ffffff;
-    border: 1px solid var(--border-soft);
-    border-radius: 10px;
-    padding: 20px;
+    width: 100%;
+    max-width: 750px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 600;
     line-height: 1.5;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.02);
-    animation: descend 9s linear infinite;
-    transform-origin: top center;
-}
-@keyframes descend {
-    0% { transform: translateY(0px) scale(1); opacity: 1; }
-    90% { transform: translateY(160px) scale(0.98); opacity: 1; }
-    100% { transform: translateY(180px) scale(0.95); opacity: 0; }
+    color: var(--text-slate);
 }
 
-/* Fire Batteries Interface Controls */
+/* Console Text Entry Mainframe Pipeline Control */
 .battery-terminal {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 .terminal-label {
     font-size: 0.8rem;
@@ -138,40 +192,51 @@ body {
     font-weight: 700;
     color: var(--text-gray);
     letter-spacing: 0.5px;
-    text-align: center;
 }
-.battery-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+.interactive-form {
+    display: flex;
+    gap: 12px;
 }
-.battery-node {
+.diagnostic-input {
+    flex: 1;
     background: #ffffff;
     border: 2px solid var(--border-soft);
-    padding: 16px 25px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
     color: var(--text-slate);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+    outline: none;
     transition: all 0.2s ease;
 }
-.battery-node:hover {
+.diagnostic-input:focus {
     border-color: var(--mint-primary);
-    background: var(--bg-lab);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(61, 122, 110, 0.1);
+    box-shadow: 0 0 0 3px rgba(61, 122, 110, 0.15);
 }
-.battery-fuse {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
+.diagnostic-input:disabled {
+    background: #f1f5f6;
+    color: var(--text-gray);
+    cursor: not-allowed;
+}
+.submit-btn {
+    background: var(--mint-primary);
+    color: #ffffff;
+    border: none;
+    padding: 0 35px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(61, 122, 110, 0.15);
+    transition: background 0.2s;
+}
+.submit-btn:hover {
+    background: #2f5e55;
+}
+.submit-btn:disabled {
     background: var(--border-soft);
-    display: inline-block;
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
 /* Bottom Terminal Ticker Console */
@@ -190,19 +255,7 @@ body {
     color: #4b5251;
 }
 
-/* Laser Blast Overlay Sheet */
-.laser-beam {
-    position: absolute;
-    bottom: 0;
-    width: 4px;
-    background: var(--lavender-beam);
-    box-shadow: 0 0 15px 4px rgba(179, 157, 219, 0.8);
-    display: none;
-    z-index: 5;
-}
-#left-beam { left: 25%; }
-#right-beam { left: 75%; }
-
+/* TIMELINE PHASE 4: End Evaluation Metrics Panel */
 #finish-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -229,13 +282,29 @@ body {
     font-size: 1rem;
     box-shadow: 0 4px 12px rgba(61, 122, 110, 0.2);
 }
-.reset-btn:hover { background: var(--mint-primary); }
+.reset-btn:hover { background: #2f5e55; }
 </style>
 </head>
 <body>
 
 <audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
 <audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+
+<div id="splash-overlay">
+  <img src="assets/logo.png" alt="Mainframe Logo Asset" onerror="console.log('Ensure target asset matrix file path is correct.');" />
+</div>
+
+<div id="instruction-overlay">
+  <div class="instruction-card">
+    <h2>GRID SECURITY PROTOCOL</h2>
+    <p>
+      • The central laboratory mainframe needs verification for 10 structural circuits and current metrics.<br><br>
+      • Read the electrical engineering definition appearing on the digital telemetry viewport display screen.<br><br>
+      • Type the correct textbook scientific core term into the active verification console pipeline below to authorize access.
+    </p>
+    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Power Up Defenses</button>
+  </div>
+</div>
 
 <div id="game-container">
   <div class="header">
@@ -252,33 +321,25 @@ body {
   </div>
 
   <div class="arcade-viewport">
-    <div id="left-beam" class="laser-beam"></div>
-    <div id="right-beam" class="laser-beam"></div>
     <div class="falling-core" id="core-display">Loading core grid parameters...</div>
   </div>
 
   <div class="battery-terminal">
-    <div class="terminal-label">Tap Correct Battery Channel Below to Fire Turret Beam:</div>
-    <div class="battery-grid">
-      <button class="battery-node" id="btn-left" onclick="fireTurret(0)">
-        <span class="battery-fuse" id="fuse-left"></span>
-        <span id="text-left">Battery Alpha</span>
-      </button>
-      <button class="battery-node" id="btn-right" onclick="fireTurret(1)">
-        <span class="battery-fuse" id="fuse-right"></span>
-        <span id="text-right">Battery Beta</span>
-      </button>
-    </div>
+    <div class="terminal-label">Analyze Parameter Definition & Input Core Term Below:</div>
+    <form class="interactive-form" id="diagnostic-form" onsubmit="evaluateEntry(event)">
+      <input type="text" id="user-term" class="diagnostic-input" placeholder="Type verified textbook definition term here..." autocomplete="off" spellcheck="false" required>
+      <button type="submit" id="btn-submit" class="submit-btn">Verify Term</button>
+    </form>
   </div>
 
   <div class="console-ticker" id="feedback-box">
-    Analyze the falling power core telemetry and fire the matching battery cell.
+    Analyze the falling power core telemetry and input the matching verification string.
   </div>
 
   <div id="finish-screen">
     <h2>⚡ Grid Defenses Synchronized!</h2>
     <p style="color: var(--text-gray); font-size: 1.1rem; max-width: 550px; line-height: 1.6;">
-      Core mainframe cleared. All electrochemical cells, conductors, potential barriers, magnetic fields, and induced currents from Chapter 6 have successfully integrated into memory buffers.
+      Core mainframe cleared. All electrochemical cells, conductors, potential barriers, magnetic fields, and induced currents have successfully integrated into memory buffers.
     </p>
     <button class="reset-btn" onclick="location.reload()">Reboot Core Grid</button>
   </div>
@@ -291,19 +352,17 @@ let attemptsLeft = 2;
 let blockControls = false;
 
 const database = [
-    { q: "A secondary source of energy that we get from the conversion of other natural sources of energy is:", answer: "Electricity", wrong: "Voltmeter" },
-    { q: "The ongoing continuous vector flow of electric charge particles through an open or closed wire pathway is called:", answer: "Current", wrong: "Insulator" },
-    { q: "A complete circular closed loop track configuration through which an electric current can safely travel around is a:", answer: "Circuit", wrong: "Ammeter" },
-    { q: "Materials or substances that offer little to no resistance to moving electrons, allowing electricity to pass easily are:", answer: "Conductors", wrong: "Cathode" },
-    { q: "Substances or structural materials that block and do not allow electricity or electronic streams to pass through them are:", answer: "Insulators", wrong: "Conductors" },
-    { q: "The explicit amount of mechanical work needed to move a unit charge from an external reference point to a specific spot against an electric field is:", answer: "Electric Potential", wrong: "Circuit" },
-    { q: "A highly sensitive metric laboratory tool or instrument utilized specifically for measuring electric current in Amperes is an:", answer: "Ammeter", wrong: "Voltmeter" },
-    { q: "An instrument utilized explicitly for measuring the spatial electrical potential difference scale values between two points is a:", answer: "Voltmeter", wrong: "Anode" },
-    { q: "The precise active negative terminal link position or electrode node sitting inside an operational electrolytic chemical cell is the:", answer: "Anode", wrong: "Cathode" },
-    { q: "The valid corresponding positive terminal link interface position inside an operational chemical electrolyte vessel is the:", answer: "Cathode", wrong: "Anode" }
+    { q: "A secondary source of energy that we get from the conversion of other natural sources of energy is:", answer: "Electricity" },
+    { q: "The ongoing continuous vector flow of electric charge particles through an open or closed wire pathway is called:", answer: "Current" },
+    { q: "A complete circular closed loop track configuration through which an electric current can safely travel around is a:", answer: "Circuit" },
+    { q: "Materials or substances that offer little to no resistance to moving electrons, allowing electricity to pass easily are:", answer: "Conductors" },
+    { q: "Substances or structural materials that block and do not allow electricity or electronic streams to pass through them are:", answer: "Insulators" },
+    { q: "The explicit amount of mechanical work needed to move a unit charge from an external reference point to a specific spot against an electric field is:", answer: "Electric Potential" },
+    { q: "A highly sensitive metric laboratory tool or instrument utilized specifically for measuring electric current in Amperes is an:", answer: "Ammeter" },
+    { q: "An instrument utilized explicitly for measuring the spatial electrical potential difference scale values between two points is a:", answer: "Voltmeter" },
+    { q: "The precise active negative terminal link position or electrode node sitting inside an operational electrolytic chemical cell is the:", answer: "Anode" },
+    { q: "The valid corresponding positive terminal link interface position inside an operational chemical electrolyte vessel is the:", answer: "Cathode" }
 ];
-
-let leftOptionIsCorrect = false;
 
 function playSound(type) {
     const audio = $(`audio-${type}`);
@@ -313,10 +372,29 @@ function playSound(type) {
     }
 }
 
+// TIMELINE ENGINE TIMING SETTINGS
+window.onload = function() {
+    // Phase 1: Keep splash page layout locked into frame exclusively for exactly 5 seconds
+    setTimeout(() => {
+        $('splash-overlay').style.display = 'none';
+        
+        // Phase 2: Unveil systemic manual instruction guide sheet module
+        $('instruction-overlay').style.display = 'flex';
+    }, 5000);
+};
+
+function terminateInstructionsAndLaunch() {
+    // Close Phase 2 guidelines
+    $('instruction-overlay').style.display = 'none';
+    
+    // Phase 3: Initiate active game framework panel and prompt definitions
+    $('game-container').style.display = 'flex';
+    loadQuestion();
+}
+
 function loadQuestion() {
     if (currentQuestion >= database.length) {
-        $('core-display').style.display = 'none';
-        $('finish-screen').style.display = 'flex';
+        $('finish-screen').style.display = 'flex'; // Trigger Phase 4 Complete Window Panel
         return;
     }
 
@@ -326,56 +404,33 @@ function loadQuestion() {
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     
-    $('feedback-box').innerText = "Analyze the falling power core telemetry and fire the matching battery cell.";
+    $('user-term').value = "";
+    $('user-term').disabled = false;
+    $('btn-submit').disabled = false;
+    $('user-term').focus();
+    
+    $('feedback-box').innerText = "Analyze the falling power core telemetry and input the matching verification string.";
     $('feedback-box').style.backgroundColor = "#ffffff";
     $('feedback-box').style.color = "var(--text-slate)";
     $('feedback-box').style.borderLeftColor = "var(--border-soft)";
 
     let data = database[currentQuestion];
     $('core-display').innerText = data.q;
-
-    // Reset element animation timeline state seamlessly
-    let core = $('core-display');
-    core.style.animation = 'none';
-    core.offsetHeight; /* Trigger system reflow */
-    core.style.animation = 'descend 9s linear infinite';
-
-    // Randomize choice distribution layout (Left vs Right flanking channels)
-    leftOptionIsCorrect = Math.random() > 0.5;
-    if (leftOptionIsCorrect) {
-        $('text-left').innerText = data.answer;
-        $('text-right').innerText = data.wrong;
-        $('fuse-left').style.backgroundColor = "var(--mint-bright)";
-        $('fuse-right').style.backgroundColor = "#b0bec5";
-    } else {
-        $('text-left').innerText = data.wrong;
-        $('text-right').innerText = data.answer;
-        $('fuse-left').style.backgroundColor = "#b0bec5";
-        $('fuse-right').style.backgroundColor = "var(--mint-bright)";
-    }
 }
 
-function fireTurret(chosenSide) {
+function evaluateEntry(event) {
+    event.preventDefault();
     if (blockControls) return;
     
+    let userInput = $('user-term').value.trim();
     let data = database[currentQuestion];
-    let isCorrect = (chosenSide === 0 && leftOptionIsCorrect) || (chosenSide === 1 && !leftOptionIsCorrect);
-    let beamID = chosenSide === 0 ? 'left-beam' : 'right-beam';
 
-    // Core Flash Lightning Animation trigger loop
-    let beam = $(beamID);
-    beam.style.display = 'block';
-    beam.style.height = '100%';
-    setTimeout(() => {
-        beam.style.display = 'none';
-        beam.style.height = '0px';
-    }, 250);
-
-    if (isCorrect) {
+    if (userInput.toLowerCase() === data.answer.toLowerCase()) {
         blockControls = true;
         playSound('correct');
         
-        $('core-display').style.animationPlayState = 'paused';
+        $('user-term').disabled = true;
+        $('btn-submit').disabled = true;
 
         $('feedback-box').innerText = `✓ MAIN DETONATED: "${data.answer}" has successfully neutralized the wave.`;
         $('feedback-box').style.backgroundColor = "var(--mint-light)";
@@ -385,7 +440,7 @@ function fireTurret(chosenSide) {
         setTimeout(() => {
             currentQuestion++;
             loadQuestion();
-        }, 2200);
+        }, 2500);
 
     } else {
         attemptsLeft--;
@@ -393,16 +448,22 @@ function fireTurret(chosenSide) {
 
         if (attemptsLeft > 0) {
             playSound('wrong');
-            $('feedback-box').innerText = "✕ TURRET MISFIRE: Resistance value spiked. Recalibrate deflection angle! (1 fuse remaining)";
+            $('user-term').value = "";
+            $('user-term').focus();
+            
+            $('feedback-box').innerText = "✕ TURRET MISFIRE: Core string does not register. Verify your metrics! (1 fuse remaining)";
             $('feedback-box').style.backgroundColor = "var(--coral-alert)";
             $('feedback-box').style.color = "var(--coral-text)";
             $('feedback-box').style.borderLeftColor = "#ff4d4d";
         } else {
             blockControls = true;
             playSound('wrong');
-            $('core-display').style.animationPlayState = 'paused';
+            
+            $('user-term').disabled = true;
+            $('btn-submit').disabled = true;
+            $('user-term').value = data.answer;
 
-            $('feedback-box').innerText = `⚠️ EMERGENCY GROUND: Mainframe override active. Textbook Fact: The true element is "${data.answer}".`;
+            $('feedback-box').innerText = `⚠️ EMERGENCY GROUND: 0 fuses remaining. Textbook Fact: The true element is "${data.answer}".`;
             $('feedback-box').style.backgroundColor = "var(--coral-alert)";
             $('feedback-box').style.color = "var(--coral-text)";
             $('feedback-box').style.borderLeftColor = "#ff4d4d";
@@ -414,8 +475,6 @@ function fireTurret(chosenSide) {
         }
     }
 }
-
-window.onload = loadQuestion;
 </script>
 </body>
 </html>
