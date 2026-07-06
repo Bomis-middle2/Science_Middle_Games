@@ -17,6 +17,7 @@
     --border-soft: #cfdad7;
     --text-slate: #2f3542;
     --text-gray: #747d8c;
+    --gold-flash: #f1c40f;
 }
 * {
     box-sizing: border-box;
@@ -61,7 +62,7 @@ body {
     top: 0; left: 0; width: 100%; height: 100%;
     background: radial-gradient(circle, #fbfdfd 0%, #e6eeee 100%);
     z-index: 8888;
-    display: none; /* Regulated via Timeline Initialization Matrix */
+    display: none; 
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -105,7 +106,7 @@ body {
 
 /* TIMELINE PHASE 3: Main Active Game Workspace */
 #game-container {
-    display: none; /* Concealed systematically during introductory sequences */
+    display: none;
     width: 100%;
     max-width: 850px;
     background: var(--panel-sheet);
@@ -118,7 +119,6 @@ body {
     position: relative;
 }
 
-/* Header Scoring Bar */
 .header {
     display: flex;
     justify-content: space-between;
@@ -157,9 +157,8 @@ body {
 #progress-pill { background: #e3eff2; color: #1d7082; }
 #chances-pill { background: #fcece9; color: #c94a3a; }
 
-/* The Dynamic Threat Zone Terminal Screen */
 .arcade-viewport {
-    height: 140px;
+    height: 120px;
     background: linear-gradient(to bottom, #fafdfd, #f4f9f8);
     border: 2px dashed var(--mint-primary);
     border-radius: 12px;
@@ -180,7 +179,7 @@ body {
     color: var(--text-slate);
 }
 
-/* Console Text Entry Mainframe Pipeline Control */
+/* Interactive Drag Drop Docking Nodes Architecture */
 .battery-terminal {
     display: flex;
     flex-direction: column;
@@ -193,50 +192,59 @@ body {
     color: var(--text-gray);
     letter-spacing: 0.5px;
 }
-.interactive-form {
+
+/* Target Drop Zone Area */
+.drop-dock-bay {
+    background: #edf2f1;
+    border: 3px dashed var(--border-soft);
+    border-radius: 12px;
+    min-height: 80px;
     display: flex;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--mint-primary);
+    transition: all 0.2s ease;
+    padding: 10px;
 }
-.diagnostic-input {
-    flex: 1;
+.drop-dock-bay.drag-over {
+    background: var(--mint-light);
+    border-color: var(--mint-bright);
+    transform: scale(1.01);
+}
+
+/* Draggable Component Storage Matrix Bank */
+.components-inventory-deck {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 5px;
+}
+.component-chip {
     background: #ffffff;
     border: 2px solid var(--border-soft);
-    padding: 16px 20px;
+    padding: 12px 10px;
     border-radius: 8px;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--text-slate);
-    outline: none;
-    transition: all 0.2s ease;
-}
-.diagnostic-input:focus {
-    border-color: var(--mint-primary);
-    box-shadow: 0 0 0 3px rgba(61, 122, 110, 0.15);
-}
-.diagnostic-input:disabled {
-    background: #f1f5f6;
-    color: var(--text-gray);
-    cursor: not-allowed;
-}
-.submit-btn {
-    background: var(--mint-primary);
-    color: #ffffff;
-    border: none;
-    padding: 0 35px;
     font-size: 0.95rem;
     font-weight: 700;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(61, 122, 110, 0.15);
-    transition: background 0.2s;
+    color: var(--text-slate);
+    text-align: center;
+    cursor: grab;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
-.submit-btn:hover {
-    background: #2f5e55;
+.component-chip:active {
+    cursor: dragging;
 }
-.submit-btn:disabled {
-    background: var(--border-soft);
-    box-shadow: none;
-    cursor: not-allowed;
+.component-chip:hover {
+    border-color: var(--mint-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(61, 122, 110, 0.1);
+}
+.component-chip.dragging {
+    opacity: 0.4;
+    border-style: dotted;
 }
 
 /* Bottom Terminal Ticker Console */
@@ -255,7 +263,6 @@ body {
     color: #4b5251;
 }
 
-/* TIMELINE PHASE 4: End Evaluation Metrics Panel */
 #finish-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -300,7 +307,7 @@ body {
     <p>
       • The central laboratory mainframe needs verification for 10 structural circuits and current metrics.<br><br>
       • Read the electrical engineering definition appearing on the digital telemetry viewport display screen.<br><br>
-      • Type the correct textbook scientific core term into the active verification console pipeline below to authorize access.
+      • <strong>DRAG AND DROP MECHANISM:</strong> Drag the valid terminal chip from the hardware inventory deck grid at the bottom and insert it directly into the active circuit dock connection socket.
     </p>
     <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Power Up Defenses</button>
   </div>
@@ -325,15 +332,18 @@ body {
   </div>
 
   <div class="battery-terminal">
-    <div class="terminal-label">Analyze Parameter Definition & Input Core Term Below:</div>
-    <form class="interactive-form" id="diagnostic-form" onsubmit="evaluateEntry(event)">
-      <input type="text" id="user-term" class="diagnostic-input" placeholder="Type verified textbook definition term here..." autocomplete="off" spellcheck="false" required>
-      <button type="submit" id="btn-submit" class="submit-btn">Verify Term</button>
-    </form>
+    <div class="terminal-label">Active Connection Socket:</div>
+    <div class="drop-dock-bay" id="dock-target">
+      DROP CORRECT TERM HARWARE CHIP HERE TO CLOSE SPLIT LOOP
+    </div>
+    
+    <div class="terminal-label" style="margin-top: 10px;">Hardware Inventory Deck Pool:</div>
+    <div class="components-inventory-deck" id="inventory-pool">
+      </div>
   </div>
 
   <div class="console-ticker" id="feedback-box">
-    Analyze the falling power core telemetry and input the matching verification string.
+    Analyze the falling power core telemetry and drop the matching component chip.
   </div>
 
   <div id="finish-screen">
@@ -351,6 +361,7 @@ let currentQuestion = 0;
 let attemptsLeft = 2;
 let blockControls = false;
 
+// QUESTIONS PRESERVED WITH ABSOLUTE CONTEXTUAL INTEGRITY
 const database = [
     { q: "A secondary source of energy that we get from the conversion of other natural sources of energy is:", answer: "Electricity" },
     { q: "The ongoing continuous vector flow of electric charge particles through an open or closed wire pathway is called:", answer: "Current" },
@@ -364,37 +375,37 @@ const database = [
     { q: "The valid corresponding positive terminal link interface position inside an operational chemical electrolyte vessel is the:", answer: "Cathode" }
 ];
 
+// Structural catalog used to seed distractor targets dynamically 
+const globalVocabulary = [
+    "Electricity", "Current", "Circuit", "Conductors", "Insulators", 
+    "Electric Potential", "Ammeter", "Voltmeter", "Anode", "Cathode"
+];
+
 function playSound(type) {
     const audio = $(`audio-${type}`);
     if (audio) {
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio waiting for system gesture context."));
+        audio.play().catch(e => console.log("Audio pipeline requires explicit client interactions context."));
     }
 }
 
-// TIMELINE ENGINE TIMING SETTINGS
 window.onload = function() {
-    // Phase 1: Keep splash page layout locked into frame exclusively for exactly 5 seconds
     setTimeout(() => {
         $('splash-overlay').style.display = 'none';
-        
-        // Phase 2: Unveil systemic manual instruction guide sheet module
         $('instruction-overlay').style.display = 'flex';
     }, 5000);
+    setupDragDropEngine();
 };
 
 function terminateInstructionsAndLaunch() {
-    // Close Phase 2 guidelines
     $('instruction-overlay').style.display = 'none';
-    
-    // Phase 3: Initiate active game framework panel and prompt definitions
     $('game-container').style.display = 'flex';
     loadQuestion();
 }
 
 function loadQuestion() {
     if (currentQuestion >= database.length) {
-        $('finish-screen').style.display = 'flex'; // Trigger Phase 4 Complete Window Panel
+        $('finish-screen').style.display = 'flex';
         return;
     }
 
@@ -404,35 +415,94 @@ function loadQuestion() {
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     
-    $('user-term').value = "";
-    $('user-term').disabled = false;
-    $('btn-submit').disabled = false;
-    $('user-term').focus();
-    
-    $('feedback-box').innerText = "Analyze the falling power core telemetry and input the matching verification string.";
+    // Reset structural target dock display styling parameters
+    const targetBay = $('dock-target');
+    targetBay.innerText = "DROP CORRECT TERM HARDWARE CHIP HERE TO CLOSE SPLIT LOOP";
+    targetBay.style.backgroundColor = "#edf2f1";
+    targetBay.style.color = "var(--mint-primary)";
+    targetBay.style.borderColor = "var(--border-soft)";
+
+    $('feedback-box').innerText = "Analyze the falling power core telemetry and drop the matching component chip.";
     $('feedback-box').style.backgroundColor = "#ffffff";
     $('feedback-box').style.color = "var(--text-slate)";
     $('feedback-box').style.borderLeftColor = "var(--border-soft)";
 
     let data = database[currentQuestion];
     $('core-display').innerText = data.q;
+
+    generateInventoryChips(data.answer);
 }
 
-function evaluateEntry(event) {
-    event.preventDefault();
-    if (blockControls) return;
-    
-    let userInput = $('user-term').value.trim();
-    let data = database[currentQuestion];
+function generateInventoryChips(correctAnswer) {
+    const pool = $('inventory-pool');
+    pool.innerHTML = "";
 
-    if (userInput.toLowerCase() === data.answer.toLowerCase()) {
+    // Gather unique wrong distractors from global catalog listing
+    let distractors = globalVocabulary.filter(item => item !== correctAnswer);
+    distractors.sort(() => Math.random() - 0.5);
+    
+    // Package the true answer together with three randomly selected distractors
+    let selectedChoices = [correctAnswer, distractors[0], distractors[1], distractors[2]];
+    selectedChoices.sort(() => Math.random() - 0.5);
+
+    selectedChoices.forEach(term => {
+        let chip = document.createElement('div');
+        chip.className = "component-chip";
+        chip.innerText = term;
+        chip.setAttribute('draggable', 'true');
+        
+        chip.addEventListener('dragstart', () => {
+            if (blockControls) return;
+            chip.classList.add('dragging');
+        });
+        
+        chip.addEventListener('dragend', () => {
+            chip.classList.remove('dragging');
+        });
+
+        pool.appendChild(chip);
+    });
+}
+
+function setupDragDropEngine() {
+    const targetBay = $('dock-target');
+
+    targetBay.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (blockControls) return;
+        targetBay.classList.add('drag-over');
+    });
+
+    targetBay.addEventListener('dragleave', () => {
+        targetBay.classList.remove('drag-over');
+    });
+
+    targetBay.addEventListener('drop', (e) => {
+        e.preventDefault();
+        targetBay.classList.remove('drag-over');
+        if (blockControls) return;
+
+        const draggingChip = document.querySelector('.component-chip.dragging');
+        if (!draggingChip) return;
+
+        evaluateSelectedChip(draggingChip.innerText);
+    });
+}
+
+function evaluateSelectedChip(selectedTerm) {
+    let data = database[currentQuestion];
+    const targetBay = $('dock-target');
+
+    if (selectedTerm === data.answer) {
         blockControls = true;
         playSound('correct');
         
-        $('user-term').disabled = true;
-        $('btn-submit').disabled = true;
+        targetBay.innerText = `[CONNECTED] ➔ ${selectedTerm.toUpperCase()}`;
+        targetBay.style.backgroundColor = "var(--mint-light)";
+        targetBay.style.borderColor = "var(--mint-bright)";
+        targetBay.style.color = "var(--mint-text)";
 
-        $('feedback-box').innerText = `✓ MAIN DETONATED: "${data.answer}" has successfully neutralized the wave.`;
+        $('feedback-box').innerText = `✓ MAIN DETONATED: "${data.answer}" component cell inserted cleanly. Matrix stable.`;
         $('feedback-box').style.backgroundColor = "var(--mint-light)";
         $('feedback-box').style.color = "var(--mint-text)";
         $('feedback-box').style.borderLeftColor = "var(--mint-bright)";
@@ -448,10 +518,7 @@ function evaluateEntry(event) {
 
         if (attemptsLeft > 0) {
             playSound('wrong');
-            $('user-term').value = "";
-            $('user-term').focus();
-            
-            $('feedback-box').innerText = "✕ TURRET MISFIRE: Core string does not register. Verify your metrics! (1 fuse remaining)";
+            $('feedback-box').innerText = `✕ TURRET MISFIRE: "${selectedTerm}" generated an impedance anomaly. Recalibrate components! (1 fuse remaining)`;
             $('feedback-box').style.backgroundColor = "var(--coral-alert)";
             $('feedback-box').style.color = "var(--coral-text)";
             $('feedback-box').style.borderLeftColor = "#ff4d4d";
@@ -459,11 +526,12 @@ function evaluateEntry(event) {
             blockControls = true;
             playSound('wrong');
             
-            $('user-term').disabled = true;
-            $('btn-submit').disabled = true;
-            $('user-term').value = data.answer;
+            targetBay.innerText = `[OVERRIDE PLUG] ➔ ${data.answer.toUpperCase()}`;
+            targetBay.style.backgroundColor = "var(--coral-alert)";
+            targetBay.style.borderColor = "#ff4d4d";
+            targetBay.style.color = "var(--coral-text)";
 
-            $('feedback-box').innerText = `⚠️ EMERGENCY GROUND: 0 fuses remaining. Textbook Fact: The true element is "${data.answer}".`;
+            $('feedback-box').innerText = `⚠️ EMERGENCY GROUND: Circuit short-circuit. Textbook Fact: The true verification element is "${data.answer}".`;
             $('feedback-box').style.backgroundColor = "var(--coral-alert)";
             $('feedback-box').style.color = "var(--coral-text)";
             $('feedback-box').style.borderLeftColor = "#ff4d4d";
