@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Planetary Command Grid: Deflector Core</title>
+<title>Space Quiz: Science Core</title>
 <style>
 :root {
     --bg-deep-space: #060b13;
@@ -248,13 +248,13 @@ body::before {
 
 <div id="instruction-overlay">
   <div class="instruction-card">
-    <h2>COMMAND PROTOCOLS INITIALIZED</h2>
+    <h2>MISSION PROTOCOLS</h2>
     <p>
-      • Telemetry readings will drop sequentially from upper atmospheric vectors.<br><br>
-      • Your local tactical defense grid handles 10 severe phenomenon evaluation blocks.<br><br>
-      • <strong>CRITICAL REVISION:</strong> The blue dot indicator light remains hidden initially so you can process the question manually. If an incorrect option is chosen twice, the system reveals the correct response using the blue indicator light dot!
+      • Questions will drop down from the top of the screen.<br><br>
+      • You must answer 10 science questions correctly to protect the base.<br><br>
+      • <strong>HOW TO PLAY:</strong> Read the question and choose the correct button below. If you guess wrong twice, a blue light indicator will light up to show you the right answer!
     </p>
-    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Engage Control Core</button>
+    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Start Mission</button>
   </div>
 </div>
 
@@ -264,46 +264,46 @@ body::before {
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2L2 22h20L12 2zm0 14h.01M12 10v4" stroke="var(--neon-blue)" stroke-width="2" stroke-linejoin="round" fill="none"/>
       </svg>
-      Command Grid Core
+      Base Command Grid
     </div>
     <div class="status-indicators">
-      <div class="hud-pill">Matrix Index: <span id="lbl-question">1</span>/10</div>
-      <div class="hud-pill" id="shield-hud">Shield Arrays: <span id="lbl-chances">2</span></div>
+      <div class="hud-pill">Question: <span id="lbl-question">1</span>/10</div>
+      <div class="hud-pill" id="shield-hud">Shields Left: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
   <div class="atmosphere-viewport" id="viewport-area">
     <div id="left-discharger" class="discharge-beam"></div>
     <div id="right-discharger" class="discharge-beam"></div>
-    <div class="descending-anomaly" id="anomaly-display">Initializing core data packets...</div>
+    <div class="descending-anomaly" id="anomaly-display">Loading questions...</div>
   </div>
 
   <div class="defense-panel">
-    <div class="panel-title">Direct Localized Deflector Impulse Output:</div>
+    <div class="panel-title">Choose the correct answer:</div>
     <div class="interceptor-grid">
       <button class="interceptor-node" id="btn-left" onclick="deployPulse(0)">
         <span class="grid-terminal-light" id="light-left"></span>
-        <span id="text-left">ARRAY ALPHA</span>
-        <span class="sub-title-indicator">MODULE // 01</span>
+        <span id="text-left">OPTION A</span>
+        <span class="sub-title-indicator">CHOICE // 01</span>
       </button>
       <button class="interceptor-node" id="btn-right" onclick="deployPulse(1)">
         <span class="grid-terminal-light" id="light-right"></span>
-        <span id="text-right">ARRAY BETA</span>
-        <span class="sub-title-indicator">MODULE // 02</span>
+        <span id="text-right">OPTION B</span>
+        <span class="sub-title-indicator">CHOICE // 02</span>
       </button>
     </div>
   </div>
 
   <div class="safety-logger" id="feedback-box">
-    SYSTEM MONITOR ACTIVE // Awaiting validation routing sequence.
+    SYSTEM ONLINE // Ready for your input.
   </div>
 
   <div id="finish-screen">
-    <h2>⚡ GRID DEFLECTION SECURED ⚡</h2>
+    <h2>⚡ BASE PROTECTED ⚡</h2>
     <p style="color: #94a3b8; font-size: 1.05rem; max-width: 600px; line-height: 1.7;">
-      Atmospheric sectors stabilized. Core telemetry integrated perfectly.
+      Great job! All questions answered and the base is completely safe.
     </p>
-    <button class="reboot-btn" onclick="location.reload()">Recharge Core</button>
+    <button class="reboot-btn" onclick="location.reload()">Play Again</button>
   </div>
 </div>
 
@@ -314,16 +314,16 @@ let attemptsLeft = 2;
 let blockControls = false;
 
 const database = [
-    { q: "Any sudden vibration or movement of a part of the Earth's crust caused by natural or man-made forces is an:", answer: "Earthquake", wrong: "Lightning" },
-    { q: "The specific deep underground physical waves produced through the bedrock during a sudden earthquake are:", answer: "Seismic waves", wrong: "Anions" },
-    { q: "A highly sensitive mechanical laboratory instrument used to explicitly measure and record seismic waves is a:", answer: "Seismograph", wrong: "Electroscope" },
-    { q: "A form of electricity comprised of accumulated surface electrical charges that remain completely stationary and do not flow is:", answer: "Static electricity", wrong: "Seismic waves" },
-    { q: "A specialized physical laboratory device constructed of conducting materials used for detecting and testing the presence of electric charge on a body is an:", answer: "Electroscope", wrong: "Seismograph" },
-    { q: "Highly active particles or groups of atoms that carry net positive or negative electrical charges due to electron imbalance are:", answer: "Ions", wrong: "Asteroids" },
-    { q: "A specific structural molecular ion configuration that carries a net positive charge is a:", answer: "Cation", wrong: "Anion" },
-    { q: "A specific electrical ion configuration that carries a net negative charge is an:", answer: "Anion", wrong: "Cation" },
-    { q: "Small rocky or metallic objects occupying space that form a distinct belt primarily between the planetary tracks of Mars and Jupiter are:", answer: "Asteroids", wrong: "Constellations" },
-    { q: "Identifiable groups of stars that form a particular configuration, shape, or recognizable pattern in the open night sky are:", answer: "Constellations", wrong: "Asteroids" }
+    { q: "A sudden shaking of the Earth's crust caused by natural forces is an:", answer: "Earthquake", wrong: "Lightning" },
+    { q: "The physical waves that travel through the ground during an earthquake are:", answer: "Seismic waves", wrong: "Anions" },
+    { q: "An instrument used by scientists to measure and record earthquake waves is a:", answer: "Seismograph", wrong: "Electroscope" },
+    { q: "A type of electricity where electric charges stay in one place and do not flow is:", answer: "Static electricity", wrong: "Seismic waves" },
+    { q: "A science tool used to look for and test the presence of an electric charge on an object is an:", answer: "Electroscope", wrong: "Seismograph" },
+    { q: "Atoms or groups of atoms that carry a positive or negative electric charge are called:", answer: "Ions", wrong: "Asteroids" },
+    { q: "An atom or ion that carries a positive electric charge is called a:", answer: "Cation", wrong: "Anion" },
+    { q: "An atom or ion that carries a negative electric charge is called an:", answer: "Anion", wrong: "Cation" },
+    { q: "Small rocky objects in space that mostly orbit the Sun in a belt between Mars and Jupiter are:", answer: "Asteroids", wrong: "Constellations" },
+    { q: "A group of stars that forms a recognizable shape or pattern in the night sky is a:", answer: "Constellation", wrong: "Asteroids" }
 ];
 
 let leftSideIsTrue = false;
@@ -356,7 +356,7 @@ function loadQuestion() {
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     
-    $('feedback-box').innerText = "// SCAN FEED ACTIVE: Identify incoming hazard parameters.";
+    $('feedback-box').innerText = "// READ THE QUESTION: Choose the correct option below.";
     $('feedback-box').style.color = "#38bdf8";
     $('feedback-box').style.borderLeftColor = "#0284c7";
 
@@ -368,7 +368,7 @@ function loadQuestion() {
     anomalyNode.style.animation = 'tacticalDescend 10s linear infinite';
     anomalyNode.style.animationPlayState = 'running';
 
-    // Neutralize indicator lights entirely upon loading a new question so players can't cheat
+    // Reset light bulbs
     $('light-left').style.backgroundColor = "#1e293b";
     $('light-left').style.boxShadow = "none";
     $('light-right').style.backgroundColor = "#1e293b";
@@ -384,7 +384,6 @@ function loadQuestion() {
     }
 }
 
-// Helper utility to expose answer indicator dot cleanly when needed
 function revealCorrectIndicatorDot() {
     if (leftSideIsTrue) {
         $('light-left').style.backgroundColor = "var(--neon-blue)";
@@ -422,10 +421,9 @@ function deployPulse(chosenSide) {
         blockControls = true;
         $('anomaly-display').style.animationPlayState = 'paused';
         
-        // Light up correct dot immediately on success confirmation
         revealCorrectIndicatorDot();
 
-        $('feedback-box').innerText = `✓ VECTOR ALIGNED: "${data.answer.toUpperCase()}" locked into core parameters.`;
+        $('feedback-box').innerText = `✓ CORRECT: "${data.answer.toUpperCase()}" is the right answer!`;
         $('feedback-box').style.color = "var(--neon-green)";
         $('feedback-box').style.borderLeftColor = "var(--neon-green)";
 
@@ -439,17 +437,16 @@ function deployPulse(chosenSide) {
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
-            $('feedback-box').innerText = "✕ IMPULSE MISALIGNMENT: Deflection failure. Shield capacity running low.";
+            $('feedback-box').innerText = "✕ WRONG ANSWER: Shields are holding. Try one more time!";
             $('feedback-box').style.color = "var(--neon-orange)";
             $('feedback-box').style.borderLeftColor = "var(--neon-orange)";
         } else {
             blockControls = true;
             $('anomaly-display').style.animationPlayState = 'paused';
             
-            // Out of turns: reveal the correct dot for player learning feedback loops
             revealCorrectIndicatorDot();
 
-            $('feedback-box').innerText = `⚠️ CORE PATCH INJECTED: System override active. Solution profile: "${data.answer.toUpperCase()}".`;
+            $('feedback-box').innerText = `⚠️ SYSTEM OVERRIDE: Out of tries! The correct answer was "${data.answer.toUpperCase()}".`;
             $('feedback-box').style.color = "var(--neon-red)";
             $('feedback-box').style.borderLeftColor = "var(--neon-red)";
 
