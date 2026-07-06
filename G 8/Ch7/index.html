@@ -58,7 +58,7 @@ body {
     top: 0; left: 0; width: 100%; height: 100%;
     background: radial-gradient(circle, #0c1a30 0%, #03070e 100%);
     z-index: 8888;
-    display: none; /* Controlled via state engine */
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -94,7 +94,6 @@ body {
     text-transform: uppercase; letter-spacing: 1px;
 }
 
-/* Background matrix ambient space orbit elements */
 body::before {
     content: "";
     position: absolute;
@@ -113,7 +112,9 @@ body::before {
     to { transform: rotate(360deg); }
 }
 
+/* PHASE 3: Main Game UI Container */
 #game-container {
+    display: none; 
     width: 100%;
     max-width: 900px;
     background: linear-gradient(145deg, #0d1527, #13223f);
@@ -121,7 +122,6 @@ body::before {
     padding: 30px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 254, 0.15);
     border: 2px solid var(--panel-border);
-    display: flex;
     flex-direction: column;
     gap: 24px;
     position: relative;
@@ -243,7 +243,7 @@ body::before {
 <body>
 
 <div id="splash-overlay">
-  <img src="assets/logo.png" alt="Innovine Logo" onerror="console.log('Ensure asset paths exist locally');" />
+  <img src="assets/logo.png" alt="Innovine Logo" />
 </div>
 
 <div id="instruction-overlay">
@@ -252,7 +252,7 @@ body::before {
     <p>
       • Telemetry readings will drop sequentially from upper atmospheric vectors.<br><br>
       • Your local tactical defense grid handles 10 severe phenomenon evaluation blocks.<br><br>
-      • <strong>CRITICAL GUIDE:</strong> The target button holding the absolute correct true phenomenon configuration option is continuously highlighted with a bright <strong>Neon Blue Indicator Dot</strong> for easy verification.
+      • <strong>CRITICAL REVISION:</strong> The blue dot indicator light remains hidden initially so you can process the question manually. If an incorrect option is chosen twice, the system reveals the correct response using the blue indicator light dot!
     </p>
     <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Engage Control Core</button>
   </div>
@@ -328,20 +328,16 @@ const database = [
 
 let leftSideIsTrue = false;
 
-// ENFORCED STATE SEQUENCE TIMELINE ENGINE
 window.onload = function() {
-    // Stage 1: Absolute 5 Seconds hold lock on White Splash Screen Frame
     setTimeout(() => {
         $('splash-overlay').style.display = 'none';
-        
-        // Stage 2: Handover cleanly to Phase 2 (Instruction Sheet Interface Overlay)
         $('instruction-overlay').style.display = 'flex';
-    }, 5000);
+    }, 5000); 
 };
 
 function terminateInstructionsAndLaunch() {
-    // Stage 3: Dismiss documentation frame and deploy main application calculations
     $('instruction-overlay').style.display = 'none';
+    $('game-container').style.display = 'flex';
     loadQuestion();
 }
 
@@ -360,7 +356,7 @@ function loadQuestion() {
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     
-    $('feedback-box').innerText = "// SCAN FEED ACTIVE: Select the true matching data matrix module.";
+    $('feedback-box').innerText = "// SCAN FEED ACTIVE: Identify incoming hazard parameters.";
     $('feedback-box').style.color = "#38bdf8";
     $('feedback-box').style.borderLeftColor = "#0284c7";
 
@@ -372,23 +368,28 @@ function loadQuestion() {
     anomalyNode.style.animation = 'tacticalDescend 10s linear infinite';
     anomalyNode.style.animationPlayState = 'running';
 
+    // Neutralize indicator lights entirely upon loading a new question so players can't cheat
+    $('light-left').style.backgroundColor = "#1e293b";
+    $('light-left').style.boxShadow = "none";
+    $('light-right').style.backgroundColor = "#1e293b";
+    $('light-right').style.boxShadow = "none";
+
     leftSideIsTrue = Math.random() > 0.5;
     if (leftSideIsTrue) {
         $('text-left').innerText = data.answer;
         $('text-right').innerText = data.wrong;
-        
-        // Correct answer side strictly receives the neon blue tracking light illumination dot
-        $('light-left').style.backgroundColor = "var(--neon-blue)";
-        $('light-left').style.boxShadow = "0 0 10px var(--neon-blue)";
-        $('light-right').style.backgroundColor = "#1e293b";
-        $('light-right').style.boxShadow = "none";
     } else {
         $('text-left').innerText = data.wrong;
         $('text-right').innerText = data.answer;
-        
-        // Correct answer side strictly receives the neon blue tracking light illumination dot
-        $('light-left').style.backgroundColor = "#1e293b";
-        $('light-left').style.boxShadow = "none";
+    }
+}
+
+// Helper utility to expose answer indicator dot cleanly when needed
+function revealCorrectIndicatorDot() {
+    if (leftSideIsTrue) {
+        $('light-left').style.backgroundColor = "var(--neon-blue)";
+        $('light-left').style.boxShadow = "0 0 10px var(--neon-blue)";
+    } else {
         $('light-right').style.backgroundColor = "var(--neon-blue)";
         $('light-right').style.boxShadow = "0 0 10px var(--neon-blue)";
     }
@@ -420,6 +421,9 @@ function deployPulse(chosenSide) {
     if (isCorrect) {
         blockControls = true;
         $('anomaly-display').style.animationPlayState = 'paused';
+        
+        // Light up correct dot immediately on success confirmation
+        revealCorrectIndicatorDot();
 
         $('feedback-box').innerText = `✓ VECTOR ALIGNED: "${data.answer.toUpperCase()}" locked into core parameters.`;
         $('feedback-box').style.color = "var(--neon-green)";
@@ -441,6 +445,9 @@ function deployPulse(chosenSide) {
         } else {
             blockControls = true;
             $('anomaly-display').style.animationPlayState = 'paused';
+            
+            // Out of turns: reveal the correct dot for player learning feedback loops
+            revealCorrectIndicatorDot();
 
             $('feedback-box').innerText = `⚠️ CORE PATCH INJECTED: System override active. Solution profile: "${data.answer.toUpperCase()}".`;
             $('feedback-box').style.color = "var(--neon-red)";
