@@ -36,45 +36,69 @@ body {
     position: relative;
 }
 
-/* 5-Second Pure White Innovine Splash Screen Override Overlay */
+/* PHASE 1: 5-Second Pure White Screen Override Overlay */
 #splash-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background-color: #ffffff;
     z-index: 9999;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    opacity: 1;
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: all;
 }
-
 #splash-overlay img {
     max-width: 280px;
     height: auto;
     object-fit: contain;
-    animation: splashPulse 2.5s ease-in-out infinite;
 }
 
-@keyframes splashPulse {
-    0% { transform: scale(0.96); opacity: 0.85; }
-    50% { transform: scale(1.02); opacity: 1; }
-    100% { transform: scale(0.96); opacity: 0.85; }
+/* PHASE 2: Tactical Instruction Modal Layer */
+#instruction-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #0c1a30 0%, #03070e 100%);
+    z-index: 8888;
+    display: none; /* Controlled via state engine */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.instruction-card {
+    background: #0d1527;
+    border: 2px solid var(--neon-cyan);
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+    border-radius: 16px;
+    max-width: 550px;
+    width: 100%;
+    padding: 30px;
+    text-align: center;
+}
+.instruction-card h2 {
+    color: var(--neon-blue);
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+.instruction-card p {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    text-align: left;
+}
+.start-btn {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #040812;
+    font-weight: 900;
+    border: 0; padding: 14px 40px;
+    border-radius: 6px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px;
 }
 
+/* Background matrix ambient space orbit elements */
 body::before {
     content: "";
     position: absolute;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
-    z-index: -1;
+    width: 200%; height: 200%; top: -50%; left: -50%; z-index: -1;
     background-image: 
         radial-gradient(circle at 20% 30%, rgba(79, 172, 254, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 80% 70%, rgba(255, 49, 49, 0.05) 0%, transparent 40%),
@@ -119,17 +143,9 @@ body::before {
     color: var(--neon-blue);
     text-shadow: var(--text-glow);
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
-.brand svg {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(var(--text-glow));
-}
-.status-indicators {
-    display: flex;
-    gap: 16px;
-}
+.brand svg { width: 32px; height: 32px; filter: drop-shadow(var(--text-glow)); }
+.status-indicators { display: flex; gap: 16px; }
 .hud-pill {
     font-size: 0.75rem;
     font-weight: bold;
@@ -138,12 +154,8 @@ body::before {
     background: #090f1d;
     border: 1px solid #334155;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
-.hud-pill span {
-    color: var(--neon-blue);
-    font-weight: 900;
-}
+.hud-pill span { color: var(--neon-blue); font-weight: 900; }
 #shield-hud { border-color: rgba(255, 153, 0, 0.4); }
 #shield-hud span { color: var(--neon-orange); }
 
@@ -158,36 +170,24 @@ body::before {
     align-items: center;
     justify-content: center;
 }
-
 .atmosphere-viewport::before {
-    content: " ";
-    display: block;
-    position: absolute;
+    content: " "; display: block; position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
-    z-index: 10;
-    background-size: 100% 4px;
-    pointer-events: none;
+    z-index: 10; background-size: 100% 4px; pointer-events: none;
 }
 
 .descending-anomaly {
     position: absolute;
-    width: 82%;
-    max-width: 650px;
+    width: 82%; max-width: 650px;
     background: rgba(13, 27, 56, 0.9);
     border: 1px solid var(--neon-cyan);
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: bold;
-    line-height: 1.5;
+    border-radius: 8px; padding: 20px;
+    text-align: center; font-size: 1.1rem; font-weight: bold; line-height: 1.5;
     box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
     animation: tacticalDescend 10s linear infinite;
-    transform-origin: top center;
-    color: #f0fdfa;
-    backdrop-filter: blur(4px);
-    z-index: 5;
+    transform-origin: top center; color: #f0fdfa;
+    backdrop-filter: blur(4px); z-index: 5;
 }
 
 @keyframes tacticalDescend {
@@ -198,143 +198,64 @@ body::before {
     100% { transform: translateY(130px); opacity: 0; }
 }
 
-.defense-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.panel-title {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: bold;
-    color: #64748b;
-    letter-spacing: 1.5px;
-    text-align: center;
-}
-.interceptor-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
+.defense-panel { display: flex; flex-direction: column; gap: 12px; }
+.panel-title { font-size: 0.75rem; text-transform: uppercase; font-weight: bold; color: #64748b; letter-spacing: 1.5px; text-align: center; }
+.interceptor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .interceptor-node {
     background: linear-gradient(180deg, #14223c 0%, #0b1526 100%);
-    border: 2px solid #334155;
-    padding: 22px 25px;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: #94a3b8;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
+    border: 2px solid #334155; padding: 22px 25px; border-radius: 10px;
+    font-size: 1.1rem; font-weight: 900; color: #94a3b8; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 1px; position: relative;
 }
-
-.interceptor-node::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 3px;
-    background: #334155;
-}
-
-.interceptor-node:hover {
-    color: #fff;
-    background: linear-gradient(180deg, #1a2f54 0%, #0e1d36 100%);
-    transform: translateY(-2px);
-}
-
-.interceptor-node.primed-correct { border-color: var(--neon-blue); }
-.interceptor-node.primed-correct::before { background: var(--neon-blue); }
-.interceptor-node.primed-correct:hover { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
-
-.interceptor-node.primed-wrong { border-color: #334155; }
+.interceptor-node::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: #334155; }
+.interceptor-node:hover { color: #fff; background: linear-gradient(180deg, #1a2f54 0%, #0e1d36 100%); transform: translateY(-2px); }
 
 .grid-terminal-light {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #1e293b;
-    transition: all 0.3s ease;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #1e293b; transition: all 0.3s ease;
 }
-
-.sub-title-indicator {
-    font-size: 0.7rem;
-    color: #475569;
-}
+.sub-title-indicator { font-size: 0.7rem; color: #475569; }
 
 .safety-logger {
-    background: #040811;
-    border-left: 4px solid #334155;
-    border-radius: 4px;
-    padding: 16px;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 0.85rem;
-    color: #38bdf8;
-    text-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
-    border-top: 1px solid #1e293b;
-    border-bottom: 1px solid #1e293b;
+    background: #040811; border-left: 4px solid #334155; border-radius: 4px; padding: 16px; min-height: 60px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 0.85rem; color: #38bdf8; text-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+    border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b;
 }
 
-.discharge-beam {
-    position: absolute;
-    bottom: 0;
-    width: 12px;
-    background: linear-gradient(to right, #ffffff, var(--neon-blue), #ffffff);
-    box-shadow: 0 0 30px 10px rgba(0, 242, 254, 0.9);
-    display: none;
-    z-index: 8;
-}
+.discharge-beam { position: absolute; bottom: 0; width: 12px; z-index: 8; display: none; }
 #left-discharger { left: 25%; }
 #right-discharger { left: 75%; }
 
 #finish-screen {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle, #0c182d 0%, #040812 100%);
-    border-radius: 20px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 40px;
-    z-index: 50;
-    gap: 24px;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #0c182d 0%, #040812 100%); border-radius: 20px;
+    display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; z-index: 50; gap: 24px;
 }
-#finish-screen h2 { 
-    color: var(--neon-green); 
-    font-size: 2.2rem; 
-    text-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
-    text-transform: uppercase;
-}
+#finish-screen h2 { color: var(--neon-green); font-size: 2.2rem; text-shadow: 0 0 15px rgba(57, 255, 20, 0.5); text-transform: uppercase; }
 .reboot-btn {
-    background: linear-gradient(135deg, #00f2fe, #4facfe);
-    color: #040812;
-    border: 0;
-    padding: 16px 45px;
-    font-weight: 900;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    text-transform: uppercase;
-    box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+    background: linear-gradient(135deg, #00f2fe, #4facfe); color: #040812; font-weight: 900;
+    border: 0; padding: 16px 45px; border-radius: 8px; cursor: pointer; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
 }
 </style>
 </head>
 <body>
 
 <div id="splash-overlay">
-  <img src="assets/logo.png" alt="Innovine" />
+  <img src="assets/logo.png" alt="Innovine Logo" onerror="console.log('Ensure asset paths exist locally');" />
+</div>
+
+<div id="instruction-overlay">
+  <div class="instruction-card">
+    <h2>COMMAND PROTOCOLS INITIALIZED</h2>
+    <p>
+      • Telemetry readings will drop sequentially from upper atmospheric vectors.<br><br>
+      • Your local tactical defense grid handles 10 severe phenomenon evaluation blocks.<br><br>
+      • <strong>CRITICAL GUIDE:</strong> The target button holding the absolute correct true phenomenon configuration option is continuously highlighted with a bright <strong>Neon Blue Indicator Dot</strong> for easy verification.
+    </p>
+    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Engage Control Core</button>
+  </div>
 </div>
 
 <div id="game-container">
@@ -346,7 +267,7 @@ body::before {
       Command Grid Core
     </div>
     <div class="status-indicators">
-      <div class="hud-pill" id="progress-hud">Matrix Index: <span id="lbl-question">1</span>/10</div>
+      <div class="hud-pill">Matrix Index: <span id="lbl-question">1</span>/10</div>
       <div class="hud-pill" id="shield-hud">Shield Arrays: <span id="lbl-chances">2</span></div>
     </div>
   </div>
@@ -354,27 +275,27 @@ body::before {
   <div class="atmosphere-viewport" id="viewport-area">
     <div id="left-discharger" class="discharge-beam"></div>
     <div id="right-discharger" class="discharge-beam"></div>
-    <div class="descending-anomaly" id="anomaly-display">Initializing core components...</div>
+    <div class="descending-anomaly" id="anomaly-display">Initializing core data packets...</div>
   </div>
 
-  <div class="defense-panel" id="controls-area">
+  <div class="defense-panel">
     <div class="panel-title">Direct Localized Deflector Impulse Output:</div>
     <div class="interceptor-grid">
       <button class="interceptor-node" id="btn-left" onclick="deployPulse(0)">
         <span class="grid-terminal-light" id="light-left"></span>
         <span id="text-left">ARRAY ALPHA</span>
-        <span class="sub-title-indicator" id="sub-left">MODULE // 01</span>
+        <span class="sub-title-indicator">MODULE // 01</span>
       </button>
       <button class="interceptor-node" id="btn-right" onclick="deployPulse(1)">
         <span class="grid-terminal-light" id="light-right"></span>
         <span id="text-right">ARRAY BETA</span>
-        <span class="sub-title-indicator" id="sub-right">MODULE // 02</span>
+        <span class="sub-title-indicator">MODULE // 02</span>
       </button>
     </div>
   </div>
 
   <div class="safety-logger" id="feedback-box">
-    SYSTEM ACTIVE // Identify incoming hazard parameters.
+    SYSTEM MONITOR ACTIVE // Awaiting validation routing sequence.
   </div>
 
   <div id="finish-screen">
@@ -407,25 +328,27 @@ const database = [
 
 let leftSideIsTrue = false;
 
-function initGameFramework() {
-    // Exactly 5000 milliseconds (5 seconds) of White Screen branding lock frame
+// ENFORCED STATE SEQUENCE TIMELINE ENGINE
+window.onload = function() {
+    // Stage 1: Absolute 5 Seconds hold lock on White Splash Screen Frame
     setTimeout(() => {
-        const splash = $('splash-overlay');
-        if (splash) {
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-            }, 800);
-        }
+        $('splash-overlay').style.display = 'none';
+        
+        // Stage 2: Handover cleanly to Phase 2 (Instruction Sheet Interface Overlay)
+        $('instruction-overlay').style.display = 'flex';
     }, 5000);
+};
 
+function terminateInstructionsAndLaunch() {
+    // Stage 3: Dismiss documentation frame and deploy main application calculations
+    $('instruction-overlay').style.display = 'none';
     loadQuestion();
 }
 
 function loadQuestion() {
     if (currentQuestion >= database.length) {
         $('viewport-area').style.display = 'none';
-        $('controls-area').style.display = 'none';
+        document.querySelectorAll('.defense-panel').forEach(el => el.style.display = 'none');
         $('feedback-box').style.display = 'none';
         $('finish-screen').style.display = 'flex';
         return;
@@ -442,7 +365,6 @@ function loadQuestion() {
     $('feedback-box').style.borderLeftColor = "#0284c7";
 
     let data = database[currentQuestion];
-    
     let anomalyNode = $('anomaly-display');
     anomalyNode.innerText = data.q;
     anomalyNode.style.animation = 'none';
@@ -450,18 +372,12 @@ function loadQuestion() {
     anomalyNode.style.animation = 'tacticalDescend 10s linear infinite';
     anomalyNode.style.animationPlayState = 'running';
 
-    $('btn-left').className = "interceptor-node";
-    $('btn-right').className = "interceptor-node";
-
     leftSideIsTrue = Math.random() > 0.5;
     if (leftSideIsTrue) {
         $('text-left').innerText = data.answer;
         $('text-right').innerText = data.wrong;
         
-        $('btn-left').classList.add('primed-correct');
-        $('btn-right').classList.add('primed-wrong');
-        
-        // Correct side button strictly receives the blue neon indicator dot illumination
+        // Correct answer side strictly receives the neon blue tracking light illumination dot
         $('light-left').style.backgroundColor = "var(--neon-blue)";
         $('light-left').style.boxShadow = "0 0 10px var(--neon-blue)";
         $('light-right').style.backgroundColor = "#1e293b";
@@ -470,10 +386,7 @@ function loadQuestion() {
         $('text-left').innerText = data.wrong;
         $('text-right').innerText = data.answer;
         
-        $('btn-left').classList.add('primed-wrong');
-        $('btn-right').classList.add('primed-correct');
-        
-        // Correct side button strictly receives the blue neon indicator dot illumination
+        // Correct answer side strictly receives the neon blue tracking light illumination dot
         $('light-left').style.backgroundColor = "#1e293b";
         $('light-left').style.boxShadow = "none";
         $('light-right').style.backgroundColor = "var(--neon-blue)";
@@ -540,8 +453,6 @@ function deployPulse(chosenSide) {
         }
     }
 }
-
-window.onload = initGameFramework;
 </script>
 </body>
 </html>
