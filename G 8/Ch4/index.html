@@ -35,8 +35,75 @@ body {
     user-select: none;
     background-image: radial-gradient(#d1dcde 1.5px, transparent 1.5px);
     background-size: 30px 30px;
+    position: relative;
+    overflow-x: hidden;
 }
+
+/* TIMELINE PHASE 1: 5-Second Pure White Screen Overlay */
+#splash-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#splash-overlay img {
+    max-width: 260px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* TIMELINE PHASE 2: Clinical Instructions Overlay */
+#instruction-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #fcfdfe 0%, #eef4f6 100%);
+    z-index: 8888;
+    display: none; /* Controlled via timeline engine */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.instruction-card {
+    background: var(--panel-sheet);
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 15px 40px rgba(40, 82, 75, 0.08);
+    border-radius: 16px;
+    max-width: 580px;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+}
+.instruction-card h2 {
+    color: var(--teal-primary);
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+}
+.instruction-card p {
+    color: var(--text-charcoal);
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-align: left;
+}
+.start-btn {
+    background: var(--teal-primary);
+    color: #ffffff;
+    font-weight: 700;
+    border: 0; padding: 14px 35px;
+    border-radius: 8px; cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+.start-btn:hover {
+    background: var(--teal-accent);
+}
+
+/* TIMELINE PHASE 3: Main Workspace Game Matrix */
 #game-container {
+    display: none; /* Enforced hidden status during startup timeline sequence */
     width: 100%;
     max-width: 760px;
     background: var(--panel-sheet);
@@ -44,7 +111,6 @@ body {
     padding: 40px;
     box-shadow: 0 10px 35px rgba(40, 82, 75, 0.06);
     border: 1px solid var(--border-soft);
-    display: flex;
     flex-direction: column;
     gap: 28px;
 }
@@ -190,6 +256,7 @@ body {
     border-left: 4px solid var(--border-soft);
 }
 
+/* TIMELINE PHASE 4: End Screen Terminal Frame */
 #finish-screen {
     text-align: center;
     padding: 40px 20px;
@@ -218,6 +285,22 @@ body {
 
 <audio id="audio-correct"></audio>
 <audio id="audio-wrong"></audio>
+
+<div id="splash-overlay">
+  <img src="assets/logo.png" alt="Clinical Logo Placeholder" onerror="console.log('Ensure logo asset matches target build directory.');" />
+</div>
+
+<div id="instruction-overlay">
+  <div class="instruction-card">
+    <h2>LABORATORY EVALUATION PROTOCOL</h2>
+    <p>
+      • Telemetry screens will isolate 10 unique audiology and physical sound metrics.<br><br>
+      • Carefully analyze the definition listed inside the central digital monitor framework.<br><br>
+      • Input the exact, validated textbook scientific terminology in the entry line below and verify your diagnosis.
+    </p>
+    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Initialize Workspace Core</button>
+  </div>
+</div>
 
 <div id="game-container">
   <div class="header">
@@ -257,7 +340,9 @@ body {
 
   <div id="finish-screen">
     <h2>📋 Diagnostics Run Complete</h2>
-    <p>Patient profile parsing complete. All physical wave dimensions, ear pathways, structural sound velocities, and audible registers match standard medical records.</p>
+    <p style="color: var(--text-gray); font-size: 1rem; max-width: 600px; line-height: 1.6; margin: 0 auto;">
+      Patient profile parsing complete. All physical wave dimensions, ear pathways, structural sound velocities, and audible registers match standard medical records.
+    </p>
     <button class="reset-btn" onclick="location.reload()">Examine Next Patient</button>
   </div>
 </div>
@@ -268,7 +353,7 @@ let currentQuestion = 0;
 let attemptsLeft = 2;
 let blockInputs = false;
 
-// Synthetic Audio Engine to generate telemetry sounds without requiring mp3 assets
+// Synthetic Audio Engine
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSynthSound(type) {
     if (audioCtx.state === 'suspended') {
@@ -280,16 +365,14 @@ function playSynthSound(type) {
     gainNode.connect(audioCtx.destination);
 
     if (type === 'correct') {
-        // High-low cheerful chime
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-        osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // A5
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+        osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); 
         gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.4);
     } else if (type === 'wrong') {
-        // Low industrial error buzz
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(140.00, audioCtx.currentTime); 
         osc.frequency.linearRampToValueAtTime(100.00, audioCtx.currentTime + 0.25);
@@ -301,53 +384,43 @@ function playSynthSound(type) {
 }
 
 const database = [
-    {
-        q: "The maximum displacement of a vibrating body from its mean central position is designated as:",
-        answer: "Amplitude"
-    },
-    {
-        q: "The exact number of total oscillations or vibrations executed by a moving body in one full second is called:",
-        answer: "Frequency"
-    },
-    {
-        q: "The specific unit measurement index utilized internationally to compute and track sound loudness is:",
-        answer: "Decibel"
-    },
-    {
-        q: "Sound waves operating with mechanical frequencies registered strictly below the 20 Hz threshold are defined as:",
-        answer: "Infrasonic sound"
-    },
-    {
-        q: "The physical sensory perception of a sound wave that depends entirely on its specific high or low frequency rate is:",
-        answer: "Pitch"
-    },
-    {
-        q: "The distinct repetition of sound caused entirely by the physical reflection of sound waves bouncing back from an obstacle is an:",
-        answer: "Echo"
-    },
-    {
-        q: "The human ear can normally detect and register sound parameters only within which specific audible frequency band?",
-        answer: "20 Hz to 20,000 Hz"
-    },
-    {
-        q: "Which internal anatomical section of the human ear resembles a coiled fluid-filled shell that directly processes sound elements for hearing?",
-        answer: "Cochlea"
-    },
-    {
-        q: "A thin, sensitive membrane that completely separates the external ear canal path from the middle ear assembly is the:",
-        answer: "Tympanum"
-    },
-    {
-        q: "Sound waves cannot propagate or travel through which of the following due to a total lack of any physical material molecules?",
-        answer: "Vacuum"
-    }
+    { q: "The maximum displacement of a vibrating body from its mean central position is designated as:", answer: "Amplitude" },
+    { q: "The exact number of total oscillations or vibrations executed by a moving body in one full second is called:", answer: "Frequency" },
+    { q: "The specific unit measurement index utilized internationally to compute and track sound loudness is:", answer: "Decibel" },
+    { q: "Sound waves operating with mechanical frequencies registered strictly below the 20 Hz threshold are defined as:", answer: "Infrasonic sound" },
+    { q: "The physical sensory perception of a sound wave that depends entirely on its specific high or low frequency rate is:", answer: "Pitch" },
+    { q: "The distinct repetition of sound caused entirely by the physical reflection of sound waves bouncing back from an obstacle is an:", answer: "Echo" },
+    { q: "The human ear can normally detect and register sound parameters only within which specific audible frequency band?", answer: "20 Hz to 20,000 Hz" },
+    { q: "Which internal anatomical section of the human ear resembles a coiled fluid-filled shell that directly processes sound elements for hearing?", answer: "Cochlea" },
+    { q: "A thin, sensitive membrane that completely separates the external ear canal path from the middle ear assembly is the:", answer: "Tympanum" },
+    { q: "Sound waves cannot propagate or travel through which of the following due to a total lack of any physical material molecules?", answer: "Vacuum" }
 ];
+
+// TIMELINE ENGINE INITIALIZATION
+window.onload = function() {
+    // Phase 1: Lock system visibility exclusively on White Splash Screen for 5 seconds
+    setTimeout(() => {
+        $('splash-overlay').style.display = 'none';
+        
+        // Phase 2: Open systemic interactive guidelines panel sheet smoothly
+        $('instruction-overlay').style.display = 'flex';
+    }, 5000);
+};
+
+function terminateInstructionsAndLaunch() {
+    // Close Phase 2 configuration layout sheet
+    $('instruction-overlay').style.display = 'none';
+    
+    // Phase 3: Unleash application canvas frame container framework and load queries
+    $('game-container').style.display = 'flex';
+    loadQuestion();
+}
 
 function loadQuestion() {
     if (currentQuestion >= database.length) {
         $('main-layout').style.display = 'none';
         $('feedback-box').style.display = 'none';
-        $('finish-screen').style.display = 'flex';
+        $('finish-screen').style.display = 'flex'; // Phase 4 Terminal Screen Active
         return;
     }
 
@@ -428,8 +501,6 @@ function evaluateEntry(event) {
         }
     }
 }
-
-window.onload = loadQuestion;
 </script>
 </body>
 </html>
