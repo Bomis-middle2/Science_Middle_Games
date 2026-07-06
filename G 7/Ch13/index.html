@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Optics Lab: Drag & Drop Science Bench</title>
+<title>Optics Lab: Light and Reflection Quiz</title>
 <style>
 :root {
     --bg: #090d16;
@@ -30,15 +30,82 @@ body {
     justify-content: center;
     padding: 20px;
     user-select: none;
+    position: relative;
+    overflow-x: hidden;
 }
+
+/* TIMELINE PHASE 1: 5-Second Pure White Screen Overlay */
+#splash-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#splash-overlay img {
+    max-width: 260px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* TIMELINE PHASE 2: Laboratory Instructions Overlay */
+#instruction-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #111827 0%, #030712 100%);
+    z-index: 8888;
+    display: none; 
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.instruction-card {
+    background: var(--panel-bg);
+    border: 1px solid #1e293b;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    max-width: 580px;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+}
+.instruction-card h2 {
+    color: var(--cyan);
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+}
+.instruction-card p {
+    color: #e2e8f0;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-align: left;
+}
+.start-btn {
+    background: var(--cyan);
+    color: #0f172a;
+    font-weight: 700;
+    border: 0; padding: 14px 35px;
+    border-radius: 6px; cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+.start-btn:hover {
+    background: #0ea5e9;
+}
+
+/* TIMELINE PHASE 3: Main Workspace Workbench Container */
 #game-container {
+    display: none; 
     width: 100%;
     max-width: 900px;
     background: var(--panel-bg);
     border-radius: 12px;
     padding: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    display: flex;
     flex-direction: column;
     gap: 20px;
     border: 1px solid #1e293b;
@@ -175,6 +242,7 @@ body {
     border: 1px solid #1e293b;
 }
 
+/* TIMELINE PHASE 4: Final Analytics Dashboard Screen */
 #end-screen {
     text-align: center;
     padding: 40px 20px;
@@ -204,92 +272,108 @@ body {
 <audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
 <audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
 
+<div id="splash-overlay">
+  <img src="assets/logo.png" alt="Science Logo Asset" onerror="console.log('Ensure target logo image exists inside your local assets/ folder.');" />
+</div>
+
+<div id="instruction-overlay">
+  <div class="instruction-card">
+    <h2>LIGHT & OPTICS LAB</h2>
+    <p>
+      • You will be tested on 10 important topics about light, mirrors, and shadows.<br><br>
+      • Read the science definition that appears inside the large box on the left.<br><br>
+      • <strong>HOW TO PLAY:</strong> Click and drag the correct term from the list on the right, then drop it inside the box that says "Drop Correct Term Here".
+    </p>
+    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Start Lab Experiment</button>
+  </div>
+</div>
+
 <div id="game-container">
   <div class="header">
-    <div class="title">🔬 Optics Laboratory: Drag & Drop Bench</div>
+    <div class="title">🔬 Optics Lab: Drag & Drop Bench</div>
     <div class="status-bar">
       <div class="progress">Question: <span id="lbl-question">1</span>/10</div>
-      <div class="chances">Chances Left for this Question: <span id="lbl-chances">2</span></div>
+      <div class="chances">Tries Left: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
   <div class="workbench" id="main-layout">
     <div class="drop-area" id="drop-zone">
-      <div class="question-text" id="question-box">Loading question text template...</div>
+      <div class="question-text" id="question-box">Loading question...</div>
       <div class="target-slot" id="target-slot">Drop Correct Term Here</div>
     </div>
 
     <div class="bank-panel">
-      <div class="bank-title">Available Options</div>
+      <div class="bank-title">Your Options</div>
       <div class="options-bank" id="options-bank"></div>
     </div>
   </div>
 
   <div class="feedback-container" id="feedback-text">
-    Drag the correct term from the bank and release it inside the drop slot.
+    Drag the correct word from the list and drop it into the slot.
   </div>
 
   <div id="end-screen">
-    <h2>🏆 Science Calibration Lab Complete!</h2>
-    <p>You have successfully processed all 10 core concepts regarding Light, Shadows, and Reflections.</p>
-    <button class="reset-btn" onclick="location.reload()">Restart Laboratory Bench</button>
+    <h2>🏆 Science Quiz Complete!</h2>
+    <p>Great job! You successfully finished all 10 questions about Light, Shadows, and Reflections.</p>
+    <button class="reset-btn" onclick="location.reload()">Restart Quiz</button>
   </div>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
 let currentQuestion = 0;
-let attemptsLeft = 2; // Tracking strictly per question
+let attemptsLeft = 2; 
 let draggedText = "";
 
 const database = [
     {
-        q: "Objects like the Sun, stars, and fireflies that are capable of emitting light of their own are classified as:",
+        q: "Objects like the Sun, stars, and light bulbs that can make and give off their own light are called:",
         options: ["Luminous objects", "Non-luminous objects", "Opaque objects", "Transparent objects"],
         answer: "Luminous objects"
     },
     {
-        q: "Materials like clear glass or clean water that allow all light to pass through them completely are called:",
+        q: "Materials like clear glass or clean water that let all light pass through them easily are called:",
         options: ["Transparent", "Translucent", "Opaque", "Reflecting"],
         answer: "Transparent"
     },
     {
-        q: "Materials like butter paper or frosted glass that allow only some amount of light to pass through them are called:",
+        q: "Materials like wax paper or frosted glass that let only some light pass through them are called:",
         options: ["Translucent", "Transparent", "Opaque", "Luminous"],
         answer: "Translucent"
     },
     {
-        q: "The property of light by which it travels in a straight line through a given uniform medium is known as:",
+        q: "The rule of science that explains how light always travels in a straight line is called:",
         options: ["Rectilinear propagation", "Lateral inversion", "Dispersion", "Regular reflection"],
         answer: "Rectilinear propagation"
     },
     {
-        q: "A dark patch formed on a surface screen when the straight path of light is completely obstructed by an opaque object is a:",
+        q: "A dark shape made on a wall or floor when an object blocks a straight path of light is a:",
         options: ["Shadow", "Spectrum", "Virtual image", "Reflection"],
         answer: "Shadow"
     },
     {
-        q: "When a shadow is cast by a large light source, the central, completely dark part of the shadow is defined as the:",
+        q: "When a large light source makes a shadow, the center part of the shadow that is completely dark is the:",
         options: ["Umbra", "Penumbra", "Principal Axis", "Spectrum"],
         answer: "Umbra"
     },
     {
-        q: "The area of partial darkness in a shadow that surrounds the darkest region and receives some light rays is called the:",
+        q: "The lighter, blurry area of a shadow that surrounds the darkest center part is called the:",
         options: ["Penumbra", "Umbra", "Pole", "Dispersion plane"],
         answer: "Penumbra"
     },
     {
-        q: "The phenomenon where the left side of a real object appears as the right side of its virtual image inside a plane mirror is called:",
+        q: "When you look in a mirror and your left hand looks like it is the reflection's right hand, it is called:",
         options: ["Lateral inversion", "Regular reflection", "Rectilinear propagation", "Dispersion"],
         answer: "Lateral inversion"
     },
     {
-        q: "A lens which is thicker at the center and tapers outwards towards its ends, causing parallel light beams to converge, is a:",
+        q: "A glass lens that is thicker in the middle than at the edges and brings light rays together is a:",
         options: ["Convex lens", "Concave lens", "Plane mirror", "Convex mirror"],
         answer: "Convex lens"
     },
     {
-        q: "The phenomenon of the splitting of white light into its constituent seven spectrum colors (VIBGYOR) after hitting a surface prism is:",
+        q: "When white light splits up into its seven rainbow colors after passing through a glass prism, it is called:",
         options: ["Dispersion of light", "Rectilinear propagation", "Lateral inversion", "Diffused reflection"],
         answer: "Dispersion of light"
     }
@@ -299,19 +383,32 @@ function playSound(type) {
     const audio = $(`audio-${type}`);
     if (audio) {
         audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio playback waiting for user context."));
+        audio.play().catch(e => console.log("Audio waiting for user click."));
     }
+}
+
+window.onload = function() {
+    setTimeout(() => {
+        $('splash-overlay').style.display = 'none';
+        $('instruction-overlay').style.display = 'flex';
+    }, 5000);
+};
+
+function terminateInstructionsAndLaunch() {
+    $('instruction-overlay').style.display = 'none';
+    $('game-container').style.display = 'flex';
+    loadQuestion();
 }
 
 function loadQuestion() {
     if (currentQuestion >= database.length) {
         $('main-layout').style.display = 'none';
-        $('feedback-container').style.display = 'none';
-        $('end-screen').style.display = 'flex';
+        $('feedback-text').style.display = 'none';
+        $('end-screen').style.display = 'flex'; 
         return;
     }
 
-    attemptsLeft = 2; // Resets cleanly for each new question item
+    attemptsLeft = 2; 
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     $('feedback-text').innerText = "Drag the correct term from the bank and release it inside the drop slot.";
@@ -320,7 +417,6 @@ function loadQuestion() {
     let data = database[currentQuestion];
     $('question-box').innerText = data.q;
 
-    // Reset Target Slot
     let slot = $('target-slot');
     slot.innerText = "Drop Correct Term Here";
     slot.className = "target-slot";
@@ -328,7 +424,6 @@ function loadQuestion() {
     slot.style.color = "";
     slot.style.backgroundColor = "";
 
-    // Generate Options Bank List
     let bank = $('options-bank');
     bank.innerHTML = '';
     data.options.forEach(opt => {
@@ -354,8 +449,6 @@ function loadQuestion() {
 
 function setupDragDropHandlers() {
     let zone = $('drop-zone');
-
-    // Clean old duplicate event bindings
     const newZone = zone.cloneNode(true);
     zone.parentNode.replaceChild(newZone, zone);
 
@@ -380,14 +473,13 @@ function processDroppedAnswer(answer) {
     let slot = $('target-slot');
 
     if (answer === data.answer) {
-        // Success Logic Action
         playSound('correct');
         slot.innerText = answer;
         slot.className = "target-slot filled";
         slot.style.backgroundColor = "#064e3b";
         slot.style.borderColor = "var(--emerald)";
         slot.style.color = "var(--emerald)";
-        $('feedback-text').innerText = "🎯 Excellent work! That is the exact matching scientific definition.";
+        $('feedback-text').innerText = "🎯 Nice job! That's the correct answer.";
         $('feedback-text').style.color = "var(--emerald)";
         disableCurrentBank();
         
@@ -397,27 +489,24 @@ function processDroppedAnswer(answer) {
         }, 2500);
 
     } else {
-        // Failure Logic Deductions
         attemptsLeft--;
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
-            // First attempt wrong -> Allow retry on this question
             playSound('wrong');
-            $('feedback-text').innerText = "❌ Incorrect option. Try again! You have 1 attempt remaining for this question.";
+            $('feedback-text').innerText = "❌ That's not quite right. Try again! You have 1 try left.";
             $('feedback-text').style.color = "var(--amber)";
             
             slot.innerText = "Drop Correct Term Here";
             slot.className = "target-slot";
         } else {
-            // Second attempt wrong -> Reveal the answer of this question and skip to the next
             playSound('wrong');
             slot.innerText = data.answer;
             slot.className = "target-slot filled";
             slot.style.backgroundColor = "#7f1d1d";
             slot.style.borderColor = "var(--rose)";
             slot.style.color = "var(--rose)";
-            $('feedback-text').innerText = `⚠️ 0 attempts left. Scientific Fact: The correct answer is "${data.answer}". Moving to next question...`;
+            $('feedback-text').innerText = `⚠️ Out of tries. The correct answer was "${data.answer}". Moving on...`;
             $('feedback-text').style.color = "var(--rose)";
             disableCurrentBank();
 
@@ -437,8 +526,6 @@ function disableCurrentBank() {
         item.style.opacity = '0.3';
     });
 }
-
-window.onload = loadQuestion;
 </script>
 </body>
 </html>
