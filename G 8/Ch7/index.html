@@ -3,31 +3,31 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Natural Phenomena: Planetary Command Grid</title>
+<title>Planetary Command Grid: Deflector Core</title>
 <style>
 :root {
-    --bg-space: #f1f5f9;
-    --panel-base: #ffffff;
-    --cosmic-indigo: #2d3748;
-    --plasma-blue: #3182ce;
-    --aurora-bg: #ebf8ff;
-    --aurora-text: #2b6cb0;
-    --magma-alert: #fff5f5;
-    --magma-text: #c53030;
-    --laser-glow: #63b3ed;
-    --border-clean: #cbd5e0;
-    --text-main: #1a202c;
-    --text-muted: #718096;
+    --bg-deep-space: #060b13;
+    --panel-metallic: #111823;
+    --panel-border: #1e293b;
+    --neon-blue: #00f2fe;
+    --neon-cyan: #4facfe;
+    --neon-green: #39ff14;
+    --neon-red: #ff3131;
+    --neon-orange: #ff9900;
+    --text-glow: 0 0 8px rgba(0, 242, 254, 0.6);
+    --crt-green: rgba(57, 255, 20, 0.15);
 }
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Courier New', Courier, monospace, system-ui, sans-serif;
 }
+
 body {
-    background-color: var(--bg-space);
-    color: var(--text-main);
+    background-color: var(--bg-deep-space);
+    color: #e2e8f0;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -35,179 +35,296 @@ body {
     padding: 20px;
     user-select: none;
     overflow: hidden;
-    background-image: radial-gradient(#cbd5e0 1px, transparent 1px);
-    background-size: 20px 20px;
+    position: relative;
 }
+
+/* Animated Deep Space Matrix Background */
+body::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    z-index: -1;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(79, 172, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255, 49, 49, 0.05) 0%, transparent 40%),
+        radial-gradient(1px 1px at 25px 40px, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 75px 120px, #fff, transparent),
+        radial-gradient(1px 1px at 150px 240px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 220px 60px, rgba(0, 242, 254, 0.5), transparent);
+    background-size: 100% 100%, 100% 100%, 300px 300px, 400px 400px, 250px 250px, 500px 500px;
+    animation: spaceOrbit 180s linear infinite;
+}
+
+@keyframes spaceOrbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 #game-container {
     width: 100%;
-    max-width: 850px;
-    background: var(--panel-base);
-    border-radius: 24px;
-    padding: 35px;
-    box-shadow: 0 20px 40px rgba(45, 55, 72, 0.05);
-    border: 1px solid var(--border-clean);
+    max-width: 900px;
+    background: linear-gradient(145deg, #0d1527, #13223f);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 
+        0 0 40px rgba(0, 0, 0, 0.8),
+        inset 0 0 20px rgba(0, 242, 254, 0.15);
+    border: 2px solid var(--panel-border);
     display: flex;
     flex-direction: column;
     gap: 24px;
     position: relative;
+    overflow: hidden;
 }
 
-/* Strategic Dashboard Header */
+/* Tactical Top-HUD Bar */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid var(--bg-space);
-    padding-bottom: 18px;
+    border-bottom: 2px solid #1e293b;
+    padding-bottom: 16px;
 }
 .brand {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--cosmic-indigo);
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--neon-blue);
+    text-shadow: var(--text-glow);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 .brand svg {
     width: 32px;
     height: 32px;
-    fill: none;
-    stroke: var(--plasma-blue);
-    stroke-width: 2.5;
-    stroke-linecap: round;
+    filter: drop-shadow(var(--text-glow));
 }
 .status-indicators {
     display: flex;
-    gap: 12px;
+    gap: 16px;
 }
 .hud-pill {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: bold;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 6px;
+    background: #090f1d;
+    border: 1px solid #334155;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-#progress-hud { background: #e2e8f0; color: #4a5568; }
-#shield-hud { background: #feebc8; color: #c05621; }
+.hud-pill span {
+    color: var(--neon-blue);
+    font-weight: 900;
+}
+#shield-hud {
+    border-color: rgba(255, 153, 0, 0.4);
+}
+#shield-hud span {
+    color: var(--neon-orange);
+}
 
-/* The Atmospheric Threat Canvas Viewport */
+/* Holographic Threat Viewport Matrix */
 .atmosphere-viewport {
-    height: 300px;
-    background: linear-gradient(to bottom, #ffffff, #f7fafc);
-    border: 2px solid var(--border-clean);
-    border-radius: 16px;
+    height: 280px;
+    background: radial-gradient(circle at center, #0b1931 0%, #040914 100%);
+    border: 2px solid #243b6b;
+    border-radius: 12px;
     position: relative;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.descending-anomaly {
-    position: absolute;
-    top: 15px;
-    width: 85%;
-    max-width: 680px;
-    background: #ffffff;
-    border: 1px solid var(--border-clean);
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-    font-size: 1.15rem;
-    font-weight: 600;
-    line-height: 1.6;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-    animation: sweepDescend 9s linear infinite;
-    transform-origin: top center;
-}
-@keyframes sweepDescend {
-    0% { transform: translateY(0px) scale(1); opacity: 1; }
-    90% { transform: translateY(140px) scale(0.98); opacity: 1; }
-    100% { transform: translateY(165px) scale(0.95); opacity: 0; }
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
 }
 
-/* Interceptor Grid Control Panel */
+/* Scanline Overlay Effect */
+.atmosphere-viewport::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    z-index: 10;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
+}
+
+/* Radar Sweep Animation Line */
+.atmosphere-viewport::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 4px;
+    background: rgba(0, 242, 254, 0.2);
+    box-shadow: 0 0 15px var(--neon-blue);
+    animation: radarSweep 5s linear infinite;
+    z-index: 9;
+    pointer-events: none;
+}
+
+@keyframes radarSweep {
+    0% { top: 0%; }
+    100% { top: 100%; }
+}
+
+.descending-anomaly {
+    position: absolute;
+    width: 82%;
+    max-width: 650px;
+    background: rgba(13, 27, 56, 0.85);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 1.5;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+    animation: tacticalDescend 10s linear infinite;
+    transform-origin: top center;
+    color: #f0fdfa;
+    backdrop-filter: blur(4px);
+    z-index: 5;
+}
+
+@keyframes tacticalDescend {
+    0% { transform: translateY(-110px); opacity: 0; }
+    10% { opacity: 1; }
+    85% { opacity: 1; border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); }
+    92% { border-color: var(--neon-red); box-shadow: 0 0 25px var(--neon-red); }
+    100% { transform: translateY(130px); opacity: 0; }
+}
+
+/* Heavy Duty Interceptor Controls */
 .defense-panel {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 .panel-title {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
+    font-weight: bold;
+    color: #64748b;
+    letter-spacing: 1.5px;
     text-align: center;
 }
 .interceptor-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 20px;
 }
 .interceptor-node {
-    background: #ffffff;
-    border: 2px solid var(--border-clean);
-    padding: 18px 25px;
-    border-radius: 12px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--cosmic-indigo);
+    background: linear-gradient(180deg, #14223c 0%, #0b1526 100%);
+    border: 2px solid #334155;
+    padding: 22px 25px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #94a3b8;
     cursor: pointer;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    transition: all 0.2s ease-in-out;
-}
-.interceptor-node:hover {
-    border-color: var(--plasma-blue);
-    background: #fafafa;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(49, 130, 206, 0.1);
-}
-.grid-terminal-light {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--border-clean);
-    display: inline-block;
+    gap: 10px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
 }
 
-/* Safety Logger Activity Feed */
+/* Light up active console module frames */
+.interceptor-node::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 3px;
+    background: #334155;
+    transition: background-color 0.3s;
+}
+
+.interceptor-node:hover {
+    color: #fff;
+    background: linear-gradient(180deg, #1a2f54 0%, #0e1d36 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.interceptor-node:active {
+    transform: translateY(1px);
+}
+
+/* Custom Modifiers Controlled Via Javascript Switches */
+.interceptor-node.primed-left { border-color: var(--neon-blue); }
+.interceptor-node.primed-left::before { background: var(--neon-blue); }
+.interceptor-node.primed-left:hover { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
+
+.interceptor-node.primed-right { border-color: var(--neon-orange); }
+.interceptor-node.primed-right::before { background: var(--neon-orange); }
+.interceptor-node.primed-right:hover { box-shadow: 0 0 15px rgba(255, 153, 0, 0.3); }
+
+.grid-terminal-light {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #1e293b;
+    transition: all 0.3s ease;
+}
+
+.sub-title-indicator {
+    font-size: 0.7rem;
+    color: #475569;
+    font-weight: normal;
+}
+
+/* Tactical Terminal Log Matrix */
 .safety-logger {
-    background: #ffffff;
-    border-left: 4px solid var(--border-clean);
-    border-radius: 6px;
+    background: #040811;
+    border-left: 4px solid #334155;
+    border-radius: 4px;
     padding: 16px;
-    min-height: 56px;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #4a5568;
+    font-size: 0.85rem;
+    color: #38bdf8;
+    text-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+    border-top: 1px solid #1e293b;
+    border-bottom: 1px solid #1e293b;
 }
 
-/* Plasma Discharge Graphics */
+/* Plasma High-Voltage Discharge Beam FX */
 .discharge-beam {
     position: absolute;
     bottom: 0;
-    width: 6px;
-    background: var(--laser-glow);
-    box-shadow: 0 0 20px 6px rgba(99, 179, 237, 0.7);
+    width: 12px;
+    background: linear-gradient(to right, #ffffff, var(--neon-blue), #ffffff);
+    box-shadow: 0 0 30px 10px rgba(0, 242, 254, 0.9);
     display: none;
-    z-index: 5;
+    z-index: 8;
+    border-radius: 4px;
 }
 #left-discharger { left: 25%; }
 #right-discharger { left: 75%; }
 
+/* Holographic Overlay Finish Screen */
 #finish-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: #ffffff;
-    border-radius: 24px;
+    background: radial-gradient(circle, #0c182d 0%, #040812 100%);
+    border-radius: 20px;
     display: none;
     flex-direction: column;
     align-items: center;
@@ -215,72 +332,85 @@ body {
     text-align: center;
     padding: 40px;
     z-index: 50;
-    gap: 20px;
+    gap: 24px;
 }
-#finish-screen h2 { color: var(--plasma-blue); font-size: 2.2rem; }
+#finish-screen h2 { 
+    color: var(--neon-green); 
+    font-size: 2.2rem; 
+    text-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
+    text-transform: uppercase;
+}
 .reboot-btn {
-    background: var(--cosmic-indigo);
-    color: white;
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #040812;
     border: 0;
-    padding: 15px 40px;
-    font-weight: bold;
+    padding: 16px 45px;
+    font-weight: 900;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
-    box-shadow: 0 6px 15px rgba(45, 55, 72, 0.15);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+    transition: all 0.2s;
 }
-.reboot-btn:hover { background: #1a202c; }
+.reboot-btn:hover { 
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.7);
+}
 </style>
 </head>
 <body>
 
-<audio id="audio-correct" src="assets/correct.mp3" preload="auto"></audio>
-<audio id="audio-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="audio-correct"></audio>
+<audio id="audio-wrong"></audio>
 
 <div id="game-container">
   <div class="header">
     <div class="brand">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2L2 22h20L12 2zm0 14h.01M12 10v4" stroke-linejoin="round"/>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 22h20L12 2zm0 14h.01M12 10v4" stroke="var(--neon-blue)" stroke-width="2" stroke-linejoin="round" fill="none"/>
       </svg>
-      Planetary Command Grid
+      Command Grid Core
     </div>
     <div class="status-indicators">
-      <div class="hud-pill" id="progress-hud">Anomalies Checked: <span id="lbl-question">1</span>/10</div>
-      <div class="hud-pill" id="shield-hud">Shield Fuses: <span id="lbl-chances">2</span></div>
+      <div class="hud-pill" id="progress-hud">Matrix Index: <span id="lbl-question">1</span>/10</div>
+      <div class="hud-pill" id="shield-hud">Shield Arrays: <span id="lbl-chances">2</span></div>
     </div>
   </div>
 
-  <div class="atmosphere-viewport">
+  <div class="atmosphere-viewport" id="viewport-area">
     <div id="left-discharger" class="discharge-beam"></div>
     <div id="right-discharger" class="discharge-beam"></div>
-    <div class="descending-anomaly" id="anomaly-display">Loading atmospheric sensor metrics...</div>
+    <div class="descending-anomaly" id="anomaly-display">Synchronizing sector telemetry channels...</div>
   </div>
 
-  <div class="defense-panel">
-    <div class="panel-title">Deploy Deflector Array Channel to Safe-Zone Anomaly:</div>
+  <div class="defense-panel" id="controls-area">
+    <div class="panel-title">Direct Localized Deflector Impulse Output:</div>
     <div class="interceptor-grid">
       <button class="interceptor-node" id="btn-left" onclick="deployPulse(0)">
         <span class="grid-terminal-light" id="light-left"></span>
-        <span id="text-left">Deflector Alpha</span>
+        <span id="text-left">ARRAY ALPHA</span>
+        <span class="sub-title-indicator" id="sub-left">MODULE // 01</span>
       </button>
       <button class="interceptor-node" id="btn-right" onclick="deployPulse(1)">
         <span class="grid-terminal-light" id="light-right"></span>
-        <span id="text-right">Deflector Beta</span>
+        <span id="text-right">ARRAY BETA</span>
+        <span class="sub-title-indicator" id="sub-right">MODULE // 02</span>
       </button>
     </div>
   </div>
 
   <div class="safety-logger" id="feedback-box">
-    Track the falling environmental hazard data and execute the true interceptor sequence.
+    SYSTEM STANDBY // Ready for atmospheric core assessment sweep sequence.
   </div>
 
   <div id="finish-screen">
-    <h2>🌍 Planetary Shield Secured</h2>
-    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 580px; line-height: 1.6;">
-      All atmospheric tremors, static clouds, lightning vectors, earthquake wave modulations, and celestial moon cycles from Chapter 7 are safely integrated into the command grid database.
+    <h2>⚡ GRID DEFLECTION AT MAXIMUM ⚡</h2>
+    <p style="color: #94a3b8; font-size: 1.05rem; max-width: 600px; line-height: 1.7; font-family: sans-serif;">
+      All atmospheric vectors, kinetic seismograph readings, underground shear modulations, static surface imbalances, and planetary asteroid matrices have been effectively normalized into the deep space defensive array.
     </p>
-    <button class="reboot-btn" onclick="location.reload()">Reset Command Array</button>
+    <button class="reboot-btn" onclick="location.reload()">Recharge Defense Core</button>
   </div>
 </div>
 
@@ -290,7 +420,45 @@ let currentQuestion = 0;
 let attemptsLeft = 2;
 let blockControls = false;
 
-// Authenticated Chapter 7 Dataset
+// Sci-Fi Synthetic Audio Wave Engine
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSynthSound(type) {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const subOsc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    osc.connect(gainNode);
+    subOsc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'correct') {
+        // High-tech plasma lock sequence
+        osc.type = 'sine';
+        subOsc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.08); // G5
+        subOsc.frequency.setValueAtTime(261.63, audioCtx.currentTime); // C4
+        gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+        osc.start(); subOsc.start();
+        osc.stop(audioCtx.currentTime + 0.45); subOsc.stop(audioCtx.currentTime + 0.45);
+    } else if (type === 'wrong') {
+        // Hull breach shield overload alert
+        osc.type = 'sawtooth';
+        subOsc.type = 'square';
+        osc.frequency.setValueAtTime(160, audioCtx.currentTime); 
+        osc.frequency.linearRampToValueAtTime(90, audioCtx.currentTime + 0.35);
+        subOsc.frequency.setValueAtTime(80, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start(); subOsc.start();
+        osc.stop(audioCtx.currentTime + 0.4); subOsc.stop(audioCtx.currentTime + 0.4);
+    }
+}
+
 const database = [
     { q: "Any sudden vibration or movement of a part of the Earth's crust caused by natural or man-made forces is an:", answer: "Earthquake", wrong: "Lightning" },
     { q: "The specific deep underground physical waves produced through the bedrock during a sudden earthquake are:", answer: "Seismic waves", wrong: "Anions" },
@@ -306,17 +474,11 @@ const database = [
 
 let leftSideIsTrue = false;
 
-function playSound(type) {
-    const audio = $(`audio-${type}`);
-    if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio waiting for system framework gesture."));
-    }
-}
-
 function loadQuestion() {
     if (currentQuestion >= database.length) {
-        $('anomaly-display').style.display = 'none';
+        $('viewport-area').style.display = 'none';
+        $('controls-area').style.display = 'none';
+        $('feedback-box').style.display = 'none';
         $('finish-screen').style.display = 'flex';
         return;
     }
@@ -327,32 +489,40 @@ function loadQuestion() {
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     
-    $('feedback-box').innerText = "Track the falling environmental hazard data and execute the true interceptor sequence.";
-    $('feedback-box').style.backgroundColor = "#ffffff";
-    $('feedback-box').style.color = "var(--text-main)";
-    $('feedback-box').style.borderLeftColor = "var(--border-clean)";
+    $('feedback-box').innerText = "// MONITOR FEED STABLE: Identify incoming hazard and route deflector core sequence.";
+    $('feedback-box').style.color = "#38bdf8";
+    $('feedback-box').style.borderLeftColor = "#0284c7";
 
     let data = database[currentQuestion];
-    $('anomaly-display').innerText = data.q;
-
-    // Reset fallback animation node cleanly
+    
     let anomalyNode = $('anomaly-display');
+    anomalyNode.innerText = data.q;
     anomalyNode.style.animation = 'none';
-    anomalyNode.offsetHeight; /* Trigger system frame step */
-    anomalyNode.style.animation = 'sweepDescend 9s linear infinite';
+    anomalyNode.offsetHeight; /* Pipeline layout sync */
+    anomalyNode.style.animation = 'tacticalDescend 10s linear infinite';
+    anomalyNode.style.animationPlayState = 'running';
 
-    // Radially alternate core structural options
+    // Remove old state modifiers cleanly
+    $('btn-left').className = "interceptor-node";
+    $('btn-right').className = "interceptor-node";
+
     leftSideIsTrue = Math.random() > 0.5;
     if (leftSideIsTrue) {
         $('text-left').innerText = data.answer;
         $('text-right').innerText = data.wrong;
-        $('light-left').style.backgroundColor = "var(--plasma-blue)";
-        $('light-right').style.backgroundColor = "var(--border-clean)";
+        $('btn-left').classList.add('primed-left');
+        $('light-left').style.backgroundColor = "var(--neon-blue)";
+        $('light-left').style.boxShadow = "0 0 10px var(--neon-blue)";
+        $('light-right').style.backgroundColor = "#1e293b";
+        $('light-right').style.boxShadow = "none";
     } else {
         $('text-left').innerText = data.wrong;
         $('text-right').innerText = data.answer;
-        $('light-left').style.backgroundColor = "var(--border-clean)";
-        $('light-right').style.backgroundColor = "var(--plasma-blue)";
+        $('btn-right').classList.add('primed-right');
+        $('light-left').style.backgroundColor = "#1e293b";
+        $('light-left').style.boxShadow = "none";
+        $('light-right').style.backgroundColor = "var(--neon-orange)";
+        $('light-right').style.boxShadow = "0 0 10px var(--neon-orange)";
     }
 }
 
@@ -363,49 +533,54 @@ function deployPulse(chosenSide) {
     let isCorrect = (chosenSide === 0 && leftSideIsTrue) || (chosenSide === 1 && !leftSideIsTrue);
     let dischargerID = chosenSide === 0 ? 'left-discharger' : 'right-discharger';
 
-    // Flash beam sequence visual triggers
+    // Fire laser trace graphic animation
     let beam = $(dischargerID);
     beam.style.display = 'block';
     beam.style.height = '100%';
+    if(!isCorrect) {
+        beam.style.background = "linear-gradient(to right, #ffffff, var(--neon-red), #ffffff)";
+        beam.style.boxShadow = "0 0 30px 10px var(--neon-red)";
+    } else {
+        beam.style.background = "linear-gradient(to right, #ffffff, var(--neon-blue), #ffffff)";
+        beam.style.boxShadow = "0 0 30px 10px var(--neon-blue)";
+    }
+    
     setTimeout(() => {
         beam.style.display = 'none';
         beam.style.height = '0px';
-    }, 250);
+    }, 200);
 
     if (isCorrect) {
         blockControls = true;
-        playSound('correct');
+        playSynthSound('correct');
         $('anomaly-display').style.animationPlayState = 'paused';
 
-        $('feedback-box').innerText = `✓ ANOMALY NEUTRALIZED: "${data.answer}" has been logged safely into environmental registers.`;
-        $('feedback-box').style.backgroundColor = "var(--aurora-bg)";
-        $('feedback-box').style.color = "var(--aurora-text)";
-        $('feedback-box').style.borderLeftColor = "var(--plasma-blue)";
+        $('feedback-box').innerText = `✓ ENERGY VECTOR SECURED: "${data.answer.toUpperCase()}" logged successfully into core parameters.`;
+        $('feedback-box').style.color = "var(--neon-green)";
+        $('feedback-box').style.borderLeftColor = "var(--neon-green)";
 
         setTimeout(() => {
             currentQuestion++;
             loadQuestion();
-        }, 2200);
+        }, 2000);
 
     } else {
         attemptsLeft--;
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
-            playSound('wrong');
-            $('feedback-box').innerText = "✕ MISALIGNED DISCHARGE: Atmospheric interference detected. Readjust deflector fuses! (1 fuse left)";
-            $('feedback-box').style.backgroundColor = "var(--magma-alert)";
-            $('feedback-box').style.color = "var(--magma-text)";
-            $('feedback-box').style.borderLeftColor = "#e53e3e";
+            playSynthSound('wrong');
+            $('feedback-box').innerText = "✕ IMPULSE MISALIGNMENT: Deflection failure. Atmospheric interference rising. Re-route!";
+            $('feedback-box').style.color = "var(--neon-orange)";
+            $('feedback-box').style.borderLeftColor = "var(--neon-orange)";
         } else {
             blockControls = true;
-            playSound('wrong');
+            playSynthSound('wrong');
             $('anomaly-display').style.animationPlayState = 'paused';
 
-            $('feedback-box').innerText = `⚠️ SYSTEM OVERRIDE: Terminal balanced. The valid textbook phenomenon is "${data.answer}".`;
-            $('feedback-box').style.backgroundColor = "var(--magma-alert)";
-            $('feedback-box').style.color = "var(--magma-text)";
-            $('feedback-box').style.borderLeftColor = "#e53e3e";
+            $('feedback-box').innerText = `⚠️ CORE PATCH ENGAGED: Shield breakdown averted. True phenomenon profile is "${data.answer.toUpperCase()}".`;
+            $('feedback-box').style.color = "var(--neon-red)";
+            $('feedback-box').style.borderLeftColor = "var(--neon-red)";
 
             setTimeout(() => {
                 currentQuestion++;
