@@ -7,7 +7,6 @@
 <style>
 :root {
     --bg-deep-space: #060b13;
-    --panel-metallic: #111823;
     --panel-border: #1e293b;
     --neon-blue: #00f2fe;
     --neon-cyan: #4facfe;
@@ -15,7 +14,6 @@
     --neon-red: #ff3131;
     --neon-orange: #ff9900;
     --text-glow: 0 0 8px rgba(0, 242, 254, 0.6);
-    --crt-green: rgba(57, 255, 20, 0.15);
 }
 
 * {
@@ -38,7 +36,37 @@ body {
     position: relative;
 }
 
-/* Animated Deep Space Matrix Background */
+/* 5-Second Pure White Innovine Splash Screen Override Overlay */
+#splash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: all;
+}
+
+#splash-overlay img {
+    max-width: 280px;
+    height: auto;
+    object-fit: contain;
+    animation: splashPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes splashPulse {
+    0% { transform: scale(0.96); opacity: 0.85; }
+    50% { transform: scale(1.02); opacity: 1; }
+    100% { transform: scale(0.96); opacity: 0.85; }
+}
+
 body::before {
     content: "";
     position: absolute;
@@ -51,10 +79,8 @@ body::before {
         radial-gradient(circle at 20% 30%, rgba(79, 172, 254, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 80% 70%, rgba(255, 49, 49, 0.05) 0%, transparent 40%),
         radial-gradient(1px 1px at 25px 40px, #fff, transparent),
-        radial-gradient(1.5px 1.5px at 75px 120px, #fff, transparent),
-        radial-gradient(1px 1px at 150px 240px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(2px 2px at 220px 60px, rgba(0, 242, 254, 0.5), transparent);
-    background-size: 100% 100%, 100% 100%, 300px 300px, 400px 400px, 250px 250px, 500px 500px;
+        radial-gradient(1.5px 1.5px at 75px 120px, #fff, transparent);
+    background-size: 100% 100%, 100% 100%, 300px 300px, 400px 400px;
     animation: spaceOrbit 180s linear infinite;
 }
 
@@ -69,18 +95,14 @@ body::before {
     background: linear-gradient(145deg, #0d1527, #13223f);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 
-        0 0 40px rgba(0, 0, 0, 0.8),
-        inset 0 0 20px rgba(0, 242, 254, 0.15);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 254, 0.15);
     border: 2px solid var(--panel-border);
     display: flex;
     flex-direction: column;
     gap: 24px;
     position: relative;
-    overflow: hidden;
 }
 
-/* Tactical Top-HUD Bar */
 .header {
     display: flex;
     justify-content: space-between;
@@ -117,22 +139,14 @@ body::before {
     border: 1px solid #334155;
     text-transform: uppercase;
     letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 .hud-pill span {
     color: var(--neon-blue);
     font-weight: 900;
 }
-#shield-hud {
-    border-color: rgba(255, 153, 0, 0.4);
-}
-#shield-hud span {
-    color: var(--neon-orange);
-}
+#shield-hud { border-color: rgba(255, 153, 0, 0.4); }
+#shield-hud span { color: var(--neon-orange); }
 
-/* Holographic Threat Viewport Matrix */
 .atmosphere-viewport {
     height: 280px;
     background: radial-gradient(circle at center, #0b1931 0%, #040914 100%);
@@ -143,43 +157,24 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
 }
 
-/* Scanline Overlay Effect */
 .atmosphere-viewport::before {
     content: " ";
     display: block;
     position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
     z-index: 10;
-    background-size: 100% 4px, 6px 100%;
+    background-size: 100% 4px;
     pointer-events: none;
-}
-
-/* Radar Sweep Animation Line */
-.atmosphere-viewport::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 4px;
-    background: rgba(0, 242, 254, 0.2);
-    box-shadow: 0 0 15px var(--neon-blue);
-    animation: radarSweep 5s linear infinite;
-    z-index: 9;
-    pointer-events: none;
-}
-
-@keyframes radarSweep {
-    0% { top: 0%; }
-    100% { top: 100%; }
 }
 
 .descending-anomaly {
     position: absolute;
     width: 82%;
     max-width: 650px;
-    background: rgba(13, 27, 56, 0.85);
+    background: rgba(13, 27, 56, 0.9);
     border: 1px solid var(--neon-cyan);
     border-radius: 8px;
     padding: 20px;
@@ -203,7 +198,6 @@ body::before {
     100% { transform: translateY(130px); opacity: 0; }
 }
 
-/* Heavy Duty Interceptor Controls */
 .defense-panel {
     display: flex;
     flex-direction: column;
@@ -239,9 +233,7 @@ body::before {
     transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
     position: relative;
-    overflow: hidden;
 }
 
 .interceptor-node::before {
@@ -249,31 +241,23 @@ body::before {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 3px;
     background: #334155;
-    transition: background-color 0.3s;
 }
 
 .interceptor-node:hover {
     color: #fff;
     background: linear-gradient(180deg, #1a2f54 0%, #0e1d36 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
-.interceptor-node:active {
-    transform: translateY(1px);
-}
+.interceptor-node.primed-correct { border-color: var(--neon-blue); }
+.interceptor-node.primed-correct::before { background: var(--neon-blue); }
+.interceptor-node.primed-correct:hover { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
 
-.interceptor-node.primed-left { border-color: var(--neon-blue); }
-.interceptor-node.primed-left::before { background: var(--neon-blue); }
-.interceptor-node.primed-left:hover { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
-
-.interceptor-node.primed-right { border-color: var(--neon-orange); }
-.interceptor-node.primed-right::before { background: var(--neon-orange); }
-.interceptor-node.primed-right:hover { box-shadow: 0 0 15px rgba(255, 153, 0, 0.3); }
+.interceptor-node.primed-wrong { border-color: #334155; }
 
 .grid-terminal-light {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: #1e293b;
     transition: all 0.3s ease;
@@ -282,10 +266,8 @@ body::before {
 .sub-title-indicator {
     font-size: 0.7rem;
     color: #475569;
-    font-weight: normal;
 }
 
-/* Tactical Terminal Log Matrix */
 .safety-logger {
     background: #040811;
     border-left: 4px solid #334155;
@@ -303,7 +285,6 @@ body::before {
     border-bottom: 1px solid #1e293b;
 }
 
-/* Plasma High-Voltage Discharge Beam FX */
 .discharge-beam {
     position: absolute;
     bottom: 0;
@@ -312,12 +293,10 @@ body::before {
     box-shadow: 0 0 30px 10px rgba(0, 242, 254, 0.9);
     display: none;
     z-index: 8;
-    border-radius: 4px;
 }
 #left-discharger { left: 25%; }
 #right-discharger { left: 75%; }
 
-/* Holographic Overlay Finish Screen */
 #finish-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -348,20 +327,15 @@ body::before {
     cursor: pointer;
     font-size: 1rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
     box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
-    transition: all 0.2s;
-}
-.reboot-btn:hover { 
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(0, 242, 254, 0.7);
 }
 </style>
 </head>
 <body>
 
-<audio id="audio-correct"></audio>
-<audio id="audio-wrong"></audio>
+<div id="splash-overlay">
+  <img src="assets/logo.png" alt="Innovine" />
+</div>
 
 <div id="game-container">
   <div class="header">
@@ -380,7 +354,7 @@ body::before {
   <div class="atmosphere-viewport" id="viewport-area">
     <div id="left-discharger" class="discharge-beam"></div>
     <div id="right-discharger" class="discharge-beam"></div>
-    <div class="descending-anomaly" id="anomaly-display">Synchronizing sector telemetry channels...</div>
+    <div class="descending-anomaly" id="anomaly-display">Initializing core components...</div>
   </div>
 
   <div class="defense-panel" id="controls-area">
@@ -400,15 +374,15 @@ body::before {
   </div>
 
   <div class="safety-logger" id="feedback-box">
-    SYSTEM STANDBY // Ready for atmospheric core assessment sweep sequence.
+    SYSTEM ACTIVE // Identify incoming hazard parameters.
   </div>
 
   <div id="finish-screen">
-    <h2>⚡ GRID DEFLECTION AT MAXIMUM ⚡</h2>
-    <p style="color: #94a3b8; font-size: 1.05rem; max-width: 600px; line-height: 1.7; font-family: sans-serif;">
-      All atmospheric vectors, kinetic seismograph readings, underground shear modulations, static surface imbalances, and planetary asteroid matrices have been effectively normalized into the deep space defensive array.
+    <h2>⚡ GRID DEFLECTION SECURED ⚡</h2>
+    <p style="color: #94a3b8; font-size: 1.05rem; max-width: 600px; line-height: 1.7;">
+      Atmospheric sectors stabilized. Core telemetry integrated perfectly.
     </p>
-    <button class="reboot-btn" onclick="location.reload()">Recharge Defense Core</button>
+    <button class="reboot-btn" onclick="location.reload()">Recharge Core</button>
   </div>
 </div>
 
@@ -417,43 +391,6 @@ const $ = id => document.getElementById(id);
 let currentQuestion = 0;
 let attemptsLeft = 2;
 let blockControls = false;
-
-// Sci-Fi Synthetic Audio Wave Engine
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playSynthSound(type) {
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-    const osc = audioCtx.createOscillator();
-    const subOsc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    
-    osc.connect(gainNode);
-    subOsc.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    if (type === 'correct') {
-        osc.type = 'sine';
-        subOsc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
-        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.08); 
-        subOsc.frequency.setValueAtTime(261.63, audioCtx.currentTime); 
-        gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
-        osc.start(); subOsc.start();
-        osc.stop(audioCtx.currentTime + 0.45); subOsc.stop(audioCtx.currentTime + 0.45);
-    } else if (type === 'wrong') {
-        osc.type = 'sawtooth';
-        subOsc.type = 'square';
-        osc.frequency.setValueAtTime(160, audioCtx.currentTime); 
-        osc.frequency.linearRampToValueAtTime(90, audioCtx.currentTime + 0.35);
-        subOsc.frequency.setValueAtTime(80, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-        osc.start(); subOsc.start();
-        osc.stop(audioCtx.currentTime + 0.4); subOsc.stop(audioCtx.currentTime + 0.4);
-    }
-}
 
 const database = [
     { q: "Any sudden vibration or movement of a part of the Earth's crust caused by natural or man-made forces is an:", answer: "Earthquake", wrong: "Lightning" },
@@ -470,6 +407,21 @@ const database = [
 
 let leftSideIsTrue = false;
 
+function initGameFramework() {
+    // Exactly 5000 milliseconds (5 seconds) of White Screen branding lock frame
+    setTimeout(() => {
+        const splash = $('splash-overlay');
+        if (splash) {
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 800);
+        }
+    }, 5000);
+
+    loadQuestion();
+}
+
 function loadQuestion() {
     if (currentQuestion >= database.length) {
         $('viewport-area').style.display = 'none';
@@ -485,7 +437,7 @@ function loadQuestion() {
     $('lbl-question').innerText = currentQuestion + 1;
     $('lbl-chances').innerText = attemptsLeft;
     
-    $('feedback-box').innerText = "// MONITOR FEED STABLE: Identify incoming hazard and route deflector core sequence.";
+    $('feedback-box').innerText = "// SCAN FEED ACTIVE: Select the true matching data matrix module.";
     $('feedback-box').style.color = "#38bdf8";
     $('feedback-box').style.borderLeftColor = "#0284c7";
 
@@ -505,7 +457,11 @@ function loadQuestion() {
     if (leftSideIsTrue) {
         $('text-left').innerText = data.answer;
         $('text-right').innerText = data.wrong;
-        $('btn-left').classList.add('primed-left');
+        
+        $('btn-left').classList.add('primed-correct');
+        $('btn-right').classList.add('primed-wrong');
+        
+        // Correct side button strictly receives the blue neon indicator dot illumination
         $('light-left').style.backgroundColor = "var(--neon-blue)";
         $('light-left').style.boxShadow = "0 0 10px var(--neon-blue)";
         $('light-right').style.backgroundColor = "#1e293b";
@@ -513,11 +469,15 @@ function loadQuestion() {
     } else {
         $('text-left').innerText = data.wrong;
         $('text-right').innerText = data.answer;
-        $('btn-right').classList.add('primed-right');
+        
+        $('btn-left').classList.add('primed-wrong');
+        $('btn-right').classList.add('primed-correct');
+        
+        // Correct side button strictly receives the blue neon indicator dot illumination
         $('light-left').style.backgroundColor = "#1e293b";
         $('light-left').style.boxShadow = "none";
-        $('light-right').style.backgroundColor = "var(--neon-orange)";
-        $('light-right').style.boxShadow = "0 0 10px var(--neon-orange)";
+        $('light-right').style.backgroundColor = "var(--neon-blue)";
+        $('light-right').style.boxShadow = "0 0 10px var(--neon-blue)";
     }
 }
 
@@ -546,45 +506,42 @@ function deployPulse(chosenSide) {
 
     if (isCorrect) {
         blockControls = true;
-        playSynthSound('correct');
         $('anomaly-display').style.animationPlayState = 'paused';
 
-        $('feedback-box').innerText = `✓ ENERGY VECTOR SECURED: "${data.answer.toUpperCase()}" logged successfully into core parameters.`;
+        $('feedback-box').innerText = `✓ VECTOR ALIGNED: "${data.answer.toUpperCase()}" locked into core parameters.`;
         $('feedback-box').style.color = "var(--neon-green)";
         $('feedback-box').style.borderLeftColor = "var(--neon-green)";
 
         setTimeout(() => {
             currentQuestion++;
             loadQuestion();
-        }, 2000);
+        }, 1500);
 
     } else {
         attemptsLeft--;
         $('lbl-chances').innerText = attemptsLeft;
 
         if (attemptsLeft > 0) {
-            playSynthSound('wrong');
-            $('feedback-box').innerText = "✕ IMPULSE MISALIGNMENT: Deflection failure. Atmospheric interference rising. Re-route!";
+            $('feedback-box').innerText = "✕ IMPULSE MISALIGNMENT: Deflection failure. Shield capacity running low.";
             $('feedback-box').style.color = "var(--neon-orange)";
             $('feedback-box').style.borderLeftColor = "var(--neon-orange)";
         } else {
             blockControls = true;
-            playSynthSound('wrong');
             $('anomaly-display').style.animationPlayState = 'paused';
 
-            $('feedback-box').innerText = `⚠️ CORE PATCH ENGAGED: Shield breakdown averted. True phenomenon profile is "${data.answer.toUpperCase()}".`;
+            $('feedback-box').innerText = `⚠️ CORE PATCH INJECTED: System override active. Solution profile: "${data.answer.toUpperCase()}".`;
             $('feedback-box').style.color = "var(--neon-red)";
             $('feedback-box').style.borderLeftColor = "var(--neon-red)";
 
             setTimeout(() => {
                 currentQuestion++;
                 loadQuestion();
-            }, 3500);
+            }, 3000);
         }
     }
 }
 
-window.onload = loadQuestion;
+window.onload = initGameFramework;
 </script>
 </body>
 </html>
