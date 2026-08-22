@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Scientific Method Investigator</title>
+<style>
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  background: linear-gradient(180deg, #1e1b4b, #312e81);
+  min-height: 100vh;
+  color: #f8fafc;
+  padding: 12px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 16px;
+  padding: 18px 14px;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+h1 {
+  font-size: 22px;
+  color: #4f46e5;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+h2 {
+  font-size: 18px;
+  color: #3730a3;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #475569;
+}
+
+.center { text-align: center; }
+.hidden { display: none !important; }
+
+.btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 6px 2px;
+  width: 100%;
+  max-width: 280px;
+  touch-action: manipulation;
+  transition: transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.96);
+  background: #4338ca;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.option {
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 14px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  touch-action: manipulation;
+  transition: transform 0.1s, background 0.2s;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.option:active {
+  transform: scale(0.96);
+}
+
+.correct {
+  background: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #15803d;
+}
+
+.wrong {
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #b91c1c;
+}
+
+.badge-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.badge {
+  background: #fef3c7;
+  border: 1px solid #fde047;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #854d0e;
+  display: none;
+}
+
+.lab-box {
+  background: #f8fafc;
+  border: 2px dashed #818cf8;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.puri-visual {
+  font-size: 60px;
+  transition: transform 0.3s ease;
+}
+
+.puff {
+  transform: scale(1.4);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro" class="card center">
+    <h1>🔬 Science Investigator</h1>
+    <p>Chapter 1: Exploring the Investigative World of Science</p>
+    <br>
+    <p>Learn how scientists test hypotheses, control variables, and observe everyday phenomena!</p>
+    <br>
+    <button class="btn" onclick="startGame()">Start Lab Mission</button>
+  </div>
+
+  <!-- MAP / HUB -->
+  <div id="hub" class="card hidden center">
+    <h2>🧪 Investigation Hub</h2>
+    <p>Complete all 3 missions to unlock your badge!</p>
+    
+    <div class="grid-2">
+      <div class="option" onclick="startMission1()">🫓 Puri Puffing Mystery</div>
+      <div class="option" onclick="startMission2()">🎛️ Variable Control Lab</div>
+      <div class="option" onclick="startMission3()">🪁 Roots & Kites</div>
+    </div>
+
+    <div class="badge-row">
+      <div id="b1" class="badge">🫓 Kitchen Scientist</div>
+      <div id="b2" class="badge">🎛️ Variable Master</div>
+      <div id="b3" class="badge">🪁 Curious Thinker</div>
+    </div>
+  </div>
+
+  <!-- MISSION 1: PURI PUFFING -->
+  <div id="m1" class="card hidden">
+    <h2>🫓 Mission 1: The Puri Puffing Mystery</h2>
+    <p class="center">Why does a Puri puff up like a balloon when fried?</p>
+    
+    <div class="lab-box">
+      <div id="puriGraphic" class="puri-visual">🟡</div>
+      <p id="puriText" style="margin-top:6px; font-weight:bold;">Raw Dough</p>
+    </div>
+
+    <p style="margin-top:12px; font-weight:600;">Which scientific factor causes the Puri to swell up?</p>
+    <div class="grid-2">
+      <div class="option" onclick="answerM1(this, false)">Air trapped inside</div>
+      <div class="option" onclick="answerM1(this, true)">Steam buildup from water</div>
+      <div class="option" onclick="answerM1(this, false)">Oil absorbing inside</div>
+      <div class="option" onclick="answerM1(this, false)">Dough expansion</div>
+    </div>
+
+    <div id="m1Next" class="hidden center" style="margin-top:12px;">
+      <p style="color:#15803d; font-weight:bold;">Correct! Heat converts water into steam, expanding the Puri!</p>
+      <button class="btn" onclick="completeM1()">Return to Hub</button>
+    </div>
+  </div>
+
+  <!-- MISSION 2: CONTROL VARIABLES -->
+  <div id="m2" class="card hidden">
+    <h2>🎛️ Mission 2: Controlled Investigation</h2>
+    <p>To test whether **Fresh Dough** puffs better than **Stored Dough**, what is the single variable you should change?</p>
+
+    <div class="grid-2">
+      <div class="option" onclick="answerM2(this, true)">Type of dough (Fresh vs Stored)</div>
+      <div class="option" onclick="answerM2(this, false)">Oil temperature</div>
+      <div class="option" onclick="answerM2(this, false)">Frying pan size</div>
+      <div class="option" onclick="answerM2(this, false)">Thickness of Puri</div>
+    </div>
+
+    <div id="m2Next" class="hidden center" style="margin-top:12px;">
+      <p style="color:#15803d; font-weight:bold;">Spot on! In a systematic investigation, change only ONE variable at a time!</p>
+      <button class="btn" onclick="completeM2()">Return to Hub</button>
+    </div>
+  </div>
+
+  <!-- MISSION 3: ROOT & KITE SYMBOLS -->
+  <div id="m3" class="card hidden">
+    <h2>🪁 Mission 3: Science Symbols</h2>
+    <p>In the Curiosity textbook, what does the **Kite** soaring in the sky represent?</p>
+
+    <div class="grid-2">
+      <div class="option" onclick="answerM3(this, false)">Deep Knowledge</div>
+      <div class="option" onclick="answerM3(this, true)">Curiosity & Imagination</div>
+      <div class="option" onclick="answerM3(this, false)">Hard Work</div>
+      <div class="option" onclick="answerM3(this, false)">Controlled Experiments</div>
+    </div>
+
+    <div id="m3Next" class="hidden center" style="margin-top:12px;">
+      <p style="color:#15803d; font-weight:bold;">Excellent! Roots stand for grounded knowledge, and Kites stand for soaring curiosity!</p>
+      <button class="btn" onclick="completeM3()">Return to Hub</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function startGame() { show('hub'); }
+function startMission1() { show('m1'); }
+function startMission2() { show('m2'); }
+function startMission3() { show('m3'); }
+
+function answerM1(el, correct) {
+  if (correct) {
+    el.classList.add('correct');
+    document.getElementById('puriGraphic').classList.add('puff');
+    document.getElementById('puriGraphic').textContent = '🌕';
+    document.getElementById('puriText').textContent = 'Puffed Puri (Steam Inside!)';
+    document.getElementById('m1Next').classList.remove('hidden');
+  } else {
+    el.classList.add('wrong');
+  }
+}
+
+function completeM1() {
+  document.getElementById('b1').style.display = 'inline-block';
+  show('hub');
+}
+
+function answerM2(el, correct) {
+  if (correct) {
+    el.classList.add('correct');
+    document.getElementById('m2Next').classList.remove('hidden');
+  } else {
+    el.classList.add('wrong');
+  }
+}
+
+function completeM2() {
+  document.getElementById('b2').style.display = 'inline-block';
+  show('hub');
+}
+
+function answerM3(el, correct) {
+  if (correct) {
+    el.classList.add('correct');
+    document.getElementById('m3Next').classList.remove('hidden');
+  } else {
+    el.classList.add('wrong');
+  }
+}
+
+function completeM3() {
+  document.getElementById('b3').style.display = 'inline-block';
+  show('hub');
+}
+</script>
+
+</body>
+</html>
