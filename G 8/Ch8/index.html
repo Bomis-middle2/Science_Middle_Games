@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Space Quiz: Science Core</title>
+<style>
+:root {
+    --bg-deep-space: #060b13;
+    --panel-border: #1e293b;
+    --neon-blue: #00f2fe;
+    --neon-cyan: #4facfe;
+    --neon-green: #39ff14;
+    --neon-red: #ff3131;
+    --neon-orange: #ff9900;
+    --text-glow: 0 0 8px rgba(0, 242, 254, 0.6);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace, system-ui, sans-serif;
+}
+
+body {
+    background-color: var(--bg-deep-space);
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    user-select: none;
+    overflow: hidden;
+    position: relative;
+}
+
+/* PHASE 1: 5-Second Pure White Screen Override Overlay */
+#splash-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#splash-overlay img {
+    max-width: 280px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* PHASE 2: Tactical Instruction Modal Layer */
+#instruction-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #0c1a30 0%, #03070e 100%);
+    z-index: 8888;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.instruction-card {
+    background: #0d1527;
+    border: 2px solid var(--neon-cyan);
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+    border-radius: 16px;
+    max-width: 550px;
+    width: 100%;
+    padding: 30px;
+    text-align: center;
+}
+.instruction-card h2 {
+    color: var(--neon-blue);
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+.instruction-card p {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    text-align: left;
+}
+.start-btn {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #040812;
+    font-weight: 900;
+    border: 0; padding: 14px 40px;
+    border-radius: 6px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    width: 200%; height: 200%; top: -50%; left: -50%; z-index: -1;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(79, 172, 254, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255, 49, 49, 0.05) 0%, transparent 40%),
+        radial-gradient(1px 1px at 25px 40px, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 75px 120px, #fff, transparent);
+    background-size: 100% 100%, 100% 100%, 300px 300px, 400px 400px;
+    animation: spaceOrbit 180s linear infinite;
+}
+
+@keyframes spaceOrbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* PHASE 3: Main Game UI Container */
+#game-container {
+    display: none; 
+    width: 100%;
+    max-width: 900px;
+    background: linear-gradient(145deg, #0d1527, #13223f);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 254, 0.15);
+    border: 2px solid var(--panel-border);
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1e293b;
+    padding-bottom: 16px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--neon-blue);
+    text-shadow: var(--text-glow);
+    text-transform: uppercase;
+}
+.brand svg { width: 32px; height: 32px; filter: drop-shadow(var(--text-glow)); }
+.status-indicators { display: flex; gap: 16px; }
+.hud-pill {
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: #090f1d;
+    border: 1px solid #334155;
+    text-transform: uppercase;
+}
+.hud-pill span { color: var(--neon-blue); font-weight: 900; }
+#shield-hud { border-color: rgba(255, 153, 0, 0.4); }
+#shield-hud span { color: var(--neon-orange); }
+
+.atmosphere-viewport {
+    height: 280px;
+    background: radial-gradient(circle at center, #0b1931 0%, #040914 100%);
+    border: 2px solid #243b6b;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.atmosphere-viewport::before {
+    content: " "; display: block; position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+    z-index: 10; background-size: 100% 4px; pointer-events: none;
+}
+
+.descending-anomaly {
+    position: absolute;
+    width: 82%; max-width: 650px;
+    background: rgba(13, 27, 56, 0.9);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 8px; padding: 20px;
+    text-align: center; font-size: 1.1rem; font-weight: bold; line-height: 1.5;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+    animation: tacticalDescend 10s linear infinite;
+    transform-origin: top center; color: #f0fdfa;
+    backdrop-filter: blur(4px); z-index: 5;
+}
+
+@keyframes tacticalDescend {
+    0% { transform: translateY(-110px); opacity: 0; }
+    10% { opacity: 1; }
+    85% { opacity: 1; border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); }
+    92% { border-color: var(--neon-red); box-shadow: 0 0 25px var(--neon-red); }
+    100% { transform: translateY(130px); opacity: 0; }
+}
+
+.defense-panel { display: flex; flex-direction: column; gap: 12px; }
+.panel-title { font-size: 0.75rem; text-transform: uppercase; font-weight: bold; color: #64748b; letter-spacing: 1.5px; text-align: center; }
+.interceptor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.interceptor-node {
+    background: linear-gradient(180deg, #14223c 0%, #0b1526 100%);
+    border: 2px solid #334155; padding: 22px 25px; border-radius: 10px;
+    font-size: 1.1rem; font-weight: 900; color: #94a3b8; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 1px; position: relative;
+}
+.interceptor-node::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: #334155; }
+.interceptor-node:hover { color: #fff; background: linear-gradient(180deg, #1a2f54 0%, #0e1d36 100%); transform: translateY(-2px); }
+
+.grid-terminal-light {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #1e293b; transition: all 0.3s ease;
+}
+.sub-title-indicator { font-size: 0.7rem; color: #475569; }
+
+.safety-logger {
+    background: #040811; border-left: 4px solid #334155; border-radius: 4px; padding: 16px; min-height: 60px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 0.85rem; color: #38bdf8; text-shadow: 0 0 4px rgba(56, 189, 248, 0.4);
+    border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b;
+}
+
+.discharge-beam { position: absolute; bottom: 0; width: 12px; z-index: 8; display: none; }
+#left-discharger { left: 25%; }
+#right-discharger { left: 75%; }
+
+#finish-screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #0c182d 0%, #040812 100%); border-radius: 20px;
+    display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; z-index: 50; gap: 24px;
+}
+#finish-screen h2 { color: var(--neon-green); font-size: 2.2rem; text-shadow: 0 0 15px rgba(57, 255, 20, 0.5); text-transform: uppercase; }
+.reboot-btn {
+    background: linear-gradient(135deg, #00f2fe, #4facfe); color: #040812; font-weight: 900;
+    border: 0; padding: 16px 45px; border-radius: 8px; cursor: pointer; box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+}
+</style>
+</head>
+<body>
+
+<div id="splash-overlay">
+  <img src="assets/logo.png" alt="Innovine Logo" />
+</div>
+
+<div id="instruction-overlay">
+  <div class="instruction-card">
+    <h2>MISSION PROTOCOLS</h2>
+    <p>
+      • Questions will drop down from the top of the screen.<br><br>
+      • You must answer 10 questions correctly to protect the base.<br><br>
+      • <strong>HOW TO PLAY:</strong> Read the question and choose the correct button below. If you guess wrong twice, a blue light indicator will light up to show you the right answer!
+    </p>
+    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Start Mission</button>
+  </div>
+</div>
+
+<div id="game-container">
+  <div class="header">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 22h20L12 2zm0 14h.01M12 10v4" stroke="var(--neon-blue)" stroke-width="2" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Base Command Grid
+    </div>
+    <div class="status-indicators">
+      <div class="hud-pill">Question: <span id="lbl-question">1</span>/10</div>
+      <div class="hud-pill" id="shield-hud">Shields Left: <span id="lbl-chances">2</span></div>
+    </div>
+  </div>
+
+  <div class="atmosphere-viewport" id="viewport-area">
+    <div id="left-discharger" class="discharge-beam"></div>
+    <div id="right-discharger" class="discharge-beam"></div>
+    <div class="descending-anomaly" id="anomaly-display">Loading questions...</div>
+  </div>
+
+  <div class="defense-panel">
+    <div class="panel-title">Choose the correct answer:</div>
+    <div class="interceptor-grid">
+      <button class="interceptor-node" id="btn-left" onclick="deployPulse(0)">
+        <span class="grid-terminal-light" id="light-left"></span>
+        <span id="text-left">OPTION A</span>
+        <span class="sub-title-indicator">CHOICE // 01</span>
+      </button>
+      <button class="interceptor-node" id="btn-right" onclick="deployPulse(1)">
+        <span class="grid-terminal-light" id="light-right"></span>
+        <span id="text-right">OPTION B</span>
+        <span class="sub-title-indicator">CHOICE // 02</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="safety-logger" id="feedback-box">
+    SYSTEM ONLINE // Ready for your input.
+  </div>
+
+  <div id="finish-screen">
+    <h2>⚡ BASE PROTECTED ⚡</h2>
+    <p style="color: #94a3b8; font-size: 1.05rem; max-width: 600px; line-height: 1.7;">
+      Great job! All questions answered and the base is completely safe.
+    </p>
+    <button class="reboot-btn" onclick="location.reload()">Play Again</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentQuestion = 0;
+let attemptsLeft = 2;
+let blockControls = false;
+
+const database = [
+    { q: "A sudden shaking of the Earth's crust caused by natural forces is an:", answer: "Earthquake", wrong: "Lightning" },
+    { q: "The physical waves that travel through the ground during an earthquake are:", answer: "Seismic waves", wrong: "Anions" },
+    { q: "An instrument used by scientists to measure and record earthquake waves is a:", answer: "Seismograph", wrong: "Electroscope" },
+    { q: "A type of electricity where electric charges stay in one place and do not flow is:", answer: "Static electricity", wrong: "Seismic waves" },
+    { q: "A science tool used to look for and test the presence of an electric charge on an object is an:", answer: "Electroscope", wrong: "Seismograph" },
+    { q: "Atoms or groups of atoms that carry a positive or negative electric charge are called:", answer: "Ions", wrong: "Asteroids" },
+    { q: "An atom or ion that carries a positive electric charge is called a:", answer: "Cation", wrong: "Anion" },
+    { q: "An atom or ion that carries a negative electric charge is called an:", answer: "Anion", wrong: "Cation" },
+    { q: "Small rocky objects in space that mostly orbit the Sun in a belt between Mars and Jupiter are:", answer: "Asteroids", wrong: "Constellations" },
+    { q: "A group of stars that forms a recognizable shape or pattern in the night sky is a:", answer: "Constellation", wrong: "Asteroids" }
+];
+
+let leftSideIsTrue = false;
+
+window.onload = function() {
+    setTimeout(() => {
+        $('splash-overlay').style.display = 'none';
+        $('instruction-overlay').style.display = 'flex';
+    }, 5000); 
+};
+
+function terminateInstructionsAndLaunch() {
+    $('instruction-overlay').style.display = 'none';
+    $('game-container').style.display = 'flex';
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentQuestion >= database.length) {
+        $('viewport-area').style.display = 'none';
+        document.querySelectorAll('.defense-panel').forEach(el => el.style.display = 'none');
+        $('feedback-box').style.display = 'none';
+        $('finish-screen').style.display = 'flex';
+        return;
+    }
+
+    attemptsLeft = 2;
+    blockControls = false;
+    
+    $('lbl-question').innerText = currentQuestion + 1;
+    $('lbl-chances').innerText = attemptsLeft;
+    
+    $('feedback-box').innerText = "// READ THE QUESTION: Choose the correct option below.";
+    $('feedback-box').style.color = "#38bdf8";
+    $('feedback-box').style.borderLeftColor = "#0284c7";
+
+    let data = database[currentQuestion];
+    let anomalyNode = $('anomaly-display');
+    anomalyNode.innerText = data.q;
+    anomalyNode.style.animation = 'none';
+    anomalyNode.offsetHeight; 
+    anomalyNode.style.animation = 'tacticalDescend 10s linear infinite';
+    anomalyNode.style.animationPlayState = 'running';
+
+    // Reset light bulbs
+    $('light-left').style.backgroundColor = "#1e293b";
+    $('light-left').style.boxShadow = "none";
+    $('light-right').style.backgroundColor = "#1e293b";
+    $('light-right').style.boxShadow = "none";
+
+    leftSideIsTrue = Math.random() > 0.5;
+    if (leftSideIsTrue) {
+        $('text-left').innerText = data.answer;
+        $('text-right').innerText = data.wrong;
+    } else {
+        $('text-left').innerText = data.wrong;
+        $('text-right').innerText = data.answer;
+    }
+}
+
+function revealCorrectIndicatorDot() {
+    if (leftSideIsTrue) {
+        $('light-left').style.backgroundColor = "var(--neon-blue)";
+        $('light-left').style.boxShadow = "0 0 10px var(--neon-blue)";
+    } else {
+        $('light-right').style.backgroundColor = "var(--neon-blue)";
+        $('light-right').style.boxShadow = "0 0 10px var(--neon-blue)";
+    }
+}
+
+function deployPulse(chosenSide) {
+    if (blockControls) return;
+    
+    let data = database[currentQuestion];
+    let isCorrect = (chosenSide === 0 && leftSideIsTrue) || (chosenSide === 1 && !leftSideIsTrue);
+    let dischargerID = chosenSide === 0 ? 'left-discharger' : 'right-discharger';
+
+    let beam = $(dischargerID);
+    beam.style.display = 'block';
+    beam.style.height = '100%';
+    if(!isCorrect) {
+        beam.style.background = "linear-gradient(to right, #ffffff, var(--neon-red), #ffffff)";
+        beam.style.boxShadow = "0 0 30px 10px var(--neon-red)";
+    } else {
+        beam.style.background = "linear-gradient(to right, #ffffff, var(--neon-blue), #ffffff)";
+        beam.style.boxShadow = "0 0 30px 10px var(--neon-blue)";
+    }
+    
+    setTimeout(() => {
+        beam.style.display = 'none';
+        beam.style.height = '0px';
+    }, 200);
+
+    if (isCorrect) {
+        blockControls = true;
+        $('anomaly-display').style.animationPlayState = 'paused';
+        
+        revealCorrectIndicatorDot();
+
+        $('feedback-box').innerText = `✓ CORRECT: "${data.answer.toUpperCase()}" is the right answer!`;
+        $('feedback-box').style.color = "var(--neon-green)";
+        $('feedback-box').style.borderLeftColor = "var(--neon-green)";
+
+        setTimeout(() => {
+            currentQuestion++;
+            loadQuestion();
+        }, 1500);
+
+    } else {
+        attemptsLeft--;
+        $('lbl-chances').innerText = attemptsLeft;
+
+        if (attemptsLeft > 0) {
+            $('feedback-box').innerText = "✕ WRONG ANSWER: Shields are holding. Try one more time!";
+            $('feedback-box').style.color = "var(--neon-orange)";
+            $('feedback-box').style.borderLeftColor = "var(--neon-orange)";
+        } else {
+            blockControls = true;
+            $('anomaly-display').style.animationPlayState = 'paused';
+            
+            revealCorrectIndicatorDot();
+
+            $('feedback-box').innerText = `⚠️ SYSTEM OVERRIDE: Out of tries! The correct answer was "${data.answer.toUpperCase()}".`;
+            $('feedback-box').style.color = "var(--neon-red)";
+            $('feedback-box').style.borderLeftColor = "var(--neon-red)";
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 3000);
+        }
+    }
+}
+</script>
+</body>
+</html>

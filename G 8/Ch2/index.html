@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Force Field</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(#0f172a,#1e3a8a);
+  color:white;
+  text-align:center;
+  overflow:hidden; /* Prevents unwanted viewport jittering or scrolling */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#e2f1f9,#ffffff);
+  color:#0f172a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+
+.logo{
+  width:min(180px,55vw);
+  margin-bottom:18px;
+}
+
+button{
+  border:0;
+  border-radius:14px;
+  background:#2563eb;
+  color:white;
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:bold;
+  padding:13px 26px;
+  cursor:pointer;
+  min-height:55px;
+  box-shadow: 0 4px 0 #1e40af;
+  transition: all 0.15s ease;
+}
+button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1e40af;
+}
+
+#hud{
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:10px;
+  background:#020617dd;
+  padding:12px;
+  font-size:clamp(17px,3vw,23px);
+  font-weight:bold;
+}
+
+#title{
+  font-size:clamp(24px,4vw,36px);
+  margin:10px 0 4px;
+}
+
+#questionBox{
+  width:min(950px,94vw);
+  margin:4px auto;
+  background:white;
+  color:#0f172a;
+  border:4px solid #38bdf8;
+  border-radius:18px;
+  padding:12px;
+  font-size:clamp(18px,2.8vw,26px);
+  font-weight:bold;
+  min-height:75px;
+}
+
+#gameArea{
+  width:min(1050px,96vw);
+  margin:8px auto;
+  background:linear-gradient(#1e293b,#0f172a);
+  border:5px solid #38bdf8;
+  border-radius:22px;
+  padding:15px;
+  box-shadow:0 0 25px rgba(56,189,248,.35);
+  position:relative;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.cardRow,.zoneRow{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:10px auto;
+  width:100%;
+}
+
+.card{
+  background:white;
+  color:#111;
+  border:4px solid #38bdf8;
+  border-radius:16px;
+  padding:10px;
+  min-width:140px;
+  min-height:65px;
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  box-shadow: 0 4px 0 #1e293b;
+}
+
+.card.selected{
+  background:#fef08a;
+  border-color:#f59e0b;
+  transform:scale(1.05);
+}
+
+.zone{
+  background:#e0f2fe;
+  color:#0f172a;
+  border:4px dashed #38bdf8;
+  border-radius:18px;
+  width:min(280px,44vw);
+  min-height:110px;
+  padding:10px;
+  font-size:clamp(16px,2.5vw,22px);
+  font-weight:bold;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.placed{
+  background:#dcfce7;
+  border:2px solid #22c55e;
+  border-radius:10px;
+  padding:6px;
+  margin:4px;
+  font-size:clamp(14px,2.2vw,19px);
+  color:#111;
+  width:95%;
+}
+
+.option{
+  background:white;
+  color:#111;
+  border:4px solid #94a3b8;
+  border-radius:16px;
+  min-width:150px;
+  min-height:65px;
+  padding:10px;
+  font-size:clamp(16px,2.5vw,24px);
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  box-shadow: 0 4px 0 #94a3b8;
+}
+
+.correctFlash{
+  background:#dcfce7!important;
+  border-color:#22c55e!important;
+  color:#111!important;
+}
+
+.wrongFlash{
+  background:#fee2e2!important;
+  border-color:#ef4444!important;
+  animation:shake .35s;
+}
+
+#msg{
+  font-size:clamp(18px,3vw,26px);
+  font-weight:bold;
+  min-height:36px;
+  margin-bottom:5px;
+}
+
+.instructions{
+  font-size:clamp(16px,2.5vw,22px);
+  line-height:1.6;
+  max-width:760px;
+  color:#334155;
+}
+
+.forceBox{
+  background:#ffffff;
+  color:#111;
+  border:4px solid #38bdf8;
+  border-radius:18px;
+  padding:12px;
+  margin:4px auto;
+  width:min(740px,92vw);
+  font-size:clamp(18px,3vw,28px);
+  font-weight:bold;
+}
+
+/* Beautiful End Screen Style Upgrade */
+#endScreen {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 58, 138, 0.95));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+}
+.end-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px 30px;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 480px;
+  width: 92%;
+  transform: scale(0.9);
+  animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.end-title {
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+  background: linear-gradient(to right, #38bdf8, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.end-feedback {
+  font-size: clamp(15px, 2.2vw, 19px);
+  color: #cbd5e1;
+  margin-bottom: 25px;
+  line-height: 1.4;
+}
+.score-badge {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 3px solid #38bdf8;
+  padding: 20px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 30px;
+  min-width: 220px;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+}
+.score-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+#finalScore {
+  font-size: 48px;
+  font-weight: 900;
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+.btn-replay {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  width: 100%;
+  border-radius: 16px;
+}
+.btn-replay:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  transform: translateY(-2px);
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+@keyframes popIn {
+  to { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader" class="screen">
+  <img src="assets/logo.png" class="logo">
+</div>
+
+<div id="instructions" class="screen" style="display:none">
+  <h1>⚡ Force Field</h1>
+  <div class="instructions">
+    <p>Complete force-based lab challenges to unlock levels.</p>
+    <p><b>Sorting levels:</b> first tap a card, then tap the correct target group box.</p>
+    <p><b>Choice levels:</b> tap the correct matching answer parameter directly.</p>
+    <p>You get exactly <b>2 chances per level</b> before the lab reveals overrides.</p>
+  </div>
+  <button onclick="startGame()">Start Lab</button>
+</div>
+
+<div id="endScreen" class="screen" style="display:none">
+  <div class="end-card">
+    <div class="end-title">🏆Evaluation Complete</div>
+    <div id="endFeedback" class="end-feedback">You have successfully navigated through the engineering fields!</div>
+    
+    <div class="score-badge">
+      <div class="score-label">Total Performance</div>
+      <div id="finalScore">0</div>
+    </div>
+    
+    <button class="btn-replay" onclick="location.reload()">Run Again 🔄</button>
+  </div>
+</div>
+
+<div id="hud">
+  <div>⭐ Score: <span id="score">0</span></div>
+  <div>❤️ Chances: <span id="chances">2</span></div>
+  <div>🧪 Level: <span id="levelNo">1</span>/10</div>
+</div>
+
+<h1 id="title">⚡ Force Field Lab</h1>
+<div id="questionBox">Lab challenge will appear here.</div>
+<div id="gameArea"></div>
+<div id="msg"></div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const allLevels=[
+  {
+    type:"sort",
+    title:"Push or Pull?",
+    q:"Sort the actions into PUSH or PULL.",
+    cards:[
+      {text:"Closing a drawer",ans:"Push"},
+      {text:"Opening a drawer",ans:"Pull"},
+      {text:"Kicking a ball",ans:"Push"},
+      {text:"Lifting a bucket",ans:"Pull"}
+    ],
+    zones:["Push","Pull"]
+  },
+  {
+    type:"sort",
+    title:"Contact or Non-contact?",
+    q:"Sort the forces into the correct structural groups.",
+    cards:[
+      {text:"Muscular force",ans:"Contact"},
+      {text:"Frictional force",ans:"Contact"},
+      {text:"Magnetic force",ans:"Non-contact"},
+      {text:"Gravitational force",ans:"Non-contact"}
+    ],
+    zones:["Contact","Non-contact"]
+  },
+  {
+    type:"choice",
+    title:"Resultant Force Lab",
+    q:"Two students push a box in the same direction with 20 N and 30 N. What is the resultant force?",
+    visual:"➡️ 20 N  +  ➡️ 30 N",
+    options:["10 N","50 N","30 N"],
+    ans:"50 N"
+  },
+  {
+    type:"choice",
+    title:"Opposite Force Lab",
+    q:"Two forces act in opposite directions: 40 N right and 25 N left. What is the resultant force?",
+    visual:"⬅️ 25 N      📦      40 N ➡️",
+    options:["15 N right","65 N right","15 N left"],
+    ans:"15 N right"
+  },
+  {
+    type:"sort",
+    title:"Effects of Force",
+    q:"Match each physical situation with the expected effect of force.",
+    cards:[
+      {text:"Brakes applied to a bicycle",ans:"Changes speed"},
+      {text:"Bat hits a ball",ans:"Changes direction"},
+      {text:"Squeezing sponge",ans:"Changes shape"},
+      {text:"Pushing a toy car",ans:"Starts motion"}
+    ],
+    zones:["Changes speed","Changes direction","Changes shape","Starts motion"]
+  },
+  {
+    type:"choice",
+    title:"Elastic or Plastic?",
+    q:"A rubber band regains its shape after stretching. What type of material is it?",
+    visual:"🟡 Stretched Rubber Band",
+    options:["Elastic material","Plastic material","Magnetic material"],
+    ans:"Elastic material"
+  },
+  {
+    type:"sort",
+    title:"Types of Contact Forces",
+    q:"Sort the engineering examples into muscular, frictional or elastic force fields.",
+    cards:[
+      {text:"Writing with hand",ans:"Muscular"},
+      {text:"Cycle slowing on road",ans:"Frictional"},
+      {text:"Stretched spring",ans:"Elastic"},
+      {text:"Chewing food",ans:"Muscular"}
+    ],
+    zones:["Muscular","Frictional","Elastic"]
+  },
+  {
+    type:"choice",
+    title:"Mass and Weight",
+    q:"Which cosmic gravitational mass statement is scientifically correct?",
+    visual:"🌍 Earth      🌕 Moon",
+    options:["Mass changes from place to place","Weight changes with gravity","Mass is measured in newton"],
+    ans:"Weight changes with gravity"
+  },
+  {
+    type:"choice",
+    title:"Spring Balance Reading",
+    q:"A spring balance calibrated device measures which scalar/vector quantity?",
+    visual:"⚖️ Spring Balance Apparatus",
+    options:["Mass","Weight","Volume"],
+    ans:"Weight"
+  },
+  {
+    type:"choice",
+    title:"Weight Calculation",
+    q:"A ball has a mass of 2 kg. If g = 10 m/s², what is its structural weight?",
+    visual:"Formula: W = m × g",
+    options:["20 N","12 N","2 N"],
+    ans:"20 N"
+  },
+  {
+    type:"choice",
+    title:"Balanced State Lab",
+    q:"An object is pulled with equal forces of 15 N from both the left and right sides. What is its state?",
+    visual:"⬅️ 15 N   📦   15 N ➡️",
+    options:["Remains at rest","Accelerates left","Accelerates right"],
+    ans:"Remains at rest"
+  },
+  {
+    type:"choice",
+    title:"Friction Direction Rule",
+    q:"If a wooden block is sliding towards the East on a floor, in which direction does friction act?",
+    visual:"📦 Sliding East ➡️",
+    options:["Towards the West","Towards the East","Vertically Downward"],
+    ans:"Towards the West"
+  },
+  {
+    type:"choice",
+    title:"Electrostatic Nature",
+    q:"A plastic comb rubbed with dry hair attracts tiny bits of paper. What force field is this?",
+    visual:"⚡ Charged Comb Effect",
+    options:["Electrostatic force","Magnetic force","Frictional force"],
+    ans:"Electrostatic force"
+  },
+  {
+    type:"sort",
+    title:"State of Motion Impact",
+    q:"Categorize these actions based on their impact on an object's state of motion.",
+    cards:[
+      {text:"Catching a cricket ball",ans:"Stops motion"},
+      {text:"Kicking a stationary rock",ans:"Starts motion"},
+      {text:"Goalie blocking a penalty kick",ans:"Stops motion"},
+      {text:"Hitting a rolling marble",ans:"Starts motion"}
+    ],
+    zones:["Starts motion","Stops motion"]
+  },
+  {
+    type:"choice",
+    title:"Magnetism Field Force Lab",
+    q:"An elegant magnetic cabinet door mechanism snaps tightly shut on its own when closed near its frame. What non-contact force is responsible?",
+    visual:"🗄️ Cabinet Magnet Mechanism",
+    options:["Magnetic Force","Electrostatic Force","Frictional Resistance"],
+    ans:"Magnetic Force"
+  }
+];
+
+let order=[];
+let level=0;
+let score=0;
+let chances=2;
+let selectedCard=null;
+let correctPlaced=0;
+let cardsInLevel=0;
+let locked=false;
+
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById("loader").style.display="none";
+    document.getElementById("instructions").style.display="flex";
+  }, 1200);
+};
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function startGame(){
+  document.getElementById("instructions").style.display="none";
+  
+  let pool = [...allLevels];
+  shuffleArray(pool);
+  order = pool.slice(0, 10);
+  
+  level = 0;
+  score = 0;
+  document.getElementById("score").textContent = score;
+  loadLevel();
+}
+
+function loadLevel(){
+  locked=false;
+  selectedCard=null;
+  correctPlaced=0;
+  chances=2;
+  
+  document.getElementById("chances").textContent=chances;
+  document.getElementById("msg").textContent="";
+  document.getElementById("gameArea").innerHTML="";
+
+  if(level>=order.length){
+    endGame();
+    return;
+  }
+
+  const item=order[level];
+  document.getElementById("levelNo").textContent=level+1;
+  document.getElementById("title").textContent="⚡ "+item.title;
+  document.getElementById("questionBox").textContent=item.q;
+
+  if(item.type==="sort"){
+    cardsInLevel = item.cards.length;
+    buildSortLevel(item);
+  } else {
+    cardsInLevel = 0;
+    buildChoiceLevel(item);
+  }
+}
+
+function buildSortLevel(item){
+  const area=document.getElementById("gameArea");
+  const cardRow=document.createElement("div");
+  cardRow.className="cardRow";
+
+  let randomizedCards = [...item.cards];
+  shuffleArray(randomizedCards);
+
+  randomizedCards.forEach(c=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.textContent=c.text;
+    card.dataset.answer=c.ans;
+    card.onclick=()=>{
+      if(locked)return;
+      selectedCard=card;
+      document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
+      card.classList.add("selected");
+      showMsg("Now tap the correct zone.","#38bdf8");
+    };
+    cardRow.appendChild(card);
+  });
+
+  const zoneRow=document.createElement("div");
+  zoneRow.className="zoneRow";
+  item.zones.forEach(z=>{
+    const zone=document.createElement("div");
+    zone.className="zone";
+    zone.dataset.zone=z;
+    zone.innerHTML="<div>"+z+"</div>";
+    zone.onclick=()=>checkSort(zone);
+    zoneRow.appendChild(zone);
+  });
+
+  area.appendChild(cardRow);
+  area.appendChild(zoneRow);
+}
+
+function checkSort(zone){
+  if(!selectedCard || locked)return;
+
+  if(selectedCard.dataset.answer===zone.dataset.zone){
+    document.getElementById("correctSound").play();
+    moveCardToZone(zone, selectedCard);
+    selectedCard=null;
+    correctPlaced++;
+    
+    // Proportional increment (2.5 pts per correctly sorted item across 4 items = 10 pts max per level)
+    score+=2.5; 
+    document.getElementById("score").textContent=Math.round(score);
+    showMsg("✅ Correct!","#22c55e");
+
+    if(correctPlaced >= cardsInLevel){
+      level++;
+      setTimeout(loadLevel,1200);
+    }
+  } else {
+    zone.classList.add("wrongFlash");
+    setTimeout(()=>zone.classList.remove("wrongFlash"),500);
+    handleWrong(selectedCard.dataset.answer, true);
+  }
+}
+
+function moveCardToZone(zone, cardElement) {
+  const placed=document.createElement("div");
+  placed.className="placed";
+  placed.textContent=cardElement.textContent;
+  zone.appendChild(placed);
+  cardElement.remove();
+}
+
+function buildChoiceLevel(item){
+  const area=document.getElementById("gameArea");
+  const visual=document.createElement("div");
+  visual.className="forceBox";
+  visual.textContent=item.visual;
+  area.appendChild(visual);
+
+  const row=document.createElement("div");
+  row.className="cardRow";
+
+  let randomizedOptions = [...item.options];
+  shuffleArray(randomizedOptions);
+
+  randomizedOptions.forEach(opt=>{
+    const btn=document.createElement("div");
+    btn.className="option";
+    btn.textContent=opt;
+    btn.onclick=()=>checkChoice(btn,opt,item.ans);
+    row.appendChild(btn);
+  });
+
+  area.appendChild(row);
+}
+
+function checkChoice(btn,selected,answer){
+  if(locked)return;
+
+  if(selected===answer){
+    locked=true;
+    btn.classList.add("correctFlash");
+    document.getElementById("correctSound").play();
+    score+=10;
+    document.getElementById("score").textContent=Math.round(score);
+    showMsg("✅ Correct!","#22c55e");
+    level++;
+    setTimeout(loadLevel,1200);
+  } else {
+    btn.classList.add("wrongFlash");
+    setTimeout(()=>btn.classList.remove("wrongFlash"),600);
+    handleWrong(answer, false);
+  }
+}
+
+function handleWrong(answer, isSortingField=false){
+  document.getElementById("wrongSound").play();
+  chances--;
+  document.getElementById("chances").textContent=chances;
+
+  if(chances>0){
+    showMsg("❌ Try Again!","#ef4444");
+  } else {
+    locked=true;
+    showMsg("Correct Answer revealed!","#ef4444");
+
+    if(!isSortingField) {
+      document.querySelectorAll(".option").forEach(o=>{
+        if(o.textContent===answer) o.classList.add("correctFlash");
+      });
+      level++;
+      setTimeout(loadLevel,2200);
+    } else {
+      // Auto sorting helper fallback when structural chances run out
+      if(selectedCard) {
+        const correctTargetZoneStr = selectedCard.dataset.answer;
+        document.querySelectorAll(".zone").forEach(z=>{
+          if(z.dataset.zone===correctTargetZoneStr) {
+            z.classList.add("correctFlash");
+            moveCardToZone(z, selectedCard);
+          }
+        });
+        selectedCard = null;
+      }
+      
+      // Auto-clear remaining card sets seamlessly to avoid progression blockages
+      setTimeout(() => {
+        const remainingCards = document.querySelectorAll(".card");
+        if(remainingCards.length > 0) {
+          chances = 2;
+          document.getElementById("chances").textContent = chances;
+          locked = false;
+          showMsg("Resolve remaining fields!", "#38bdf8");
+        } else {
+          level++;
+          loadLevel();
+        }
+      }, 1200);
+    }
+  }
+}
+
+function showMsg(text,color){
+  const msg=document.getElementById("msg");
+  msg.textContent=text;
+  msg.style.color=color;
+}
+
+function endGame(){
+  document.getElementById("clapSound").play();
+  const calculatedFinal = Math.round(score);
+  document.getElementById("finalScore").textContent = calculatedFinal + " / 100";
+  
+  const feedback = document.getElementById("endFeedback");
+  if(calculatedFinal >= 90) {
+    feedback.textContent = "Spectacular! Master Elite Status Unlocked. Force Fields fully regulated! 🌟";
+  } else if(calculatedFinal >= 60) {
+    feedback.textContent = "Great work! Solid mechanical analysis across core physical environments. 👍";
+  } else {
+    feedback.textContent = "Lab finished. Review foundational mechanics and run laboratory simulation diagnostics again! 🔧";
+  }
+  
+  document.getElementById("endScreen").style.display="flex";
+}
+</script>
+
+</body>
+</html>

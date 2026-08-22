@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Audiology Lab: Clinical Diagnostic Suite</title>
+<style>
+:root {
+    --bg-clinic: #f3f7f9;
+    --panel-sheet: #ffffff;
+    --teal-primary: #28524b;
+    --teal-accent: #3b7a6e;
+    --eucalyptus-success: #dcefe3;
+    --eucalyptus-text: #19432c;
+    --salmon-warning: #fcdfd7;
+    --salmon-text: #9e2a2b;
+    --border-soft: #dbe3e6;
+    --text-charcoal: #2d3142;
+    --text-gray: #7f8c8d;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+body {
+    background-color: var(--bg-clinic);
+    color: var(--text-charcoal);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    user-select: none;
+    background-image: radial-gradient(#d1dcde 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* TIMELINE PHASE 1: 5-Second Pure White Screen Overlay */
+#splash-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #ffffff;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#splash-overlay img {
+    max-width: 260px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* TIMELINE PHASE 2: Clinical Instructions Overlay */
+#instruction-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #fcfdfe 0%, #eef4f6 100%);
+    z-index: 8888;
+    display: none; /* Controlled via timeline engine */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.instruction-card {
+    background: var(--panel-sheet);
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 15px 40px rgba(40, 82, 75, 0.08);
+    border-radius: 16px;
+    max-width: 580px;
+    width: 100%;
+    padding: 40px;
+    text-align: center;
+}
+.instruction-card h2 {
+    color: var(--teal-primary);
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+}
+.instruction-card p {
+    color: var(--text-charcoal);
+    font-size: 0.98rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-align: left;
+}
+.start-btn {
+    background: var(--teal-primary);
+    color: #ffffff;
+    font-weight: 700;
+    border: 0; padding: 14px 35px;
+    border-radius: 8px; cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+.start-btn:hover {
+    background: var(--teal-accent);
+}
+
+/* TIMELINE PHASE 3: Main Workspace Game Matrix */
+#game-container {
+    display: none; /* Enforced hidden status during startup timeline sequence */
+    width: 100%;
+    max-width: 760px;
+    background: var(--panel-sheet);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 35px rgba(40, 82, 75, 0.06);
+    border: 1px solid var(--border-soft);
+    flex-direction: column;
+    gap: 28px;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--bg-clinic);
+    padding-bottom: 22px;
+}
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.logo-icon {
+    width: 42px;
+    height: 42px;
+}
+.title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--teal-primary);
+}
+.title span {
+    font-weight: 400;
+    color: var(--text-gray);
+}
+.status-bar {
+    display: flex;
+    gap: 12px;
+}
+.clinic-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+#progress-pill {
+    background-color: #e3eff2;
+    color: #1d7082;
+}
+#attempt-pill {
+    background-color: #fcece9;
+    color: #c94a3a;
+}
+
+/* Clinical Test Monitor */
+.test-monitor {
+    background: #f8fafb;
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 35px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+.patient-observation {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    font-weight: 600;
+    color: var(--text-charcoal);
+    max-width: 620px;
+}
+
+/* Console Input Controls */
+.input-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.input-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-gray);
+    letter-spacing: 0.5px;
+}
+.interactive-form {
+    display: flex;
+    gap: 12px;
+}
+.diagnostic-input {
+    flex: 1;
+    background: #ffffff;
+    border: 2px solid var(--border-soft);
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-charcoal);
+    outline: none;
+    transition: all 0.2s ease;
+}
+.diagnostic-input:focus {
+    border-color: var(--teal-accent);
+    box-shadow: 0 0 0 3px rgba(59, 122, 110, 0.1);
+}
+.diagnostic-input:disabled {
+    background: #f1f5f6;
+    color: var(--text-gray);
+    cursor: not-allowed;
+}
+.submit-btn {
+    background: var(--teal-primary);
+    color: #ffffff;
+    border: none;
+    padding: 0 30px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.submit-btn:hover {
+    background: var(--teal-accent);
+}
+.submit-btn:disabled {
+    background: var(--border-soft);
+    cursor: not-allowed;
+}
+
+/* Lab Activity Status Log */
+.lab-log {
+    background: var(--bg-clinic);
+    border-radius: 8px;
+    padding: 18px;
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #526266;
+    border-left: 4px solid var(--border-soft);
+}
+
+/* TIMELINE PHASE 4: End Screen Terminal Frame */
+#finish-screen {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+}
+#finish-screen h2 { color: var(--teal-primary); font-size: 2rem; }
+.reset-btn {
+    background: var(--teal-primary);
+    color: white;
+    border: 0;
+    padding: 14px 35px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    align-self: center;
+    box-shadow: 0 4px 10px rgba(40, 82, 75, 0.2);
+    transition: background 0.2s;
+}
+.reset-btn:hover { background: var(--teal-accent); }
+</style>
+</head>
+<body>
+
+<audio id="audio-correct"></audio>
+<audio id="audio-wrong"></audio>
+
+<div id="splash-overlay">
+  <img src="assets/logo.png" alt="Clinical Logo Placeholder" onerror="console.log('Ensure logo asset matches target build directory.');" />
+</div>
+
+<div id="instruction-overlay">
+  <div class="instruction-card">
+    <h2>LABORATORY EVALUATION PROTOCOL</h2>
+    <p>
+      • Telemetry screens will isolate 10 unique audiology and physical sound metrics.<br><br>
+      • Carefully analyze the definition listed inside the central digital monitor framework.<br><br>
+      • Input the exact, validated textbook scientific terminology in the entry line below and verify your diagnosis.
+    </p>
+    <button class="start-btn" onclick="terminateInstructionsAndLaunch()">Initialize Workspace Core</button>
+  </div>
+</div>
+
+<div id="game-container">
+  <div class="header">
+    <div class="brand-wrapper">
+      <svg class="logo-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="30" fill="#f0f6f6" />
+        <path d="M16 24C16 16 24 14 30 14M16 28C16 42 26 48 34 48C44 48 48 38 48 30C48 22 42 20 38 20" stroke="#28524b" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 28C24 36 30 40 35 40C40 40 42 34 42 30" stroke="#3b7a6e" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <line x1="32" y1="20" x2="32" y2="44" stroke="#e63946" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 4"/>
+        <circle cx="32" cy="32" r="3" fill="#28524b" />
+      </svg>
+      <div class="title">🩺 Audiology Workstation <span>// System Core</span></div>
+    </div>
+    <div class="status-bar">
+      <div class="clinic-badge" id="progress-pill">Telemetry: <span id="lbl-question">1</span>/10</div>
+      <div class="clinic-badge" id="attempt-pill">Chances: <span id="lbl-chances">2</span></div>
+    </div>
+  </div>
+
+  <div id="main-layout" style="display: flex; flex-direction: column; gap: 28px;">
+    <div class="test-monitor">
+      <div class="patient-observation" id="question-box">Initializing audio sensor feeds...</div>
+    </div>
+
+    <div class="input-workspace">
+      <div class="input-label">Analyze Parameter Definition & Input Core Term Below:</div>
+      <form class="interactive-form" id="diagnostic-form" onsubmit="evaluateEntry(event)">
+        <input type="text" id="user-term" class="diagnostic-input" placeholder="Type verified textbook definition term here..." autocomplete="off" spellcheck="false" required>
+        <button type="submit" id="btn-submit" class="submit-btn">Verify Term</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="lab-log" id="feedback-box">
+    Enter the specific scientific parameter defined in the monitor screen above.
+  </div>
+
+  <div id="finish-screen">
+    <h2>📋 Diagnostics Run Complete</h2>
+    <p style="color: var(--text-gray); font-size: 1rem; max-width: 600px; line-height: 1.6; margin: 0 auto;">
+      Patient profile parsing complete. All physical wave dimensions, ear pathways, structural sound velocities, and audible registers match standard medical records.
+    </p>
+    <button class="reset-btn" onclick="location.reload()">Examine Next Patient</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentQuestion = 0;
+let attemptsLeft = 2;
+let blockInputs = false;
+
+// Synthetic Audio Engine
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSynthSound(type) {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+        osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); 
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+    } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140.00, audioCtx.currentTime); 
+        osc.frequency.linearRampToValueAtTime(100.00, audioCtx.currentTime + 0.25);
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+}
+
+const database = [
+    { q: "The maximum displacement of a vibrating body from its mean central position is designated as:", answer: "Amplitude" },
+    { q: "The exact number of total oscillations or vibrations executed by a moving body in one full second is called:", answer: "Frequency" },
+    { q: "The specific unit measurement index utilized internationally to compute and track sound loudness is:", answer: "Decibel" },
+    { q: "Sound waves operating with mechanical frequencies registered strictly below the 20 Hz threshold are defined as:", answer: "Infrasonic sound" },
+    { q: "The physical sensory perception of a sound wave that depends entirely on its specific high or low frequency rate is:", answer: "Pitch" },
+    { q: "The distinct repetition of sound caused entirely by the physical reflection of sound waves bouncing back from an obstacle is an:", answer: "Echo" },
+    { q: "The human ear can normally detect and register sound parameters only within which specific audible frequency band?", answer: "20 Hz to 20,000 Hz" },
+    { q: "Which internal anatomical section of the human ear resembles a coiled fluid-filled shell that directly processes sound elements for hearing?", answer: "Cochlea" },
+    { q: "A thin, sensitive membrane that completely separates the external ear canal path from the middle ear assembly is the:", answer: "Tympanum" },
+    { q: "Sound waves cannot propagate or travel through which of the following due to a total lack of any physical material molecules?", answer: "Vacuum" }
+];
+
+// TIMELINE ENGINE INITIALIZATION
+window.onload = function() {
+    // Phase 1: Lock system visibility exclusively on White Splash Screen for 5 seconds
+    setTimeout(() => {
+        $('splash-overlay').style.display = 'none';
+        
+        // Phase 2: Open systemic interactive guidelines panel sheet smoothly
+        $('instruction-overlay').style.display = 'flex';
+    }, 5000);
+};
+
+function terminateInstructionsAndLaunch() {
+    // Close Phase 2 configuration layout sheet
+    $('instruction-overlay').style.display = 'none';
+    
+    // Phase 3: Unleash application canvas frame container framework and load queries
+    $('game-container').style.display = 'flex';
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentQuestion >= database.length) {
+        $('main-layout').style.display = 'none';
+        $('feedback-box').style.display = 'none';
+        $('finish-screen').style.display = 'flex'; // Phase 4 Terminal Screen Active
+        return;
+    }
+
+    attemptsLeft = 2;
+    blockInputs = false;
+    
+    $('lbl-question').innerText = currentQuestion + 1;
+    $('lbl-chances').innerText = attemptsLeft;
+    
+    $('user-term').value = "";
+    $('user-term').disabled = false;
+    $('btn-submit').disabled = false;
+    $('user-term').focus();
+
+    $('feedback-box').innerText = "Enter the specific scientific parameter defined in the monitor screen above.";
+    $('feedback-box').style.color = "#526266";
+    $('feedback-box').style.backgroundColor = "var(--bg-clinic)";
+    $('feedback-box').style.borderLeftColor = "var(--border-soft)";
+
+    let data = database[currentQuestion];
+    $('question-box').innerText = data.q;
+}
+
+function evaluateEntry(event) {
+    event.preventDefault();
+    if (blockInputs) return;
+
+    let userInput = $('user-term').value.trim();
+    let data = database[currentQuestion];
+
+    if (userInput.toLowerCase() === data.answer.toLowerCase()) {
+        blockInputs = true;
+        playSynthSound('correct');
+        
+        $('user-term').disabled = true;
+        $('btn-submit').disabled = true;
+
+        $('feedback-box').innerText = `✓ DATA RECORDED: "${data.answer}" matches the calibration files perfectly.`;
+        $('feedback-box').style.color = "var(--eucalyptus-text)";
+        $('feedback-box').style.backgroundColor = "var(--eucalyptus-success)";
+        $('feedback-box').style.borderLeftColor = "#52b788";
+
+        setTimeout(() => {
+            currentQuestion++;
+            loadQuestion();
+        }, 2500);
+
+    } else {
+        attemptsLeft--;
+        $('lbl-chances').innerText = attemptsLeft;
+
+        if (attemptsLeft > 0) {
+            playSynthSound('wrong');
+            $('user-term').value = "";
+            $('user-term').focus();
+            
+            $('feedback-box').innerText = "✕ MISMATCH: Input core string does not register. Check your spelling and verify. (1 attempt left)";
+            $('feedback-box').style.color = "var(--salmon-text)";
+            $('feedback-box').style.backgroundColor = "var(--salmon-warning)";
+            $('feedback-box').style.borderLeftColor = "#e63946";
+        } else {
+            blockInputs = true;
+            playSynthSound('wrong');
+            
+            $('user-term').disabled = true;
+            $('btn-submit').disabled = true;
+            $('user-term').value = data.answer;
+
+            $('feedback-box').innerText = `⚠️ CORE PATCH APPLIED: 0 chances remaining. The authenticated textbook fact is "${data.answer}".`;
+            $('feedback-box').style.color = "var(--salmon-text)";
+            $('feedback-box').style.backgroundColor = "var(--salmon-warning)";
+            $('feedback-box').style.borderLeftColor = "#e63946";
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 3500);
+        }
+    }
+}
+</script>
+</body>
+</html>
