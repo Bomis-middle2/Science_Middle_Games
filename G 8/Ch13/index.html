@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth Guardian: The Planetary Survival Quest</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #0b132b;
+            color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .game-card {
+            background: #1c2541;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+            max-width: 680px;
+            width: 100%;
+            padding: 28px;
+            border: 1px solid #3a506b;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3a506b;
+            padding-bottom: 12px;
+        }
+        .header h1 {
+            color: #4ea8de;
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+        .status-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0b132b;
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .health-bar-bg {
+            width: 140px;
+            height: 16px;
+            background-color: #3a506b;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .health-bar-fill {
+            width: 100%;
+            height: 100%;
+            background-color: #48bb78;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        .stage-title {
+            font-size: 1.25rem;
+            color: #f6c445;
+            margin-bottom: 10px;
+        }
+        .story-text {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .option-btn {
+            background-color: #3a506b;
+            color: #ffffff;
+            border: 2px solid transparent;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            background-color: #5bc0be;
+            color: #0b132b;
+            font-weight: 600;
+        }
+        .feedback-box {
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+        .feedback-box.correct {
+            background-color: rgba(72, 187, 120, 0.2);
+            border: 1px solid #48bb78;
+            color: #68d391;
+        }
+        .feedback-box.incorrect {
+            background-color: rgba(245, 101, 101, 0.2);
+            border: 1px solid #f56565;
+            color: #fc8181;
+        }
+        .action-btn {
+            width: 100%;
+            background-color: #4ea8de;
+            color: #0b132b;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            transition: background-color 0.2s ease;
+        }
+        .action-btn:hover {
+            background-color: #5bc0be;
+        }
+        .restart-btn {
+            background-color: #f56565;
+            color: white;
+        }
+        .restart-btn:hover {
+            background-color: #e53e3e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <div class="header">
+        <h1>🌍 Earth Guardian Quest</h1>
+        <p style="color: #9ca3af; font-size: 0.88rem;">Based on Chapter 13: Our Home: Earth[cite: 3]</p>
+    </div>
+
+    <div class="status-container">
+        <div>Stage: <span id="stage-counter" style="color: #4ea8de; font-weight: bold;">1/5</span></div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span>Shield Integrity:</span>
+            <div class="health-bar-bg">
+                <div class="health-bar-fill" id="shield-bar"></div>
+            </div>
+            <span id="shield-text" style="font-weight: bold;">100%</span>
+        </div>
+    </div>
+
+    <div id="stage-container">
+        <h2 class="stage-title" id="stage-title">Mission 1</h2>
+        <p class="story-text" id="stage-desc">Description</p>
+
+        <div class="options-list" id="options-container">
+            <!-- Options added via JavaScript -->
+        </div>
+
+        <div class="feedback-box" id="feedback-box"></div>
+        <button class="action-btn" id="next-btn" onclick="nextStage()">Proceed</button>
+    </div>
+</div>
+
+<script>
+    const gameData = [
+        {
+            title: "Sector 1: Orbit Selection (Habitable Zone)",
+            desc: "An alien probe is analyzing potential planets to sustain human-like life[cite: 3]. It needs to position a new biosphere near a star. Which region will keep water liquid without freezing or evaporating[cite: 3]?",
+            options: [
+                { text: "Position A: Very close to the star where all surface water evaporates[cite: 3].", correct: false, reason: "Incorrect! Being too close turns the planet into a scorching desert[cite: 3]." },
+                { text: "Position B: In the Goldilocks Zone (Habitable Zone)[cite: 3].", correct: true, reason: "Correct! The Habitable Zone keeps temperatures 'just right' for liquid water to exist[cite: 3]." },
+                { text: "Position C: Far beyond the outer gas giants where water locks into permanent ice[cite: 3].", correct: false, reason: "Incorrect! Being too far makes the planet a freezing ice world[cite: 3]." }
+            ]
+        },
+        {
+            title: "Sector 2: Defense Against Solar Winds",
+            desc: "A massive solar wind stream is heading straight towards Earth's atmosphere[cite: 3]! Which natural protective shield deflects high-energy charged particles from damaging the ozone layer and atmosphere[cite: 3]?",
+            options: [
+                { text: "Shield 1: Earth's Magnetic Field generated by molten iron in its core[cite: 3].", correct: true, reason: "Correct! The magnetic field acts as a protective shield, deflecting solar wind particles[cite: 3]." },
+                { text: "Shield 2: Thick Carbon Dioxide layer like Venus[cite: 3].", correct: false, reason: "Incorrect! A thick CO2 atmosphere causes a runaway greenhouse effect that melts lead[cite: 3]!" },
+                { text: "Shield 3: Earth's liquid oceans (Hydrosphere)[cite: 3].", correct: false, reason: "Incorrect! While water regulates climate, it cannot deflect charged space particles[cite: 3]." }
+            ]
+        },
+        {
+            title: "Sector 3: Species Preservation (Reproduction)",
+            desc: "A harsh environmental shift has affected a population of flatworms. To quickly regenerate a damaged colony from tiny fragmented body parts, which process will save them[cite: 3]?",
+            options: [
+                { text: "Method A: Sexual Reproduction using pollen and seeds[cite: 3].", correct: false, reason: "Incorrect! Pollen and seeds are used in plant reproduction[cite: 3]." },
+                { text: "Method B: Asexual Regeneration (like in Planaria)[cite: 3].", correct: true, reason: "Correct! Planaria can regenerate complete new organisms from body fragments[cite: 3]!" },
+                { text: "Method C: Internal fertilization via placenta[cite: 3].", correct: false, reason: "Incorrect! Placental development occurs in mammals, not simple flatworms[cite: 3]." }
+            ]
+        },
+        {
+            title: "Sector 4: Genetic Variation",
+            desc: "A changing climate requires plants to develop new traits to survive droughts over generations[cite: 3]. What mechanism creates unique offspring by mixing genetic material from two parents[cite: 3]?",
+            options: [
+                { text: "Option A: Binary fission where cells split into identical copies[cite: 3].", correct: false, reason: "Incorrect! Binary fission produces exact clones without mixing genetic material from two parents[cite: 3]." },
+                { text: "Option B: Vegetative propagation using stems or roots[cite: 3].", correct: false, reason: "Incorrect! Vegetative propagation produces offspring nearly identical to one parent[cite: 3]." },
+                { text: "Option C: Sexual Reproduction using male and female gametes (sperm and egg)[cite: 3].", correct: true, reason: "Correct! Gametes combine half-sets of DNA to create unique genetic variations[cite: 3]." }
+            ]
+        },
+        {
+            title: "Sector 5: The Triple Planetary Crisis",
+            desc: "Earth is facing the Triple Planetary Crisis: Climate Change, Biodiversity Loss, and Pollution[cite: 3]. As an Earth Guardian, which action addresses global warming caused by excess carbon dioxide[cite: 3]?",
+            options: [
+                { text: "Action A: Increase burning of fossil fuels for fast energy generation[cite: 3].", correct: false, reason: "Incorrect! Burning fossil fuels releases massive amounts of CO2 and worsens global warming[cite: 3]." },
+                { text: "Action B: Shift to renewable energy (solar/wind) and protect forests[cite: 3].", correct: true, reason: "Correct! Renewable energy cuts emissions, while trees absorb CO2[cite: 3]." },
+                { text: "Action C: Dump agricultural chemicals into freshwater bodies[cite: 3].", correct: false, reason: "Incorrect! This causes water and soil pollution, harming biodiversity[cite: 3]." }
+            ]
+        }
+    ];
+
+    let currentStage = 0;
+    let shieldIntegrity = 100;
+
+    function loadStage() {
+        const stage = gameData[currentStage];
+        document.getElementById("stage-counter").innerText = `${currentStage + 1}/${gameData.length}`;
+        document.getElementById("stage-title").innerText = stage.title;
+        document.getElementById("stage-desc").innerHTML = stage.desc;
+
+        const container = document.getElementById("options-container");
+        container.innerHTML = "";
+
+        document.getElementById("feedback-box").style.display = "none";
+        document.getElementById("next-btn").style.display = "none";
+
+        stage.options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt, btn);
+            container.appendChild(btn);
+        });
+    }
+
+    function selectOption(opt, btn) {
+        const feedbackBox = document.getElementById("feedback-box");
+        const allBtns = document.querySelectorAll(".option-btn");
+
+        allBtns.forEach(b => b.disabled = true);
+
+        if (opt.correct) {
+            feedbackBox.className = "feedback-box correct";
+            feedbackBox.innerHTML = opt.reason;
+            document.getElementById("next-btn").innerText = currentStage < gameData.length - 1 ? "Advance to Next Sector" : "Complete Mission";
+            document.getElementById("next-btn").style.display = "block";
+        } else {
+            shieldIntegrity -= 20;
+            updateShieldDisplay();
+            feedbackBox.className = "feedback-box incorrect";
+            feedbackBox.innerHTML = opt.reason + " (-20% Shield Integrity)";
+
+            if (shieldIntegrity <= 0) {
+                document.getElementById("next-btn").innerText = "Restart Mission";
+                document.getElementById("next-btn").className = "action-btn restart-btn";
+                document.getElementById("next-btn").onclick = () => location.reload();
+                document.getElementById("next-btn").style.display = "block";
+            } else {
+                setTimeout(() => {
+                    allBtns.forEach(b => b.disabled = false);
+                }, 800);
+            }
+        }
+        feedbackBox.style.display = "block";
+    }
+
+    function updateShieldDisplay() {
+        if (shieldIntegrity < 0) shieldIntegrity = 0;
+        const bar = document.getElementById("shield-bar");
+        document.getElementById("shield-text").innerText = `${shieldIntegrity}%`;
+        bar.style.width = `${shieldIntegrity}%`;
+
+        if (shieldIntegrity <= 30) {
+            bar.style.backgroundColor = "#f56565";
+        } else if (shieldIntegrity <= 60) {
+            bar.style.backgroundColor = "#ed8936";
+        }
+    }
+
+    function nextStage() {
+        currentStage++;
+        if (currentStage < gameData.length) {
+            loadStage();
+        } else {
+            renderVictory();
+        }
+    }
+
+    function renderVictory() {
+        document.getElementById("stage-container").innerHTML = `
+            <div style="text-align: center; padding: 20px 0;">
+                <h2 style="color: #48bb78; font-size: 1.8rem; margin-bottom: 12px;">🌟 MISSION ACCOMPLISHED!</h2>
+                <p class="story-text">You protected Earth with <strong>${shieldIntegrity}% Shield Integrity</strong> remaining!</p>
+                <p class="story-text" style="font-size: 0.9rem;">You have demonstrated a mastery of Earth's unique characteristics, biological reproduction, and solutions to protect our planet[cite: 3].</p>
+                <button class="action-btn" style="display: inline-block; width: auto; padding: 12px 30px; margin-top: 10px;" onclick="location.reload()">Replay Quest</button>
+            </div>
+        `;
+    }
+
+    // Start Game
+    loadStage();
+</script>
+
+</body>
+</html>
