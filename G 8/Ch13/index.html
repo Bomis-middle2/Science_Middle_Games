@@ -3,8 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defender of Earth: Chapter 13 Science Game</title>
+    <title>Science CBQ Quiz: Our Home: Earth</title>
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,480 +25,521 @@
         }
 
         body {
-            background-color: #0b0d1b;
-            color: #ffffff;
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            overflow: hidden;
-        }
-
-        #game-container {
-            width: 800px;
-            height: 600px;
-            background: radial-gradient(circle at center, #111836 0%, #050711 100%);
-            border: 3px solid #3b82f6;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
-            position: relative;
-            overflow: hidden;
+            padding: 20px;
         }
 
         .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
+            display: none;
             width: 100%;
-            height: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* 1. Logo Screen */
+        #logo-screen {
+            display: none;
+            min-height: 300px;
+        }
+
+        #logo-screen.active {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
-            text-align: center;
+        }
+
+        .app-logo {
+            max-width: 280px;
+            max-height: 160px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* UI Cards & Typography */
+        .meta-card {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        .meta-card p {
+            margin: 8px 0;
+            font-size: 1rem;
+        }
+
+        h1, h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        /* Game Header */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .timer-badge {
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .attempts-badge {
+            background: #fef3c7;
+            color: var(--warning);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .scenario-box {
+            background-color: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding: 12px 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #334155;
+            text-align: left;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text);
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-option {
+            background-color: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text);
+            width: 100%;
+        }
+
+        .btn-option:hover:not(:disabled) {
+            background-color: #eff6ff;
+            border-color: var(--primary);
+        }
+
+        .btn-option:disabled {
+            cursor: not-allowed;
+        }
+
+        .btn-option.correct {
+            background-color: #dcfce7 !important;
+            border-color: var(--success) !important;
+            color: #14532d !important;
+            font-weight: bold;
+        }
+
+        .btn-option.incorrect {
+            background-color: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: #7f1d1d !important;
+            opacity: 0.6;
+        }
+
+        .explanation-box {
+            background-color: #f8fafc;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        .explanation-title {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .feedback-text {
+            font-weight: 600;
+            min-height: 24px;
+            margin-bottom: 10px;
+            text-align: left;
+            color: var(--warning);
+        }
+
+        .btn-action {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-action:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px 0;
+        }
+
+        .footer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
         }
 
         .hidden {
             display: none !important;
         }
-
-        h1 {
-            font-size: 2.5rem;
-            color: #60a5fa;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
-        }
-
-        p {
-            font-size: 1.1rem;
-            color: #cbd5e1;
-            margin-bottom: 25px;
-            max-width: 600px;
-            line-height: 1.5;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-            margin: 8px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
-
-        /* HUD Overlay */
-        #hud {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .hud-item {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #334155;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        /* Question Overlay */
-        #quiz-card {
-            background: rgba(15, 23, 42, 0.95);
-            border: 2px solid #60a5fa;
-            border-radius: 12px;
-            padding: 25px;
-            width: 85%;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
-            z-index: 20;
-        }
-
-        #question-text {
-            font-size: 1.25rem;
-            color: #f8fafc;
-            margin-bottom: 20px;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .option-btn {
-            background: #1e293b;
-            border: 1px solid #475569;
-            color: #e2e8f0;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            text-align: left;
-            transition: background 0.2s;
-        }
-
-        .option-btn:hover {
-            background: #334155;
-            border-color: #60a5fa;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .feedback {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-top: 15px;
-            height: 24px;
-        }
-
-        .feedback.correct { color: #4ade80; }
-        .feedback.wrong { color: #f87171; }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <!-- HUD -->
-    <div id="hud" class="hidden">
-        <div class="hud-item">Earth Shield Health: <span id="health-val" style="color: #4ade80;">100%</span></div>
-        <div class="hud-item">Score: <span id="score-val" style="color: #60a5fa;">0</span></div>
-        <div class="hud-item">Level: <span id="level-val" style="color: #facc15;">1/5</span></div>
+    <!-- 1. Logo Screen -->
+    <div id="logo-screen" class="screen active">
+        <img src="assets/logo.png" alt="Logo" class="app-logo">
     </div>
 
-    <!-- Start Screen -->
-    <div id="start-screen" class="screen">
-        <h1>Earth Defender: Chapter 13</h1>
-        <p>Protect planet Earth from incoming solar flares using your magnetic shield, and restore the planet's balance by answering key questions on Chapter 13 science concepts!</p>
-        <button class="btn" onclick="startGame()">Start Mission</button>
+    <!-- 2. Intro Screen -->
+    <div id="intro-screen" class="screen">
+        <h1>Quiz Overview</h1>
+        <div class="meta-card">
+            <p><strong>Subject:</strong> Science</p>
+            <p><strong>Topic:</strong> Chapter 13: Our Home: Earth</p>
+            <p><strong>Type:</strong> Competency-Based Questions (CBQ)</p>
+            <p><strong>Total Questions:</strong> <span id="intro-q-count">0</span></p>
+            <p><strong>Time Limit:</strong> 45 seconds per question</p>
+            <p><strong>Rules:</strong> 2 chances per question to find the correct answer!</p>
+        </div>
+        <button class="btn-action" onclick="startQuiz()">Start Quiz</button>
     </div>
 
-    <!-- Arcade Canvas Phase -->
-    <canvas id="game-canvas" class="hidden"></canvas>
+    <!-- 3. Game Area Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <span>Score: <span id="live-score">0</span></span>
+            <span class="timer-badge">⏱️ <span id="timer">45</span>s</span>
+            <span class="attempts-badge">Chances: <span id="attempts-left">2</span>/2</span>
+            <span>Q: <span id="q-idx">1</span>/<span id="q-total">0</span></span>
+        </div>
 
-    <!-- Quiz Overlay Phase -->
-    <div id="quiz-screen" class="screen hidden">
-        <div id="quiz-card">
-            <h2 style="color: #facc15; margin-bottom: 10px;">Science Challenge!</h2>
-            <div id="question-text">Question goes here...</div>
-            <div class="options-grid" id="options-container"></div>
-            <div id="feedback" class="feedback"></div>
+        <div id="scenario-box" class="scenario-box hidden"></div>
+        <div id="question" class="question-text"></div>
+        <div id="options" class="options-grid"></div>
+
+        <div id="explanation-box" class="explanation-box hidden">
+            <div class="explanation-title">Competency Insight:</div>
+            <div id="explanation-text"></div>
+        </div>
+
+        <div class="footer-controls">
+            <div id="feedback" class="feedback-text"></div>
+            <button id="next-btn" class="btn-action" style="display: none;" onclick="nextQuestion()">Next Question</button>
         </div>
     </div>
 
-    <!-- Game Over / Victory Screen -->
-    <div id="end-screen" class="screen hidden">
-        <h1 id="end-title">Mission Accomplished!</h1>
-        <p id="end-desc">You successfully protected Earth's biosphere, hydrosphere, and geosphere.</p>
-        <p>Final Score: <span id="final-score" style="color:#60a5fa; font-weight:bold;">0</span></p>
-        <button class="btn" onclick="restartGame()">Play Again</button>
+    <!-- 4. End Screen -->
+    <div id="end-screen" class="screen">
+        <h2>Quiz Completed!</h2>
+        <div class="meta-card" style="text-align: center;">
+            <p>Your Final Score</p>
+            <div id="final-score" class="score-display">0 / 0</div>
+            <p id="performance-feedback" style="margin-top: 10px; line-height: 1.5;"></p>
+        </div>
+        <button class="btn-action" onclick="restartQuiz()">Try Again</button>
     </div>
-</div>
 
-<script>
-    // --- Questions Database based on Chapter 13 ---
-    const questions = [
-        {
-            q: "What is the special region around a star where temperatures allow liquid water to exist?",
-            options: ["Ozone Zone", "Habitable / Goldilocks Zone", "Solar Wind Area", "Geosphere Zone"],
-            answer: 1
-        },
-        {
-            q: "Why is Venus hotter than Mercury despite being farther from the Sun?",
-            options: ["It is closer to Mars", "It has no atmosphere", "Runaway greenhouse effect from dense CO2", "It absorbs solar wind directly"],
-            answer: 2
-        },
-        {
-            q: "What shields Earth from harmful solar wind and cosmic radiation?",
-            options: ["Earth's Magnetic Field", "The Ocean Currents", "Tectonic Plates", "The Core's Volcanic Activity"],
-            answer: 0
-        },
-        {
-            q: "Which type of reproduction involves two parents and produces unique offspring?",
-            options: ["Binary Fission", "Vegetative Propagation", "Asexual Reproduction", "Sexual Reproduction"],
-            answer: 3
-        },
-        {
-            q: "What constitutes the 'Triple Planetary Crisis' facing Earth today?",
-            options: ["Earthquakes, Tsunamis, Volcanism", "Climate Change, Loss of Biodiversity, Pollution", "Solar Wind, UV Rays, Cosmic Dust", "Deforestation, Drought, Floods"],
-            answer: 1
+    <script>
+        const quizData = [
+            {
+                scenario: "Astronomers recently discovered an exoplanet orbiting a distant star. The planet has a thick atmosphere rich in Carbon Dioxide (CO2), sits extremely close to its star, and lacks an active liquid core to generate a magnetic shield.",
+                question: "Q1. Based on your understanding of planetary characteristics in Chapter 13, why is this exoplanet UNLIKELY to support human-like life?",
+                options: [
+                    "A) It lacks a gravitational field entirely because it is near a star.",
+                    "B) It would experience a runaway greenhouse effect and high exposure to solar radiation.",
+                    "C) Its atmosphere would freeze into solid dry ice due to the high CO2 content.",
+                    "D) It belongs to the outer gas giant category and lacks a solid surface."
+                ],
+                correct: 1,
+                explanation: "Dense CO2 traps extreme thermal heat (runaway greenhouse effect), and the lack of a magnetic field leaves the surface exposed to high-energy cosmic rays and solar winds."
+            },
+            {
+                scenario: null,
+                question: "Q2. Assertion (A): Vegetative propagation in plants produces offspring that are genetically identical to the parent plant.<br><br>Reason (R): Vegetative propagation is a form of asexual reproduction involving only a single parent.",
+                options: [
+                    "A) Both (A) and (R) are true, and (R) is the correct explanation of (A).",
+                    "B) Both (A) and (R) are true, but (R) is NOT the correct explanation of (A).",
+                    "C) (A) is true, but (R) is false.",
+                    "D) (A) is false, but (R) is true."
+                ],
+                correct: 0,
+                explanation: "Because asexual reproduction involves only one parent without fusion of gametes, the resulting offspring receive 100% identical DNA from that single parent."
+            },
+            {
+                scenario: "An agricultural area experiences severe soil degradation due to excessive synthetic chemical runoff. Farmers notice that earthworms and soil bacteria are dying out, causing crop yields to drop continuously.",
+                question: "Q3. Which two spheres of Earth are primarily interacting in this environmental problem?",
+                options: [
+                    "A) Atmosphere and Outer Core",
+                    "B) Hydrosphere and Geosphere (impacting the Biosphere)",
+                    "C) Magnetosphere and Cryosphere",
+                    "D) Lithosphere and Exosphere"
+                ],
+                correct: 1,
+                explanation: "Water runoff (Hydrosphere) carrying chemicals damages the soil minerals (Geosphere), which directly leads to the loss of living soil organisms and crops (Biosphere)."
+            },
+            {
+                scenario: "Species X reproduces sexually by laying soft eggs directly in water. Species Y reproduces sexually via internal fertilisation, giving birth to live young that are nourished through a placenta.",
+                question: "Q4. What conclusion can be drawn regarding the adaptation of these organisms?",
+                options: [
+                    "A) Species X exhibits internal fertilisation suitable for dry desert land.",
+                    "B) Species Y requires external water bodies for sperm to swim to the egg.",
+                    "C) Species X relies on external fertilisation, while Species Y is an adapted mammal.",
+                    "D) Species X produces genetically identical clones, while Species Y produces diverse offspring."
+                ],
+                correct: 2,
+                explanation: "Organisms laying unfertilised eggs in water rely on external fertilisation (like amphibians/fish), whereas mammals use internal fertilisation and a placenta for internal nourishment."
+            },
+            {
+                scenario: "Global temperature logs show an average rise of 1.1°C over pre-industrial levels, leading to frequent heatwaves, melting glaciers, and rising ocean levels worldwide.",
+                question: "Q5. Which global environmental initiative was established specifically to limit global warming to well below 2°C?",
+                options: [
+                    "A) The Wildlife Protection Act (1972)",
+                    "B) The Paris Agreement",
+                    "C) Project Tiger",
+                    "D) The Montreal Protocol (1987)"
+                ],
+                correct: 1,
+                explanation: "The Paris Agreement is a global treaty aimed at limiting global warming to below 2°C (preferably 1.5°C). The Montreal Protocol targeted ozone depletion."
+            }
+        ];
+
+        // Audio Objects
+        const correctSound = new Audio('assets/correct.mp3');
+        const wrongSound = new Audio('assets/wrong.mp3');
+
+        function playSound(audio) {
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log("Audio play blocked or file not found:", e));
         }
-    ];
 
-    // --- State Variables ---
-    let health = 100;
-    let score = 0;
-    let currentLevel = 0;
-    let gameState = "START"; // START, ARCADE, QUIZ, END
-    let particles = [];
-    let shieldAngle = 0;
-    let animationFrameId;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerVal = 45;
+        let timerInterval = null;
+        let attemptsLeft = 2;
 
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas.getContext('2d');
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('intro-q-count').textContent = quizData.length;
+            setTimeout(() => {
+                switchScreen('intro-screen');
+            }, 5000);
+        });
 
-    function resizeCanvas() {
-        canvas.width = 800;
-        canvas.height = 600;
-    }
-    resizeCanvas();
-
-    // Mouse control for shield
-    canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left - canvas.width / 2;
-        const mouseY = e.clientY - rect.top - canvas.height / 2;
-        shieldAngle = Math.atan2(mouseY, mouseX);
-    });
-
-    function startGame() {
-        health = 100;
-        score = 0;
-        currentLevel = 0;
-        showScreen('ARCADE');
-        startArcadePhase();
-    }
-
-    function restartGame() {
-        startGame();
-    }
-
-    function showScreen(state) {
-        gameState = state;
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('end-screen').classList.add('hidden');
-        document.getElementById('game-canvas').classList.add('hidden');
-        document.getElementById('hud').classList.add('hidden');
-
-        if (state === 'ARCADE') {
-            document.getElementById('game-canvas').classList.remove('hidden');
-            document.getElementById('hud').classList.remove('hidden');
-        } else if (state === 'QUIZ') {
-            document.getElementById('quiz-screen').classList.remove('hidden');
-            document.getElementById('hud').classList.remove('hidden');
-        } else if (state === 'START') {
-            document.getElementById('start-screen').classList.remove('hidden');
-        } else if (state === 'END') {
-            document.getElementById('end-screen').classList.remove('hidden');
+        function switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
-        updateHUD();
-    }
 
-    function updateHUD() {
-        document.getElementById('health-val').innerText = `${Math.max(0, health)}%`;
-        document.getElementById('score-val').innerText = score;
-        document.getElementById('level-val').innerText = `${currentLevel + 1}/${questions.length}`;
-    }
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            switchScreen('game-screen');
+            loadQuestion();
+        }
 
-    // --- Arcade Phase (Protect Earth) ---
-    function startArcadePhase() {
-        particles = [];
-        let particlesSpawned = 0;
-        const totalParticles = 15 + currentLevel * 5;
+        function loadQuestion() {
+            timerVal = 45;
+            attemptsLeft = 2;
+            document.getElementById('live-score').textContent = score;
+            document.getElementById('q-idx').textContent = currentQuestionIndex + 1;
+            document.getElementById('q-total').textContent = quizData.length;
+            document.getElementById('attempts-left').textContent = attemptsLeft;
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('explanation-box').classList.add('hidden');
 
-        const spawnInterval = setInterval(() => {
-            if (gameState !== 'ARCADE') {
-                clearInterval(spawnInterval);
-                return;
+            const currentQuiz = quizData[currentQuestionIndex];
+            
+            // Scenario Box
+            const scenarioBox = document.getElementById('scenario-box');
+            if (currentQuiz.scenario) {
+                scenarioBox.innerHTML = currentQuiz.scenario;
+                scenarioBox.classList.remove('hidden');
+            } else {
+                scenarioBox.classList.add('hidden');
             }
 
-            // Spawn particles around screen edge targeting center
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 400;
-            particles.push({
-                x: 400 + Math.cos(angle) * dist,
-                y: 300 + Math.sin(angle) * dist,
-                vx: -Math.cos(angle) * (2 + currentLevel * 0.5),
-                vy: -Math.sin(angle) * (2 + currentLevel * 0.5),
-                active: true
+            document.getElementById('question').innerHTML = currentQuiz.question;
+
+            const optionsElement = document.getElementById('options');
+            optionsElement.innerHTML = "";
+
+            currentQuiz.options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                button.classList.add("btn-option");
+                button.onclick = () => selectOption(index, button);
+                optionsElement.appendChild(button);
             });
 
-            particlesSpawned++;
-            if (particlesSpawned >= totalParticles) {
-                clearInterval(spawnInterval);
-            }
-        }, 600);
-
-        loopArcade();
-    }
-
-    function loopArcade() {
-        if (gameState !== 'ARCADE') return;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const centerX = 400;
-        const centerY = 300;
-        const earthRadius = 45;
-        const shieldRadius = 75;
-
-        // Draw Earth
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, earthRadius, 0, Math.PI * 2);
-        ctx.fillStyle = '#2563eb';
-        ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = '#60a5fa';
-        ctx.stroke();
-
-        // Draw Shield
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, shieldRadius, shieldAngle - 0.5, shieldAngle + 0.5);
-        ctx.lineWidth = 8;
-        ctx.strokeStyle = '#38bdf8';
-        ctx.stroke();
-
-        // Update & Draw Particles (Solar Wind)
-        let activeLeft = false;
-
-        particles.forEach(p => {
-            if (!p.active) return;
-            activeLeft = true;
-
-            p.x += p.vx;
-            p.y += p.vy;
-
-            // Draw particle
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-            ctx.fillStyle = '#f97316';
-            ctx.fill();
-
-            // Distance from center
-            const dx = p.x - centerX;
-            const dy = p.y - centerY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            // Particle angle from center
-            const pAngle = Math.atan2(dy, dx);
-
-            // Check shield collision
-            if (dist <= shieldRadius + 5 && dist >= shieldRadius - 10) {
-                let diff = Math.abs(pAngle - shieldAngle);
-                // Normalize angle diff
-                while (diff > Math.PI) diff -= Math.PI * 2;
-                diff = Math.abs(diff);
-
-                if (diff < 0.5) {
-                    p.active = false; // Blocked by shield!
-                    score += 10;
-                    updateHUD();
-                }
-            }
-
-            // Check Earth collision
-            if (dist <= earthRadius) {
-                p.active = false;
-                health -= 10;
-                updateHUD();
-
-                if (health <= 0) {
-                    endGame(false);
-                }
-            }
-        });
-
-        if (health > 0) {
-            if (particles.length > 0 && particles.every(p => !p.active)) {
-                // Wave cleared -> Move to Quiz Phase
-                setTimeout(() => {
-                    showScreen('QUIZ');
-                    loadQuestion();
-                }, 500);
-                return;
-            }
-            animationFrameId = requestAnimationFrame(loopArcade);
+            startTimer();
         }
-    }
 
-    // --- Quiz Phase ---
-    function loadQuestion() {
-        const qData = questions[currentLevel];
-        document.getElementById('question-text').innerText = qData.q;
-        document.getElementById('feedback').innerText = '';
-        
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
+        function startTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timer').textContent = timerVal;
+            timerInterval = setInterval(() => {
+                timerVal--;
+                document.getElementById('timer').textContent = timerVal;
+                if (timerVal <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
 
-        qData.options.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = `${idx + 1}. ${opt}`;
-            btn.onclick = () => handleAnswer(idx);
-            container.appendChild(btn);
-        });
-    }
+        function selectOption(index, button) {
+            const currentQuiz = quizData[currentQuestionIndex];
+            const correctIndex = currentQuiz.correct;
+            const buttons = document.querySelectorAll(".btn-option");
 
-    function handleAnswer(selectedIndex) {
-        const qData = questions[currentLevel];
-        const feedbackEl = document.getElementById('feedback');
+            if (index === correctIndex) {
+                // Correct Answer
+                clearInterval(timerInterval);
+                playSound(correctSound);
+                button.classList.add("correct");
+                buttons.forEach(btn => btn.disabled = true);
+                
+                score++;
+                document.getElementById('live-score').textContent = score;
+                document.getElementById('feedback').textContent = "✨ Correct!";
+                document.getElementById('feedback').style.color = "var(--success)";
+                
+                showExplanation(currentQuiz.explanation);
+                document.getElementById('next-btn').style.display = 'inline-block';
+            } else {
+                // Incorrect Answer
+                attemptsLeft--;
+                document.getElementById('attempts-left').textContent = attemptsLeft;
+                playSound(wrongSound);
+                button.classList.add("incorrect");
+                button.disabled = true;
 
-        if (selectedIndex === qData.answer) {
-            feedbackEl.innerText = "Correct! Earth's balance is restored.";
-            feedbackEl.className = "feedback correct";
-            score += 50;
-            health = Math.min(100, health + 15); // Bonus health
-            updateHUD();
-
-            setTimeout(() => {
-                currentLevel++;
-                if (currentLevel < questions.length) {
-                    showScreen('ARCADE');
-                    startArcadePhase();
+                if (attemptsLeft > 0) {
+                    document.getElementById('feedback').textContent = "❌ Incorrect attempt 1/2. Try again!";
+                    document.getElementById('feedback').style.color = "var(--warning)";
                 } else {
-                    endGame(true);
+                    // Out of attempts: reveal answer
+                    clearInterval(timerInterval);
+                    buttons.forEach(btn => btn.disabled = true);
+                    buttons[correctIndex].classList.add("correct");
+                    document.getElementById('feedback').textContent = "❌ Out of chances!";
+                    document.getElementById('feedback').style.color = "var(--danger)";
+                    
+                    showExplanation(currentQuiz.explanation);
+                    document.getElementById('next-btn').style.display = 'inline-block';
                 }
-            }, 1200);
-        } else {
-            feedbackEl.innerText = "Incorrect! Review Chapter 13 concepts.";
-            feedbackEl.className = "feedback wrong";
-            health -= 15;
-            updateHUD();
-
-            if (health <= 0) {
-                setTimeout(() => endGame(false), 1200);
             }
         }
-    }
 
-    // --- End Game ---
-    function endGame(victory) {
-        showScreen('END');
-        document.getElementById('final-score').innerText = score;
-        if (victory) {
-            document.getElementById('end-title').innerText = "Mission Accomplished!";
-            document.getElementById('end-desc').innerText = "You defended Earth from solar rays and mastered Chapter 13 science concepts!";
-        } else {
-            document.getElementById('end-title').innerText = "Mission Failed";
-            document.getElementById('end-desc').innerText = "Earth's shield collapsed. Re-read Chapter 13 and try again!";
+        function handleTimeout() {
+            playSound(wrongSound);
+            const currentQuiz = quizData[currentQuestionIndex];
+            const buttons = document.querySelectorAll(".btn-option");
+            buttons.forEach(btn => btn.disabled = true);
+            const correctIndex = currentQuiz.correct;
+            buttons[correctIndex].classList.add("correct");
+
+            document.getElementById('feedback').textContent = "⏱️ Time's up!";
+            document.getElementById('feedback').style.color = "var(--danger)";
+            
+            showExplanation(currentQuiz.explanation);
+            document.getElementById('next-btn').style.display = 'inline-block';
         }
-    }
-</script>
 
+        function showExplanation(text) {
+            document.getElementById('explanation-text').innerText = text;
+            document.getElementById('explanation-box').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('final-score').textContent = `${score} / ${quizData.length}`;
+            
+            const feedback = document.getElementById('performance-feedback');
+            const percentage = (score / quizData.length) * 100;
+
+            if (percentage === 100) {
+                feedback.innerHTML = "<strong style='color: var(--success)'>Exemplary Performance!</strong><br>You have demonstrated high analytical mastery over Chapter 13 concepts!";
+            } else if (percentage >= 60) {
+                feedback.innerHTML = "<strong style='color: var(--primary)'>Good Competency Level!</strong><br>You understand key concepts well, but re-reviewing assertion-reasoning questions will boost precision.";
+            } else {
+                feedback.innerHTML = "<strong style='color: var(--danger)'>Needs Conceptual Practice!</strong><br>Consider re-reading Chapter 13 topics like reproduction modes, Earth spheres, and global environmental crises.";
+            }
+
+            switchScreen('end-screen');
+        }
+
+        function restartQuiz() {
+            switchScreen('intro-screen');
+        }
+    </script>
 </body>
 </html>
