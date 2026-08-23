@@ -52,6 +52,27 @@
             display: none !important;
         }
 
+        /* Logo Screen Styles */
+        #logo-screen {
+            background: #050711;
+            cursor: pointer;
+            z-index: 30;
+        }
+
+        #game-logo {
+            max-width: 300px;
+            max-height: 300px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.6));
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
         h1 {
             font-size: 2.5rem;
             color: #60a5fa;
@@ -178,8 +199,14 @@
         <div class="hud-item">Level: <span id="level-val" style="color: #facc15;">1/5</span></div>
     </div>
 
+    <!-- Intro / Logo Screen -->
+    <div id="logo-screen" class="screen" onclick="skipLogo()">
+        <img id="game-logo" src="assets/logo.png" alt="Game Logo">
+        <p style="font-size: 0.9rem; color: #64748b;">Click anywhere to skip</p>
+    </div>
+
     <!-- Start Screen -->
-    <div id="start-screen" class="screen">
+    <div id="start-screen" class="screen hidden">
         <h1>Earth Defender: Chapter 13</h1>
         <p>Protect planet Earth from incoming solar flares using your magnetic shield, and restore the planet's balance by answering key questions on Chapter 13 science concepts!</p>
         <button class="btn" onclick="startGame()">Start Mission</button>
@@ -241,10 +268,11 @@
     let health = 100;
     let score = 0;
     let currentLevel = 0;
-    let gameState = "START"; // START, ARCADE, QUIZ, END
+    let gameState = "LOGO"; // LOGO, START, ARCADE, QUIZ, END
     let particles = [];
     let shieldAngle = 0;
     let animationFrameId;
+    let logoTimeout;
 
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
@@ -254,6 +282,22 @@
         canvas.height = 600;
     }
     resizeCanvas();
+
+    // Auto-advance logo screen after 3 seconds
+    window.addEventListener('DOMContentLoaded', () => {
+        logoTimeout = setTimeout(() => {
+            if (gameState === 'LOGO') {
+                showScreen('START');
+            }
+        }, 3000);
+    });
+
+    function skipLogo() {
+        if (gameState === 'LOGO') {
+            clearTimeout(logoTimeout);
+            showScreen('START');
+        }
+    }
 
     // Mouse control for shield
     canvas.addEventListener('mousemove', (e) => {
@@ -277,13 +321,16 @@
 
     function showScreen(state) {
         gameState = state;
+        document.getElementById('logo-screen').classList.add('hidden');
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('end-screen').classList.add('hidden');
         document.getElementById('game-canvas').classList.add('hidden');
         document.getElementById('hud').classList.add('hidden');
 
-        if (state === 'ARCADE') {
+        if (state === 'LOGO') {
+            document.getElementById('logo-screen').classList.remove('hidden');
+        } else if (state === 'ARCADE') {
             document.getElementById('game-canvas').classList.remove('hidden');
             document.getElementById('hud').classList.remove('hidden');
         } else if (state === 'QUIZ') {
@@ -315,7 +362,6 @@
                 return;
             }
 
-            // Spawn particles around screen edge targeting center
             const angle = Math.random() * Math.PI * 2;
             const dist = 400;
             particles.push({
@@ -362,11 +408,8 @@
         ctx.stroke();
 
         // Update & Draw Particles (Solar Wind)
-        let activeLeft = false;
-
         particles.forEach(p => {
             if (!p.active) return;
-            activeLeft = true;
 
             p.x += p.vx;
             p.y += p.vy;
@@ -377,23 +420,19 @@
             ctx.fillStyle = '#f97316';
             ctx.fill();
 
-            // Distance from center
             const dx = p.x - centerX;
             const dy = p.y - centerY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-
-            // Particle angle from center
             const pAngle = Math.atan2(dy, dx);
 
             // Check shield collision
             if (dist <= shieldRadius + 5 && dist >= shieldRadius - 10) {
                 let diff = Math.abs(pAngle - shieldAngle);
-                // Normalize angle diff
                 while (diff > Math.PI) diff -= Math.PI * 2;
                 diff = Math.abs(diff);
 
                 if (diff < 0.5) {
-                    p.active = false; // Blocked by shield!
+                    p.active = false;
                     score += 10;
                     updateHUD();
                 }
@@ -413,7 +452,6 @@
 
         if (health > 0) {
             if (particles.length > 0 && particles.every(p => !p.active)) {
-                // Wave cleared -> Move to Quiz Phase
                 setTimeout(() => {
                     showScreen('QUIZ');
                     loadQuestion();
@@ -450,7 +488,7 @@
             feedbackEl.innerText = "Correct! Earth's balance is restored.";
             feedbackEl.className = "feedback correct";
             score += 50;
-            health = Math.min(100, health + 15); // Bonus health
+            health = Math.min(100, health + 15);
             updateHUD();
 
             setTimeout(() => {
