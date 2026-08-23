@@ -24,7 +24,7 @@
             background: #1c2541;
             border-radius: 16px;
             box-shadow: 0 12px 30px rgba(0,0,0,0.6);
-            max-width: 680px;
+            max-width: 720px;
             width: 100%;
             padding: 28px;
             border: 1px solid #3a506b;
@@ -65,7 +65,23 @@
         .stage-title {
             font-size: 1.25rem;
             color: #f6c445;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+        }
+        .visual-asset {
+            width: 100%;
+            max-height: 220px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            background-color: #0b132b;
+            border: 1px solid #3a506b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .visual-asset svg {
+            width: 100%;
+            height: 180px;
         }
         .story-text {
             font-size: 0.98rem;
@@ -143,11 +159,11 @@
 <div class="game-card">
     <div class="header">
         <h1>🌍 Earth Guardian Quest</h1>
-        <p style="color: #9ca3af; font-size: 0.88rem;">Based on Chapter 13: Our Home: Earth[cite: 3]</p>
+        <p style="color: #9ca3af; font-size: 0.88rem;">Based on Chapter 13: Our Home: Earth</p>
     </div>
 
     <div class="status-container">
-        <div>Stage: <span id="stage-counter" style="color: #4ea8de; font-weight: bold;">1/5</span></div>
+        <div>Stage: <span id="stage-counter" style="color: #4ea8de; font-weight: bold;">1/10</span></div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <span>Shield Integrity:</span>
             <div class="health-bar-bg">
@@ -159,6 +175,7 @@
 
     <div id="stage-container">
         <h2 class="stage-title" id="stage-title">Mission 1</h2>
+        <div class="visual-asset" id="visual-container"></div>
         <p class="story-text" id="stage-desc">Description</p>
 
         <div class="options-list" id="options-container">
@@ -171,50 +188,213 @@
 </div>
 
 <script>
+    const SVG_ASSETS = {
+        goldilocks: `<svg viewBox="0 0 400 150">
+            <circle cx="50" cy="75" r="30" fill="#f6c445" />
+            <circle cx="130" cy="75" r="8" fill="#e53e3e" />
+            <circle cx="210" cy="75" r="14" fill="#4ea8de" />
+            <circle cx="210" cy="75" r="18" stroke="#ffffff" stroke-dasharray="3,3" fill="none" />
+            <circle cx="310" cy="75" r="10" fill="#a0aec0" />
+            <text x="50" y="125" fill="#fff" font-size="10" text-anchor="middle">Star</text>
+            <text x="130" y="125" fill="#fff" font-size="10" text-anchor="middle">Too Hot</text>
+            <text x="210" y="125" fill="#5bc0be" font-size="10" text-anchor="middle">Goldilocks</text>
+            <text x="310" y="125" fill="#fff" font-size="10" text-anchor="middle">Too Cold</text>
+        </svg>`,
+        
+        magnetosphere: `<svg viewBox="0 0 400 150">
+            <circle cx="200" cy="75" r="25" fill="#3182ce" />
+            <path d="M 175 75 Q 120 10, 200 10 Q 280 10, 225 75 Q 280 140, 200 140 Q 120 140, 175 75" fill="none" stroke="#63b3ed" stroke-width="3" />
+            <path d="M 160 75 Q 90 -10, 200 -10 Q 310 -10, 240 75 Q 310 160, 200 160 Q 90 160, 160 75" fill="none" stroke="#4299e1" stroke-width="2" stroke-dasharray="4,4" />
+            <path d="M 10 30 L 100 50 M 10 75 L 90 75 M 10 120 L 100 100" stroke="#f6ad55" stroke-width="3" marker-end="url(#arrow)" />
+            <text x="200" y="80" fill="#fff" font-size="10" text-anchor="middle">Earth</text>
+            <text x="40" y="25" fill="#f6ad55" font-size="10">Solar Wind</text>
+        </svg>`,
+        
+        planaria: `<svg viewBox="0 0 400 150">
+            <path d="M 80 65 Q 110 55, 140 65 Q 150 75, 140 85 Q 110 95, 80 85 Z" fill="#9ae6b4" />
+            <circle cx="130" cy="70" r="2" fill="#000" /><circle cx="130" cy="80" r="2" fill="#000" />
+            <text x="110" y="115" fill="#fff" font-size="12" text-anchor="middle">Fragment</text>
+            <text x="180" y="78" fill="#4ea8de" font-size="20" text-anchor="middle">➔</text>
+            <path d="M 230 45 Q 280 30, 320 45 Q 335 75, 320 105 Q 280 120, 230 105 Z" fill="#48bb78" />
+            <circle cx="310" cy="65" r="3" fill="#000" /><circle cx="310" cy="85" r="3" fill="#000" />
+            <text x="280" y="135" fill="#fff" font-size="12" text-anchor="middle">Regenerated Planaria</text>
+        </svg>`,
+        
+        genetics: `<svg viewBox="0 0 400 150">
+            <path d="M 100 30 Q 150 75, 100 120 M 150 30 Q 100 75, 150 120" stroke="#f6c445" stroke-width="4" fill="none" />
+            <line x1="112" y1="45" x2="138" y2="45" stroke="#4ea8de" stroke-width="3" />
+            <line x1="123" y1="75" x2="127" y2="75" stroke="#e53e3e" stroke-width="3" />
+            <line x1="112" y1="105" x2="138" y2="105" stroke="#48bb78" stroke-width="3" />
+            <text x="125" y="140" fill="#fff" font-size="10" text-anchor="middle">Parent A DNA</text>
+            <text x="200" y="78" fill="#fff" font-size="20" text-anchor="middle">+</text>
+            <path d="M 260 30 Q 310 75, 260 120 M 310 30 Q 260 75, 310 120" stroke="#9f7aea" stroke-width="4" fill="none" />
+            <line x1="272" y1="45" x2="298" y2="45" stroke="#48bb78" stroke-width="3" />
+            <line x1="283" y1="75" x2="287" y2="75" stroke="#4ea8de" stroke-width="3" />
+            <line x1="272" y1="105" x2="298" y2="105" stroke="#e53e3e" stroke-width="3" />
+            <text x="285" y="140" fill="#fff" font-size="10" text-anchor="middle">Parent B DNA</text>
+        </svg>`,
+        
+        climate: `<svg viewBox="0 0 400 150">
+            <rect x="50" y="50" width="80" height="60" fill="#e53e3e" rx="5" />
+            <path d="M 60 50 L 60 20 M 90 50 L 90 20 M 120 50 L 120 20" stroke="#a0aec0" stroke-width="6" />
+            <text x="90" y="85" fill="#fff" font-size="10" text-anchor="middle">Fossil Energy</text>
+            <text x="200" y="78" fill="#f6c445" font-size="20" text-anchor="middle">VS</text>
+            <circle cx="310" cy="60" r="20" fill="#319795" />
+            <path d="M 310 60 L 310 30 M 310 60 L 330 75 M 310 60 L 290 75" stroke="#fff" stroke-width="3" />
+            <path d="M 270 110 Q 290 90, 310 110 T 350 110" fill="none" stroke="#48bb78" stroke-width="4" />
+            <text x="310" y="130" fill="#fff" font-size="10" text-anchor="middle">Clean Renewables</text>
+        </svg>`,
+
+        greenhouse: `<svg viewBox="0 0 400 150">
+            <circle cx="200" cy="110" r="40" fill="#3182ce" />
+            <path d="M 140 70 Q 200 50, 260 70" stroke="#fc8181" stroke-width="4" fill="none" />
+            <path d="M 50 20 L 170 85" stroke="#f6c445" stroke-width="3" />
+            <path d="M 170 85 L 180 30" stroke="#f6c445" stroke-width="3" stroke-dasharray="2,2" />
+            <path d="M 170 85 L 190 100" stroke="#f6c445" stroke-width="3" />
+            <text x="200" y="40" fill="#fc8181" font-size="10" text-anchor="middle">Trapped Heat Layer (CO2)</text>
+            <text x="200" y="115" fill="#fff" font-size="10" text-anchor="middle">Earth</text>
+        </svg>`,
+
+        flower: `<svg viewBox="0 0 400 150">
+            <line x1="200" y1="140" x2="200" y2="80" stroke="#48bb78" stroke-width="6" />
+            <circle cx="200" cy="65" r="15" fill="#f6c445" />
+            <circle cx="180" cy="65" r="10" fill="#ed64a6" />
+            <circle cx="220" cy="65" r="10" fill="#ed64a6" />
+            <circle cx="200" cy="45" r="10" fill="#ed64a6" />
+            <circle cx="200" cy="85" r="10" fill="#ed64a6" />
+            <text x="130" y="70" fill="#4ea8de" font-size="10">Anther (Male)</text>
+            <text x="270" y="70" fill="#ed64a6" font-size="10">Stigma (Female)</text>
+        </svg>`,
+
+        hydrosphere: `<svg viewBox="0 0 400 150">
+            <path d="M 50 100 Q 100 60, 150 100 T 250 100 T 350 100" fill="none" stroke="#4ea8de" stroke-width="5" />
+            <path d="M 50 120 Q 100 80, 150 120 T 250 120 T 350 120" fill="none" stroke="#3182ce" stroke-width="5" />
+            <circle cx="200" cy="40" r="15" fill="#f6c445" />
+            <path d="M 200 60 L 200 80 M 180 70 L 220 70" stroke="#f6c445" stroke-width="2" />
+            <text x="200" y="140" fill="#fff" font-size="11" text-anchor="middle">Global Ocean Heat Transfer</text>
+        </svg>`,
+
+        ozone: `<svg viewBox="0 0 400 150">
+            <rect x="0" y="120" width="400" height="30" fill="#2f855a" />
+            <rect x="0" y="40" width="400" height="15" fill="#9f7aea" opacity="0.6" />
+            <path d="M 100 0 L 100 40" stroke="#cbd5e0" stroke-width="4" />
+            <path d="M 100 40 L 80 20" stroke="#cbd5e0" stroke-width="2" />
+            <path d="M 300 0 L 300 120" stroke="#f6c445" stroke-width="2" />
+            <text x="200" y="52" fill="#fff" font-size="10" text-anchor="middle">Ozone Layer (O3)</text>
+            <text x="100" y="25" fill="#cbd5e0" font-size="9">Blocked UV-C</text>
+            <text x="330" y="80" fill="#f6c445" font-size="9">Visible Light</text>
+        </svg>`,
+
+        biodiversity: `<svg viewBox="0 0 400 150">
+            <circle cx="120" cy="75" r="35" fill="#2b6cb0" />
+            <circle cx="200" cy="75" r="35" fill="#2f855a" />
+            <circle cx="280" cy="75" r="35" fill="#d69e2e" />
+            <text x="120" y="80" fill="#fff" font-size="10" text-anchor="middle">Ecosystems</text>
+            <text x="200" y="80" fill="#fff" font-size="10" text-anchor="middle">Species</text>
+            <text x="280" y="80" fill="#fff" font-size="10" text-anchor="middle">Genes</text>
+            <text x="200" y="135" fill="#4ea8de" font-size="11" text-anchor="middle">Web of Interconnected Life</text>
+        </svg>`
+    };
+
     const gameData = [
         {
             title: "Sector 1: Orbit Selection (Habitable Zone)",
-            desc: "An alien probe is analyzing potential planets to sustain human-like life[cite: 3]. It needs to position a new biosphere near a star. Which region will keep water liquid without freezing or evaporating[cite: 3]?",
+            desc: "An alien probe is analyzing potential planets to sustain human-like life. It needs to position a new biosphere near a star. Which region will keep water liquid without freezing or evaporating?",
+            asset: SVG_ASSETS.goldilocks,
             options: [
-                { text: "Position A: Very close to the star where all surface water evaporates[cite: 3].", correct: false, reason: "Incorrect! Being too close turns the planet into a scorching desert[cite: 3]." },
-                { text: "Position B: In the Goldilocks Zone (Habitable Zone)[cite: 3].", correct: true, reason: "Correct! The Habitable Zone keeps temperatures 'just right' for liquid water to exist[cite: 3]." },
-                { text: "Position C: Far beyond the outer gas giants where water locks into permanent ice[cite: 3].", correct: false, reason: "Incorrect! Being too far makes the planet a freezing ice world[cite: 3]." }
+                { text: "Position A: Very close to the star where all surface water evaporates.", correct: false, reason: "Incorrect! Being too close turns the planet into a scorching desert." },
+                { text: "Position B: In the Goldilocks Zone (Habitable Zone).", correct: true, reason: "Correct! The Habitable Zone keeps temperatures 'just right' for liquid water to exist." },
+                { text: "Position C: Far beyond the outer gas giants where water locks into permanent ice.", correct: false, reason: "Incorrect! Being too far makes the planet a freezing ice world." }
             ]
         },
         {
             title: "Sector 2: Defense Against Solar Winds",
-            desc: "A massive solar wind stream is heading straight towards Earth's atmosphere[cite: 3]! Which natural protective shield deflects high-energy charged particles from damaging the ozone layer and atmosphere[cite: 3]?",
+            desc: "A massive solar wind stream is heading straight towards Earth's atmosphere! Which natural protective shield deflects high-energy charged particles from damaging the ozone layer and atmosphere?",
+            asset: SVG_ASSETS.magnetosphere,
             options: [
-                { text: "Shield 1: Earth's Magnetic Field generated by molten iron in its core[cite: 3].", correct: true, reason: "Correct! The magnetic field acts as a protective shield, deflecting solar wind particles[cite: 3]." },
-                { text: "Shield 2: Thick Carbon Dioxide layer like Venus[cite: 3].", correct: false, reason: "Incorrect! A thick CO2 atmosphere causes a runaway greenhouse effect that melts lead[cite: 3]!" },
-                { text: "Shield 3: Earth's liquid oceans (Hydrosphere)[cite: 3].", correct: false, reason: "Incorrect! While water regulates climate, it cannot deflect charged space particles[cite: 3]." }
+                { text: "Shield 1: Earth's Magnetic Field generated by molten iron in its core.", correct: true, reason: "Correct! The magnetic field acts as a protective shield, deflecting solar wind particles." },
+                { text: "Shield 2: Thick Carbon Dioxide layer like Venus.", correct: false, reason: "Incorrect! A thick CO2 atmosphere causes a runaway greenhouse effect that melts lead!" },
+                { text: "Shield 3: Earth's liquid oceans (Hydrosphere).", correct: false, reason: "Incorrect! While water regulates climate, it cannot deflect charged space particles." }
             ]
         },
         {
-            title: "Sector 3: Species Preservation (Reproduction)",
-            desc: "A harsh environmental shift has affected a population of flatworms. To quickly regenerate a damaged colony from tiny fragmented body parts, which process will save them[cite: 3]?",
+            title: "Sector 3: Thermal Blanket (Greenhouse Effect)",
+            desc: "Without naturally occurring greenhouse gases like carbon dioxide and water vapor, Earth's average surface temperature would plummet to -18°C. How do these gases regulate Earth's climate?",
+            asset: SVG_ASSETS.greenhouse,
             options: [
-                { text: "Method A: Sexual Reproduction using pollen and seeds[cite: 3].", correct: false, reason: "Incorrect! Pollen and seeds are used in plant reproduction[cite: 3]." },
-                { text: "Method B: Asexual Regeneration (like in Planaria)[cite: 3].", correct: true, reason: "Correct! Planaria can regenerate complete new organisms from body fragments[cite: 3]!" },
-                { text: "Method C: Internal fertilization via placenta[cite: 3].", correct: false, reason: "Incorrect! Placental development occurs in mammals, not simple flatworms[cite: 3]." }
+                { text: "Option A: They generate internal nuclear heat directly inside the atmosphere.", correct: false, reason: "Incorrect! Atmospheric gases do not undergo nuclear reactions." },
+                { text: "Option B: They absorb outgoing infrared heat radiation from Earth's surface and re-radiate it back.", correct: true, reason: "Correct! The natural greenhouse effect traps thermal energy, keeping the planet warm enough for life." },
+                { text: "Option C: They block all sunlight from entering the atmosphere entirely.", correct: false, reason: "Incorrect! Blocking all sunlight would prevent photosynthesis and plunge Earth into total darkness." }
             ]
         },
         {
-            title: "Sector 4: Genetic Variation",
-            desc: "A changing climate requires plants to develop new traits to survive droughts over generations[cite: 3]. What mechanism creates unique offspring by mixing genetic material from two parents[cite: 3]?",
+            title: "Sector 4: Atmospheric Shielding (The Ozone Layer)",
+            desc: "High-frequency Ultraviolet (UV-C and UV-B) rays from the Sun are bombardment threats to cellular DNA. Which atmospheric layer contains high concentrations of O3 gas to filter these rays?",
+            asset: SVG_ASSETS.ozone,
             options: [
-                { text: "Option A: Binary fission where cells split into identical copies[cite: 3].", correct: false, reason: "Incorrect! Binary fission produces exact clones without mixing genetic material from two parents[cite: 3]." },
-                { text: "Option B: Vegetative propagation using stems or roots[cite: 3].", correct: false, reason: "Incorrect! Vegetative propagation produces offspring nearly identical to one parent[cite: 3]." },
-                { text: "Option C: Sexual Reproduction using male and female gametes (sperm and egg)[cite: 3].", correct: true, reason: "Correct! Gametes combine half-sets of DNA to create unique genetic variations[cite: 3]." }
+                { text: "Layer 1: Troposphere, where weather events take place.", correct: false, reason: "Incorrect! Ground-level ozone in the troposphere is a pollutant, not the protective layer." },
+                { text: "Layer 2: Stratosphere, housing the natural ozone layer.", correct: true, reason: "Correct! The ozone layer in the stratosphere absorbs harmful solar UV rays before they reach the ground." },
+                { text: "Layer 3: Thermosphere, where space shuttles orbit.", correct: false, reason: "Incorrect! The thermosphere absorbs X-rays and gamma rays, but ozone sits in the stratosphere." }
             ]
         },
         {
-            title: "Sector 5: The Triple Planetary Crisis",
-            desc: "Earth is facing the Triple Planetary Crisis: Climate Change, Biodiversity Loss, and Pollution[cite: 3]. As an Earth Guardian, which action addresses global warming caused by excess carbon dioxide[cite: 3]?",
+            title: "Sector 5: Climate Regulation (The Hydrosphere)",
+            desc: "Global temperature extremes are stabilized because ocean currents circulate enormous amounts of thermal energy from the equator toward the poles. What property of water makes this possible?",
+            asset: SVG_ASSETS.hydrosphere,
             options: [
-                { text: "Action A: Increase burning of fossil fuels for fast energy generation[cite: 3].", correct: false, reason: "Incorrect! Burning fossil fuels releases massive amounts of CO2 and worsens global warming[cite: 3]." },
-                { text: "Action B: Shift to renewable energy (solar/wind) and protect forests[cite: 3].", correct: true, reason: "Correct! Renewable energy cuts emissions, while trees absorb CO2[cite: 3]." },
-                { text: "Action C: Dump agricultural chemicals into freshwater bodies[cite: 3].", correct: false, reason: "Incorrect! This causes water and soil pollution, harming biodiversity[cite: 3]." }
+                { text: "Property A: Low boiling point that allows fast evaporation.", correct: false, reason: "Incorrect! Low boiling points cause rapid loss of liquid oceans." },
+                { text: "Property B: High specific heat capacity, absorbing large amounts of heat with minimal temperature change.", correct: true, reason: "Correct! Water's high heat capacity allows oceans to store and transport heat globally." },
+                { text: "Property C: High salinity that resists ocean current motion.", correct: false, reason: "Incorrect! Salinity actually helps drive ocean density circulation rather than blocking it." }
+            ]
+        },
+        {
+            title: "Sector 6: Species Preservation (Reproduction)",
+            desc: "A harsh environmental shift has affected a population of flatworms. To quickly regenerate a damaged colony from tiny fragmented body parts, which process will save them?",
+            asset: SVG_ASSETS.planaria,
+            options: [
+                { text: "Method A: Sexual Reproduction using pollen and seeds.", correct: false, reason: "Incorrect! Pollen and seeds are used in plant reproduction." },
+                { text: "Method B: Asexual Regeneration (like in Planaria).", correct: true, reason: "Correct! Planaria can regenerate complete new organisms from body fragments!" },
+                { text: "Method C: Internal fertilization via placenta.", correct: false, reason: "Incorrect! Placental development occurs in mammals, not simple flatworms." }
+            ]
+        },
+        {
+            title: "Sector 7: Plant Reproduction Mechanisms",
+            desc: "To ensure successful sexual reproduction in flowering plants (angiosperms), pollen must transfer from the male structure to the female structure. What are these structures called?",
+            asset: SVG_ASSETS.flower,
+            options: [
+                { text: "Option A: From Sepal to Petal.", correct: false, reason: "Incorrect! Sepals and petals protect the flower and attract pollinators." },
+                { text: "Option B: From Anther (Stamen) to Stigma (Pistil/Carpel).", correct: true, reason: "Correct! Pollen produced in the anther must land on the sticky stigma for fertilization to occur." },
+                { text: "Option C: From Root cap to Xylem vessel.", correct: false, reason: "Incorrect! Roots and xylem are involved in water transport, not reproduction." }
+            ]
+        },
+        {
+            title: "Sector 8: Genetic Variation",
+            desc: "A changing climate requires plants to develop new traits to survive droughts over generations. What mechanism creates unique offspring by mixing genetic material from two parents?",
+            asset: SVG_ASSETS.genetics,
+            options: [
+                { text: "Option A: Binary fission where cells split into identical copies.", correct: false, reason: "Incorrect! Binary fission produces exact clones without mixing genetic material from two parents." },
+                { text: "Option B: Vegetative propagation using stems or roots.", correct: false, reason: "Incorrect! Vegetative propagation produces offspring nearly identical to one parent." },
+                { text: "Option C: Sexual Reproduction using male and female gametes (sperm and egg).", correct: true, reason: "Correct! Gametes combine half-sets of DNA to create unique genetic variations." }
+            ]
+        },
+        {
+            title: "Sector 9: Ecosystem Resilience (Biodiversity)",
+            desc: "An ecosystem faces an outbreak of a plant disease. Why are habitats with high biodiversity better equipped to survive such environmental shocks compared to monocultures?",
+            asset: SVG_ASSETS.biodiversity,
+            options: [
+                { text: "Option A: Diverse ecosystems contain multiple species filling similar roles, ensuring ecological stability if one dies out.", correct: true, reason: "Correct! High biodiversity creates resilient food webs where alternative species prevent total collapse." },
+                { text: "Option B: Higher biodiversity reduces the total energy requirement of all living organisms.", correct: false, reason: "Incorrect! Energy requirements depend on biomass and metabolic rates, not biodiversity levels." },
+                { text: "Option C: Single-species monocultures naturally develop immunity faster than complex systems.", correct: false, reason: "Incorrect! Monocultures are highly vulnerable because a single disease can wipe out the entire population." }
+            ]
+        },
+        {
+            title: "Sector 10: The Triple Planetary Crisis",
+            desc: "Earth is facing the Triple Planetary Crisis: Climate Change, Biodiversity Loss, and Pollution. As an Earth Guardian, which action addresses global warming caused by excess carbon dioxide?",
+            asset: SVG_ASSETS.climate,
+            options: [
+                { text: "Action A: Increase burning of fossil fuels for fast energy generation.", correct: false, reason: "Incorrect! Burning fossil fuels releases massive amounts of CO2 and worsens global warming." },
+                { text: "Action B: Shift to renewable energy (solar/wind) and protect forests.", correct: true, reason: "Correct! Renewable energy cuts emissions, while trees absorb CO2." },
+                { text: "Action C: Dump agricultural chemicals into freshwater bodies.", correct: false, reason: "Incorrect! This causes water and soil pollution, harming biodiversity." }
             ]
         }
     ];
@@ -227,6 +407,7 @@
         document.getElementById("stage-counter").innerText = `${currentStage + 1}/${gameData.length}`;
         document.getElementById("stage-title").innerText = stage.title;
         document.getElementById("stage-desc").innerHTML = stage.desc;
+        document.getElementById("visual-container").innerHTML = stage.asset;
 
         const container = document.getElementById("options-container");
         container.innerHTML = "";
@@ -255,10 +436,10 @@
             document.getElementById("next-btn").innerText = currentStage < gameData.length - 1 ? "Advance to Next Sector" : "Complete Mission";
             document.getElementById("next-btn").style.display = "block";
         } else {
-            shieldIntegrity -= 20;
+            shieldIntegrity -= 10;
             updateShieldDisplay();
             feedbackBox.className = "feedback-box incorrect";
-            feedbackBox.innerHTML = opt.reason + " (-20% Shield Integrity)";
+            feedbackBox.innerHTML = opt.reason + " (-10% Shield Integrity)";
 
             if (shieldIntegrity <= 0) {
                 document.getElementById("next-btn").innerText = "Restart Mission";
@@ -301,7 +482,7 @@
             <div style="text-align: center; padding: 20px 0;">
                 <h2 style="color: #48bb78; font-size: 1.8rem; margin-bottom: 12px;">🌟 MISSION ACCOMPLISHED!</h2>
                 <p class="story-text">You protected Earth with <strong>${shieldIntegrity}% Shield Integrity</strong> remaining!</p>
-                <p class="story-text" style="font-size: 0.9rem;">You have demonstrated a mastery of Earth's unique characteristics, biological reproduction, and solutions to protect our planet[cite: 3].</p>
+                <p class="story-text" style="font-size: 0.9rem;">You have demonstrated a complete mastery of Earth's protective systems, atmospheric layers, biological processes, and planetary preservation solutions.</p>
                 <button class="action-btn" style="display: inline-block; width: auto; padding: 12px 30px; margin-top: 10px;" onclick="location.reload()">Replay Quest</button>
             </div>
         `;
