@@ -41,11 +41,11 @@
             object-fit: contain;
             margin-bottom: 20px;
             filter: drop-shadow(0px 0px 10px rgba(56, 189, 248, 0.4));
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
-        .header h1 {
-            color: #38bdf8;
-            font-size: 1.8rem;
-            margin-bottom: 6px;
+        .brand-logo:hover {
+            transform: scale(1.05);
         }
         .status-bar {
             display: flex;
@@ -171,10 +171,9 @@
 <body>
 
 <div class="game-container">
-    <!-- SCREEN 1: LOGO SCREEN (SPLASH) -->
-    <div id="logo-screen" style="text-align: center; padding: 20px 0;">
-        <img src="assets/logo.png" alt="Logo" class="brand-logo"><br>
-        <button class="action-btn" style="max-width: 250px;" onclick="showInstructions()">Continue</button>
+    <!-- SCREEN 1: LOGO SCREEN (ONLY INNOVINE LOGO) -->
+    <div id="logo-screen" style="text-align: center; padding: 40px 0;">
+        <img src="assets/logo.png" alt="Innovine Logo" class="brand-logo" onclick="showInstructions()">
     </div>
 
     <!-- SCREEN 2: INSTRUCTIONS SCREEN -->
