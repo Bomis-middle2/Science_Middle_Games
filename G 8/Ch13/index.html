@@ -3,598 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earth Guardian: The Planetary Survival Quest</title>
+    <title>Defender of Earth: Chapter 13 Science Game</title>
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
-            background-color: #0b132b;
-            color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .game-card {
-            background: #1c2541;
-            border-radius: 16px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
-            max-width: 720px;
-            width: 100%;
-            padding: 28px;
-            border: 1px solid #3a506b;
-            position: relative;
-            min-height: 540px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #3a506b;
-            padding-bottom: 12px;
-        }
-        .header h1 {
-            color: #4ea8de;
-            font-size: 1.8rem;
-            margin-bottom: 6px;
-        }
-        .status-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #0b132b;
-            padding: 12px 18px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .health-bar-bg {
-            width: 140px;
-            height: 16px;
-            background-color: #3a506b;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .health-bar-fill {
-            width: 100%;
-            height: 100%;
-            background-color: #48bb78;
-            transition: width 0.3s ease, background-color 0.3s ease;
-        }
-        .stage-title {
-            font-size: 1.25rem;
-            color: #f6c445;
-            margin-bottom: 12px;
-        }
-        .visual-asset {
-            width: 100%;
-            max-height: 220px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-            background-color: #0b132b;
-            border: 1px solid #3a506b;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-        .visual-asset svg {
-            width: 100%;
-            height: 180px;
-        }
-        .story-text {
-            font-size: 0.98rem;
-            line-height: 1.6;
-            color: #d1d5db;
-            margin-bottom: 20px;
-        }
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .option-btn {
-            background-color: #3a506b;
+            background-color: #0b0d1b;
             color: #ffffff;
-            border: 2px solid transparent;
-            padding: 14px 16px;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.2s ease;
-        }
-        .option-btn:hover {
-            background-color: #5bc0be;
-            color: #0b132b;
-            font-weight: 600;
-        }
-        .feedback-box {
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            display: none;
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-        .feedback-box.correct {
-            background-color: rgba(72, 187, 120, 0.2);
-            border: 1px solid #48bb78;
-            color: #68d391;
-        }
-        .feedback-box.incorrect {
-            background-color: rgba(245, 101, 101, 0.2);
-            border: 1px solid #f56565;
-            color: #fc8181;
-        }
-        .action-btn {
-            width: 100%;
-            background-color: #4ea8de;
-            color: #0b132b;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 1.05rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .action-btn:hover {
-            background-color: #5bc0be;
-        }
-        .restart-btn {
-            background-color: #f56565;
-            color: white;
-        }
-        .restart-btn:hover {
-            background-color: #e53e3e;
-        }
-        
-        /* Screen Specific Layouts */
-        .screen-center {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            height: 100%;
-            flex-grow: 1;
+            min-height: 100vh;
+            overflow: hidden;
         }
-        .logo-img {
-            max-width: 280px;
-            width: 80%;
-            height: auto;
-            margin-bottom: 24px;
-            filter: drop-shadow(0 0 12px rgba(91, 192, 190, 0.4));
-        }
-        .instruction-box {
-            background-color: #0b132b;
+
+        #game-container {
+            width: 800px;
+            height: 600px;
+            background: radial-gradient(circle at center, #111836 0%, #050711 100%);
+            border: 3px solid #3b82f6;
             border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #3a506b;
-            text-align: left;
-            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
         }
-        .instruction-box ul {
-            margin-left: 20px;
-            margin-top: 10px;
-            color: #d1d5db;
+
+        .hidden {
+            display: none !important;
         }
-        .instruction-box li {
-            margin-bottom: 8px;
+
+        h1 {
+            font-size: 2.5rem;
+            color: #60a5fa;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            margin-bottom: 25px;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            margin: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        /* HUD Overlay */
+        #hud {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .hud-item {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
             font-size: 0.95rem;
         }
+
+        /* Question Overlay */
+        #quiz-card {
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #60a5fa;
+            border-radius: 12px;
+            padding: 25px;
+            width: 85%;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+            z-index: 20;
+        }
+
+        #question-text {
+            font-size: 1.25rem;
+            color: #f8fafc;
+            margin-bottom: 20px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .option-btn {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .option-btn:hover {
+            background: #334155;
+            border-color: #60a5fa;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .feedback {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            height: 24px;
+        }
+
+        .feedback.correct { color: #4ade80; }
+        .feedback.wrong { color: #f87171; }
     </style>
 </head>
 <body>
 
-<div class="game-card" id="game-card">
-    <!-- Screen content loaded via JS -->
+<div id="game-container">
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div class="hud-item">Earth Shield Health: <span id="health-val" style="color: #4ade80;">100%</span></div>
+        <div class="hud-item">Score: <span id="score-val" style="color: #60a5fa;">0</span></div>
+        <div class="hud-item">Level: <span id="level-val" style="color: #facc15;">1/5</span></div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen">
+        <h1>Earth Defender: Chapter 13</h1>
+        <p>Protect planet Earth from incoming solar flares using your magnetic shield, and restore the planet's balance by answering key questions on Chapter 13 science concepts!</p>
+        <button class="btn" onclick="startGame()">Start Mission</button>
+    </div>
+
+    <!-- Arcade Canvas Phase -->
+    <canvas id="game-canvas" class="hidden"></canvas>
+
+    <!-- Quiz Overlay Phase -->
+    <div id="quiz-screen" class="screen hidden">
+        <div id="quiz-card">
+            <h2 style="color: #facc15; margin-bottom: 10px;">Science Challenge!</h2>
+            <div id="question-text">Question goes here...</div>
+            <div class="options-grid" id="options-container"></div>
+            <div id="feedback" class="feedback"></div>
+        </div>
+    </div>
+
+    <!-- Game Over / Victory Screen -->
+    <div id="end-screen" class="screen hidden">
+        <h1 id="end-title">Mission Accomplished!</h1>
+        <p id="end-desc">You successfully protected Earth's biosphere, hydrosphere, and geosphere.</p>
+        <p>Final Score: <span id="final-score" style="color:#60a5fa; font-weight:bold;">0</span></p>
+        <button class="btn" onclick="restartGame()">Play Again</button>
+    </div>
 </div>
 
 <script>
-    const SVG_ASSETS = {
-        goldilocks: `<svg viewBox="0 0 400 150">
-            <circle cx="50" cy="75" r="30" fill="#f6c445" />
-            <circle cx="130" cy="75" r="8" fill="#e53e3e" />
-            <circle cx="210" cy="75" r="14" fill="#4ea8de" />
-            <circle cx="210" cy="75" r="18" stroke="#ffffff" stroke-dasharray="3,3" fill="none" />
-            <circle cx="310" cy="75" r="10" fill="#a0aec0" />
-            <text x="50" y="125" fill="#fff" font-size="10" text-anchor="middle">Star</text>
-            <text x="130" y="125" fill="#fff" font-size="10" text-anchor="middle">Too Hot</text>
-            <text x="210" y="125" fill="#5bc0be" font-size="10" text-anchor="middle">Goldilocks</text>
-            <text x="310" y="125" fill="#fff" font-size="10" text-anchor="middle">Too Cold</text>
-        </svg>`,
-        
-        magnetosphere: `<svg viewBox="0 0 400 150">
-            <circle cx="200" cy="75" r="25" fill="#3182ce" />
-            <path d="M 175 75 Q 120 10, 200 10 Q 280 10, 225 75 Q 280 140, 200 140 Q 120 140, 175 75" fill="none" stroke="#63b3ed" stroke-width="3" />
-            <path d="M 160 75 Q 90 -10, 200 -10 Q 310 -10, 240 75 Q 310 160, 200 160 Q 90 160, 160 75" fill="none" stroke="#4299e1" stroke-width="2" stroke-dasharray="4,4" />
-            <path d="M 10 30 L 100 50 M 10 75 L 90 75 M 10 120 L 100 100" stroke="#f6ad55" stroke-width="3" />
-            <text x="200" y="80" fill="#fff" font-size="10" text-anchor="middle">Earth</text>
-            <text x="40" y="25" fill="#f6ad55" font-size="10">Solar Wind</text>
-        </svg>`,
-        
-        planaria: `<svg viewBox="0 0 400 150">
-            <path d="M 80 65 Q 110 55, 140 65 Q 150 75, 140 85 Q 110 95, 80 85 Z" fill="#9ae6b4" />
-            <circle cx="130" cy="70" r="2" fill="#000" /><circle cx="130" cy="80" r="2" fill="#000" />
-            <text x="110" y="115" fill="#fff" font-size="12" text-anchor="middle">Fragment</text>
-            <text x="180" y="78" fill="#4ea8de" font-size="20" text-anchor="middle">➔</text>
-            <path d="M 230 45 Q 280 30, 320 45 Q 335 75, 320 105 Q 280 120, 230 105 Z" fill="#48bb78" />
-            <circle cx="310" cy="65" r="3" fill="#000" /><circle cx="310" cy="85" r="3" fill="#000" />
-            <text x="280" y="135" fill="#fff" font-size="12" text-anchor="middle">Regenerated Planaria</text>
-        </svg>`,
-        
-        genetics: `<svg viewBox="0 0 400 150">
-            <path d="M 100 30 Q 150 75, 100 120 M 150 30 Q 100 75, 150 120" stroke="#f6c445" stroke-width="4" fill="none" />
-            <line x1="112" y1="45" x2="138" y2="45" stroke="#4ea8de" stroke-width="3" />
-            <line x1="123" y1="75" x2="127" y2="75" stroke="#e53e3e" stroke-width="3" />
-            <line x1="112" y1="105" x2="138" y2="105" stroke="#48bb78" stroke-width="3" />
-            <text x="125" y="140" fill="#fff" font-size="10" text-anchor="middle">Parent A DNA</text>
-            <text x="200" y="78" fill="#fff" font-size="20" text-anchor="middle">+</text>
-            <path d="M 260 30 Q 310 75, 260 120 M 310 30 Q 260 75, 310 120" stroke="#9f7aea" stroke-width="4" fill="none" />
-            <line x1="272" y1="45" x2="298" y2="45" stroke="#48bb78" stroke-width="3" />
-            <line x1="283" y1="75" x2="287" y2="75" stroke="#4ea8de" stroke-width="3" />
-            <line x1="272" y1="105" x2="298" y2="105" stroke="#e53e3e" stroke-width="3" />
-            <text x="285" y="140" fill="#fff" font-size="10" text-anchor="middle">Parent B DNA</text>
-        </svg>`,
-        
-        climate: `<svg viewBox="0 0 400 150">
-            <rect x="50" y="50" width="80" height="60" fill="#e53e3e" rx="5" />
-            <path d="M 60 50 L 60 20 M 90 50 L 90 20 M 120 50 L 120 20" stroke="#a0aec0" stroke-width="6" />
-            <text x="90" y="85" fill="#fff" font-size="10" text-anchor="middle">Fossil Energy</text>
-            <text x="200" y="78" fill="#f6c445" font-size="20" text-anchor="middle">VS</text>
-            <circle cx="310" cy="60" r="20" fill="#319795" />
-            <path d="M 310 60 L 310 30 M 310 60 L 330 75 M 310 60 L 290 75" stroke="#fff" stroke-width="3" />
-            <path d="M 270 110 Q 290 90, 310 110 T 350 110" fill="none" stroke="#48bb78" stroke-width="4" />
-            <text x="310" y="130" fill="#fff" font-size="10" text-anchor="middle">Clean Renewables</text>
-        </svg>`,
-
-        greenhouse: `<svg viewBox="0 0 400 150">
-            <circle cx="200" cy="110" r="40" fill="#3182ce" />
-            <path d="M 140 70 Q 200 50, 260 70" stroke="#fc8181" stroke-width="4" fill="none" />
-            <path d="M 50 20 L 170 85" stroke="#f6c445" stroke-width="3" />
-            <path d="M 170 85 L 180 30" stroke="#f6c445" stroke-width="3" stroke-dasharray="2,2" />
-            <path d="M 170 85 L 190 100" stroke="#f6c445" stroke-width="3" />
-            <text x="200" y="40" fill="#fc8181" font-size="10" text-anchor="middle">Trapped Heat Layer (CO2)</text>
-            <text x="200" y="115" fill="#fff" font-size="10" text-anchor="middle">Earth</text>
-        </svg>`,
-
-        flower: `<svg viewBox="0 0 400 150">
-            <line x1="200" y1="140" x2="200" y2="80" stroke="#48bb78" stroke-width="6" />
-            <circle cx="200" cy="65" r="15" fill="#f6c445" />
-            <circle cx="180" cy="65" r="10" fill="#ed64a6" />
-            <circle cx="220" cy="65" r="10" fill="#ed64a6" />
-            <circle cx="200" cy="45" r="10" fill="#ed64a6" />
-            <circle cx="200" cy="85" r="10" fill="#ed64a6" />
-            <text x="130" y="70" fill="#4ea8de" font-size="10">Anther (Male)</text>
-            <text x="270" y="70" fill="#ed64a6" font-size="10">Stigma (Female)</text>
-        </svg>`,
-
-        hydrosphere: `<svg viewBox="0 0 400 150">
-            <path d="M 50 100 Q 100 60, 150 100 T 250 100 T 350 100" fill="none" stroke="#4ea8de" stroke-width="5" />
-            <path d="M 50 120 Q 100 80, 150 120 T 250 120 T 350 120" fill="none" stroke="#3182ce" stroke-width="5" />
-            <circle cx="200" cy="40" r="15" fill="#f6c445" />
-            <path d="M 200 60 L 200 80 M 180 70 L 220 70" stroke="#f6c445" stroke-width="2" />
-            <text x="200" y="140" fill="#fff" font-size="11" text-anchor="middle">Global Ocean Heat Transfer</text>
-        </svg>`,
-
-        ozone: `<svg viewBox="0 0 400 150">
-            <rect x="0" y="120" width="400" height="30" fill="#2f855a" />
-            <rect x="0" y="40" width="400" height="15" fill="#9f7aea" opacity="0.6" />
-            <path d="M 100 0 L 100 40" stroke="#cbd5e0" stroke-width="4" />
-            <path d="M 100 40 L 80 20" stroke="#cbd5e0" stroke-width="2" />
-            <path d="M 300 0 L 300 120" stroke="#f6c445" stroke-width="2" />
-            <text x="200" y="52" fill="#fff" font-size="10" text-anchor="middle">Ozone Layer (O3)</text>
-            <text x="100" y="25" fill="#cbd5e0" font-size="9">Blocked UV-C</text>
-            <text x="330" y="80" fill="#f6c445" font-size="9">Visible Light</text>
-        </svg>`,
-
-        biodiversity: `<svg viewBox="0 0 400 150">
-            <circle cx="120" cy="75" r="35" fill="#2b6cb0" />
-            <circle cx="200" cy="75" r="35" fill="#2f855a" />
-            <circle cx="280" cy="75" r="35" fill="#d69e2e" />
-            <text x="120" y="80" fill="#fff" font-size="10" text-anchor="middle">Ecosystems</text>
-            <text x="200" y="80" fill="#fff" font-size="10" text-anchor="middle">Species</text>
-            <text x="280" y="80" fill="#fff" font-size="10" text-anchor="middle">Genes</text>
-            <text x="200" y="135" fill="#4ea8de" font-size="11" text-anchor="middle">Web of Interconnected Life</text>
-        </svg>`
-    };
-
-    const gameData = [
+    // --- Questions Database based on Chapter 13 ---
+    const questions = [
         {
-            title: "Sector 1: Orbit Selection (Habitable Zone)",
-            desc: "An alien probe is analyzing potential planets to sustain human-like life. It needs to position a new biosphere near a star. Which region will keep water liquid without freezing or evaporating?",
-            asset: SVG_ASSETS.goldilocks,
-            options: [
-                { text: "Position A: Very close to the star where all surface water evaporates.", correct: false, reason: "Incorrect! Being too close turns the planet into a scorching desert." },
-                { text: "Position B: In the Goldilocks Zone (Habitable Zone).", correct: true, reason: "Correct! The Habitable Zone keeps temperatures 'just right' for liquid water to exist." },
-                { text: "Position C: Far beyond the outer gas giants where water locks into permanent ice.", correct: false, reason: "Incorrect! Being too far makes the planet a freezing ice world." }
-            ]
+            q: "What is the special region around a star where temperatures allow liquid water to exist?",
+            options: ["Ozone Zone", "Habitable / Goldilocks Zone", "Solar Wind Area", "Geosphere Zone"],
+            answer: 1
         },
         {
-            title: "Sector 2: Defense Against Solar Winds",
-            desc: "A massive solar wind stream is heading straight towards Earth's atmosphere! Which natural protective shield deflects high-energy charged particles from damaging the ozone layer and atmosphere?",
-            asset: SVG_ASSETS.magnetosphere,
-            options: [
-                { text: "Shield 1: Earth's Magnetic Field generated by molten iron in its core.", correct: true, reason: "Correct! The magnetic field acts as a protective shield, deflecting solar wind particles." },
-                { text: "Shield 2: Thick Carbon Dioxide layer like Venus.", correct: false, reason: "Incorrect! A thick CO2 atmosphere causes a runaway greenhouse effect that melts lead!" },
-                { text: "Shield 3: Earth's liquid oceans (Hydrosphere).", correct: false, reason: "Incorrect! While water regulates climate, it cannot deflect charged space particles." }
-            ]
+            q: "Why is Venus hotter than Mercury despite being farther from the Sun?",
+            options: ["It is closer to Mars", "It has no atmosphere", "Runaway greenhouse effect from dense CO2", "It absorbs solar wind directly"],
+            answer: 2
         },
         {
-            title: "Sector 3: Thermal Blanket (Greenhouse Effect)",
-            desc: "Without naturally occurring greenhouse gases like carbon dioxide and water vapor, Earth's average surface temperature would plummet to -18°C. How do these gases regulate Earth's climate?",
-            asset: SVG_ASSETS.greenhouse,
-            options: [
-                { text: "Option A: They generate internal nuclear heat directly inside the atmosphere.", correct: false, reason: "Incorrect! Atmospheric gases do not undergo nuclear reactions." },
-                { text: "Option B: They absorb outgoing infrared heat radiation from Earth's surface and re-radiate it back.", correct: true, reason: "Correct! The natural greenhouse effect traps thermal energy, keeping the planet warm enough for life." },
-                { text: "Option C: They block all sunlight from entering the atmosphere entirely.", correct: false, reason: "Incorrect! Blocking all sunlight would prevent photosynthesis and plunge Earth into total darkness." }
-            ]
+            q: "What shields Earth from harmful solar wind and cosmic radiation?",
+            options: ["Earth's Magnetic Field", "The Ocean Currents", "Tectonic Plates", "The Core's Volcanic Activity"],
+            answer: 0
         },
         {
-            title: "Sector 4: Atmospheric Shielding (The Ozone Layer)",
-            desc: "High-frequency Ultraviolet (UV-C and UV-B) rays from the Sun are bombardment threats to cellular DNA. Which atmospheric layer contains high concentrations of O3 gas to filter these rays?",
-            asset: SVG_ASSETS.ozone,
-            options: [
-                { text: "Layer 1: Troposphere, where weather events take place.", correct: false, reason: "Incorrect! Ground-level ozone in the troposphere is a pollutant, not the protective layer." },
-                { text: "Layer 2: Stratosphere, housing the natural ozone layer.", correct: true, reason: "Correct! The ozone layer in the stratosphere absorbs harmful solar UV rays before they reach the ground." },
-                { text: "Layer 3: Thermosphere, where space shuttles orbit.", correct: false, reason: "Incorrect! The thermosphere absorbs X-rays and gamma rays, but ozone sits in the stratosphere." }
-            ]
+            q: "Which type of reproduction involves two parents and produces unique offspring?",
+            options: ["Binary Fission", "Vegetative Propagation", "Asexual Reproduction", "Sexual Reproduction"],
+            answer: 3
         },
         {
-            title: "Sector 5: Climate Regulation (The Hydrosphere)",
-            desc: "Global temperature extremes are stabilized because ocean currents circulate enormous amounts of thermal energy from the equator toward the poles. What property of water makes this possible?",
-            asset: SVG_ASSETS.hydrosphere,
-            options: [
-                { text: "Property A: Low boiling point that allows fast evaporation.", correct: false, reason: "Incorrect! Low boiling points cause rapid loss of liquid oceans." },
-                { text: "Property B: High specific heat capacity, absorbing large amounts of heat with minimal temperature change.", correct: true, reason: "Correct! Water's high heat capacity allows oceans to store and transport heat globally." },
-                { text: "Property C: High salinity that resists ocean current motion.", correct: false, reason: "Incorrect! Salinity actually helps drive ocean density circulation rather than blocking it." }
-            ]
-        },
-        {
-            title: "Sector 6: Species Preservation (Reproduction)",
-            desc: "A harsh environmental shift has affected a population of flatworms. To quickly regenerate a damaged colony from tiny fragmented body parts, which process will save them?",
-            asset: SVG_ASSETS.planaria,
-            options: [
-                { text: "Method A: Sexual Reproduction using pollen and seeds.", correct: false, reason: "Incorrect! Pollen and seeds are used in plant reproduction." },
-                { text: "Method B: Asexual Regeneration (like in Planaria).", correct: true, reason: "Correct! Planaria can regenerate complete new organisms from body fragments!" },
-                { text: "Method C: Internal fertilization via placenta.", correct: false, reason: "Incorrect! Placental development occurs in mammals, not simple flatworms." }
-            ]
-        },
-        {
-            title: "Sector 7: Plant Reproduction Mechanisms",
-            desc: "To ensure successful sexual reproduction in flowering plants (angiosperms), pollen must transfer from the male structure to the female structure. What are these structures called?",
-            asset: SVG_ASSETS.flower,
-            options: [
-                { text: "Option A: From Sepal to Petal.", correct: false, reason: "Incorrect! Sepals and petals protect the flower and attract pollinators." },
-                { text: "Option B: From Anther (Stamen) to Stigma (Pistil/Carpel).", correct: true, reason: "Correct! Pollen produced in the anther must land on the sticky stigma for fertilization to occur." },
-                { text: "Option C: From Root cap to Xylem vessel.", correct: false, reason: "Incorrect! Roots and xylem are involved in water transport, not reproduction." }
-            ]
-        },
-        {
-            title: "Sector 8: Genetic Variation",
-            desc: "A changing climate requires plants to develop new traits to survive droughts over generations. What mechanism creates unique offspring by mixing genetic material from two parents?",
-            asset: SVG_ASSETS.genetics,
-            options: [
-                { text: "Option A: Binary fission where cells split into identical copies.", correct: false, reason: "Incorrect! Binary fission produces exact clones without mixing genetic material from two parents." },
-                { text: "Option B: Vegetative propagation using stems or roots.", correct: false, reason: "Incorrect! Vegetative propagation produces offspring nearly identical to one parent." },
-                { text: "Option C: Sexual Reproduction using male and female gametes (sperm and egg).", correct: true, reason: "Correct! Gametes combine half-sets of DNA to create unique genetic variations." }
-            ]
-        },
-        {
-            title: "Sector 9: Ecosystem Resilience (Biodiversity)",
-            desc: "An ecosystem faces an outbreak of a plant disease. Why are habitats with high biodiversity better equipped to survive such environmental shocks compared to monocultures?",
-            asset: SVG_ASSETS.biodiversity,
-            options: [
-                { text: "Option A: Diverse ecosystems contain multiple species filling similar roles, ensuring ecological stability if one dies out.", correct: true, reason: "Correct! High biodiversity creates resilient food webs where alternative species prevent total collapse." },
-                { text: "Option B: Higher biodiversity reduces the total energy requirement of all living organisms.", correct: false, reason: "Incorrect! Energy requirements depend on biomass and metabolic rates, not biodiversity levels." },
-                { text: "Option C: Single-species monocultures naturally develop immunity faster than complex systems.", correct: false, reason: "Incorrect! Monocultures are highly vulnerable because a single disease can wipe out the entire population." }
-            ]
-        },
-        {
-            title: "Sector 10: The Triple Planetary Crisis",
-            desc: "Earth is facing the Triple Planetary Crisis: Climate Change, Biodiversity Loss, and Pollution. As an Earth Guardian, which action addresses global warming caused by excess carbon dioxide?",
-            asset: SVG_ASSETS.climate,
-            options: [
-                { text: "Action A: Increase burning of fossil fuels for fast energy generation.", correct: false, reason: "Incorrect! Burning fossil fuels releases massive amounts of CO2 and worsens global warming." },
-                { text: "Action B: Shift to renewable energy (solar/wind) and protect forests.", correct: true, reason: "Correct! Renewable energy cuts emissions, while trees absorb CO2." },
-                { text: "Action C: Dump agricultural chemicals into freshwater bodies.", correct: false, reason: "Incorrect! This causes water and soil pollution, harming biodiversity." }
-            ]
+            q: "What constitutes the 'Triple Planetary Crisis' facing Earth today?",
+            options: ["Earthquakes, Tsunamis, Volcanism", "Climate Change, Loss of Biodiversity, Pollution", "Solar Wind, UV Rays, Cosmic Dust", "Deforestation, Drought, Floods"],
+            answer: 1
         }
     ];
 
-    let currentStage = 0;
-    let shieldIntegrity = 100;
+    // --- State Variables ---
+    let health = 100;
+    let score = 0;
+    let currentLevel = 0;
+    let gameState = "START"; // START, ARCADE, QUIZ, END
+    let particles = [];
+    let shieldAngle = 0;
+    let animationFrameId;
 
-    function renderLogoScreen() {
-        const card = document.getElementById("game-card");
-        card.innerHTML = `
-            <div class="screen-center">
-                <img src="assets/logo.png" alt="Innovine Logo" class="logo-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/280x100?text=INNOVINE';">
-              
-                <button class="action-btn" onclick="renderInstructionScreen()">Start Briefing</button>
-            </div>
-        `;
-    }
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
 
-    function renderInstructionScreen() {
-        const card = document.getElementById("game-card");
-        card.innerHTML = `
-            <div>
-                <div class="header">
-                    <h1>🎮 Mission Instructions</h1>
-                </div>
-                <div class="instruction-box">
-                    <h3 style="color: #f6c445; margin-bottom: 10px;">Objective:</h3>
-                    <p style="color: #d1d5db; font-size: 0.95rem; line-height: 1.5;">
-                        Guide Earth through 10 critical planetary sectors by answering key science and sustainability challenges to maintain biosphere equilibrium.
-                    </p>
-                    <h3 style="color: #f6c445; margin-top: 16px; margin-bottom: 10px;">Rules of Engagement:</h3>
-                    <ul>
-                        <li><strong>Shield Integrity:</strong> You start with 100% Shield Integrity.</li>
-                        <li><strong>Penalty:</strong> Every incorrect answer reduces your shield by 10%.</li>
-                        <li><strong>Defeat:</strong> If your Shield Integrity hits 0%, the mission fails and must be restarted.</li>
-                        <li><strong>Victory:</strong> Navigate all 10 sectors successfully to save the planet!</li>
-                    </ul>
-                </div>
-            </div>
-            <button class="action-btn" onclick="startGame()">Begin Mission</button>
-        `;
+    function resizeCanvas() {
+        canvas.width = 800;
+        canvas.height = 600;
     }
+    resizeCanvas();
+
+    // Mouse control for shield
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left - canvas.width / 2;
+        const mouseY = e.clientY - rect.top - canvas.height / 2;
+        shieldAngle = Math.atan2(mouseY, mouseX);
+    });
 
     function startGame() {
-        currentStage = 0;
-        shieldIntegrity = 100;
-        loadStage();
+        health = 100;
+        score = 0;
+        currentLevel = 0;
+        showScreen('ARCADE');
+        startArcadePhase();
     }
 
-    function loadStage() {
-        const stage = gameData[currentStage];
-        const card = document.getElementById("game-card");
+    function restartGame() {
+        startGame();
+    }
+
+    function showScreen(state) {
+        gameState = state;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.add('hidden');
+        document.getElementById('game-canvas').classList.add('hidden');
+        document.getElementById('hud').classList.add('hidden');
+
+        if (state === 'ARCADE') {
+            document.getElementById('game-canvas').classList.remove('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+        } else if (state === 'QUIZ') {
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+        } else if (state === 'START') {
+            document.getElementById('start-screen').classList.remove('hidden');
+        } else if (state === 'END') {
+            document.getElementById('end-screen').classList.remove('hidden');
+        }
+        updateHUD();
+    }
+
+    function updateHUD() {
+        document.getElementById('health-val').innerText = `${Math.max(0, health)}%`;
+        document.getElementById('score-val').innerText = score;
+        document.getElementById('level-val').innerText = `${currentLevel + 1}/${questions.length}`;
+    }
+
+    // --- Arcade Phase (Protect Earth) ---
+    function startArcadePhase() {
+        particles = [];
+        let particlesSpawned = 0;
+        const totalParticles = 15 + currentLevel * 5;
+
+        const spawnInterval = setInterval(() => {
+            if (gameState !== 'ARCADE') {
+                clearInterval(spawnInterval);
+                return;
+            }
+
+            // Spawn particles around screen edge targeting center
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 400;
+            particles.push({
+                x: 400 + Math.cos(angle) * dist,
+                y: 300 + Math.sin(angle) * dist,
+                vx: -Math.cos(angle) * (2 + currentLevel * 0.5),
+                vy: -Math.sin(angle) * (2 + currentLevel * 0.5),
+                active: true
+            });
+
+            particlesSpawned++;
+            if (particlesSpawned >= totalParticles) {
+                clearInterval(spawnInterval);
+            }
+        }, 600);
+
+        loopArcade();
+    }
+
+    function loopArcade() {
+        if (gameState !== 'ARCADE') return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const centerX = 400;
+        const centerY = 300;
+        const earthRadius = 45;
+        const shieldRadius = 75;
+
+        // Draw Earth
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, earthRadius, 0, Math.PI * 2);
+        ctx.fillStyle = '#2563eb';
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#60a5fa';
+        ctx.stroke();
+
+        // Draw Shield
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, shieldRadius, shieldAngle - 0.5, shieldAngle + 0.5);
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = '#38bdf8';
+        ctx.stroke();
+
+        // Update & Draw Particles (Solar Wind)
+        let activeLeft = false;
+
+        particles.forEach(p => {
+            if (!p.active) return;
+            activeLeft = true;
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Draw particle
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#f97316';
+            ctx.fill();
+
+            // Distance from center
+            const dx = p.x - centerX;
+            const dy = p.y - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Particle angle from center
+            const pAngle = Math.atan2(dy, dx);
+
+            // Check shield collision
+            if (dist <= shieldRadius + 5 && dist >= shieldRadius - 10) {
+                let diff = Math.abs(pAngle - shieldAngle);
+                // Normalize angle diff
+                while (diff > Math.PI) diff -= Math.PI * 2;
+                diff = Math.abs(diff);
+
+                if (diff < 0.5) {
+                    p.active = false; // Blocked by shield!
+                    score += 10;
+                    updateHUD();
+                }
+            }
+
+            // Check Earth collision
+            if (dist <= earthRadius) {
+                p.active = false;
+                health -= 10;
+                updateHUD();
+
+                if (health <= 0) {
+                    endGame(false);
+                }
+            }
+        });
+
+        if (health > 0) {
+            if (particles.length > 0 && particles.every(p => !p.active)) {
+                // Wave cleared -> Move to Quiz Phase
+                setTimeout(() => {
+                    showScreen('QUIZ');
+                    loadQuestion();
+                }, 500);
+                return;
+            }
+            animationFrameId = requestAnimationFrame(loopArcade);
+        }
+    }
+
+    // --- Quiz Phase ---
+    function loadQuestion() {
+        const qData = questions[currentLevel];
+        document.getElementById('question-text').innerText = qData.q;
+        document.getElementById('feedback').innerText = '';
         
-        card.innerHTML = `
-            <div>
-                <div class="header">
-                    <h1>🌍 Earth Guardian Quest</h1>
-                </div>
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
 
-                <div class="status-container">
-                    <div>Stage: <span id="stage-counter" style="color: #4ea8de; font-weight: bold;">${currentStage + 1}/${gameData.length}</span></div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span>Shield Integrity:</span>
-                        <div class="health-bar-bg">
-                            <div class="health-bar-fill" id="shield-bar"></div>
-                        </div>
-                        <span id="shield-text" style="font-weight: bold;">${shieldIntegrity}%</span>
-                    </div>
-                </div>
-
-                <div id="stage-container">
-                    <h2 class="stage-title">${stage.title}</h2>
-                    <div class="visual-asset">${stage.asset}</div>
-                    <p class="story-text">${stage.desc}</p>
-
-                    <div class="options-list" id="options-container"></div>
-
-                    <div class="feedback-box" id="feedback-box"></div>
-                </div>
-            </div>
-            <button class="action-btn" id="next-btn" style="display:none;" onclick="nextStage()">Proceed</button>
-        `;
-
-        updateShieldDisplay();
-
-        const container = document.getElementById("options-container");
-        stage.options.forEach(opt => {
-            const btn = document.createElement("button");
-            btn.className = "option-btn";
-            btn.innerText = opt.text;
-            btn.onclick = () => selectOption(opt, btn);
+        qData.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = `${idx + 1}. ${opt}`;
+            btn.onclick = () => handleAnswer(idx);
             container.appendChild(btn);
         });
     }
 
-    function selectOption(opt, btn) {
-        const feedbackBox = document.getElementById("feedback-box");
-        const allBtns = document.querySelectorAll(".option-btn");
+    function handleAnswer(selectedIndex) {
+        const qData = questions[currentLevel];
+        const feedbackEl = document.getElementById('feedback');
 
-        allBtns.forEach(b => b.disabled = true);
+        if (selectedIndex === qData.answer) {
+            feedbackEl.innerText = "Correct! Earth's balance is restored.";
+            feedbackEl.className = "feedback correct";
+            score += 50;
+            health = Math.min(100, health + 15); // Bonus health
+            updateHUD();
 
-        if (opt.correct) {
-            feedbackBox.className = "feedback-box correct";
-            feedbackBox.innerHTML = opt.reason;
-            document.getElementById("next-btn").innerText = currentStage < gameData.length - 1 ? "Advance to Next Sector" : "Complete Mission";
-            document.getElementById("next-btn").style.display = "block";
+            setTimeout(() => {
+                currentLevel++;
+                if (currentLevel < questions.length) {
+                    showScreen('ARCADE');
+                    startArcadePhase();
+                } else {
+                    endGame(true);
+                }
+            }, 1200);
         } else {
-            shieldIntegrity -= 10;
-            updateShieldDisplay();
-            feedbackBox.className = "feedback-box incorrect";
-            feedbackBox.innerHTML = opt.reason + " (-10% Shield Integrity)";
+            feedbackEl.innerText = "Incorrect! Review Chapter 13 concepts.";
+            feedbackEl.className = "feedback wrong";
+            health -= 15;
+            updateHUD();
 
-            if (shieldIntegrity <= 0) {
-                renderEndGame(false);
-            } else {
-                setTimeout(() => {
-                    allBtns.forEach(b => b.disabled = false);
-                }, 800);
-            }
-        }
-        feedbackBox.style.display = "block";
-    }
-
-    function updateShieldDisplay() {
-        if (shieldIntegrity < 0) shieldIntegrity = 0;
-        const bar = document.getElementById("shield-bar");
-        const text = document.getElementById("shield-text");
-        if (bar && text) {
-            text.innerText = `${shieldIntegrity}%`;
-            bar.style.width = `${shieldIntegrity}%`;
-
-            if (shieldIntegrity <= 30) {
-                bar.style.backgroundColor = "#f56565";
-            } else if (shieldIntegrity <= 60) {
-                bar.style.backgroundColor = "#ed8936";
-            } else {
-                bar.style.backgroundColor = "#48bb78";
+            if (health <= 0) {
+                setTimeout(() => endGame(false), 1200);
             }
         }
     }
 
-    function nextStage() {
-        currentStage++;
-        if (currentStage < gameData.length) {
-            loadStage();
-        } else {
-            renderEndGame(true);
-        }
-    }
-
-    function renderEndGame(victory) {
-        const card = document.getElementById("game-card");
+    // --- End Game ---
+    function endGame(victory) {
+        showScreen('END');
+        document.getElementById('final-score').innerText = score;
         if (victory) {
-            card.innerHTML = `
-                <div class="screen-center">
-                    <h1 style="color: #48bb78; font-size: 2.2rem; margin-bottom: 12px;">🌟 MISSION ACCOMPLISHED!</h1>
-                    <p class="story-text" style="font-size: 1.1rem; margin-bottom: 8px;">
-                        You protected Earth with <strong style="color: #4ea8de;">${shieldIntegrity}% Shield Integrity</strong> remaining!
-                    </p>
-                    <div class="instruction-box" style="margin-top: 16px;">
-                        <p style="color: #d1d5db; text-align: center;">
-                            You have demonstrated a complete mastery of Earth's protective systems, atmospheric layers, biological processes, and planetary preservation solutions.
-                        </p>
-                    </div>
-                    <button class="action-btn" onclick="renderLogoScreen()">Return to Main Menu</button>
-                </div>
-            `;
+            document.getElementById('end-title').innerText = "Mission Accomplished!";
+            document.getElementById('end-desc').innerText = "You defended Earth from solar rays and mastered Chapter 13 science concepts!";
         } else {
-            card.innerHTML = `
-                <div class="screen-center">
-                    <h1 style="color: #f56565; font-size: 2.2rem; margin-bottom: 12px;">⚠️ MISSION FAILED</h1>
-                    <p class="story-text" style="font-size: 1.1rem; margin-bottom: 8px;">
-                        Shield Integrity reached 0%. Earth's ecosystems suffered critical collapse.
-                    </p>
-                    <div class="instruction-box" style="margin-top: 16px;">
-                        <p style="color: #d1d5db; text-align: center;">
-                            Don't give up! Review core concepts on atmosphere, ocean heat circulation, and sustainability to try again.
-                        </p>
-                    </div>
-                    <button class="action-btn restart-btn" onclick="startGame()">Restart Quest</button>
-                </div>
-            `;
+            document.getElementById('end-title').innerText = "Mission Failed";
+            document.getElementById('end-desc').innerText = "Earth's shield collapsed. Re-read Chapter 13 and try again!";
         }
     }
-
-    // Start with Logo Screen
-    renderLogoScreen();
 </script>
 
 </body>
