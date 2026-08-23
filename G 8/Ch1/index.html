@@ -1,584 +1,461 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Scientific Method Investigator</title>
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-body {
-  background: linear-gradient(180deg, #1e1b4b, #312e81);
-  min-height: 100vh;
-  color: #f8fafc;
-  padding: 12px;
-  padding-bottom: env(safe-area-inset-bottom);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.container {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.card {
-  background: #ffffff;
-  color: #1e293b;
-  border-radius: 16px;
-  padding: 24px 18px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-}
-
-.brand-logo {
-  max-width: 180px;
-  height: auto;
-  object-fit: contain;
-  margin-bottom: 16px;
-  filter: drop-shadow(0px 0px 8px rgba(99, 102, 241, 0.4));
-}
-
-h1 {
-  font-size: 22px;
-  color: #4f46e5;
-  text-align: center;
-  margin-bottom: 6px;
-}
-
-h2 {
-  font-size: 18px;
-  color: #3730a3;
-  margin-bottom: 8px;
-  text-align: center;
-}
-
-p {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #475569;
-}
-
-.center { text-align: center; }
-.hidden { display: none !important; }
-
-.btn {
-  background: #4f46e5;
-  color: white;
-  border: none;
-  padding: 14px 20px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  margin: 10px auto 0 auto;
-  width: 100%;
-  max-width: 280px;
-  display: block;
-  touch-action: manipulation;
-  transition: transform 0.1s, background-color 0.2s;
-}
-
-.btn:active {
-  transform: scale(0.96);
-  background: #4338ca;
-}
-
-.instruction-box {
-  background-color: #f8fafc;
-  border-left: 4px solid #4f46e5;
-  padding: 16px;
-  border-radius: 8px;
-  margin: 16px 0;
-  text-align: left;
-}
-
-.instruction-box ul {
-  padding-left: 20px;
-  margin-top: 8px;
-  color: #475569;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.option {
-  background: #f1f5f9;
-  border: 2px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 14px 10px;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-  touch-action: manipulation;
-  transition: transform 0.1s, background 0.2s;
-  min-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.option:active {
-  transform: scale(0.96);
-}
-
-.correct {
-  background: #dcfce7 !important;
-  border-color: #22c55e !important;
-  color: #15803d;
-}
-
-.wrong {
-  background: #fee2e2 !important;
-  border-color: #ef4444 !important;
-  color: #b91c1c;
-}
-
-.badge-row {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 15px;
-}
-
-.badge {
-  background: #fef3c7;
-  border: 1px solid #fde047;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: bold;
-  color: #854d0e;
-  display: none;
-}
-
-.lab-box {
-  background: #f8fafc;
-  border: 2px dashed #818cf8;
-  border-radius: 12px;
-  padding: 12px;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.puri-visual {
-  font-size: 50px;
-  transition: transform 0.3s ease;
-}
-
-.puff {
-  transform: scale(1.3);
-}
-
-.stage-tracker {
-  font-size: 12px;
-  font-weight: bold;
-  color: #6366f1;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.progress-bar-bg {
-  width: 100%;
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
-  margin-bottom: 12px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: #4f46e5;
-  width: 33%;
-  transition: width 0.3s ease;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lab Escape: Solutions & Density Quest</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .game-container {
+            background-color: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 650px;
+            width: 100%;
+            padding: 30px;
+            border: 1px solid #334155;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+        }
+        .brand-logo {
+            max-width: 200px;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0px 0px 10px rgba(56, 189, 248, 0.4));
+        }
+        .header h1 {
+            color: #38bdf8;
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0f172a;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .energy-bar-container {
+            width: 150px;
+            height: 16px;
+            background-color: #334155;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .energy-bar {
+            width: 100%;
+            height: 100%;
+            background-color: #22c55e;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        .chamber-title {
+            font-size: 1.3rem;
+            color: #fbbf24;
+            margin-bottom: 8px;
+        }
+        .question-tracker {
+            font-size: 0.85rem;
+            color: #38bdf8;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+        .instruction-box {
+            background-color: #0f172a;
+            border-left: 4px solid #38bdf8;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .instruction-box ul {
+            padding-left: 20px;
+            margin-top: 10px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .option-btn {
+            background-color: #334155;
+            color: #f8fafc;
+            border: 2px solid transparent;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #475569;
+            border-color: #38bdf8;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        .feedback {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        .feedback.correct {
+            background-color: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #4ade80;
+        }
+        .feedback.incorrect {
+            background-color: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #f87171;
+        }
+        .action-btn {
+            width: 100%;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .action-btn:hover {
+            background-color: #0369a1;
+        }
+        .restart-btn {
+            background-color: #e11d48;
+        }
+        .restart-btn:hover {
+            background-color: #be123c;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-
-  <!-- SCREEN 1: LOGO SCREEN (SPLASH) -->
-  <div id="screen-logo" class="card center">
-    <img src="assets/logo.png" alt="Logo" class="brand-logo"><br>
-    <h1>🔬 Science Investigator</h1>
-    <p style="margin-top: 6px;">Chapter 1: Exploring the Investigative World of Science</p>
-    <button class="btn" style="margin-top: 24px;" onclick="showInstructions()">Continue</button>
-  </div>
-
-  <!-- SCREEN 2: INSTRUCTIONS SCREEN -->
-  <div id="screen-instructions" class="card center hidden">
-    <h2>📜 Mission Briefing & Rules</h2>
-    <div class="instruction-box">
-      <p style="font-weight: 600; color: #1e293b;">Welcome, Chief Investigator!</p>
-      <p>Navigate through 3 comprehensive modules with 9 scientific questions:</p>
-      <ul>
-        <li><strong>Module 1 (3 Questions):</strong> Kitchen Science & Thermal State Changes</li>
-        <li><strong>Module 2 (3 Questions):</strong> Experimental Design & Variable Control</li>
-        <li><strong>Module 3 (3 Questions):</strong> Scientific Symbols & Curiosity Principles</li>
-      </ul>
-    </div>
-    <button class="btn" onclick="startGame()">Start Lab Mission</button>
-  </div>
-
-  <!-- SCREEN 3: GAMEPLAY HUB & MISSIONS -->
-  <div id="screen-game" class="card hidden">
-    
-    <!-- HUB / MISSION SELECTOR -->
-    <div id="hub" class="center">
-      <h2>🧪 Investigation Hub</h2>
-      <p>Complete all 3 investigation modules to collect your badges!</p>
-      
-      <div class="grid-2">
-        <div class="option" onclick="startMission(1)">🫓 Kitchen Science (3 Questions)</div>
-        <div class="option" onclick="startMission(2)">🎛️ Variable Lab (3 Questions)</div>
-        <div class="option" onclick="startMission(3)">🪁 Scientific Symbols (3 Questions)</div>
-      </div>
-
-      <div class="badge-row">
-        <div id="b1" class="badge">🫓 Kitchen Scientist</div>
-        <div id="b2" class="badge">🎛️ Variable Master</div>
-        <div id="b3" class="badge">🪁 Curious Thinker</div>
-      </div>
-
-      <button id="finish-btn" class="btn hidden" style="margin-top:20px; background: #22c55e;" onclick="showEndScreen()">Complete Investigation</button>
+<div class="game-container">
+    <!-- SCREEN 1: LOGO SCREEN (SPLASH) -->
+    <div id="logo-screen" style="text-align: center; padding: 20px 0;">
+        <img src="assets/logo.png" alt="Logo" class="brand-logo"><br>
+        <button class="action-btn" style="max-width: 250px;" onclick="showInstructions()">Continue</button>
     </div>
 
-    <!-- MISSION INTERFACE (DYNAMICALLY LOADED) -->
-    <div id="mission-runner" class="hidden">
-      <div class="stage-tracker center" id="mission-tracker">Module 1 • Question 1/3</div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-fill"></div>
-      </div>
-      
-      <h2 id="q-title">Question Title</h2>
-      <p class="center" id="q-prompt" style="margin-bottom: 12px;">Question prompt goes here...</p>
+    <!-- SCREEN 2: INSTRUCTIONS SCREEN -->
+    <div id="instruction-screen" style="display: none; text-align: center;">
+        <div class="header">
+            <h2 style="color: #38bdf8; font-size: 1.6rem; margin-bottom: 4px;">The Lab Escape</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Solutions & Density Quest</p>
+        </div>
 
-      <div class="lab-box id-visual" id="visual-box">
-        <div id="qGraphic" class="puri-visual">🟡</div>
-        <p id="qGraphicText" style="margin-top:6px; font-weight:bold;">Raw Dough</p>
-      </div>
+        <div class="instruction-box">
+            <h3 style="color: #38bdf8; font-size: 1.1rem; margin-bottom: 8px;">📜 Mission Briefing & Rules:</h3>
+            <p style="font-size: 0.95rem; color: #cbd5e1;">You are trapped inside a locked chemistry facility! Navigate through 3 security chambers containing 9 total questions by applying key science concepts.</p>
+            <ul>
+                <li><strong>3 Chambers (9 Questions):</strong> Clear 3 questions per chamber to bypass security locks.</li>
+                <li><strong>Energy Points (EP):</strong> You start with 100 EP. Incorrect answers deduct 10 EP.</li>
+                <li><strong>Audio Cues:</strong> Ensure sound is enabled for real-time acoustic feedback.</li>
+            </ul>
+        </div>
 
-      <p style="margin-top:12px; font-weight:600;" class="center" id="q-ask">Select the correct statement:</p>
-
-      <div class="grid-2" id="options-grid">
-        <!-- Options injected via JavaScript -->
-      </div>
-
-      <div id="feedback-area" class="hidden center" style="margin-top:12px;">
-        <p id="feedback-text" style="color:#15803d; font-weight:bold; margin-bottom: 8px;"></p>
-        <button class="btn" id="next-q-btn" onclick="nextQuestion()">Next Question</button>
-      </div>
+        <button class="action-btn" onclick="startGame()">Start Quest</button>
     </div>
 
-  </div>
+    <!-- SCREEN 3: GAMEPLAY SCREEN -->
+    <div id="game-screen" style="display: none;">
+        <div class="header">
+            <h1>The Lab Escape</h1>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Solutions & Density Quest</p>
+        </div>
 
-  <!-- SCREEN 4: END SCREEN -->
-  <div id="screen-end" class="card center hidden">
-    <img src="assets/logo.png" alt="Logo" class="brand-logo"><br>
-    <h2 style="color: #22c55e; font-size: 22px;">🎉 INVESTIGATION COMPLETE!</h2>
-    <p style="margin-top: 10px;">You answered all 9 chapter questions and mastered the scientific method, variable isolation, and curiosity principles!</p>
-    
-    <div class="badge-row" style="margin: 20px 0;">
-      <div class="badge" style="display:inline-block;">🫓 Kitchen Scientist</div>
-      <div class="badge" style="display:inline-block;">🎛️ Variable Master</div>
-      <div class="badge" style="display:inline-block;">🪁 Curious Thinker</div>
+        <div class="status-bar">
+            <div>Chamber: <span id="chamber-num" style="color: #38bdf8; font-weight: bold;">1/3</span></div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span>Energy:</span>
+                <div class="energy-bar-container">
+                    <div class="energy-bar" id="energy-bar"></div>
+                </div>
+                <span id="energy-text" style="font-weight: bold;">100 EP</span>
+            </div>
+        </div>
+
+        <div id="game-body">
+            <div class="question-tracker" id="question-tracker">Question 1 of 3 in Chamber 1</div>
+            <h2 class="chamber-title" id="chamber-title">Chamber 1: The Mixture Lock</h2>
+            <p class="description" id="chamber-desc"></p>
+
+            <div class="options-grid" id="options-container">
+                <!-- Options populated dynamically -->
+            </div>
+
+            <div class="feedback" id="feedback-box"></div>
+            <button class="action-btn" id="next-btn" style="display: none;" onclick="nextQuestion()">Next Question</button>
+        </div>
     </div>
 
-    <button class="btn" onclick="location.reload()">Play Again</button>
-  </div>
+    <!-- SCREEN 4: END SCREEN -->
+    <div id="end-screen" style="display: none; text-align: center; padding: 10px 0;">
+        <img src="assets/logo.png" alt="Logo" class="brand-logo">
 
+        <h2 style="color: #4ade80; font-size: 1.8rem; margin-bottom: 15px;">🎉 ESCAPE SUCCESSFUL!</h2>
+        <p class="description">You cleared all 9 questions across 3 chambers with <strong id="final-energy">100 EP</strong> remaining!</p>
+        <p class="description" style="font-size: 0.95rem;">You have successfully mastered uniform mixtures, solubility factors, saturation points, and density principles.</p>
+        <button class="action-btn" style="width: auto; padding: 12px 30px; margin-top: 15px;" onclick="location.reload()">Play Again</button>
+    </div>
 </div>
 
 <script>
-// --- Audio Setup ---
-const correctSound = new Audio('assets/correct.mp3');
-const wrongSound = new Audio('assets/wronf.mp3');
+    // --- Audio Player ---
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wronf.mp3');
 
-function playSound(type) {
-  if (type === 'correct') {
-    correctSound.currentTime = 0;
-    correctSound.play().catch(e => console.log('Audio error:', e));
-  } else if (type === 'incorrect') {
-    wrongSound.currentTime = 0;
-    wrongSound.play().catch(e => console.log('Audio error:', e));
-  }
-}
-
-// --- Data Bank: 9 Questions Across 3 Modules ---
-const questionsData = {
-  1: [
-    {
-      title: "🫓 Question 1: The Puri Expansion",
-      prompt: "Why does a Puri puff up like a balloon when placed in hot oil?",
-      ask: "Which physical transformation causes the expansion?",
-      visual: { emoji: "🟡", text: "Raw Dough", puff: true },
-      options: [
-        { text: "Air trapped inside dough", correct: false },
-        { text: "Water turning into steam", correct: true },
-        { text: "Oil entering inside dough", correct: false },
-        { text: "Dough melting", correct: false }
-      ],
-      feedback: "Correct! Heat turns moisture into steam inside the dough, forcing it to expand rapidly!"
-    },
-    {
-      title: "🫓 Question 2: Moisture Observation",
-      prompt: "When you leave a fresh dough ball exposed in the open air for hours, what happens?",
-      ask: "How does loss of moisture affect the puffing process?",
-      visual: { emoji: "🟤", text: "Dry Dough", puff: false },
-      options: [
-        { text: "Puffs even bigger", correct: false },
-        { text: "Puffs less because water evaporated", correct: true },
-        { text: "Puffs instantly", correct: false },
-        { text: "Turns into pure steam", correct: false }
-      ],
-      feedback: "Spot on! Less moisture means less steam buildup, leading to poor expansion."
-    },
-    {
-      title: "🫓 Question 3: Oil Temperature Effect",
-      prompt: "What happens if you drop a Puri into lukewarm (low temperature) oil?",
-      ask: "Why is high heat necessary for the scientific reaction?",
-      visual: { emoji: "🫓", text: "Flat & Oily Puri", puff: false },
-      options: [
-        { text: "Water turns to steam too slowly", correct: true },
-        { text: "Oil evaporates completely", correct: false },
-        { text: "Dough burns instantly", correct: false },
-        { text: "Dough freezes", correct: false }
-      ],
-      feedback: "Correct! High heat is needed for rapid steam formation before oil gets absorbed!"
+    function playSound(type) {
+        if (type === 'correct') {
+            correctSound.currentTime = 0;
+            correctSound.play().catch(e => console.log('Audio error:', e));
+        } else if (type === 'incorrect') {
+            wrongSound.currentTime = 0;
+            wrongSound.play().catch(e => console.log('Audio error:', e));
+        }
     }
-  ],
-  2: [
-    {
-      title: "🎛️ Question 1: Isolating Variables",
-      prompt: "You want to test if 'Fresh Dough' puffs better than 'Stored Dough'.",
-      ask: "What is the single independent variable you must change?",
-      visual: { emoji: "🧪", text: "Variable Control", puff: false },
-      options: [
-        { text: "Type of dough (Fresh vs Stored)", correct: true },
-        { text: "Oil temperature", correct: false },
-        { text: "Frying pan size", correct: false },
-        { text: "Thickness of Puri", correct: false }
-      ],
-      feedback: "Bingo! Change only ONE variable at a time so your experiment remains fair."
-    },
-    {
-      title: "🎛️ Question 2: Controlled Parameters",
-      prompt: "While testing Fresh vs. Stored dough, what should you keep EXACTLY the same?",
-      ask: "Which of these is a controlled variable?",
-      visual: { emoji: "⚖️", text: "Constant Conditions", puff: false },
-      options: [
-        { text: "Oil temperature & frying duration", correct: true },
-        { text: "Type of dough", correct: false },
-        { text: "Date of testing", correct: false },
-        { text: "Name of investigator", correct: false }
-      ],
-      feedback: "Exactly! Keeping constants identical ensures a valid and fair scientific comparison."
-    },
-    {
-      title: "🎛️ Question 3: Formulating Hypotheses",
-      prompt: "Before carrying out an investigation, a scientist makes an educated prediction.",
-      ask: "What is this testable prediction called in science?",
-      visual: { emoji: "💡", text: "Scientific Prediction", puff: false },
-      options: [
-        { text: "Observation", correct: false },
-        { text: "Hypothesis", correct: true },
-        { text: "Conclusion", correct: false },
-        { text: "Data Table", correct: false },
-      ],
-      feedback: "Correct! A hypothesis is a clear, testable prediction formulated prior to testing."
+
+    // --- Screen Navigation Functions ---
+    function showInstructions() {
+        document.getElementById("logo-screen").style.display = "none";
+        document.getElementById("instruction-screen").style.display = "block";
     }
-  ],
-  3: [
-    {
-      title: "🪁 Question 1: Curiosity Textbook Symbols",
-      prompt: "In your science textbook, symbolic icons represent different mindsets.",
-      ask: "What does the Kite soaring high in the sky symbolize?",
-      visual: { emoji: "🪁", text: "Soaring Kite", puff: false },
-      options: [
-        { text: "Grounded Knowledge", correct: false },
-        { text: "Curiosity & Imagination", correct: true },
-        { text: "Physical Measurements", correct: false },
-        { text: "Strict Laboratory Rules", correct: false }
-      ],
-      feedback: "Awesome! The Kite symbolizes soaring curiosity and creative imagination!"
-    },
-    {
-      title: "🪁 Question 2: The Root Symbol",
-      prompt: "Alongside the soaring kite, deep tree roots are also featured as a symbol.",
-      ask: "What do the Tree Roots represent in scientific learning?",
-      visual: { emoji: "🌳", text: "Deep Roots", puff: false },
-      options: [
-        { text: "Deeply rooted core knowledge", correct: true },
-        { text: "Plant biology only", correct: false },
-        { text: "Random guessing", correct: false },
-        { text: "Discarded theories", correct: false }
-      ],
-      feedback: "Spot on! Roots stand for foundational knowledge that keeps your scientific thinking grounded."
-    },
-    {
-      title: "🪁 Question 3: Scientific Temper",
-      prompt: "A good scientist continually asks questions and tests everyday occurrences.",
-      ask: "Which attitude defines a true scientific investigator?",
-      visual: { emoji: "🔍", text: "Active Enquiry", puff: false },
-      options: [
-        { text: "Accepting facts without checking", correct: false },
-        { text: "Observation, enquiry & critical testing", correct: true },
-        { text: "Memorizing answers only", correct: false },
-        { text: "Avoiding experiments", correct: false }
-      ],
-      feedback: "Correct! Science is a active process of observing, questioning, and experimenting!"
+
+    function startGame() {
+        document.getElementById("instruction-screen").style.display = "none";
+        document.getElementById("game-screen").style.display = "block";
+        loadQuestion();
     }
-  ]
-};
 
-// --- State Variables ---
-let currentModule = 1;
-let currentQuestionIndex = 0;
-const completedModules = { 1: false, 2: false, 3: false };
-
-// --- Screen State Navigation ---
-function hideAllScreens() {
-  document.getElementById('screen-logo').classList.add('hidden');
-  document.getElementById('screen-instructions').classList.add('hidden');
-  document.getElementById('screen-game').classList.add('hidden');
-  document.getElementById('screen-end').classList.add('hidden');
-}
-
-function showInstructions() {
-  hideAllScreens();
-  document.getElementById('screen-instructions').classList.remove('hidden');
-}
-
-function startGame() {
-  hideAllScreens();
-  document.getElementById('screen-game').classList.remove('hidden');
-  showSubView('hub');
-}
-
-function showEndScreen() {
-  playSound('correct');
-  hideAllScreens();
-  document.getElementById('screen-end').classList.remove('hidden');
-}
-
-function showSubView(id) {
-  if(id === 'hub') {
-    document.getElementById('hub').classList.remove('hidden');
-    document.getElementById('mission-runner').classList.add('hidden');
-  } else {
-    document.getElementById('hub').classList.add('hidden');
-    document.getElementById('mission-runner').classList.remove('hidden');
-  }
-}
-
-// --- Module & Question Execution ---
-function startMission(modNum) {
-  currentModule = modNum;
-  currentQuestionIndex = 0;
-  showSubView('runner');
-  loadQuestion();
-}
-
-function loadQuestion() {
-  const qData = questionsData[currentModule][currentQuestionIndex];
-  
-  // Update progress UI
-  document.getElementById('mission-tracker').innerText = `Module ${currentModule} • Question ${currentQuestionIndex + 1}/3`;
-  document.getElementById('progress-fill').style.width = `${((currentQuestionIndex + 1) / 3) * 100}%`;
-  
-  // Set textual content
-  document.getElementById('q-title').innerText = qData.title;
-  document.getElementById('q-prompt').innerText = qData.prompt;
-  document.getElementById('q-ask').innerText = qData.ask;
-  
-  // Set Visual
-  const graphic = document.getElementById('qGraphic');
-  graphic.innerText = qData.visual.emoji;
-  graphic.className = "puri-visual";
-  document.getElementById('qGraphicText').innerText = qData.visual.text;
-  
-  // Render options
-  const grid = document.getElementById('options-grid');
-  grid.innerHTML = '';
-  document.getElementById('feedback-area').classList.add('hidden');
-  
-  qData.options.forEach((opt) => {
-    const btn = document.createElement('div');
-    btn.className = 'option';
-    btn.innerText = opt.text;
-    btn.onclick = () => selectAnswer(btn, opt.correct, qData);
-    grid.appendChild(btn);
-  });
-}
-
-function selectAnswer(element, isCorrect, qData) {
-  if (isCorrect) {
-    playSound('correct');
-    element.classList.add('correct');
-    
-    // Disable other buttons
-    document.querySelectorAll('#options-grid .option').forEach(opt => opt.style.pointerEvents = 'none');
-    
-    // Visual effect trigger
-    if (qData.visual.puff) {
-      document.getElementById('qGraphic').classList.add('puff');
-      document.getElementById('qGraphic').innerText = '🌕';
-      document.getElementById('qGraphicText').innerText = 'Puffed Puri (Steam!)';
+    function showEndScreen() {
+        playSound('correct');
+        document.getElementById("game-screen").style.display = "none";
+        document.getElementById("end-screen").style.display = "block";
+        document.getElementById("final-energy").innerText = `${energy} EP`;
     }
-    
-    // Feedback
-    document.getElementById('feedback-text').innerText = qData.feedback;
-    document.getElementById('feedback-area').classList.remove('hidden');
-    
-    if (currentQuestionIndex === 2) {
-      document.getElementById('next-q-btn').innerText = "Module Complete! Return to Hub";
-    } else {
-      document.getElementById('next-q-btn').innerText = "Next Question";
+
+    // --- Data Model: 9 Questions Across 3 Chambers ---
+    const gameData = [
+        // CHAMBER 1: Uniform vs Non-Uniform Mixtures
+        {
+            chamberTitle: "Chamber 1: The Mixture Lock",
+            questions: [
+                {
+                    desc: "To unlock the liquid scanner, you must identify a <strong>UNIFORM mixture</strong> where all components spread evenly throughout.",
+                    options: [
+                        { text: "Option A: Sand mixed in water", correct: false, reason: "Incorrect! Sand settles at the bottom, forming a non-uniform mixture." },
+                        { text: "Option B: Salt dissolved completely in water", correct: true, reason: "Correct! Salt dissolved in water creates a uniform mixture with evenly distributed particles." },
+                        { text: "Option C: Cooking oil poured over water", correct: false, reason: "Incorrect! Oil floats as a separate layer, forming a non-uniform mixture." }
+                    ]
+                },
+                {
+                    desc: "The scanner requires a solution. In a saltwater solution, what is the role of the <strong>WATER</strong>?",
+                    options: [
+                        { text: "Option A: Solvent (the liquid that dissolves the solute)", correct: true, reason: "Correct! Water is the solvent that dissolves the salt." },
+                        { text: "Option B: Solute (the substance being dissolved)", correct: false, reason: "Incorrect! The salt is the solute, while water acts as the solvent." },
+                        { text: "Option C: Precipitate", correct: false, reason: "Incorrect! Water acts as the liquid dissolving medium (solvent)." }
+                    ]
+                },
+                {
+                    desc: "Which of these everyday mixtures behaves as a <strong>uniform mixture (solution)</strong>?",
+                    options: [
+                        { text: "Option A: Chalk powder in water", correct: false, reason: "Incorrect! Chalk remains suspended and settles out, forming a non-uniform mixture." },
+                        { text: "Option B: Muddy lake water", correct: false, reason: "Incorrect! Muddy water contains suspended soil particles." },
+                        { text: "Option C: Clean sugar water solution", correct: true, reason: "Correct! Sugar dissolves completely to form a uniform liquid solution throughout." }
+                    ]
+                }
+            ]
+        },
+        // CHAMBER 2: Solubility & Saturation Dynamics
+        {
+            chamberTitle: "Chamber 2: The Saturated Doorway",
+            questions: [
+                {
+                    desc: "A heavy glass door is blocked by a massive block of sugar crystal. Which method will dissolve the sugar block <strong>fastest</strong>?",
+                    options: [
+                        { text: "Option A: Pour cold water over the sugar block", correct: false, reason: "Incorrect! Cold water dissolves solid solutes much slower." },
+                        { text: "Option B: Pour hot water over the sugar block and stir", correct: true, reason: "Correct! Heating and stirring increase particle movement and solubility rate." },
+                        { text: "Option C: Add more sugar to an already saturated liquid", correct: false, reason: "Incorrect! Saturated solutions cannot dissolve additional solute at room temperature." }
+                    ]
+                },
+                {
+                    desc: "What happens when you keep adding salt to a beaker of water until no more salt can dissolve?",
+                    options: [
+                        { text: "Option A: It becomes an unsaturated solution", correct: false, reason: "Incorrect! An unsaturated solution can still dissolve more solute." },
+                        { text: "Option B: It becomes a saturated solution", correct: true, reason: "Correct! A solution that cannot dissolve any more solute at a given temperature is saturated." },
+                        { text: "Option C: The water evaporates instantly", correct: false, reason: "Incorrect! Excess solute simply settles at the bottom when saturated." }
+                    ]
+                },
+                {
+                    desc: "How can you make a <strong>saturated sugar solution</strong> dissolve extra sugar without adding more water?",
+                    options: [
+                        { text: "Option A: Heat the solution to a higher temperature", correct: true, reason: "Correct! Increasing temperature raises the solubility limit for most solid solutes." },
+                        { text: "Option B: Cool the solution in an ice bath", correct: false, reason: "Incorrect! Cooling reduces solubility, causing dissolved sugar to crystallize out." },
+                        { text: "Option C: Leave it undisturbed in the dark", correct: false, reason: "Incorrect! Temperature change is required to alter the saturation capacity." }
+                    ]
+                }
+            ]
+        },
+        // CHAMBER 3: Density & Buoyant Force
+        {
+            chamberTitle: "Chamber 3: The Floating Key",
+            questions: [
+                {
+                    desc: "The exit hatch key sits submerged at the bottom of a water container. How can you increase the buoyant force of the liquid to make the key float?",
+                    options: [
+                        { text: "Option A: Dissolve a large amount of salt into the water", correct: true, reason: "Correct! Dissolving salt increases liquid density, providing greater buoyant upthrust." },
+                        { text: "Option B: Pour cooking oil into the container", correct: false, reason: "Incorrect! Oil sits on top because it is less dense, but does not increase water density." },
+                        { text: "Option C: Cool the water down", correct: false, reason: "Incorrect! Cooling water slightly does not increase density enough to float metal keys." }
+                    ]
+                },
+                {
+                    desc: "Why does cooking oil float on top of pure water when mixed?",
+                    options: [
+                        { text: "Option A: Oil is denser than water", correct: false, reason: "Incorrect! Denser liquids sink beneath less dense liquids." },
+                        { text: "Option B: Oil is less dense than water", correct: true, reason: "Correct! Substances with lower density float above liquids with higher density." },
+                        { text: "Option C: Oil reacts chemically with water", correct: false, reason: "Incorrect! Oil floats due to physical density differences." }
+                    ]
+                },
+                {
+                    desc: "An egg sinks in plain tap water but floats when salt is dissolved in the water. What scientific principle does this prove?",
+                    options: [
+                        { text: "Option A: Saltwater is denser than tap water, exerting greater buoyant force", correct: true, reason: "Correct! Adding solute increases solution density, enabling lighter/equal density objects to float." },
+                        { text: "Option B: Salt dissolves the eggshell", correct: false, reason: "Incorrect! The egg floats purely due to increased liquid density." },
+                        { text: "Option C: Tap water has zero density", correct: false, reason: "Incorrect! Tap water has a density of ~1 g/cm³, whereas saltwater is denser." }
+                    ]
+                }
+            ]
+        }
+    ];
+
+    let currentChamber = 0;
+    let currentQuestion = 0;
+    let energy = 100;
+
+    function loadQuestion() {
+        const chamberData = gameData[currentChamber];
+        const qData = chamberData.questions[currentQuestion];
+
+        document.getElementById("chamber-num").innerText = `${currentChamber + 1}/3`;
+        document.getElementById("question-tracker").innerText = `Question ${currentQuestion + 1} of 3 in Chamber ${currentChamber + 1}`;
+        document.getElementById("chamber-title").innerText = chamberData.chamberTitle;
+        document.getElementById("chamber-desc").innerHTML = qData.desc;
+        
+        const optionsContainer = document.getElementById("options-container");
+        optionsContainer.innerHTML = "";
+        
+        document.getElementById("feedback-box").style.display = "none";
+        document.getElementById("next-btn").style.display = "none";
+
+        qData.options.forEach((opt) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerHTML = opt.text;
+            btn.onclick = () => checkAnswer(opt);
+            optionsContainer.appendChild(btn);
+        });
     }
-  } else {
-    playSound('incorrect');
-    element.classList.add('wrong');
-  }
-}
 
-function nextQuestion() {
-  if (currentQuestionIndex < 2) {
-    currentQuestionIndex++;
-    loadQuestion();
-  } else {
-    // Complete Module
-    completedModules[currentModule] = true;
-    document.getElementById(`b${currentModule}`).style.display = 'inline-block';
-    showSubView('hub');
-    checkAllCompleted();
-  }
-}
+    function checkAnswer(option) {
+        const feedbackBox = document.getElementById("feedback-box");
+        const buttons = document.querySelectorAll(".option-btn");
+        
+        buttons.forEach(b => b.disabled = true);
 
-function checkAllCompleted() {
-  if (completedModules[1] && completedModules[2] && completedModules[3]) {
-    document.getElementById('finish-btn').classList.remove('hidden');
-  }
-}
+        if (option.correct) {
+            playSound('correct');
+            feedbackBox.className = "feedback correct";
+            feedbackBox.innerHTML = option.reason;
+            
+            const isLastQuestion = (currentChamber === 2 && currentQuestion === 2);
+            document.getElementById("next-btn").innerText = isLastQuestion ? "Claim Victory" : "Next Question";
+            document.getElementById("next-btn").style.display = "block";
+        } else {
+            playSound('incorrect');
+            energy -= 10;
+            updateEnergyDisplay();
+            feedbackBox.className = "feedback incorrect";
+            feedbackBox.innerHTML = option.reason + " (-10 EP)";
+
+            if (energy <= 0) {
+                document.getElementById("next-btn").innerText = "Restart Quest";
+                document.getElementById("next-btn").className = "action-btn restart-btn";
+                document.getElementById("next-btn").onclick = () => location.reload();
+                document.getElementById("next-btn").style.display = "block";
+            } else {
+                setTimeout(() => {
+                    buttons.forEach(b => b.disabled = false);
+                }, 1000);
+            }
+        }
+        feedbackBox.style.display = "block";
+    }
+
+    function updateEnergyDisplay() {
+        if (energy < 0) energy = 0;
+        const energyBar = document.getElementById("energy-bar");
+        document.getElementById("energy-text").innerText = `${energy} EP`;
+        energyBar.style.width = `${energy}%`;
+
+        if (energy <= 30) {
+            energyBar.style.backgroundColor = "#ef4444";
+        } else if (energy <= 60) {
+            energyBar.style.backgroundColor = "#f59e0b";
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < 2) {
+            currentQuestion++;
+            loadQuestion();
+        } else if (currentChamber < 2) {
+            currentChamber++;
+            currentQuestion = 0;
+            loadQuestion();
+        } else {
+            showEndScreen();
+        }
+    }
 </script>
 
 </body>
