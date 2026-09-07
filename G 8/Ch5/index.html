@@ -39,9 +39,11 @@ body {
   padding: 20px;
 }
 
-.logo-placeholder {
-  font-size: clamp(40px, 8vw, 64px);
-  margin-bottom: 10px;
+.logo {
+  width: min(180px, 55vw);
+  height: auto;
+  margin-bottom: 18px;
+  object-fit: contain;
 }
 
 button {
@@ -254,7 +256,8 @@ button:active {
 <body>
 
 <div id="loader" class="screen">
-  <div class="logo-placeholder">🧪</div>
+  <img src="assets/logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'; document.getElementById('altLogo').style.display='block';">
+  <div id="altLogo" style="display:none; font-size:60px; margin-bottom:10px;">🧪</div>
   <h2>Loading Pressure Lab...</h2>
 </div>
 
@@ -287,7 +290,6 @@ button:active {
 <div id="msg"></div>
 
 <script>
-// Web Audio Synthesizer for reliably playing sound FX without external assets
 class SoundFX {
   constructor() {
     this.ctx = null;
@@ -304,9 +306,9 @@ class SoundFX {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(523.25, now); // C5
-    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.1);
+    osc.frequency.setValueAtTime(783.99, now + 0.2);
     gain.gain.setValueAtTime(0.2, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
     osc.connect(gain);
@@ -382,7 +384,7 @@ const endScreen = document.getElementById("endScreen");
 window.onload = () => setTimeout(() => {
   loader.style.display = "none";
   instructions.style.display = "flex";
-}, 1000);
+}, 1200);
 
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
