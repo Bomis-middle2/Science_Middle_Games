@@ -1,330 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Measurement Lab Escape</title>
-  <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --accent-color: #38bdf8;
-      --accent-hover: #0284c7;
-      --text-color: #f8fafc;
-      --success-color: #22c55e;
-      --danger-color: #ef4444;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Measurement Lab Escape</title>
+<style>
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+body{
+  margin:0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background:#f8fafc;
+  color:#0f172a;
+  text-align:center;
+  overflow-x:hidden;
+  min-height: 100vh;
+}
 
-    .game-container {
-      background-color: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      width: 90%;
-      max-width: 600px;
-      text-align: center;
-      border: 1px solid #334155;
-    }
+body{
+  background-image:
+    linear-gradient(rgba(14,165,233,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(14,165,233,.05) 1px,transparent 1px);
+  background-size:35px 35px;
+}
 
-    h1 {
-      margin-top: 0;
-      color: var(--accent-color);
-    }
+.screen{
+  position:fixed;
+  inset:0;
+  background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+  color:#0f172a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:24px;
+}
 
-    .hud {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-      padding: 0.75rem 1rem;
-      background: #0f172a;
-      border-radius: 8px;
-      font-weight: bold;
-    }
+.logo{
+  width:min(190px,55vw);
+  margin-bottom:24px;
+}
 
-    .question-box {
-      font-size: 1.25rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
-    }
+h1 {
+  font-size: clamp(26px, 5vw, 42px);
+  color: #0369a1;
+  margin-bottom: 16px;
+  font-weight: 800;
+}
 
-    .options-grid {
-      display: grid;
-      gap: 0.75rem;
-    }
+button{
+  border:0;
+  border-radius:50px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color:white;
+  font-size:clamp(18px,2.5vw,23px);
+  font-weight:bold;
+  padding:16px 44px;
+  cursor:pointer;
+  min-height:58px;
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+  transition: all 0.2s ease;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
 
-    button {
-      background-color: var(--accent-color);
-      color: #000;
-      border: none;
-      padding: 0.85rem 1rem;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-    }
+#hud{
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding:16px;
+  font-size:clamp(16px, 3vw, 21px);
+  font-weight:bold;
+  border-bottom:3px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
 
-    button:hover {
-      background-color: var(--accent-hover);
-      color: #fff;
-    }
+.hud-stat {
+  background: #f0fdf4;
+  color: #166534;
+  padding: 6px 16px;
+  border-radius: 30px;
+  border: 1px solid #bbf7d0;
+}
+.hud-stat:nth-child(2) {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+.hud-stat:nth-child(3) {
+  background: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
 
-    button:active {
-      transform: scale(0.98);
-    }
+#labArea{
+  width:min(950px,94vw);
+  margin:20px auto 30px auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius:28px;
+  position:relative;
+  padding:30px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+}
 
-    .feedback {
-      margin-top: 1rem;
-      font-weight: bold;
-      min-height: 24px;
-    }
+#questionBox-container {
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 30px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
 
-    .correct {
-      color: var(--success-color);
-    }
+#questionBox-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #64748b;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
 
-    .wrong {
-      color: var(--danger-color);
-    }
+#questionBox{
+  font-size:clamp(22px, 3.8vw, 28px);
+  font-weight:800;
+  line-height: 1.4;
+  color: #0f172a;
+}
 
-    .hidden {
-      display: none;
-    }
+#options{
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
 
-    .restart-btn {
-      margin-top: 1.5rem;
-      background-color: #64748b;
-      color: #fff;
-    }
+.option{
+  background: #ffffff;
+  color: #334155;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  width: clamp(130px, 20vw, 160px);
+  height: clamp(130px, 20vw, 160px);
+  padding: 15px;
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.03);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.option::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  width: 6px;
+  height: 20px;
+  background: #cbd5e1;
+  border-radius: 3px;
+  transition: background 0.25s;
+}
+.option:hover {
+  transform: scale(1.05);
+  border-color: #0ea5e9;
+  box-shadow: 0 12px 24px rgba(14, 165, 233, 0.15);
+}
+.option:hover::before {
+  background: #0ea5e9;
+}
 
-    .restart-btn:hover {
-      background-color: #475569;
-    }
-  </style>
+.option.correct{
+  background: #f0fdf4 !important;
+  border-color: #22c55e !important;
+  color: #166534 !important;
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.2) !important;
+}
+.option.correct::before {
+  background: #22c55e !important;
+}
+
+.option.wrong{
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.2) !important;
+}
+.option.wrong::before {
+  background: #ef4444 !important;
+}
+
+#panel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 20px;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+}
+
+#machine{
+  font-size: 55px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+#powerBar{
+  flex: 1;
+  min-width: 200px;
+  height: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  overflow:hidden;
+  background:#cbd5e1;
+  position: relative;
+}
+
+#powerFill{
+  width:0%;
+  height:100%;
+  background: linear-gradient(90deg, #38bdf8 0%, #22c55e 100%);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#doorContainer {
+  position: relative;
+  width: 75px;
+  height: 95px;
+}
+#door{
+  width: 100%;
+  height: 100%;
+  background: #64748b;
+  border: 3px solid #94a3b8;
+  border-radius: 12px 12px 0 0;
+  position: relative;
+  transition: all 0.5s ease;
+}
+#door::after{
+  content:"";
+  position:absolute;
+  right:10px;
+  top:45px;
+  width:10px;
+  height:10px;
+  background:#facc15;
+  border-radius:50%;
+}
+
+.door-open {
+  background: #0ea5e9 !important;
+  border-color: #38bdf8 !important;
+  transform: perspective(200px) rotateY(-80deg);
+  transform-origin: left;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+}
+
+#msg{
+  font-size:clamp(18px,3.5vw,24px);
+  font-weight:700;
+  min-height:40px;
+}
+
+.instructions{
+  font-size:clamp(16px,2.8vw,19px);
+  line-height:1.7;
+  max-width:620px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 28px;
+  border-radius: 24px;
+  margin-bottom: 28px;
+  text-align: left;
+  color: #475569;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+}
+.instructions b { color: #0f172a; }
+.instructions p { margin: 12px 0; }
+
+.shake{ animation:shake .4s; }
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+
+.pulse-grid { animation: master-pulse 0.5s ease-out; }
+@keyframes master-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); border-color: #22c55e; }
+  100% { transform: scale(1); }
+}
+</style>
 </head>
+
 <body>
 
-  <div class="game-container">
-    <div id="start-screen">
-      <h1>Measurement Lab Escape</h1>
-      <p>Answer 15 questions correctly on length, mass, capacity, time, and temperature to unlock all security doors and escape the laboratory!</p>
-      <button onclick="startGame()">Start Challenge</button>
-    </div>
+<div id="loader" class="screen">
+  <img src="assets/logo.png" class="logo">
+</div>
 
-    <div id="game-screen" class="hidden">
-      <div class="hud">
-        <div>Door: <span id="door-num">1</span> / 15</div>
-        <div>Time: <span id="timer">03:00</span></div>
-      </div>
+<div id="instructions" class="screen" style="display:none">
+  <h1>📏 Measurement Lab Escape</h1>
+  <div class="instructions">
+    <p>⚡ <b>Analyze the Target Readout</b> displayed on the primary laboratory terminal.</p>
+    <p>⚡ <b>Turn the Calibration Dials</b> to line up matching conversion paths.</p>
+    <p>⚡ You maintain exactly <b>2 secure containment shields</b> per testing module.</p>
+    <p>⚡ If configurations collapse, backup overrides route directly to the true destination matrix!</p>
+  </div>
+  <button onclick="startGame()">Begin Experiment</button>
+</div>
 
-      <div class="question-box" id="question-text">Question text goes here...</div>
+<div id="endScreen" class="screen" style="display:none">
+  <h1 id="endTitle">🏆 Lab Escape Complete!</h1>
+  <h2 style="font-size: 30px; margin-bottom: 28px;">Core Calibration Efficiency: <span id="finalScore" style="color: #0284c7;"></span></h2>
+  <button onclick="resetGame()">Run Core Again</button>
+</div>
 
-      <div class="options-grid" id="options-container">
-        <!-- Options generated by JS -->
-      </div>
+<div id="hud">
+  <div class="hud-stat">⭐ Energy: <span id="score">0</span></div>
+  <div class="hud-stat">❤️ Shields: <span id="chances">2</span></div>
+  <div class="hud-stat">🏁 Progress Matrix: <span id="qno">1</span>/15</div>
+</div>
 
-      <div id="feedback" class="feedback"></div>
-    </div>
-
-    <div id="end-screen" class="hidden">
-      <h1 id="end-title">Game Over</h1>
-      <p id="end-message">You ran out of time!</p>
-      <button class="restart-btn" onclick="startGame()">Try Again</button>
+<main id="labArea">
+  <div id="questionBox-container">
+    <div id="questionBox-title">Terminal Diagnostic Metric</div>
+    <div id="questionBox">Loading laboratory power logs...</div>
+  </div>
+  
+  <div id="options"></div>
+  
+  <div id="panel-controls">
+    <div id="machine">🧪</div>
+    <div id="powerBar"><div id="powerFill"></div></div>
+    <div id="doorContainer">
+      <div id="door"></div>
     </div>
   </div>
+</main>
 
-  <script>
-    const bank = [
-      {
-        q: "In ancient times, which of these was used as a non-standard unit of length?",
-        o: ["Cubit", "Metre", "Litre"],
-        a: "Cubit"
-      },
-      {
-        q: "Which instrument is used to measure human body temperature?",
-        o: ["Barometer", "Clinical thermometer", "Beam balance"],
-        a: "Clinical thermometer"
-      },
-      {
-        q: "What is the normal temperature of a human body?",
-        o: ["37°C", "100°C", "0°C"],
-        a: "37°C"
-      },
-      {
-        q: "How many grams are there in 5 kilograms?",
-        o: ["500 g", "5000 g", "50 g"],
-        a: "5000 g"
-      },
-      {
-        q: "What unit is best suited to measure the length of a cloth?",
-        o: ["Metre", "Millimetre", "Kilometre"],
-        a: "Metre"
-      },
-      {
-        q: "Which tool is specifically used to measure time intervals in sports?",
-        o: ["Calendar", "Stopwatch", "Barometer"],
-        a: "Stopwatch"
-      },
-      {
-        q: "How many millilitres are in 1 litre of liquid?",
-        o: ["100 mL", "1000 mL", "10000 mL"],
-        a: "1000 mL"
-      },
-      {
-        q: "What is the boiling point of water on the Celsius scale?",
-        o: ["100°C", "0°C", "37°C"],
-        a: "100°C"
-      },
-      {
-        q: "According to the text, what unit of measurement equals 1/60th of a second?",
-        o: ["Jiffy", "Mickey", "Span"],
-        a: "Jiffy"
-      },
-      {
-        q: "What is the name of the liquid historically used inside clinical thermometers?",
-        o: ["Water", "Mercury", "Alcohol"],
-        a: "Mercury"
-      },
-      {
-        q: "How many seconds are in 1 minute?",
-        o: ["60 s", "100 s", "3600 s"],
-        a: "60 s"
-      },
-      {
-        q: "What tool would you use to measure the mass of an object?",
-        o: ["Weighing scale", "Ruler", "Measuring jar"],
-        a: "Weighing scale"
-      },
-      {
-        q: "Which unit is used to measure larger liquid capacities?",
-        o: ["Kilolitre", "Milligram", "Centimetre"],
-        a: "Kilolitre"
-      },
-      {
-        q: "Before taking a body reading with a mercury thermometer, it should be checked that the level is below:",
-        o: ["35°C", "37°C", "100°C"],
-        a: "35°C"
-      },
-      {
-        q: "What is a 'mickey' defined as in the text?",
-        o: ["Cursor movement", "1/60th of a second", "Top segment of thumb"],
-        a: "Cursor movement"
-      }
-    ];
+<div id="msg"></div>
 
-    let currentQuestionIndex = 0;
-    let timeRemaining = 180; // 3 minutes
-    let timerInterval = null;
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
 
-    const startScreen = document.getElementById("start-screen");
-    const gameScreen = document.getElementById("game-screen");
-    const endScreen = document.getElementById("end-screen");
-    const questionText = document.getElementById("question-text");
-    const optionsContainer = document.getElementById("options-container");
-    const doorNum = document.getElementById("door-num");
-    const timerDisplay = document.getElementById("timer");
-    const feedback = document.getElementById("feedback");
-    const endTitle = document.getElementById("end-title");
-    const endMessage = document.getElementById("end-message");
+<script>
+const TOTAL_QUESTIONS = 15;
 
-    function startGame() {
-      currentQuestionIndex = 0;
-      timeRemaining = 180;
-      feedback.textContent = "";
+const bank=[
+  // Length & Distance
+  {q:"How many metres are there in 1 kilometre?",o:["100 m","1000 m","10 m"],a:"1000 m"},
+  {q:"5 metres is equal to:",o:["50 cm","500 cm","5000 cm"],a:"500 cm"},
+  {q:"Distance between cities is usually measured in:",o:["mm","cm","km"],a:"km"},
 
-      startScreen.classList.add("hidden");
-      endScreen.classList.add("hidden");
-      gameScreen.classList.remove("hidden");
+  // Mass
+  {q:"How many grams are there in 2.5 kg?",o:["250 g","2500 g","25 g"],a:"2500 g"},
+  {q:"100 kg is equal to 1:",o:["Tonne","Quintal","Gram"],a:"Quintal"},
+  {q:"The standard unit to measure mass is:",o:["Kilogram","Litre","Metre"],a:"Kilogram"},
 
-      startTimer();
-      loadQuestion();
-    }
+  // Capacity
+  {q:"What is the standard unit of capacity?",o:["Litre","Gram","Metre"],a:"Litre"},
+  {q:"500 mL + 500 mL =",o:["1 L","10 L","1000 L"],a:"1 L"},
+  {q:"10 litres is equal to:",o:["1000 mL","10000 mL","100 mL"],a:"10000 mL"},
 
-    function startTimer() {
-      clearInterval(timerInterval);
-      updateTimerDisplay();
-      
-      timerInterval = setInterval(() => {
-        timeRemaining--;
-        updateTimerDisplay();
+  // Time
+  {q:"How many seconds are there in 1 minute?",o:["60 s","100 s","3600 s"],a:"60 s"},
+  {q:"4:00 PM in 24-hour clock is:",o:["04:00","14:00","16:00"],a:"16:00"},
+  {q:"120 minutes is equal to:",o:["1 hour","2 hours","3 hours"],a:"2 hours"},
 
-        if (timeRemaining <= 0) {
-          clearInterval(timerInterval);
-          endGame(false, "Time ran out! You are locked inside the lab.");
-        }
-      }, 1000);
-    }
+  // Temperature
+  {q:"Boiling point of water is:",o:["0°C","100°C","37°C"],a:"100°C"},
+  {q:"Freezing point of water is:",o:["0°C","100°C","37°C"],a:"0°C"},
+  {q:"A clinical thermometer is used to measure:",o:["Fever","Length","Mass"],a:"Fever"}
+];
 
-    function updateTimerDisplay() {
-      const minutes = Math.floor(timeRemaining / 60);
-      const seconds = timeRemaining % 60;
-      timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
+let questions=[];
+let current=0;
+let score=0;
+let chances=2;
+let locked=false;
 
-    function loadQuestion() {
-      feedback.textContent = "";
-      doorNum.textContent = currentQuestionIndex + 1;
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById("loader").style.display="none";
+    document.getElementById("instructions").style.display="flex";
+  }, 1000);
+};
 
-      const qData = bank[currentQuestionIndex];
-      questionText.textContent = qData.q;
-      optionsContainer.innerHTML = "";
+function startGame(){
+  document.getElementById("instructions").style.display="none";
+  questions=[...bank].sort(()=>Math.random()-0.5).slice(0, TOTAL_QUESTIONS);
+  loadQuestion();
+}
 
-      qData.o.forEach(option => {
-        const btn = document.createElement("button");
-        btn.textContent = option;
-        btn.onclick = () => selectOption(option, qData.a);
-        optionsContainer.appendChild(btn);
+function loadQuestion(){
+  locked=false;
+  chances=2;
+  document.getElementById("chances").textContent=chances;
+  document.getElementById("msg").textContent="";
+
+  if(current >= TOTAL_QUESTIONS){
+    endGame();
+    return;
+  }
+
+  const item=questions[current];
+  document.getElementById("qno").textContent=current+1;
+  document.getElementById("questionBox").textContent=item.q;
+
+  const options=document.getElementById("options");
+  options.innerHTML="";
+
+  [...item.o].sort(()=>Math.random()-0.5).forEach(opt=>{
+    const btn=document.createElement("div");
+    btn.className="option";
+    btn.innerHTML="<span>"+opt+"</span>";
+    btn.onclick=()=>checkAnswer(btn,opt);
+    options.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn,selected){
+  if(locked)return;
+
+  const item=questions[current];
+
+  if(selected===item.a){
+    locked=true;
+    btn.classList.add("correct");
+    
+    document.getElementById("correctSound").play();
+    document.getElementById("clapSound").play();
+    
+    const labArea = document.getElementById("labArea");
+    labArea.classList.add("pulse-grid");
+    setTimeout(()=>labArea.classList.remove("pulse-grid"), 500);
+
+    score += Math.round(100 / TOTAL_QUESTIONS);
+    document.getElementById("score").textContent=score;
+    document.getElementById("msg").style.color="#166534";
+    document.getElementById("msg").textContent="✅ Calibration Alignment Lock Confirmed.";
+    updatePower();
+    current++;
+    setTimeout(loadQuestion,1500);
+  }else{
+    btn.classList.add("wrong");
+    document.getElementById("wrongSound").play();
+    chances--;
+    document.getElementById("chances").textContent=chances;
+    document.getElementById("labArea").classList.add("shake");
+    setTimeout(()=>document.getElementById("labArea").classList.remove("shake"),400);
+
+    if(chances>0){
+      document.getElementById("msg").style.color="#991b1b";
+      document.getElementById("msg").textContent="❌ Vector Mismatch! Shield dampeners compensating.";
+      setTimeout(()=>btn.classList.remove("wrong"),700);
+    }else{
+      locked=true;
+      document.getElementById("msg").style.color="#991b1b";
+      document.getElementById("msg").textContent="System Target Fixed: "+item.a;
+
+      document.querySelectorAll(".option").forEach(o=>{
+        if(o.textContent===item.a)o.classList.add("correct");
       });
+
+      current++;
+      setTimeout(loadQuestion,2200);
     }
+  }
+}
 
-    function selectOption(selectedOption, correctAnswer) {
-      if (selectedOption === correctAnswer) {
-        feedback.className = "feedback correct";
-        feedback.textContent = "Correct! Door unlocked.";
+function updatePower(){
+  const percent=(score/100)*100;
+  document.getElementById("powerFill").style.width=percent+"%";
+  if(percent >= 100) {
+    document.getElementById("door").classList.add("door-open");
+  }
+}
 
-        setTimeout(() => {
-          currentQuestionIndex++;
-          if (currentQuestionIndex < bank.length) {
-            loadQuestion();
-          } else {
-            clearInterval(timerInterval);
-            endGame(true, "Congratulations! You successfully unlocked all 15 doors and escaped the Measurement Lab!");
-          }
-        }, 800);
-      } else {
-        feedback.className = "feedback wrong";
-        feedback.textContent = "Incorrect choice! Time penalty (-10 seconds).";
-        timeRemaining = Math.max(0, timeRemaining - 10);
-        updateTimerDisplay();
-      }
-    }
+function endGame(){
+  document.getElementById("clapSound").play();
+  document.getElementById("finalScore").textContent=score+" / 100";
+  document.getElementById("endScreen").style.display="flex";
+}
 
-    function endGame(victory, message) {
-      gameScreen.classList.add("hidden");
-      endScreen.classList.remove("hidden");
+function resetGame(){
+  current=0;
+  score=0;
+  chances=2;
+  document.getElementById("score").textContent=score;
+  document.getElementById("powerFill").style.width="0%";
+  document.getElementById("door").classList.remove("door-open");
+  document.getElementById("endScreen").style.display="none";
+  startGame();
+}
+</script>
 
-      if (victory) {
-        endTitle.textContent = "Escape Successful!";
-        endTitle.style.color = "var(--success-color)";
-      } else {
-        endTitle.textContent = "Lab Locked Down!";
-        endTitle.style.color = "var(--danger-color)";
-      }
-
-      endMessage.textContent = message;
-    }
-  </script>
 </body>
 </html>
