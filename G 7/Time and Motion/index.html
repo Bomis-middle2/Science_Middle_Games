@@ -326,7 +326,7 @@ button:active {
     <p>Unlock each room by solving a Time and Motion challenge.</p>
     <p>Tap, sort, arrange, build formulas, open dials and identify graphs.</p>
     <p><b>Sorting:</b> tap a tile first (turns yellow), then tap the correct zone.</p>
-    <p>You get <b>2 chances</b> per room.</p>
+    <p>You get <b>2 chances</b> per room. Each solved room is worth <b>10 points</b> (Total 100).</p>
   </div>
   <button onclick="startGame()">Enter Lab</button>
 </div>
@@ -617,11 +617,9 @@ function placeTile(slot,item){
     selected.remove();
     selected=null;
     built.push(slot.textContent);
-    score+=5;
-    updateHUD();
 
     if(built.length===item.slots.length){
-      correctNext(false);
+      correctNext(true);
     }
   }else{
     wrong(item.answer);
@@ -675,13 +673,11 @@ function checkZone(zone,total){
     moveToZone(zone,selected);
     selected=null;
     placed++;
-    score+=5;
-    updateHUD();
     document.getElementById("correctSound").play();
-    msg("✅ Correct!","#22c55e");
+    msg("✅ Placed correctly! ("+placed+"/"+total+")","#22c55e");
 
     if(placed===total){
-      correctNext(false);
+      correctNext(true);
     }
   }else{
     zone.classList.add("wrongFlash");
@@ -792,12 +788,10 @@ function buildSequence(item){
         card.classList.add("correctFlash");
         card.style.pointerEvents="none";
         seqIndex++;
-        score+=5;
-        updateHUD();
         document.getElementById("correctSound").play();
 
         if(seqIndex===item.steps.length){
-          correctNext(false);
+          correctNext(true);
         }
       }else{
         wrong(item.steps.join(" → "));
@@ -815,7 +809,7 @@ function checkSimple(btn,selectedAns,answer){
 
   if(selectedAns===answer){
     btn.classList.add("correctFlash");
-    correctNext();
+    correctNext(true);
   }else{
     btn.classList.add("wrongFlash");
     setTimeout(()=>btn.classList.remove("wrongFlash"),500);
@@ -849,8 +843,8 @@ function wrong(answer,isSorting=false){
   }
 }
 
-function correctNext(addScore=true){
-  if(addScore){
+function correctNext(fullWin=false){
+  if(fullWin){
     score+=10;
     updateHUD();
     document.getElementById("correctSound").play();
