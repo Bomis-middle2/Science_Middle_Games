@@ -46,21 +46,22 @@ body:before {
 #splash {
     position: fixed;
     inset: 0;
-    background: #0f172a;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 9999;
     transition: opacity .5s ease;
-    color: #fff;
+    color: #1e293b;
     padding: 20px;
 }
 .logo-box {
     background: #ffffff;
     padding: 24px 32px;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,7 +72,7 @@ body:before {
     bottom: 18%;
     width: 190px;
     height: 8px;
-    background: #334155;
+    background: #e2e8f0;
     border-radius: 50px;
     overflow: hidden;
 }
@@ -356,7 +357,9 @@ canvas {
 </style>
 </head>
 <body>
-<audio id="correctSound" src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAA/f39/f39/v7+/v7+/v79/f39/f39/f39/f39/f39/f39/f39/f39/f35+fn5+fn5+fn5+fn5+Q==" preload="auto"></audio>
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrongs.mp3" preload="auto"></audio>
+
 <div id="splash">
     <div class="logo-box">
         <img src="assets/logo.png" alt="Innovine Logo" style="width:110px; height:auto; display:block;" />
@@ -561,14 +564,11 @@ function renderDrops() {
 function tapTile(el) {
     if (locked || el.classList.contains('used')) return;
     
-    // If a tile is already selected, tapping another selects it.
-    // If a slot is empty, place the selected tile immediately on tap for easier mobile play!
     if (!selected) {
         document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
         selected = el.dataset.text;
         el.classList.add('selected');
     } else {
-        // Find first empty slot and place the newly tapped tile
         let emptySlot = placed[0] === null ? 0 : (placed[1] === null ? 1 : null);
         if (emptySlot !== null) {
             placeTile(el.dataset.text, emptySlot);
@@ -582,7 +582,6 @@ function tapTile(el) {
     }
 }
 
-// Tapping drop slots fills them with the currently selected tile
 document.addEventListener('click', e => {
     if (e.target.classList.contains('drop') && selected && !locked) {
         placeTile(selected, Number(e.target.dataset.slot));
@@ -658,6 +657,7 @@ function wrong() {
     shake = 25;
     [0, 1].forEach(i => $('drop'+i).className = 'drop wrong');
     $('tries').innerText = tries;
+    sound('wrongSound');
     if (tries > 0) {
         $('feedback').innerText = 'Incorrect match. Try again!';
         $('feedback').style.color = '#ef4444';
