@@ -290,69 +290,19 @@ button:active {
 <div id="msg"></div>
 
 <script>
-class SoundFX {
-  constructor() {
-    this.ctx = null;
-  }
-  init() {
-    if (!this.ctx) {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-  }
-  playCorrect() {
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(523.25, now);
-    osc.frequency.setValueAtTime(659.25, now + 0.1);
-    osc.frequency.setValueAtTime(783.99, now + 0.2);
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.4);
-  }
-  playWrong() {
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(180, now);
-    osc.frequency.setValueAtTime(110, now + 0.15);
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.4);
-  }
-  playWin() {
-    this.init();
-    if (!this.ctx) return;
-    const notes = [261.63, 329.63, 392.00, 523.25];
-    notes.forEach((freq, idx) => {
-      const now = this.ctx.currentTime + (idx * 0.12);
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, now);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.3);
-    });
-  }
+// Audio Elements loaded from local assets
+const audioCorrect = new Audio('assets/correct.mp3');
+const audioWrong = new Audio('assets/wrong.mp3');
+
+function playCorrectSound() {
+  audioCorrect.currentTime = 0;
+  audioCorrect.play().catch(e => console.log('Audio playback prevented by browser:', e));
 }
 
-const sfx = new SoundFX();
+function playWrongSound() {
+  audioWrong.currentTime = 0;
+  audioWrong.play().catch(e => console.log('Audio playback prevented by browser:', e));
+}
 
 const levels = [
   {type:"formula",title:"Formula Builder",q:"Build the pressure formula correctly. Tap a tile first, then tap the correct step box.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
@@ -394,7 +344,6 @@ function shuffleArray(arr) {
 }
 
 function startGame() {
-  sfx.init();
   instructions.style.display = "none";
   order = [...levels];
   shuffleArray(order);
@@ -521,7 +470,7 @@ function checkZone(zone, total) {
     placed++;
     score += 2;
     scoreEl();
-    sfx.playCorrect();
+    playCorrectSound();
     msg("✅ Correct Zone Assignment!", "#22c55e");
 
     if (placed === total) correctNext(true, 2);
@@ -588,7 +537,7 @@ function buildSequence(item) {
         seqIndex++;
         score += 2;
         scoreEl();
-        sfx.playCorrect();
+        playCorrectSound();
 
         if (seqIndex === item.steps.length) {
           correctNext(true, 2);
@@ -637,7 +586,7 @@ function buildBalance(item) {
 }
 
 function wrong(ans) {
-  sfx.playWrong();
+  playWrongSound();
   chances--;
   chancesEl();
 
@@ -652,7 +601,7 @@ function wrong(ans) {
 }
 
 function handleWrongSorting(correctAnswerStr) {
-  sfx.playWrong();
+  playWrongSound();
   chances--;
   chancesEl();
 
@@ -682,7 +631,7 @@ function correctNext(addScore = true, scorePoints = 10) {
   if (addScore) {
     score += scorePoints;
     scoreEl();
-    sfx.playCorrect();
+    playCorrectSound();
   }
   locked = true;
   msg("✅ Verification Successful!", "#22c55e");
@@ -695,7 +644,7 @@ function chancesEl() { chancesSpan.textContent = chances; }
 function msg(t, c) { let m = document.getElementById("msg"); m.textContent = t || ""; m.style.color = c || "white"; }
 
 function endGame() {
-  sfx.playWin();
+  playCorrectSound();
   finalScore.textContent = score;
   endScreen.style.display = "flex";
 }
