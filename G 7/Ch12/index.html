@@ -391,7 +391,6 @@ canvas {
 
 <div id="splash">
   <div class="logo-container">
-    <!-- Clean, embedded SVG Innovine Logo with White Circle Shield -->
     <svg class="innovine-logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
       <circle cx="60" cy="60" r="56" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
       <path d="M 38 78 L 38 42 L 50 42 L 60 62 L 70 42 L 82 42 L 82 78 L 72 78 L 72 56 L 62 76 L 58 76 L 48 56 L 48 78 Z" fill="#06b6d4" />
@@ -443,7 +442,6 @@ canvas {
 const $ = id => document.getElementById(id);
 let canvas, ctx, items = [], qIndex = 0, score = 0, tries = 2, selected = null, placed = [null, null], locked = false, wallGlow = 0, shake = 0, anim = 0;
 
-// Embedded Audio Data URIs for complete offline support
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSynthesizedSound(type) {
@@ -458,16 +456,16 @@ function playSynthesizedSound(type) {
 
         if (type === 'correct') {
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-            osc.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.15); // A5
+            osc.frequency.setValueAtTime(523.25, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.15);
             gain.gain.setValueAtTime(0.2, audioContext.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
             osc.start();
             osc.stop(audioContext.currentTime + 0.3);
         } else {
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(220, audioContext.currentTime); // A3
-            osc.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.2); // A2
+            osc.frequency.setValueAtTime(220, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.2);
             gain.gain.setValueAtTime(0.25, audioContext.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
             osc.start();
@@ -789,7 +787,6 @@ function draw() {
     }
 }
 
-// Renders the Innovine Logo directly on the top-right of the optical bench
 function drawInnovineBadge(w, h) {
     let bx = w - 28, by = 22;
     ctx.save();
