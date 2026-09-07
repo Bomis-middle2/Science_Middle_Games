@@ -153,7 +153,6 @@ button:active {
   font-weight: 700;
 }
 
-/* Grid layout transforms the feel completely away from an MCQ list */
 #options-container{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -242,8 +241,7 @@ button:active {
 </div>
 
 <div id="instructions" class="screen" style="display:none">
-
-  <h1>🚗 Science Mission: Forward Dash</h1>
+  <h1>🏎️ Science Mission: Forward Dash</h1>
   <div class="instructions">
     <p>⚡ <b>Read your engine readout</b> at the top card.</p>
     <p>⚡ <b>Select an Action Tile</b> to boost your race car forward.</p>
@@ -254,7 +252,6 @@ button:active {
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
- 
   <h1 id="endTitle">Mission Complete!</h1>
   <h2 style="font-size: 32px; margin-bottom:28px;">Final Efficiency: <span id="finalScore" style="color:#2563eb;"></span></h2>
   <button onclick="resetGame()">Restart Mission</button>
@@ -284,22 +281,78 @@ button:active {
 <audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
 
 <script>
+// Grade 5 Force & Energy Question Bank - 100% Text-Book Aligned
 const bank=[
-  {q:"What is a force?", o:["Energy","A push or pull","Motion","Mass"], a:"A push or pull"},
-  {q:"Which force pulls objects towards Earth?", o:["Friction","Gravity","Magnetism","Electric force"], a:"Gravity"},
-  {q:"Friction is a force that:", o:["Helps motion always","Opposes motion","Creates mass","Removes gravity"], a:"Opposes motion"},
-  {q:"What is energy?", o:["Ability to do work","Only speed","Only weight","A type of friction"], a:"Ability to do work"},
-  {q:"Moving objects have:", o:["Potential energy","Kinetic energy","Chemical energy","No energy"], a:"Kinetic energy"},
-  {q:"Why do we apply brakes?", o:["To increase speed","To stop or slow motion","To reduce gravity","To make fuel"], a:"To stop or slow motion"},
-  {q:"Rough surfaces create:", o:["No friction","More friction","Less friction","Only gravity"], a:"More friction"},
-  {q:"Energy stored in a stretched spring is:", o:["Kinetic energy","Potential energy","Heat energy","Sound energy"], a:"Potential energy"},
-  {q:"Which surface would a toy car roll the farthest on?", o:["Ice rink","Carpeted floor","Sandy path","Grassy lawn"], a:"Ice rink"},
-  {q:"What kind of energy is produced when you rub your hands together?", o:["Electrical","Light","Thermal (Heat)","Nuclear"], a:"Thermal (Heat)"},
-  {q:"Why is it harder to push a heavy box than a light box?", o:["The heavy box has less gravity","The heavy box creates more friction","The light box has more mass","Friction does not apply to heavy things"], a:"The heavy box creates more friction"},
-  {q:"What energy transformation happens when a flashlight is turned on?", o:["Chemical to Light","Kinetic to Sound","Solar to Heat","Nuclear to Kinetic"], a:"Chemical to Light"},
-  {q:"An apple falling from a tree displays what energy conversion?", o:["Kinetic to Potential","Potential to Kinetic","Electrical to Thermal","Chemical to Light"], a:"Potential to Kinetic"},
-  {q:"Which of the following is an example of an unbalanced force?", o:["A book sitting still on a desk","A car accelerating down the street","A house frame holding up a roof","A rock resting on the ground"], a:"A car accelerating down the street"},
-  {q:"What tool is used to measure the weight or gravitational pull on an object?", o:["Thermometer","Ruler","Spring Balance","Anemometer"], a:"Spring Balance"}
+  {
+    q: "A push or pull acting on an object is known as what?",
+    o: ["Force", "Energy", "Speed", "Friction"],
+    a: "Force"
+  },
+  {
+    q: "A balloon is rubbed against dry hair and then sticks to a wall. Which non-contact force causes this?",
+    o: ["Electrostatic force", "Gravitational force", "Magnetic force", "Frictional force"],
+    a: "Electrostatic force"
+  },
+  {
+    q: "Water stored high up behind a dam possesses which form of energy?",
+    o: ["Potential energy", "Kinetic energy", "Chemical energy", "Thermal energy"],
+    a: "Potential energy"
+  },
+  {
+    q: "When an object is pushed under water, what upward force pushes it back toward the surface?",
+    o: ["Buoyant force", "Frictional force", "Gravitational force", "Muscular force"],
+    a: "Buoyant force"
+  },
+  {
+    q: "Why is oil or grease applied between moving parts of machines?",
+    o: ["To reduce friction and prevent wear and tear", "To increase friction for better grip", "To increase gravitational pull", "To generate static electricity"],
+    a: "To reduce friction and prevent wear and tear"
+  },
+  {
+    q: "What energy transformation occurs when an electric light bulb glows?",
+    o: ["Electrical energy → Light and Heat energy", "Chemical energy → Mechanical energy", "Solar energy → Electrical energy", "Mechanical energy → Sound energy"],
+    a: "Electrical energy → Light and Heat energy"
+  },
+  {
+    q: "Coal and petroleum are examples of which type of energy source?",
+    o: ["Fossil fuels", "Geothermal energy", "Solar energy", "Wind energy"],
+    a: "Fossil fuels"
+  },
+  {
+    q: "Heat energy obtained from deep within the Earth's sub-surfaces is called what?",
+    o: ["Geothermal energy", "Solar energy", "Wind energy", "Chemical energy"],
+    a: "Geothermal energy"
+  },
+  {
+    q: "Which force attracts objects toward the center of the Earth?",
+    o: ["Gravitational force", "Magnetic force", "Buoyant force", "Electrostatic force"],
+    a: "Gravitational force"
+  },
+  {
+    q: "What type of force is applied using muscles to lift or push heavy objects?",
+    o: ["Muscular force", "Magnetic force", "Electrostatic force", "Buoyant force"],
+    a: "Muscular force"
+  },
+  {
+    q: "How do deep grooves and treads on tires help vehicles on the road?",
+    o: ["They increase friction to give a better grip", "They eliminate friction completely", "They reduce air resistance", "They create magnetic attraction"],
+    a: "They increase friction to give a better grip"
+  },
+  {
+    q: "What form of energy is stored inside food and fuels like petrol?",
+    o: ["Chemical energy", "Mechanical energy", "Solar energy", "Wind energy"],
+    a: "Chemical energy"
+  },
+  {
+    q: "Which of the following is a disadvantage of frictional force?",
+    o: ["It causes wear and tear of shoe soles and vehicle tires", "It helps us write on paper with a pencil", "It stops vehicles when brakes are applied", "It prevents us from slipping while walking"],
+    a: "It causes wear and tear of shoe soles and vehicle tires"
+  },
+  {
+    q: "What type of force attracts iron objects like nails to a magnet?",
+    o: ["Magnetic force", "Buoyant force", "Frictional force", "Muscular force"],
+    a: "Magnetic force"
+  }
 ];
 
 let questions=[];
@@ -313,7 +366,7 @@ window.onload=()=>{
   setTimeout(()=>{
     document.getElementById("loader").style.display="none";
     document.getElementById("instructions").style.display="flex";
-  }, 5000);
+  }, 1000);
 };
 
 function startGame(){
@@ -366,7 +419,7 @@ function checkAnswer(btn,selected){
     score+=10;
     document.getElementById("score").textContent=score;
     document.getElementById("feedback-msg").style.color="#16a34a";
-    document.getElementById("feedback-msg").textContent="🚀 Speed Boost Activated!";
+    document.getElementById("feedback-msg").textContent="🚀 Correct! Speed Boost Activated!";
     moveCarForward();
     current++;
     setTimeout(loadQuestion,1500);
@@ -380,7 +433,7 @@ function checkAnswer(btn,selected){
 
     if(chances>0){
       document.getElementById("feedback-msg").style.color="#dc2626";
-      document.getElementById("feedback-msg").textContent="💥 Engine sputtering! Recalibrate and try again.";
+      document.getElementById("feedback-msg").textContent="💥 Incorrect! Recalibrate and try again.";
       setTimeout(()=>btn.classList.remove("wrong"),700);
     }else{
       locked=true;
@@ -408,7 +461,7 @@ function moveCarForward(){
 function endGame(){
   document.getElementById("clapSound").play();
   document.getElementById("finalScore").textContent=score+" / 100";
-  document.getElementById("endTitle").textContent="🏁 Checkered Flag! Race Complete!";
+  document.getElementById("endTitle").textContent="🏁 Checkered Flag! Mission Complete!";
   document.getElementById("endScreen").style.display="flex";
 }
 
