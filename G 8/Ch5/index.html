@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>G8 Pressure Lab Escape - Tabbed Mobile</title>
+<title>G8 Pressure Lab Escape - Mobile Optimized</title>
 
 <style>
 * {
@@ -21,7 +21,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #0f172a;
   color: white;
   text-align: center;
@@ -43,141 +43,115 @@ body {
   justify-content: center;
   z-index: 50;
   padding: 16px;
-  overflow-y: auto;
-}
-
-.logo {
-  width: min(160px, 45vw);
-  height: auto;
-  margin-bottom: 12px;
-  object-fit: contain;
 }
 
 button.primary-btn {
   border: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #0ea5e9;
   color: white;
-  font-size: clamp(16px, 4vw, 20px);
+  font-size: 16px;
   font-weight: bold;
-  padding: 14px 28px;
+  padding: 12px 24px;
   cursor: pointer;
-  min-height: 48px;
-  box-shadow: 0 4px 0 #0369a1;
+  min-height: 44px;
+  box-shadow: 0 3px 0 #0369a1;
   touch-action: manipulation;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 button.primary-btn:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 #0369a1;
+  box-shadow: 0 1px 0 #0369a1;
 }
 
+/* HUD Top Header */
 #hud {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  height: 40px;
   background: #020617;
-  padding: 8px 12px;
-  font-size: 14px;
+  padding: 0 12px;
+  font-size: 13px;
   font-weight: bold;
-  z-index: 10;
   flex-shrink: 0;
+  border-bottom: 1px solid #1e293b;
 }
 
-/* Mobile Tab Navigation */
-#tabNav {
+/* Flexible Main Stage Container */
+#mainStage {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   width: 100%;
-  background: #1e293b;
-  border-bottom: 2px solid #38bdf8;
-  flex-shrink: 0;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 12px 8px;
-  background: #1e293b;
-  color: #94a3b8;
-  border: none;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: all 0.2s ease;
-  border-bottom: 3px solid transparent;
-}
-
-.tab-btn.active {
-  color: #38bdf8;
-  background: #0f172a;
-  border-bottom: 3px solid #38bdf8;
-}
-
-#mainContainer {
-  flex: 1;
-  position: relative;
-  width: 100%;
+  padding: 8px;
+  gap: 8px;
   overflow: hidden;
 }
 
-.tab-content {
-  position: absolute;
-  inset: 0;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.tab-content.hidden {
-  display: none !important;
-}
-
+/* Compact Question Box */
 #questionBox {
   width: 100%;
   background: white;
   color: #0f172a;
   border: 2px solid #38bdf8;
-  border-radius: 12px;
-  padding: 12px;
-  font-size: clamp(14px, 4vw, 18px);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
   font-weight: bold;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin-bottom: 12px;
+  line-height: 1.3;
+  flex-shrink: 0;
 }
 
+/* Status Message Line */
 #msg {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
-  min-height: 24px;
-  margin-top: 8px;
-  padding: 0 8px;
+  height: 18px;
+  line-height: 18px;
+  flex-shrink: 0;
 }
 
-.row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+/* Interactive Panes */
+.pane {
   width: 100%;
-  margin: 6px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
+#targetArea {
+  flex: 1;
+  min-height: 35%;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+#sourceArea {
+  flex: 1.2;
+  min-height: 40%;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+/* Tap Targets and Cards */
 .card, .tile, .zone, .slot, .object, .seqCard {
   background: white;
-  color: #111;
+  color: #0f172a;
   border: 2px solid #38bdf8;
-  border-radius: 10px;
-  padding: 10px;
+  border-radius: 8px;
+  padding: 6px 8px;
   width: 100%;
-  min-height: 48px;
-  font-size: 15px;
+  min-height: 42px;
+  font-size: 13px;
   font-weight: bold;
   cursor: pointer;
   display: flex;
@@ -185,11 +159,10 @@ button.primary-btn:active {
   justify-content: center;
   text-align: center;
   touch-action: manipulation;
-  box-sizing: border-box;
 }
 
 .card:active, .tile:active, .object:active, .seqCard:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .card.selected, .tile.selected {
@@ -200,20 +173,17 @@ button.primary-btn:active {
 .zone, .slot {
   background: #e0f2fe;
   border-style: dashed;
-  min-height: 60px;
-  flex-direction: column;
+  min-height: 46px;
 }
 
 .placed {
   background: #dcfce7;
   border: 1px solid #22c55e;
-  border-radius: 6px;
-  padding: 4px 8px;
-  margin: 2px;
-  font-size: 13px;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 11px;
   color: #111;
   width: 100%;
-  word-break: break-word;
 }
 
 .correctFlash {
@@ -228,12 +198,14 @@ button.primary-btn:active {
   animation: shake .35s;
 }
 
+/* Hydrostatic Tank */
 .tank {
-  width: min(200px, 60vw);
-  height: clamp(180px, 35vh, 260px);
-  border: 4px solid white;
-  border-radius: 14px;
-  margin: 10px auto;
+  width: 140px;
+  height: 100%;
+  max-height: 180px;
+  border: 3px solid white;
+  border-radius: 10px;
+  margin: auto;
   position: relative;
   background: linear-gradient(to bottom, #38bdf888, #0284c7bb);
 }
@@ -242,28 +214,27 @@ button.primary-btn:active {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  width: 90px;
-  height: 40px;
+  width: 80px;
+  height: 32px;
   background: white;
   color: #111;
   border: 2px solid #111;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
-.h1 { top: 10%; }
-.h2 { top: 40%; }
-.h3 { top: 70%; }
+.h1 { top: 8%; }
+.h2 { top: 38%; }
+.h3 { top: 68%; }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
 }
 </style>
 </head>
@@ -271,76 +242,64 @@ button.primary-btn:active {
 <body>
 
 <div id="loader" class="screen">
-  <div id="altLogo" style="font-size:50px; margin-bottom:10px;">🧪</div>
-  <h2>Loading Pressure Lab...</h2>
+  <div style="font-size:40px; margin-bottom:8px;">🧪</div>
+  <h3>Loading Pressure Lab...</h3>
 </div>
 
 <div id="instructions" class="screen" style="display:none">
-  <h1 style="font-size: 24px; margin-bottom: 10px;">🧪 Pressure Lab Escape</h1>
-  <div style="text-align:left; font-size:15px; line-height:1.5; max-width:500px;">
-    <p>• Switch between <b>Task/Target</b> and <b>Cards/Tiles</b> tabs to interact with mobile ease.</p>
-    <p>• Tap a item in the Cards tab, then switch or tap its Target destination.</p>
-    <p>• 2 simulation attempts per level.</p>
+  <h2 style="margin-bottom:8px;">🧪 Pressure Lab Escape</h2>
+  <div style="text-align:left; font-size:13px; line-height:1.4; max-width:320px;">
+    <p>• <b>Top Zone:</b> Task Targets / Slots.</p>
+    <p>• <b>Bottom Zone:</b> Choices / Items.</p>
+    <p>• Tap an item below to select, then tap target slot above.</p>
   </div>
   <button class="primary-btn" onclick="startGame()">Start Lab</button>
 </div>
 
 <div id="endScreen" class="screen" style="display:none">
-  <h1>🏆 Pressure Lab Complete!</h1>
-  <h2>Score: <span id="finalScore"></span> / 100</h2>
+  <h2>🏆 Lab Complete!</h2>
+  <h3>Score: <span id="finalScore"></span> / 100</h3>
   <button class="primary-btn" onclick="location.reload()">Play Again</button>
 </div>
 
 <div id="hud">
-  <div>⭐ Score: <span id="score">0</span></div>
-  <div>❤️ Chances: <span id="chances">2</span></div>
-  <div>🧪 Lvl: <span id="levelNo">1</span>/10</div>
+  <div>⭐ <span id="score">0</span></div>
+  <div>❤️ <span id="chances">2</span></div>
+  <div>🧪 Lvl <span id="levelNo">1</span>/10</div>
 </div>
 
-<div id="tabNav">
-  <button id="tabBtn1" class="tab-btn active" onclick="switchTab(1)">📋 1. Task & Slots</button>
-  <button id="tabBtn2" class="tab-btn" onclick="switchTab(2)">🃏 2. Cards & Items</button>
-</div>
-
-<div id="mainContainer">
-  <!-- TAB 1: Questions & Drop Targets -->
-  <div id="tab1" class="tab-content">
-    <div id="questionBox">Lab challenge loading...</div>
-    <div id="targetArea" style="width:100%;"></div>
-    <div id="msg"></div>
-  </div>
-
-  <!-- TAB 2: Choices & Movable Items -->
-  <div id="tab2" class="tab-content hidden">
-    <div id="sourceArea" style="width:100%;"></div>
-  </div>
+<div id="mainStage">
+  <div id="questionBox">Lab challenge loading...</div>
+  
+  <!-- Upper Drop Zone -->
+  <div id="targetArea" class="pane"></div>
+  
+  <div id="msg"></div>
+  
+  <!-- Lower Choice Items -->
+  <div id="sourceArea" class="pane"></div>
 </div>
 
 <script>
 const audioCorrect = new Audio('assets/correct.mp3');
 const audioWrong = new Audio('assets/wrong.mp3');
 
-function playCorrectSound() {
-  audioCorrect.currentTime = 0;
-  audioCorrect.play().catch(e => {});
-}
-
-function playWrongSound() {
-  audioWrong.currentTime = 0;
-  audioWrong.play().catch(e => {});
+function playSound(aud) {
+  aud.currentTime = 0;
+  aud.play().catch(e => {});
 }
 
 const levels = [
-  {type:"formula",title:"Formula Builder",q:"Build formula: Select tile in Tab 2, then tap matching Step box here.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
-  {type:"formula",title:"Unit Builder",q:"Build relation: Select tile in Tab 2, then tap matching Step box here.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
-  {type:"sort",title:"Area and Pressure",q:"Tap card in Tab 2, then tap target zone (High/Low) here.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
-  {type:"tank",title:"Liquid Pressure Tank",q:"Tap the hole where Hydrostatic fluid pressure is greatest.",answer:"Bottom"},
-  {type:"sequence",title:"Syringe Sequence",q:"Tap the steps in Tab 2 in correct mechanical order.",steps:["Pull plunger","Volume inside increases","Pressure inside decreases","Liquid enters syringe"]},
-  {type:"sort",title:"Fluid Facts",q:"Tap statement card in Tab 2, then tap True or False here.",cards:[["Liquids and gases are fluids","True"],["Liquid pressure increases with depth","True"],["Liquids exert pressure only downward","False"],["Denser liquids exert less pressure","False"]],zones:["True","False"]},
-  {type:"balance",title:"Buoyant Force",q:"Tap the balance condition in Tab 2 where an object floats.",answer:"Buoyant force > Weight"},
-  {type:"sort",title:"Pressure Applications",q:"Tap card in Tab 2, then tap Area Increased/Reduced here.",cards:[["Truck has many tyres","Area Increased"],["Sharp blade cuts object","Area Reduced"],["Caterpillar tracks of tank","Area Increased"],["Pointed nail pierces wood","Area Reduced"]],zones:["Area Increased","Area Reduced"]},
-  {type:"sequence",title:"Crushing Can Experiment",q:"Tap experimental steps in Tab 2 in correct physical order.",steps:["Heat can","Air expands and escapes","Invert in cold water","Outside pressure crushes can"]},
-  {type:"sort",title:"Atmospheric vs Liquid",q:"Tap example in Tab 2, then select Atmospheric or Liquid Pressure here.",cards:[["Suction cup sticks to wall","Atmospheric Pressure"],["Dam wall is thicker at bottom","Liquid Pressure"],["Barometer measures air pressure","Atmospheric Pressure"],["Scuba diver feels pressure at depth","Liquid Pressure"]],zones:["Atmospheric Pressure","Liquid Pressure"]}
+  {type:"formula",q:"Build formula: Tap item below, then matching slot above.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
+  {type:"formula",q:"Build relation: Tap item below, then matching slot above.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
+  {type:"sort",q:"Tap item below, then target zone above.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
+  {type:"tank",q:"Tap hole where hydrostatic fluid pressure is greatest.",answer:"Bottom"},
+  {type:"sequence",q:"Tap steps in correct physical sequence.",steps:["Pull plunger","Volume increases","Pressure decreases","Liquid enters"]},
+  {type:"sort",q:"Tap statement below, then True/False above.",cards:[["Liquids & gases are fluids","True"],["Pressure grows with depth","True"],["Liquids push down only","False"],["Denser liquids give less P","False"]],zones:["True","False"]},
+  {type:"balance",q:"Tap floating condition.",answer:"Buoyant force > Weight"},
+  {type:"sort",q:"Classify pressure effects into target zones.",cards:[["Truck multi-tyres","Area Increased"],["Sharp blade cuts","Area Reduced"],["Tank crawler tracks","Area Increased"],["Nail pierces wood","Area Reduced"]],zones:["Area Increased","Area Reduced"]},
+  {type:"sequence",q:"Order crushing can experiment steps.",steps:["Heat can","Air escapes","Invert in cold water","Pressure crushes can"]},
+  {type:"sort",q:"Classify pressure source type.",cards:[["Suction cup on wall","Atmospheric Pressure"],["Dam thicker at bottom","Liquid Pressure"],["Barometer reads air","Atmospheric Pressure"],["Diver feels depth P","Liquid Pressure"]],zones:["Atmospheric Pressure","Liquid Pressure"]}
 ];
 
 let level = 0, score = 0, chances = 2, locked = false, selected = null, placed = 0, seqIndex = 0, formulaBuilt = [];
@@ -351,15 +310,7 @@ const sourceArea = document.getElementById("sourceArea");
 window.onload = () => setTimeout(() => {
   document.getElementById("loader").style.display = "none";
   document.getElementById("instructions").style.display = "flex";
-}, 800);
-
-function switchTab(tabNum) {
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
-  
-  document.getElementById("tabBtn" + tabNum).classList.add("active");
-  document.getElementById("tab" + tabNum).classList.remove("hidden");
-}
+}, 600);
 
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -380,13 +331,12 @@ function loadLevel() {
   locked = false; selected = null; placed = 0; seqIndex = 0; formulaBuilt = []; chances = 2;
   updateChances(); msg("");
   targetArea.innerHTML = ""; sourceArea.innerHTML = "";
-  
+  targetArea.style.display = "flex"; sourceArea.style.display = "flex";
+
   if (level >= levels.length) { endGame(); return; }
   const item = levels[level];
   document.getElementById("levelNo").textContent = level + 1;
   document.getElementById("questionBox").textContent = item.q;
-  
-  switchTab(item.type === "tank" ? 1 : 2); // Auto focus Tab 2 when choices exist
 
   if (item.type === "formula") buildFormula(item);
   if (item.type === "sort") buildSort(item);
@@ -410,8 +360,7 @@ function buildFormula(item) {
       selected = tile;
       document.querySelectorAll(".tile").forEach(x => x.classList.remove("selected"));
       tile.classList.add("selected");
-      msg("Selected: " + tile.textContent + ". Switch to Tab 1 & tap target.", "#38bdf8");
-      switchTab(1);
+      msg("Item selected! Tap target slot above.", "#38bdf8");
     };
     sourceArea.appendChild(tile);
   });
@@ -425,7 +374,7 @@ function placeFormula(slot) {
     slot.classList.add("correctFlash");
     formulaBuilt.push(selected.textContent);
     selected.remove(); selected = null;
-    score += 2; updateScore();
+    score += 2; updateScore(); playSound(audioCorrect);
     if (formulaBuilt.length === levels[level].slots.length) correctNext();
   } else {
     wrong(levels[level].answer);
@@ -448,8 +397,7 @@ function buildSort(item) {
       selected = card;
       document.querySelectorAll(".card").forEach(x => x.classList.remove("selected"));
       card.classList.add("selected");
-      msg("Card selected. Switch to Tab 1 to assign.", "#38bdf8");
-      switchTab(1);
+      msg("Card selected! Tap target zone above.", "#38bdf8");
     };
     sourceArea.appendChild(card);
   });
@@ -462,8 +410,8 @@ function checkZone(zone, total) {
     zone.appendChild(p);
     selected.remove(); selected = null;
     placed++; score += 2; updateScore();
-    playCorrectSound();
-    msg("✅ Placed correctly!", "#22c55e");
+    playSound(audioCorrect);
+    msg("✅ Placed!", "#22c55e");
     if (placed === total) correctNext();
   } else {
     zone.classList.add("wrongFlash");
@@ -473,7 +421,7 @@ function checkZone(zone, total) {
 }
 
 function buildTank(item) {
-  document.getElementById("tabBtn2").style.display = "none";
+  sourceArea.style.display = "none";
   let tank = document.createElement("div"); tank.className = "tank";
   [["Top", "h1"], ["Middle", "h2"], ["Bottom", "h3"]].forEach(x => {
     let h = document.createElement("div"); h.className = "hole " + x[1]; h.textContent = x[0];
@@ -488,7 +436,7 @@ function buildTank(item) {
 }
 
 function buildSequence(item) {
-  document.getElementById("tabBtn1").style.display = "none";
+  targetArea.style.display = "none";
   let stepsCopy = [...item.steps]; shuffleArray(stepsCopy);
   stepsCopy.forEach(step => {
     let c = document.createElement("div"); c.className = "seqCard"; c.textContent = step;
@@ -497,8 +445,7 @@ function buildSequence(item) {
       if (step === item.steps[seqIndex]) {
         c.classList.add("correctFlash");
         c.style.pointerEvents = "none";
-        seqIndex++; score += 2; updateScore();
-        playCorrectSound();
+        seqIndex++; score += 2; updateScore(); playSound(audioCorrect);
         if (seqIndex === item.steps.length) correctNext();
       } else {
         c.classList.add("wrongFlash");
@@ -511,7 +458,7 @@ function buildSequence(item) {
 }
 
 function buildBalance(item) {
-  document.getElementById("tabBtn1").style.display = "none";
+  targetArea.style.display = "none";
   let choices = ["Buoyant force > Weight", "Buoyant force < Weight", "Buoyant force = 0"];
   shuffleArray(choices);
   choices.forEach(x => {
@@ -526,19 +473,19 @@ function buildBalance(item) {
 }
 
 function wrong(ans) {
-  playWrongSound();
+  playSound(audioWrong);
   chances--; updateChances();
   if (chances > 0) {
     msg("❌ Try again!", "#ef4444");
   } else {
     locked = true;
     msg("Ans: " + ans, "#ef4444");
-    level++; setTimeout(loadLevel, 2500);
+    level++; setTimeout(loadLevel, 2200);
   }
 }
 
 function correctNext() {
-  score += 10; updateScore(); playCorrectSound();
+  score += 10; updateScore(); playSound(audioCorrect);
   locked = true;
   msg("✅ Correct!", "#22c55e");
   level++; setTimeout(loadLevel, 1200);
@@ -553,7 +500,7 @@ function msg(t, c) {
 }
 
 function endGame() {
-  playCorrectSound();
+  playSound(audioCorrect);
   document.getElementById("finalScore").textContent = score;
   document.getElementById("endScreen").style.display = "flex";
 }
