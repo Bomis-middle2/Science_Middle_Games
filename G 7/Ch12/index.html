@@ -61,9 +61,10 @@ body:before {
     align-items: center;
     margin-bottom: 30px;
 }
-.innovine-logo-svg {
+.logo-img {
     width: 120px;
     height: 120px;
+    object-fit: contain;
     filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.3));
     animation: pulseGlow 3s ease-in-out infinite;
 }
@@ -389,14 +390,12 @@ canvas {
 </head>
 <body>
 
+<audio id="sndCorrect" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="sndWrong" src="assets/wrong.mp3" preload="auto"></audio>
+
 <div id="splash">
   <div class="logo-container">
-    <svg class="innovine-logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="60" cy="60" r="56" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
-      <path d="M 38 78 L 38 42 L 50 42 L 60 62 L 70 42 L 82 42 L 82 78 L 72 78 L 72 56 L 62 76 L 58 76 L 48 56 L 48 78 Z" fill="#06b6d4" />
-      <circle cx="60" cy="30" r="5" fill="#f59e0b" />
-      <path d="M 32 84 Q 60 92 88 84" stroke="#10b981" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    </svg>
+    <img src="assets/logo.png" alt="Logo" class="logo-img" />
   </div>
   <div class="loader"><div id="loadFill"></div></div>
 </div>
@@ -442,34 +441,12 @@ canvas {
 const $ = id => document.getElementById(id);
 let canvas, ctx, items = [], qIndex = 0, score = 0, tries = 2, selected = null, placed = [null, null], locked = false, wallGlow = 0, shake = 0, anim = 0;
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-function playSynthesizedSound(type) {
+function playSound(id) {
     try {
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-
-        if (type === 'correct') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(523.25, audioContext.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.3);
-        } else {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(220, audioContext.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.25, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.25);
+        const audio = $(id);
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
         }
     } catch(e) {}
 }
@@ -700,7 +677,7 @@ function correct() {
     $('feedback').innerText = 'Path Calibrated! ' + questions[qIndex].exp;
     $('feedback').style.color = '#10b981';
     [0, 1].forEach(i => $('drop'+i).className = 'drop correct');
-    playSynthesizedSound('correct');
+    playSound('sndCorrect');
     wallGlow = 80;
     confetti();
     setTimeout(() => {
@@ -715,7 +692,7 @@ function wrong() {
     shake = 25;
     [0, 1].forEach(i => $('drop'+i).className = 'drop wrong');
     $('tries').innerText = tries;
-    playSynthesizedSound('wrong');
+    playSound('sndWrong');
     if (tries > 0) {
         $('feedback').innerText = 'Optic Alignment Failure. Recalibrating...';
         $('feedback').style.color = '#ef4444';
@@ -774,7 +751,6 @@ function draw() {
     ctx.save();
     ctx.translate(sx, 0);
     drawLaserOpticsLayout(w, h);
-    drawInnovineBadge(w, h);
     ctx.restore();
 
     if (wallGlow > 0) {
@@ -785,25 +761,6 @@ function draw() {
         ctx.beginPath(); ctx.arc(w * .5, h * .5, Math.max(w, h) * .4, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
     }
-}
-
-function drawInnovineBadge(w, h) {
-    let bx = w - 28, by = 22;
-    ctx.save();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(bx, by, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#06b6d4';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    ctx.fillStyle = '#06b6d4';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('N', bx, by + 1);
-    ctx.restore();
 }
 
 function drawLaserOpticsLayout(w, h) {
