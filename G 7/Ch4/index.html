@@ -23,6 +23,7 @@
     font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 html, body {
     height: 100%;
@@ -53,15 +54,17 @@ body:before {
     z-index: 9999;
     transition: opacity .5s ease;
     color: #fff;
+    padding: 20px;
 }
-#splash-title {
-    font-size: 2.5rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    background: linear-gradient(45deg, var(--gold), var(--blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 20px;
+.logo-box {
+    background: #ffffff;
+    padding: 24px 32px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
 }
 .loader {
     position: absolute;
@@ -101,51 +104,53 @@ body:before {
     text-align: center;
 }
 .introCard, .endCard {
-    width: min(650px, 96%);
-    background: rgba(255, 255, 255, 0.96);
+    width: min(600px, 96%);
+    background: rgba(255, 255, 255, 0.98);
     border: 2px solid var(--blue);
     border-radius: 24px;
-    padding: clamp(18px, 4vw, 30px);
+    padding: clamp(18px, 4vw, 26px);
     box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
 }
 h1 {
-    font-size: clamp(1.45rem, 4.5vw, 2.2rem);
+    font-size: clamp(1.45rem, 4vw, 2rem);
     color: #0369a1;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     font-weight: 950;
 }
 .introCard p, .endCard p {
-    font-size: clamp(.96rem, 2.5vw, 1.08rem);
-    line-height: 1.5;
+    font-size: clamp(.92rem, 2.3vw, 1.04rem);
+    line-height: 1.45;
     color: #475569;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 .rules {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     text-align: left;
-    margin: 14px auto 18px;
-    max-width: 460px;
+    margin: 12px auto 16px;
+    max-width: 440px;
 }
 .rules div {
     background: #f0f9ff;
     border: 2px solid #bae6fd;
-    border-radius: 16px;
-    padding: 12px;
+    border-radius: 14px;
+    padding: 10px 12px;
     font-weight: 700;
     color: #0369a1;
+    font-size: clamp(.85rem, 2vw, .95rem);
 }
 .btn {
     border: 0;
-    border-radius: 17px;
-    padding: clamp(12px, 2.6vw, 15px) 22px;
+    border-radius: 16px;
+    padding: clamp(12px, 2.6vw, 14px) 20px;
     background: linear-gradient(135deg, #0ea5e9, #10b981);
     color: white;
     font-weight: 950;
-    font-size: clamp(.92rem, 2.6vw, 1.05rem);
+    font-size: clamp(.92rem, 2.5vw, 1.02rem);
     cursor: pointer;
-    box-shadow: 0 9px 18px rgba(14, 165, 233, 0.25);
+    box-shadow: 0 8px 16px rgba(14, 165, 233, 0.25);
     letter-spacing: .3px;
+    width: 100%;
 }
 .btn:disabled {
     background: #cbd5e1;
@@ -161,13 +166,13 @@ h1 {
 .stat {
     background: rgba(255, 255, 255, .9);
     border: 2px solid #cbd5e1;
-    border-radius: 16px;
-    padding: 8px 10px;
+    border-radius: 14px;
+    padding: 8px 6px;
     text-align: center;
     font-weight: 950;
     color: #334155;
-    font-size: clamp(.78rem, 2.1vw, .96rem);
-    box-shadow: 0 5px 14px rgba(0,0,0,0.04);
+    font-size: clamp(.75rem, 2vw, .92rem);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
 }
 .main {
     min-height: 0;
@@ -179,7 +184,7 @@ h1 {
 .panel {
     background: rgba(255, 255, 255, .9);
     border: 2px solid #cbd5e1;
-    border-radius: 22px;
+    border-radius: 20px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 }
@@ -197,24 +202,23 @@ canvas {
     display: flex;
     flex-direction: column;
     padding: clamp(10px, 2vw, 14px);
-    gap: 10px;
+    gap: 8px;
 }
 .prompt {
     background: #f8fafc;
     border: 2px solid #e2e8f0;
-    border-radius: 18px;
-    padding: clamp(10px, 2.2vw, 14px);
+    border-radius: 16px;
+    padding: clamp(8px, 2vw, 12px);
     text-align: center;
 }
 .expr {
-    font-size: clamp(1.05rem, 3.5vw, 1.4rem);
+    font-size: clamp(0.98rem, 3.1vw, 1.25rem);
     font-weight: 800;
     color: #0f172a;
-    margin-top: 5px;
     line-height: 1.35;
 }
 .instruction {
-    font-size: clamp(.83rem, 2.1vw,.94rem);
+    font-size: clamp(.8rem, 2vw,.9rem);
     color: #64748b;
     text-align: center;
     font-weight: 750;
@@ -222,22 +226,22 @@ canvas {
 .dropRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 9px;
+    gap: 8px;
 }
 .drop {
-    min-height: 75px;
+    min-height: 65px;
     border: 3px dashed #bae6fd;
     background: #f0f9ff;
-    border-radius: 18px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
     font-weight: 800;
     color: #64748b;
     transition: .2s;
     text-align: center;
-    padding: 8px;
+    padding: 6px;
 }
 .drop.active {
     background: #e0f2fe;
@@ -262,28 +266,25 @@ canvas {
 .tiles {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 9px;
+    gap: 8px;
     margin-top: auto;
 }
 .tile {
-    min-height: 56px;
+    min-height: 48px;
     border: 2px solid #e2e8f0;
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 8px;
-    font-size: clamp(.85rem, 2.3vw, 1.02rem);
+    padding: 6px;
+    font-size: clamp(.8rem, 2.1vw, .95rem);
     font-weight: 700;
     color: #334155;
-    cursor: grab;
+    cursor: pointer;
     transition: .15s;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-}
-.tile:active {
-    cursor: grabbing;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.03);
 }
 .tile.selected {
     outline: 3px solid var(--gold);
@@ -297,23 +298,20 @@ canvas {
     transform: scale(.96);
 }
 .feedback {
-    min-height: 34px;
+    min-height: 28px;
     text-align: center;
-    font-size: clamp(.82rem, 2vw, .95rem);
+    font-size: clamp(.78rem, 1.9vw, .9rem);
     font-weight: 700;
-    line-height: 1.35;
+    line-height: 1.3;
     color: #475569;
 }
 .actions {
     display: flex;
-    gap: 9px;
-}
-.actions .btn {
-    flex: 1;
+    gap: 8px;
 }
 .ghost {
     background: linear-gradient(135deg, #94a3b8, #64748b);
-    box-shadow: 0 9px 18px rgba(100, 116, 139, 0.2);
+    box-shadow: 0 8px 16px rgba(100, 116, 139, 0.2);
 }
 .confetti {
     position: fixed;
@@ -329,49 +327,53 @@ canvas {
     to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 @media(max-width:760px) {
-    #root { max-width: 520px; }
-    .main { grid-template-columns: 1fr; grid-template-rows: .82fr 1fr; }
-    .workshop { min-height: 220px; }
-    .drop { min-height: 62px; }
+    #root { max-width: 520px; height: 100%; max-height: none; }
+    .main { grid-template-columns: 1fr; grid-template-rows: 210px 1fr; }
+    .workshop { min-height: 210px; }
+    .drop { min-height: 54px; }
     .tiles { grid-template-columns: 1fr 1fr; }
 }
 @media(max-width:390px) {
-    #root { padding: 7px; gap: 7px; }
-    .stat { padding: 7px 5px; }
-    .challenge { gap: 8px; }
-    .tile { min-height: 47px; }
-    .drop { min-height: 56px; }
-    .feedback { min-height: 30px; }
-    .introCard, .endCard { padding: 16px; }
+    #root { padding: 6px; gap: 6px; }
+    .stat { padding: 6px 4px; }
+    .challenge { gap: 6px; }
+    .tile { min-height: 42px; }
+    .drop { min-height: 48px; }
+    .feedback { min-height: 24px; }
+    .introCard, .endCard { padding: 14px; }
 }
 @media(max-height:650px) {
-    #root { max-height: none; gap: 7px; }
-    .panel.challenge { padding: 8px; }
-    .prompt { padding: 8px; }
-    .tile { min-height: 42px; padding: 6px; }
-    .drop { min-height: 50px; }
-    .feedback { min-height: 24px; }
-    .btn { padding: 10px 14px; }
+    #root { max-height: none; gap: 5px; }
+    .panel.challenge { padding: 6px; }
+    .prompt { padding: 6px; }
+    .tile { min-height: 38px; padding: 4px; }
+    .drop { min-height: 44px; }
+    .feedback { min-height: 20px; }
+    .btn { padding: 9px 12px; }
     .rules { display: none; }
-    .introCard p { margin-bottom: 13px; }
-    .workshop { min-height: 180px; }
+    .workshop { min-height: 150px; }
 }
 </style>
 </head>
 <body>
 <audio id="correctSound" src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAA/f39/f39/v7+/v7+/v79/f39/f39/f39/f39/f39/f39/f39/f39/f35+fn5+fn5+fn5+fn5+Q==" preload="auto"></audio>
-<div id="splash"><div id="splash-title"><img src="assets/logo.png" alt="Innovine Logo" style="width:120px; height:auto; margin-bottom:15px;" /></div><div class="loader"><div id="loadFill"></div></div></div>
+<div id="splash">
+    <div class="logo-box">
+        <img src="assets/logo.png" alt="Innovine Logo" style="width:110px; height:auto; display:block;" />
+    </div>
+    <div class="loader"><div id="loadFill"></div></div>
+</div>
 <div id="root">
   <div id="intro" class="screen">
     <div class="introCard">
       <h1>⚡ VoltLab Simulator</h1>
-      <p>Analyze the properties, symbols, and behaviors of electric currents. Drag or tap the matching pairs of electrical properties to complete the laboratory blueprints.</p>
+      <p>Explore electric circuits and effects! Tap or drag the matching pairs into the blueprint slots to test how electricity flows and works.</p>
       <div class="rules">
-        <div>🔋 Complete the circuit requirements.</div>
-        <div>💡 Learn heating effects, fuses, switches, and electromagnets.</div>
-        <div>✌️ You get 2 diagnostic attempts per panel.</div>
+        <div>🔋 Complete circuit loops correctly.</div>
+        <div>💡 Learn how heating, fuses, and magnets work.</div>
+        <div>✌️ You get 2 diagnostic tries per panel.</div>
       </div>
-      <button class="btn" onclick="startGame()">Initialize Simulator</button>
+      <button class="btn" onclick="startGame()">Start Laboratory</button>
     </div>
   </div>
   <div class="topbar">
@@ -383,13 +385,13 @@ canvas {
     <div class="panel workshop"><canvas id="scene"></canvas></div>
     <div class="panel challenge">
       <div class="prompt"><div id="question" class="expr">Loading Laboratory Terminal...</div></div>
-      <div class="instruction">Match the pairs into the diagnostic slots below:</div>
+      <div class="instruction">Tap or drag two matching terms into the slots:</div>
       <div class="dropRow">
         <div class="drop" id="drop0" data-slot="0">Property A</div>
         <div class="drop" id="drop1" data-slot="1">Property B</div>
       </div>
       <div class="tiles" id="tiles"></div>
-      <div class="feedback" id="feedback">Analyze the required properties.</div>
+      <div class="feedback" id="feedback">Analyze the requirements above.</div>
       <div class="actions">
         <button class="btn" id="checkBtn" onclick="checkAnswer()">Verify Blueprint</button>
         <button class="btn ghost" onclick="clearDrops()">Reset Slots</button>
@@ -401,67 +403,67 @@ canvas {
 const $ = id => document.getElementById(id);
 let canvas, ctx, items = [], qIndex = 0, score = 0, tries = 2, selected = null, placed = [null, null], locked = false, wallGlow = 0, shake = 0, anim = 0;
 
-// Grade 7 Electric Currents and Effects Dataset mapped logically to pair arrays
+// Grade 7 Electric Currents Dataset with Simplified Language
 const questions = [
     {
-        q: 'Identify the properties that describe a configuration when a continuous pathway lets electricity move without a break.',
+        q: 'What do we call a complete, unbroken path that lets electricity flow freely?',
         a: ['Closed Circuit', 'Complete Path'],
         tiles: ['Closed Circuit', 'Complete Path', 'Open Circuit', 'Broken Path'],
-        exp: 'An unbroken, functional electrical circuit is called a complete or closed circuit.'
+        exp: 'An unbroken circuit path that allows electric current to flow is a closed or complete circuit.'
     },
     {
-        q: 'What constitutes a battery configuration and how are individual units arranged?',
+        q: 'How are multiple cells combined together to make a battery?',
         a: ['Two or More Cells', 'Series Connection'],
         tiles: ['Two or More Cells', 'Series Connection', 'Single Filament', 'Parallel Splitting'],
-        exp: 'A battery is formed by combining multiple cells, typically connected positive-to-negative in series.'
+        exp: 'A battery is formed by joining two or more cells together, typically positive to negative in series.'
     },
     {
-        q: 'What occurs when an electric current passes through a high-resistance component like a toaster wire?',
+        q: 'What happens when electric current flows through a tightly wound, high-resistance wire?',
         a: ['Heating Effect', 'Coiled Element'],
         tiles: ['Heating Effect', 'Coiled Element', 'Magnetic Shielding', 'Liquid Electrolysis'],
-        exp: 'The passage of electricity through high-resistance tightly wound wires generates heat via the heating effect.'
+        exp: 'Passing electric current through high-resistance wires produces heat, known as the heating effect of current.'
     },
     {
-        q: 'Which component protects domestic wiring loops from overload surges and what is its behavior?',
+        q: 'Which safety component protects home wiring from dangerously high current surges?',
         a: ['Electric Fuse', 'Low Melting Point Wire'],
         tiles: ['Electric Fuse', 'Low Melting Point Wire', 'Thick Copper Rod', 'Insulated Switch Box'],
-        exp: 'A fuse uses a safety wire with a low melting point that breaks the current path safely if excessive load flows.'
+        exp: 'An electric fuse uses a special wire with a low melting point that melts and breaks if current gets too high.'
     },
     {
-        q: 'Identify the properties observed inside a functional incandescent lightbulb when active.',
+        q: 'What happens inside a working lightbulb when current passes through its tiny wire?',
         a: ['Thin Filament', 'Glows and Heats'],
         tiles: ['Thin Filament', 'Glows and Heats', 'Soft Iron Core', 'Insulated Element'],
-        exp: 'The fine, high-resistance wire loop inside a lightbulb is the filament, which glows when white-hot.'
+        exp: 'The fine wire inside a bulb is called the filament; it gets very hot and glows brightly when current passes.'
     },
     {
-        q: 'What describes a situation where a switch is flipped to break the continuous current stream?',
+        q: 'What is created when a switch is turned off, stopping the flow of electricity?',
         a: ['Open Circuit', 'Incomplete Path'],
         tiles: ['Open Circuit', 'Incomplete Path', 'Fused Junction', 'Closed Loop'],
-        exp: 'When a switch is opened, the continuity is broken, producing an open or incomplete circuit.'
+        exp: 'When a switch is opened, the pathway breaks, creating an incomplete or open circuit.'
     },
     {
-        q: 'What physical system constitutes a temporary electromagnet constructed using everyday wire turns?',
+        q: 'What basic parts make up a simple home-made electromagnet using a wire and iron?',
         a: ['Iron Nail Core', 'Insulated Copper Wire'],
         tiles: ['Iron Nail Core', 'Insulated Copper Wire', 'Plastic Base Strip', 'Zinc Plated Frame'],
-        exp: 'Coiling insulated copper wire around a soft ferromagnetic iron nail produces an electromagnet when current passes.'
+        exp: 'Wrapping insulated copper wire around an iron nail creates a temporary electromagnet when current flows.'
     },
     {
-        q: 'What happens to a home electromagnet assembly the exact second the power grid flow drops to zero?',
+        q: 'What happens to the magnetic pull of an electromagnet the moment electricity is turned off?',
         a: ['Loses Magnetism', 'Temporary Behavior'],
         tiles: ['Loses Magnetism', 'Temporary Behavior', 'Retains Permanent Pull', 'Reverses Core Poles'],
-        exp: 'Electromagnets are temporary; their magnetic fields collapse almost immediately once power is cut off.'
+        exp: 'Electromagnets are temporary magnets; they lose all their magnetism immediately when power is cut off.'
     },
     {
-        q: 'Identify two well-known applications that operate entirely via the magnetic effects of electric current.',
+        q: 'Name two common devices that work using the magnetic effect of electric current.',
         a: ['Electric Bell', 'Industrial Crane Lift'],
         tiles: ['Electric Bell', 'Industrial Crane Lift', 'Storage Battery Cell', 'Electric Room Heater'],
-        exp: 'Electric bells and heavy scrap cranes rely dynamically on the magnetic attraction produced by electricity.'
+        exp: 'Electric bells and heavy scrap metal cranes both rely on the magnetic effects of electric current to operate.'
     },
     {
-        q: 'What basic components are absolutely required to configure any elementary baseline diagnostic circuit?',
+        q: 'What two basic items are essential to set up any simple working circuit?',
         a: ['Conducting Wires', 'Energy Source'],
         tiles: ['Conducting Wires', 'Energy Source', 'Step-down Transformer', 'Silicon Microchip'],
-        exp: 'Every circuit requires an energy source (cell/battery) and conducting pathways to distribute current.'
+        exp: 'Every basic circuit needs an energy source (like a cell) and conducting wires to connect everything together.'
     }
 ];
 
@@ -503,8 +505,8 @@ function startGame() {
 
 function resize() {
     let r = canvas.getBoundingClientRect();
-    canvas.width = Math.max(300, Math.floor(r.width));
-    canvas.height = Math.max(180, Math.floor(r.height));
+    canvas.width = Math.max(250, Math.floor(r.width));
+    canvas.height = Math.max(150, Math.floor(r.height));
 }
 
 function norm(x) {
@@ -521,7 +523,7 @@ function loadQuestion() {
     $('tries').innerText = tries;
     $('count').innerText = qIndex;
     $('question').innerText = questions[qIndex].q;
-    $('feedback').innerText = 'Analyze the circuit variables and fill both slots.';
+    $('feedback').innerText = 'Select or drag matching options into both slots.';
     $('feedback').style.color = '#475569';
     $('checkBtn').disabled = false;
     renderTiles();
@@ -536,15 +538,14 @@ function renderTiles() {
     items.forEach((it) => {
         let d = document.createElement('div');
         d.className = 'tile';
-        d.draggable = true;
         d.id = it.id;
         d.textContent = it.text;
         d.dataset.text = it.text;
         d.addEventListener('click', () => tapTile(d));
-        d.addEventListener('dragstart', e => {
-            if (locked || d.classList.contains('used')) return e.preventDefault();
-            e.dataTransfer.setData('text/plain', d.dataset.text);
-        });
+        d.addEventListener('touchstart', e => {
+            e.preventDefault();
+            tapTile(d);
+        }, {passive: false});
         box.appendChild(d);
     });
 }
@@ -553,24 +554,35 @@ function renderDrops() {
     [0, 1].forEach(i => {
         let d = $('drop' + i);
         d.className = 'drop' + (placed[i] ? ' filled' : '');
-        d.textContent = placed[i] || ('Property ' + (i === 0 ? 'A' : 'B'));
-        d.ondragover = e => { e.preventDefault(); d.classList.add('active'); };
-        d.ondragleave = () => d.classList.remove('active');
-        d.ondrop = e => {
-            e.preventDefault();
-            d.classList.remove('active');
-            placeTile(e.dataTransfer.getData('text/plain'), i);
-        };
+        d.textContent = placed[i] || ('Slot ' + (i === 0 ? 'A' : 'B'));
     });
 }
 
 function tapTile(el) {
     if (locked || el.classList.contains('used')) return;
-    document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
-    selected = el.dataset.text;
-    el.classList.add('selected');
+    
+    // If a tile is already selected, tapping another selects it.
+    // If a slot is empty, place the selected tile immediately on tap for easier mobile play!
+    if (!selected) {
+        document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+        selected = el.dataset.text;
+        el.classList.add('selected');
+    } else {
+        // Find first empty slot and place the newly tapped tile
+        let emptySlot = placed[0] === null ? 0 : (placed[1] === null ? 1 : null);
+        if (emptySlot !== null) {
+            placeTile(el.dataset.text, emptySlot);
+            document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+            selected = null;
+        } else {
+            document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+            selected = el.dataset.text;
+            el.classList.add('selected');
+        }
+    }
 }
 
+// Tapping drop slots fills them with the currently selected tile
 document.addEventListener('click', e => {
     if (e.target.classList.contains('drop') && selected && !locked) {
         placeTile(selected, Number(e.target.dataset.slot));
@@ -587,7 +599,7 @@ function placeTile(text, slot) {
     markUsed(text, true);
     renderDrops();
     if (placed[0] && placed[1]) {
-        $('feedback').innerText = 'Slots ready for diagnostic check.';
+        $('feedback').innerText = 'Ready to verify blueprint!';
     }
 }
 
@@ -610,7 +622,7 @@ function clearDrops() {
 function checkAnswer() {
     if (locked) return;
     if (!placed[0] || !placed[1]) {
-        $('feedback').innerText = 'Error: Fill both property diagnostic slots first.';
+        $('feedback').innerText = 'Please fill both slots before verifying.';
         $('feedback').style.color = '#b45309';
         return;
     }
@@ -628,7 +640,7 @@ function correct() {
     $('checkBtn').disabled = true;
     score += 12;
     $('score').innerText = score;
-    $('feedback').innerText = 'Verification Success: ' + questions[qIndex].exp;
+    $('feedback').innerText = 'Correct! ' + questions[qIndex].exp;
     $('feedback').style.color = '#10b981';
     [0, 1].forEach(i => $('drop'+i).className = 'drop correct');
     sound('correctSound');
@@ -638,7 +650,7 @@ function correct() {
         qIndex++;
         if (qIndex >= questions.length) finish();
         else loadQuestion();
-    }, 3000);
+    }, 3200);
 }
 
 function wrong() {
@@ -647,7 +659,7 @@ function wrong() {
     [0, 1].forEach(i => $('drop'+i).className = 'drop wrong');
     $('tries').innerText = tries;
     if (tries > 0) {
-        $('feedback').innerText = 'Circuit Conflict Detected. Re-evaluating terminal configuration...';
+        $('feedback').innerText = 'Incorrect match. Try again!';
         $('feedback').style.color = '#ef4444';
         setTimeout(() => {
             clearDrops();
@@ -657,7 +669,7 @@ function wrong() {
         locked = true;
         $('checkBtn').disabled = true;
         let q = questions[qIndex];
-        $('feedback').innerText = 'Required Criteria: ' + q.a.join(' & ') + '. ' + q.exp;
+        $('feedback').innerText = 'Answer: ' + q.a.join(' & ') + '. ' + q.exp;
         $('feedback').style.color = '#ef4444';
         setTimeout(() => {
             qIndex++;
@@ -675,7 +687,7 @@ function sound(id) {
 
 function finish() {
     let acc = Math.round((score / (questions.length * 12)) * 100);
-    $('root').innerHTML = `<div class="screen"><div class="endCard"><h1>🔬 Simulation Evaluation</h1><p>You have successfully analyzed all 10 laboratory diagnostic records.<br><b>Final System Energy: ${score}V</b><br><b>Accuracy Rating: ${acc}%</b></p><button class="btn" onclick="location.reload()">Reboot Terminal</button></div></div>`;
+    $('root').innerHTML = `<div class="screen"><div class="endCard"><h1>🔬 Laboratory Complete!</h1><p>You finished all 10 diagnostic challenges.<br><b>Final Voltage: ${score}V</b><br><b>Accuracy: ${acc}%</b></p><button class="btn" onclick="location.reload()">Play Again</button></div></div>`;
 }
 
 function confetti() {
@@ -694,7 +706,6 @@ function draw() {
     let w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
     
-    // Tech Lab Grid Background Background
     ctx.fillStyle = '#0f172a';
     ctx.fillRect(0, 0, w, h);
     
@@ -724,17 +735,15 @@ function draw() {
 }
 
 function drawCoreCircuitLayout(w, h) {
-    let cx = w / 2, cy = h / 2 - 10;
-    let rx = Math.min(w * 0.3, 110), ry = Math.min(h * 0.22, 55);
+    let cx = w / 2, cy = h / 2 - 8;
+    let rx = Math.min(w * 0.28, 95), ry = Math.min(h * 0.22, 48);
 
-    // Dynamic color shifting lines based on status
     let activeColor = (wallGlow > 0) ? '#10b981' : '#f59e0b';
     ctx.strokeStyle = (wallGlow > 0 || Math.sin(anim * 2) > -0.2) ? activeColor : '#334155';
     ctx.lineWidth = 4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    // Draw main structural wiring loops
     ctx.beginPath();
     ctx.moveTo(cx - rx, cy - ry);
     ctx.lineTo(cx - rx, cy + ry);
@@ -743,84 +752,64 @@ function drawCoreCircuitLayout(w, h) {
     ctx.lineTo(cx - rx, cy - ry);
     ctx.stroke();
 
-    // 1. Draw Battery symbol on top rail
+    // Battery symbol
     ctx.fillStyle = '#0f172a';
-    ctx.fillRect(cx - 30, cy - ry - 15, 60, 30);
+    ctx.fillRect(cx - 26, cy - ry - 14, 52, 28);
     ctx.strokeStyle = '#64748b';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    // Long plate, thin plate configurations
-    ctx.moveTo(cx - 15, cy - ry - 12); ctx.lineTo(cx - 15, cy - ry + 12);
-    ctx.moveTo(cx - 5, cy - ry - 6);  ctx.lineTo(cx - 5, cy - ry + 6);
-    ctx.moveTo(cx + 5, cy - ry - 12); ctx.lineTo(cx + 5, cy - ry + 12);
-    ctx.moveTo(cx + 15, cy - ry - 6);  ctx.lineTo(cx + 15, cy - ry + 6);
+    ctx.moveTo(cx - 12, cy - ry - 10); ctx.lineTo(cx - 12, cy - ry + 10);
+    ctx.moveTo(cx - 4, cy - ry - 5);  ctx.lineTo(cx - 4, cy - ry + 5);
+    ctx.moveTo(cx + 4, cy - ry - 10); ctx.lineTo(cx + 4, cy - ry + 10);
+    ctx.moveTo(cx + 12, cy - ry - 5);  ctx.lineTo(cx + 12, cy - ry + 5);
     ctx.stroke();
 
-    // 2. Draw Appliance Load (Bulb Symbol) on bottom rail
+    // Bulb symbol
     ctx.fillStyle = '#0f172a';
-    ctx.fillRect(cx - 20, cy + ry - 20, 40, 40);
-    
+    ctx.fillRect(cx - 18, cy + ry - 18, 36, 36);
     let activeBulbColor = (wallGlow > 0) ? '#fbbf24' : '#475569';
     ctx.strokeStyle = activeBulbColor;
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(cx, cy + ry, 12, 0, Math.PI * 2);
+    ctx.arc(cx, cy + ry, 10, 0, Math.PI * 2);
     ctx.stroke();
     
-    // Filament cross interior
     ctx.beginPath();
-    ctx.moveTo(cx - 7, cy + ry - 7); ctx.lineTo(cx + 7, cy + ry + 7);
-    ctx.moveTo(cx + 7, cy + ry - 7); ctx.lineTo(cx - 7, cy + ry + 7);
+    ctx.moveTo(cx - 6, cy + ry - 6); ctx.lineTo(cx + 6, cy + ry + 6);
+    ctx.moveTo(cx + 6, cy + ry - 6); ctx.lineTo(cx - 6, cy + ry + 6);
     ctx.stroke();
     
     if (wallGlow > 0) {
         ctx.fillStyle = 'rgba(251, 191, 36, 0.2)';
-        ctx.beginPath(); ctx.arc(cx, cy + ry, 22, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy + ry, 18, 0, Math.PI * 2); ctx.fill();
     }
 
-    // 3. Draw Switch Assembly Component on Left Rail
+    // Switch symbol
     ctx.fillStyle = '#0f172a';
-    ctx.fillRect(cx - rx - 15, cy - 25, 30, 50);
+    ctx.fillRect(cx - rx - 12, cy - 22, 24, 44);
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(cx - rx, cy + 12, 3, 0, Math.PI * 2);
-    ctx.arc(cx - rx, cy - 12, 3, 0, Math.PI * 2);
+    ctx.arc(cx - rx, cy + 10, 3, 0, Math.PI * 2);
+    ctx.arc(cx - rx, cy - 10, 3, 0, Math.PI * 2);
     ctx.fillStyle = '#38bdf8'; ctx.fill();
     
     ctx.beginPath();
-    ctx.moveTo(cx - rx, cy + 10);
+    ctx.moveTo(cx - rx, cy + 8);
     if (wallGlow > 0) {
-        ctx.lineTo(cx - rx, cy - 10); // Closed path configuration
+        ctx.lineTo(cx - rx, cy - 8);
     } else {
-        ctx.lineTo(cx - rx + 14, cy - 6); // Slanted open path configuration
+        ctx.lineTo(cx - rx + 12, cy - 5);
     }
     ctx.stroke();
 
-    // 4. Draw Electromagnetic Inductor/Fuse component on right rail
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(cx + rx - 15, cy - 30, 30, 60);
-    
-    ctx.strokeStyle = '#a855f7';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    // Coiled wire graphics
-    let sy = cy - 20;
-    ctx.moveTo(cx + rx, sy);
-    for (let i = 0; i < 5; i++) {
-        ctx.bezierCurveTo(cx + rx + 12, sy + 4, cx + rx + 12, sy + 8, cx + rx, sy + 8);
-        sy += 8;
-    }
-    ctx.stroke();
-
-    // Live Electron particle simulation overlay running along loop rails
+    // Electrons
     if (wallGlow > 0 || Math.sin(anim) > -0.4) {
         ctx.fillStyle = '#38bdf8';
         let pCount = 3;
         for (let j = 0; j < pCount; j++) {
-            let offset = (anim * 75 + (j * 140)) % ((rx * 4) + (ry * 4));
+            let offset = (anim * 70 + (j * 130)) % ((rx * 4) + (ry * 4));
             let px = 0, py = 0;
-            // Trace outer rectangular wire coordinates linearly
             if (offset < rx * 2) {
                 px = (cx - rx) + offset; py = cy - ry;
             } else if (offset < (rx * 2) + (ry * 2)) {
@@ -830,17 +819,14 @@ function drawCoreCircuitLayout(w, h) {
             } else {
                 px = cx - rx; py = (cy + ry) - (offset - (rx * 4 + ry * 2));
             }
-            ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill();
         }
     }
 
-    // Terminal Status Header Texts Contextual display
     ctx.fillStyle = '#64748b';
-    ctx.font = '950 11px sans-serif';
+    ctx.font = '950 10px sans-serif';
     ctx.textAlign = 'center';
-    ctx.letterSpacing = "1.5px";
-    ctx.fillText('DIAGNOSTIC BLUEPRINT SCHEMATIC', cx, cy - ry - 32);
-    ctx.letterSpacing = "0px";
+    ctx.fillText('CIRCUIT SCHEMATIC', cx, cy - ry - 25);
 }
 
 function loop() {
