@@ -94,7 +94,7 @@ body:before {
     opacity: 0;
     transition: opacity .45s ease;
     position: relative;
-    overflow-y: auto;
+    overflow: hidden;
 }
 .screen {
     position: fixed;
@@ -188,6 +188,7 @@ h1 {
     grid-template-columns: 1fr 1fr;
     gap: 6px;
     min-height: 0;
+    overflow: hidden;
 }
 .panel {
     background: rgba(255, 255, 255, .9);
@@ -197,6 +198,7 @@ h1 {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    min-height: 0;
 }
 .workshop {
     position: relative;
@@ -212,6 +214,7 @@ canvas {
     padding: 8px;
     gap: 6px;
     justify-content: space-between;
+    overflow-y: auto;
 }
 .prompt {
     background: #f8fafc;
@@ -219,6 +222,7 @@ canvas {
     border-radius: 12px;
     padding: 6px 8px;
     text-align: center;
+    flex-shrink: 0;
 }
 .expr {
     font-size: clamp(0.88rem, 2.4vw, 1.05rem);
@@ -232,11 +236,13 @@ canvas {
     color: #64748b;
     text-align: center;
     font-weight: 750;
+    flex-shrink: 0;
 }
 .dropRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
+    flex-shrink: 0;
 }
 .drop {
     min-height: 48px;
@@ -277,6 +283,7 @@ canvas {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 6px;
+    flex-shrink: 0;
 }
 .tile {
     min-height: 42px;
@@ -317,10 +324,12 @@ canvas {
     font-weight: 700;
     line-height: 1.2;
     color: #475569;
+    flex-shrink: 0;
 }
 .actions {
     display: flex;
     gap: 6px;
+    flex-shrink: 0;
 }
 .actions .btn {
     flex: 1;
@@ -353,16 +362,18 @@ canvas {
     html, body {
         height: 100vh;
         height: -webkit-fill-available;
+        overflow: hidden;
     }
     #root {
         height: 100vh;
         height: -webkit-fill-available;
         padding: 4px;
         gap: 4px;
+        overflow: hidden;
     }
     .main {
         grid-template-columns: 1fr;
-        grid-template-rows: 140px 1fr;
+        grid-template-rows: 120px minmax(0, 1fr);
         gap: 4px;
         min-height: 0;
     }
