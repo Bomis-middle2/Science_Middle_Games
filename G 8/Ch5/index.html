@@ -3,218 +3,268 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>G8  Pressure Lab Escape</title>
+<title>G8 Pressure Lab Escape</title>
 
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:linear-gradient(#0f172a,#1e3a8a);
-  color:white;
-  text-align:center;
-  overflow:hidden; /* Prevents screen jumping and double-scroll issues */
-  height:100vh;
-  display:flex;
-  flex-direction:column;
+* {
+  box-sizing: border-box;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.screen{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(#eaf9ff,#ffffff);
-  color:#0f172a;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  z-index:50;
-  padding:20px;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(#0f172a, #1e3a8a);
+  color: white;
+  text-align: center;
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
-.logo{
-  width:min(180px,55vw);
-  margin-bottom:18px;
+
+.screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(#eaf9ff, #ffffff);
+  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
 }
-button{
-  border:0;
-  border-radius:14px;
-  background:#0ea5e9;
-  color:white;
-  font-size:clamp(16px,2.5vw,22px);
-  font-weight:bold;
-  padding:13px 26px;
-  cursor:pointer;
-  min-height:55px;
+
+.logo-placeholder {
+  font-size: clamp(40px, 8vw, 64px);
+  margin-bottom: 10px;
+}
+
+button {
+  border: 0;
+  border-radius: 14px;
+  background: #0ea5e9;
+  color: white;
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: bold;
+  padding: 13px 26px;
+  cursor: pointer;
+  min-height: 55px;
   box-shadow: 0 4px 0 #0369a1;
+  touch-action: manipulation;
+  transition: transform 0.1s ease, background-color 0.2s;
 }
-button:active{
-  transform:translateY(2px);
+
+button:active {
+  transform: translateY(2px);
   box-shadow: 0 2px 0 #0369a1;
 }
-#hud{
-  display:flex;
-  justify-content:space-around;
-  flex-wrap:wrap;
-  gap:10px;
-  background:#020617dd;
-  padding:12px;
-  font-size:clamp(17px,3vw,23px);
-  font-weight:bold;
+
+#hud {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #020617dd;
+  padding: 10px 12px;
+  font-size: clamp(15px, 2.8vw, 20px);
+  font-weight: bold;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
-#title{
-  font-size:clamp(24px,4vw,36px);
-  margin:10px 0 4px;
+
+#title {
+  font-size: clamp(20px, 3.5vw, 30px);
+  margin: 8px 0 2px;
 }
-#questionBox{
-  width:min(950px,94vw);
-  margin:4px auto;
-  background:white;
-  color:#0f172a;
-  border:4px solid #38bdf8;
-  border-radius:18px;
-  padding:12px;
-  font-size:clamp(18px,2.8vw,26px);
-  font-weight:bold;
-  min-height:75px;
+
+#questionBox {
+  width: min(950px, 94vw);
+  margin: 4px auto;
+  background: white;
+  color: #0f172a;
+  border: 3px solid #38bdf8;
+  border-radius: 14px;
+  padding: 8px 12px;
+  font-size: clamp(15px, 2.4vw, 22px);
+  font-weight: bold;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-#gameArea{
-  width:min(1050px,96vw);
-  margin:8px auto;
-  background:linear-gradient(#1e293b,#0f172a);
-  border:5px solid #38bdf8;
-  border-radius:22px;
-  padding:15px;
-  box-shadow:0 0 25px rgba(56,189,248,.35);
-  position:relative;
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  overflow:hidden;
+
+#gameArea {
+  width: min(1050px, 96vw);
+  margin: 4px auto;
+  background: linear-gradient(#1e293b, #0f172a);
+  border: 4px solid #38bdf8;
+  border-radius: 18px;
+  padding: 10px;
+  box-shadow: 0 0 25px rgba(56,189,248,.35);
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
 }
-.row{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:12px;
-  margin:10px auto;
-  width:100%;
+
+.row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px auto;
+  width: 100%;
 }
-.card,.tile,.zone,.slot,.object,.seqCard{
-  background:white;
-  color:#111;
-  border:4px solid #38bdf8;
-  border-radius:16px;
-  padding:10px;
-  min-width:140px;
-  min-height:65px;
-  font-size:clamp(16px,2.5vw,22px);
-  font-weight:bold;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
+
+.card, .tile, .zone, .slot, .object, .seqCard {
+  background: white;
+  color: #111;
+  border: 3px solid #38bdf8;
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 120px;
+  min-height: 55px;
+  font-size: clamp(14px, 2.2vw, 19px);
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  touch-action: manipulation;
+  transition: transform 0.15s ease, background-color 0.2s, border-color 0.2s;
 }
-.card.selected,.tile.selected{
-  background:#fef08a;
-  border-color:#f59e0b;
-  transform:scale(1.05);
+
+.card:active, .tile:active, .object:active, .seqCard:active {
+  transform: scale(0.97);
 }
-.zone,.slot{
-  background:#e0f2fe;
-  border-style:dashed;
-  min-height:110px;
-  flex-direction:column;
-  width:min(280px,44vw);
+
+.card.selected, .tile.selected {
+  background: #fef08a;
+  border-color: #f59e0b;
+  transform: scale(1.05);
 }
-.placed{
-  background:#dcfce7;
-  border:2px solid #22c55e;
-  border-radius:10px;
-  padding:6px;
-  margin:4px;
-  font-size:clamp(14px,2.2vw,19px);
-  color:#111;
-  width:95%;
+
+.zone, .slot {
+  background: #e0f2fe;
+  border-style: dashed;
+  min-height: 90px;
+  flex-direction: column;
+  width: min(280px, 44vw);
 }
-.correctFlash{
-  background:#dcfce7!important;
-  border-color:#22c55e!important;
-  color:#111!important;
+
+.placed {
+  background: #dcfce7;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  padding: 4px 6px;
+  margin: 3px;
+  font-size: clamp(12px, 2vw, 17px);
+  color: #111;
+  width: 95%;
 }
-.wrongFlash{
-  background:#fee2e2!important;
-  border-color:#ef4444!important;
-  animation:shake .35s;
+
+.correctFlash {
+  background: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #111 !important;
 }
-#msg{
-  font-size:clamp(18px,3vw,26px);
-  font-weight:bold;
-  min-height:36px;
-  margin-bottom:5px;
+
+.wrongFlash {
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  animation: shake .35s;
 }
-.instructions{
-  font-size:clamp(16px,2.5vw,22px);
-  line-height:1.6;
-  max-width:760px;
-  color:#334155;
+
+#msg {
+  font-size: clamp(15px, 2.5vw, 22px);
+  font-weight: bold;
+  min-height: 30px;
+  margin-bottom: 5px;
+  padding: 0 10px;
 }
-.labBox{
-  background:white;
-  color:#111;
-  border:4px solid #38bdf8;
-  border-radius:18px;
-  padding:12px;
-  margin:4px auto;
-  width:min(740px,92vw);
-  font-size:clamp(18px,3vw,28px);
-  font-weight:bold;
+
+.instructions {
+  font-size: clamp(15px, 2.2vw, 20px);
+  line-height: 1.5;
+  max-width: 760px;
+  color: #334155;
+  text-align: left;
 }
-.tank{
-  width:240px;
-  height:300px;
-  border:6px solid white;
-  border-radius:18px;
-  margin:10px auto;
-  position:relative;
-  background:#0ea5e966;
+
+.labBox {
+  background: white;
+  color: #111;
+  border: 3px solid #38bdf8;
+  border-radius: 14px;
+  padding: 8px;
+  margin: 4px auto;
+  width: min(740px, 92vw);
+  font-size: clamp(15px, 2.5vw, 22px);
+  font-weight: bold;
 }
-.hole{
-  position:absolute;
-  left:85px;
-  width:70px;
-  height:45px;
-  background:white;
-  color:#111;
-  border:3px solid #111;
-  border-radius:12px;
-  font-weight:bold;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
+
+.tank {
+  width: min(200px, 50vw);
+  height: clamp(200px, 35vh, 280px);
+  border: 5px solid white;
+  border-radius: 16px;
+  margin: 5px auto;
+  position: relative;
+  background: linear-gradient(to bottom, #38bdf888, #0284c7bb);
+}
+
+.hole {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 40px;
+  background: white;
+  color: #111;
+  border: 2px solid #111;
+  border-radius: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   box-shadow: 0 3px 0 #1e293b;
+  touch-action: manipulation;
 }
-.h1{top:30px}.h2{top:120px}.h3{top:210px}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+.h1 { top: 15%; }
+.h2 { top: 45%; }
+.h3 { top: 75%; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
 </style>
 </head>
 
 <body>
 
 <div id="loader" class="screen">
-  <img src="assets/logo.png" class="logo">
-
+  <div class="logo-placeholder">🧪</div>
+  <h2>Loading Pressure Lab...</h2>
 </div>
 
 <div id="instructions" class="screen" style="display:none">
- 
   <h1>🧪 Pressure Lab Escape</h1>
   <div class="instructions">
-    <p>Complete fluid and atmospheric pressure laboratory challenges.</p>
-    <p>No typing required. Only tap, sort, arrange, and construct engineering components.</p>
-    <p><b>Sorting matrix levels:</b> first tap a dataset card to highlight it yellow, then tap its correct target system zone.</p>
-    <p>You get exactly <b>2 simulation chances</b> before system overrides reveal solutions.</p>
+    <p>• Complete fluid and atmospheric pressure laboratory challenges.</p>
+    <p>• No typing required. Tap, sort, sequence, and select answers directly on screen.</p>
+    <p>• <b>Sorting matrix levels:</b> Tap a dataset card to highlight it yellow, then tap its target zone.</p>
+    <p>• You get <b>2 simulation chances</b> per level before system overrides reveal solutions.</p>
   </div>
   <button onclick="startGame()">Start Lab</button>
 </div>
@@ -236,12 +286,73 @@ button:active{
 <div id="gameArea"></div>
 <div id="msg"></div>
 
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
-<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
-
 <script>
-const levels=[
+// Web Audio Synthesizer for reliably playing sound FX without external assets
+class SoundFX {
+  constructor() {
+    this.ctx = null;
+  }
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+  playCorrect() {
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, now); // C5
+    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.4);
+  }
+  playWrong() {
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.setValueAtTime(110, now + 0.15);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.4);
+  }
+  playWin() {
+    this.init();
+    if (!this.ctx) return;
+    const notes = [261.63, 329.63, 392.00, 523.25];
+    notes.forEach((freq, idx) => {
+      const now = this.ctx.currentTime + (idx * 0.12);
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    });
+  }
+}
+
+const sfx = new SoundFX();
+
+const levels = [
   {type:"formula",title:"Formula Builder",q:"Build the pressure formula correctly. Tap a tile first, then tap the correct step box.",slots:["Pressure","=","Force","÷","Area"],tiles:["Area","Force","Pressure","÷","="],answer:"Pressure = Force ÷ Area"},
   {type:"formula",title:"Unit Builder",q:"Build the unit relation correctly. Tap a tile first, then tap the correct step box.",slots:["1 Pa","=","1 N","/","m²"],tiles:["m²","1 N","=","1 Pa","/"],answer:"1 Pa = 1 N / m²"},
   {type:"sort",title:"Area and Pressure",q:"Sorting task: Tap one situation card first. Then tap High Pressure or Low Pressure.",cards:[["Sharp knife cuts easily","High Pressure"],["Camel has broad feet","Low Pressure"],["Needle pierces cloth","High Pressure"],["Flat shoes on sand","Low Pressure"]],zones:["High Pressure","Low Pressure"]},
@@ -254,24 +365,24 @@ const levels=[
   {type:"sort",title:"Atmospheric or Liquid Pressure",q:"Sorting task: Tap one example card first. Then tap Atmospheric Pressure or Liquid Pressure.",cards:[["Suction cup sticks to wall","Atmospheric Pressure"],["Dam wall is thicker at bottom","Liquid Pressure"],["Barometer measures air pressure","Atmospheric Pressure"],["Scuba diver feels pressure at depth","Liquid Pressure"]],zones:["Atmospheric Pressure","Liquid Pressure"]}
 ];
 
-let order=[];
-let level=0,score=0,chances=2,locked=false,selected=null,placed=0,seqIndex=0,formulaBuilt=[];
+let order = [];
+let level = 0, score = 0, chances = 2, locked = false, selected = null, placed = 0, seqIndex = 0, formulaBuilt = [];
 
-const loader=document.getElementById("loader");
-const instructions=document.getElementById("instructions");
-const gameArea=document.getElementById("gameArea");
-const scoreSpan=document.getElementById("score");
-const chancesSpan=document.getElementById("chances");
-const levelNo=document.getElementById("levelNo");
-const title=document.getElementById("title");
-const questionBox=document.getElementById("questionBox");
-const correctSound=document.getElementById("correctSound");
-const wrongSound=document.getElementById("wrongSound");
-const clapSound=document.getElementById("clapSound");
-const finalScore=document.getElementById("finalScore");
-const endScreen=document.getElementById("endScreen");
+const loader = document.getElementById("loader");
+const instructions = document.getElementById("instructions");
+const gameArea = document.getElementById("gameArea");
+const scoreSpan = document.getElementById("score");
+const chancesSpan = document.getElementById("chances");
+const levelNo = document.getElementById("levelNo");
+const title = document.getElementById("title");
+const questionBox = document.getElementById("questionBox");
+const finalScore = document.getElementById("finalScore");
+const endScreen = document.getElementById("endScreen");
 
-window.onload=()=>setTimeout(()=>{loader.style.display="none";instructions.style.display="flex"},1200);
+window.onload = () => setTimeout(() => {
+  loader.style.display = "none";
+  instructions.style.display = "flex";
+}, 1000);
 
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -280,168 +391,169 @@ function shuffleArray(arr) {
   }
 }
 
-function startGame(){
-  instructions.style.display="none";
+function startGame() {
+  sfx.init();
+  instructions.style.display = "none";
   order = [...levels];
-  shuffleArray(order); // Unbiased shuffling of full game layout index
-  level=0;
-  score=0;
+  shuffleArray(order);
+  level = 0;
+  score = 0;
   scoreEl();
   loadLevel();
 }
 
-function loadLevel(){
-  locked=false;selected=null;placed=0;seqIndex=0;formulaBuilt=[];chances=2;
+function loadLevel() {
+  locked = false; selected = null; placed = 0; seqIndex = 0; formulaBuilt = []; chances = 2;
   chancesEl(); msg("");
-  gameArea.innerHTML="";
-  if(level>=order.length){endGame();return}
-  const item=order[level];
-  levelNo.textContent=level+1;
-  title.textContent="🧪 "+item.title;
-  questionBox.textContent="Level "+(level+1)+". "+item.q;
+  gameArea.innerHTML = "";
+  if (level >= order.length) { endGame(); return; }
+  const item = order[level];
+  levelNo.textContent = level + 1;
+  title.textContent = "🧪 " + item.title;
+  questionBox.textContent = "Level " + (level + 1) + ". " + item.q;
   
-  if(item.type==="formula")buildFormula(item);
-  if(item.type==="sort")buildSort(item);
-  if(item.type==="tank")buildTank(item);
-  if(item.type==="sequence")buildSequence(item);
-  if(item.type==="balance")buildBalance(item);
+  if (item.type === "formula") buildFormula(item);
+  if (item.type === "sort") buildSort(item);
+  if (item.type === "tank") buildTank(item);
+  if (item.type === "sequence") buildSequence(item);
+  if (item.type === "balance") buildBalance(item);
 }
 
-function buildFormula(item){
-  let slotRow=document.createElement("div");slotRow.className="row";
-  item.slots.forEach((s,i)=>{
-    let slot=document.createElement("div");slot.className="slot";slot.dataset.expected=s;slot.textContent="Step "+(i+1);
-    slot.onclick=()=>placeFormula(slot);
+function buildFormula(item) {
+  let slotRow = document.createElement("div"); slotRow.className = "row";
+  item.slots.forEach((s, i) => {
+    let slot = document.createElement("div"); slot.className = "slot"; slot.dataset.expected = s; slot.textContent = "Step " + (i + 1);
+    slot.onclick = () => placeFormula(slot);
     slotRow.appendChild(slot);
   });
 
-  let tileRow=document.createElement("div");tileRow.className="row";
+  let tileRow = document.createElement("div"); tileRow.className = "row";
   let randomizedTiles = [...item.tiles];
   shuffleArray(randomizedTiles);
   
-  randomizedTiles.forEach(t=>{
-    let tile=document.createElement("div");tile.className="tile";tile.textContent=t;
-    tile.onclick=()=>{
-      if(locked)return;
-      selected=tile;
-      document.querySelectorAll(".tile").forEach(x=>x.classList.remove("selected"));
+  randomizedTiles.forEach(t => {
+    let tile = document.createElement("div"); tile.className = "tile"; tile.textContent = t;
+    tile.onclick = () => {
+      if (locked) return;
+      selected = tile;
+      document.querySelectorAll(".tile").forEach(x => x.classList.remove("selected"));
       tile.classList.add("selected");
-      msg("Selected: "+tile.textContent+". Now tap the correct step box.","#38bdf8");
+      msg("Selected: " + tile.textContent + ". Tap target step box.", "#38bdf8");
     };
     tileRow.appendChild(tile);
   });
 
-  gameArea.append(slotRow,tileRow);
+  gameArea.append(slotRow, tileRow);
 }
 
-function placeFormula(slot){
-  if(!selected||locked||slot.dataset.filled)return;
+function placeFormula(slot) {
+  if (!selected || locked || slot.dataset.filled) return;
 
-  if(selected.textContent===slot.dataset.expected){
-    slot.textContent=selected.textContent;
-    slot.dataset.filled="yes";
+  if (selected.textContent === slot.dataset.expected) {
+    slot.textContent = selected.textContent;
+    slot.dataset.filled = "yes";
     slot.classList.remove("wrongFlash");
     slot.classList.add("correctFlash");
     formulaBuilt.push(selected.textContent);
     selected.remove();
-    selected=null;
-    score+=4;
+    selected = null;
+    score += 2;
     scoreEl();
 
-    if(formulaBuilt.length===order[level].slots.length){
-      correctNext(true, 0); // No extra flat bonus, incremental score added dynamically
+    if (formulaBuilt.length === order[level].slots.length) {
+      correctNext(true, 0);
     }
-  }else{
-    wrong(order[level].answer, false);
+  } else {
+    wrong(order[level].answer);
   }
 }
 
-function buildSort(item){
-  let instruction=document.createElement("div");
-  instruction.className="labBox";
-  instruction.textContent="Step 1: Tap a card below. Step 2: Tap its correct zone.";
+function buildSort(item) {
+  let instruction = document.createElement("div");
+  instruction.className = "labBox";
+  instruction.textContent = "Tap a card below, then tap its matching zone.";
   gameArea.appendChild(instruction);
 
-  let row=document.createElement("div");
-  row.className="row";
+  let row = document.createElement("div");
+  row.className = "row";
 
   let randomizedCards = [...item.cards];
   shuffleArray(randomizedCards);
 
-  randomizedCards.forEach(c=>{
-    let card=document.createElement("div");
-    card.className="card";
-    card.textContent=c[0];
-    card.dataset.answer=c[1];
-    card.onclick=()=>{
-      if(locked)return;
-      selected=card;
-      document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
+  randomizedCards.forEach(c => {
+    let card = document.createElement("div");
+    card.className = "card";
+    card.textContent = c[0];
+    card.dataset.answer = c[1];
+    card.onclick = () => {
+      if (locked) return;
+      selected = card;
+      document.querySelectorAll(".card").forEach(x => x.classList.remove("selected"));
       card.classList.add("selected");
-      msg("Selected card. Now tap target zone: "+card.dataset.answer,"#38bdf8");
+      msg("Selected card. Now tap target zone.", "#38bdf8");
     };
     row.appendChild(card);
   });
 
-  let zones=document.createElement("div");
-  zones.className="row";
+  let zones = document.createElement("div");
+  zones.className = "row";
 
-  item.zones.forEach(z=>{
-    let zone=document.createElement("div");
-    zone.className="zone";
-    zone.dataset.zone=z;
-    zone.innerHTML="<b>"+z+"</b>";
-    zone.onclick=()=>checkZone(zone,item.cards.length);
+  item.zones.forEach(z => {
+    let zone = document.createElement("div");
+    zone.className = "zone";
+    zone.dataset.zone = z;
+    zone.innerHTML = "<b>" + z + "</b>";
+    zone.onclick = () => checkZone(zone, item.cards.length);
     zones.appendChild(zone);
   });
 
-  gameArea.append(row,zones);
+  gameArea.append(row, zones);
 }
 
-function checkZone(zone,total){
-  if(!selected||locked)return;
+function checkZone(zone, total) {
+  if (!selected || locked) return;
 
-  if(selected.dataset.answer===zone.dataset.zone){
-    moveCardToZone(zone,selected);
-    selected=null;
+  if (selected.dataset.answer === zone.dataset.zone) {
+    moveCardToZone(zone, selected);
+    selected = null;
     placed++;
-    score+=3;
+    score += 2;
     scoreEl();
-    correctSound.play();
-    msg("✅ Correct Zone Assignment!","#22c55e");
+    sfx.playCorrect();
+    msg("✅ Correct Zone Assignment!", "#22c55e");
 
-    if(placed===total)correctNext(true, 0);
-  }else{
+    if (placed === total) correctNext(true, 2);
+  } else {
     zone.classList.add("wrongFlash");
-    setTimeout(()=>zone.classList.remove("wrongFlash"),500);
-    handleWrongSorting(selected.dataset.answer, total);
+    setTimeout(() => zone.classList.remove("wrongFlash"), 500);
+    handleWrongSorting(selected.dataset.answer);
   }
 }
 
-function moveCardToZone(zone,card){
-  let p=document.createElement("div");
-  p.className="placed";
-  p.textContent=card.textContent;
+function moveCardToZone(zone, card) {
+  let p = document.createElement("div");
+  p.className = "placed";
+  p.textContent = card.textContent;
   zone.appendChild(p);
   card.remove();
 }
 
-function buildTank(item){
-  let tank=document.createElement("div");tank.className="tank";
+function buildTank(item) {
+  let tank = document.createElement("div"); tank.className = "tank";
 
-  let internalHoles = [["Top","h1"],["Middle","h2"],["Bottom","h3"]];
-  internalHoles.forEach(x=>{
-    let h=document.createElement("div");
-    h.className="hole "+x[1];
-    h.textContent=x[0];
-    h.onclick=()=>{
-      if(locked) return;
-      if(x[0]===item.answer) {
+  let internalHoles = [["Top", "h1"], ["Middle", "h2"], ["Bottom", "h3"]];
+  internalHoles.forEach(x => {
+    let h = document.createElement("div");
+    h.className = "hole " + x[1];
+    h.textContent = x[0];
+    h.onclick = () => {
+      if (locked) return;
+      if (x[0] === item.answer) {
         correctNext(true, 10);
       } else {
         h.classList.add("wrongFlash");
-        setTimeout(()=>h.classList.remove("wrongFlash"),500);
-        wrong(item.answer+" hole", false);
+        setTimeout(() => h.classList.remove("wrongFlash"), 500);
+        wrong(item.answer + " hole");
       }
     };
     tank.appendChild(h);
@@ -450,39 +562,39 @@ function buildTank(item){
   gameArea.appendChild(tank);
 }
 
-function buildSequence(item){
-  let instruction=document.createElement("div");
-  instruction.className="labBox";
-  instruction.textContent="Tap the items one by one in the correct logical sequence flow.";
+function buildSequence(item) {
+  let instruction = document.createElement("div");
+  instruction.className = "labBox";
+  instruction.textContent = "Tap steps in correct physical sequence flow.";
   gameArea.appendChild(instruction);
 
-  let row=document.createElement("div");row.className="row";
+  let row = document.createElement("div"); row.className = "row";
 
   let randomizedSteps = [...item.steps];
   shuffleArray(randomizedSteps);
 
-  randomizedSteps.forEach(step=>{
-    let c=document.createElement("div");
-    c.className="seqCard";
-    c.textContent=step;
-    c.onclick=()=>{
-      if(locked)return;
+  randomizedSteps.forEach(step => {
+    let c = document.createElement("div");
+    c.className = "seqCard";
+    c.textContent = step;
+    c.onclick = () => {
+      if (locked) return;
 
-      if(step===item.steps[seqIndex]){
+      if (step === item.steps[seqIndex]) {
         c.classList.add("correctFlash");
-        c.style.pointerEvents="none";
+        c.style.pointerEvents = "none";
         seqIndex++;
-        score+=3;
+        score += 2;
         scoreEl();
-        correctSound.play();
+        sfx.playCorrect();
 
-        if(seqIndex===item.steps.length){
-          correctNext(true, 0);
+        if (seqIndex === item.steps.length) {
+          correctNext(true, 2);
         }
-      }else{
+      } else {
         c.classList.add("wrongFlash");
-        setTimeout(()=>c.classList.remove("wrongFlash"),500);
-        wrong(item.steps.join(" → "), false);
+        setTimeout(() => c.classList.remove("wrongFlash"), 500);
+        wrong(item.steps.join(" → "));
       }
     };
     row.appendChild(c);
@@ -491,100 +603,99 @@ function buildSequence(item){
   gameArea.appendChild(row);
 }
 
-function buildBalance(item){
-  let box=document.createElement("div");
-  box.className="labBox";
-  box.textContent="⬆️ Buoyant Force     ⬇️ Weight Gravity";
+function buildBalance(item) {
+  let box = document.createElement("div");
+  box.className = "labBox";
+  box.textContent = "⬆️ Buoyant Force     ⬇️ Weight / Gravity";
 
-  let row=document.createElement("div");
-  row.className="row";
+  let row = document.createElement("div");
+  row.className = "row";
 
-  let structures = ["Buoyant force > Weight","Buoyant force < Weight","Buoyant force = 0"];
+  let structures = ["Buoyant force > Weight", "Buoyant force < Weight", "Buoyant force = 0"];
   shuffleArray(structures);
 
-  structures.forEach(x=>{
-    let b=document.createElement("div");
-    b.className="object";
-    b.textContent=x;
-    b.onclick=()=>{
-      if(locked) return;
-      if(x===item.answer) {
+  structures.forEach(x => {
+    let b = document.createElement("div");
+    b.className = "object";
+    b.textContent = x;
+    b.onclick = () => {
+      if (locked) return;
+      if (x === item.answer) {
         correctNext(true, 10);
       } else {
         b.classList.add("wrongFlash");
-        setTimeout(()=>b.classList.remove("wrongFlash"),500);
-        wrong(item.answer, false);
+        setTimeout(() => b.classList.remove("wrongFlash"), 500);
+        wrong(item.answer);
       }
     };
     row.appendChild(b);
   });
 
-  gameArea.append(box,row);
+  gameArea.append(box, row);
 }
 
-function wrong(ans, isSorting=false){
-  wrongSound.play();
+function wrong(ans) {
+  sfx.playWrong();
   chances--;
   chancesEl();
 
-  if(chances>0){
-    msg("❌ Incorrect Parameter! Retrying Simulation...","#ef4444");
-  }else{
-    locked=true;
-    msg("Correct Matrix Sequence: "+ans,"#ef4444");
+  if (chances > 0) {
+    msg("❌ Incorrect Parameter! Try again...", "#ef4444");
+  } else {
+    locked = true;
+    msg("Correct Sequence: " + ans, "#ef4444");
     level++;
-    setTimeout(loadLevel,2500);
+    setTimeout(loadLevel, 2500);
   }
 }
 
-function handleWrongSorting(correctAnswerStr, totalCardsCount) {
-  wrongSound.play();
+function handleWrongSorting(correctAnswerStr) {
+  sfx.playWrong();
   chances--;
   chancesEl();
 
-  if(chances>0){
-    msg("❌ Incorrect Parameter! Retrying Simulation...","#ef4444");
+  if (chances > 0) {
+    msg("❌ Incorrect Parameter! Try again...", "#ef4444");
   } else {
-    locked=true;
-    msg("Correct Field: "+correctAnswerStr,"#ef4444");
+    locked = true;
+    msg("Correct Field: " + correctAnswerStr, "#ef4444");
     
-    // Auto-solver fallback matrix for sorting card structures
-    if(selected){
-      document.querySelectorAll(".zone").forEach(z=>{
-        if(z.dataset.zone===correctAnswerStr){
+    if (selected) {
+      document.querySelectorAll(".zone").forEach(z => {
+        if (z.dataset.zone === correctAnswerStr) {
           z.classList.add("correctFlash");
           moveCardToZone(z, selected);
         }
       });
-      selected=null;
+      selected = null;
       placed++;
     }
     
     level++;
-    setTimeout(loadLevel,2500);
+    setTimeout(loadLevel, 2500);
   }
 }
 
-function correctNext(addScore=true, scorePoints=10){
-  if(addScore){
-    score+=scorePoints;
+function correctNext(addScore = true, scorePoints = 10) {
+  if (addScore) {
+    score += scorePoints;
     scoreEl();
-    correctSound.play();
+    sfx.playCorrect();
   }
-  locked=true;
-  msg("✅ Verification Successful!","#22c55e");
+  locked = true;
+  msg("✅ Verification Successful!", "#22c55e");
   level++;
-  setTimeout(loadLevel,1300);
+  setTimeout(loadLevel, 1300);
 }
 
-function scoreEl(){scoreSpan.textContent=score}
-function chancesEl(){chancesSpan.textContent=chances}
-function msg(t,c){let m=document.getElementById("msg");m.textContent=t||"";m.style.color=c||"white"}
+function scoreEl() { scoreSpan.textContent = score; }
+function chancesEl() { chancesSpan.textContent = chances; }
+function msg(t, c) { let m = document.getElementById("msg"); m.textContent = t || ""; m.style.color = c || "white"; }
 
-function endGame(){
-  clapSound.play();
-  finalScore.textContent=score;
-  endScreen.style.display="flex";
+function endGame() {
+  sfx.playWin();
+  finalScore.textContent = score;
+  endScreen.style.display = "flex";
 }
 </script>
 
