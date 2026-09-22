@@ -2,32 +2,36 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Investigation HQ — Crack the Research Case</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Investigation HQ – Grade 8</title>
 
 <style>
 *{box-sizing:border-box}
 
 :root{
-  --ink:#213246;
-  --muted:#6f7d8b;
-  --blue:#126fa9;
-  --blue2:#2fa8db;
-  --cyan:#5bc6df;
-  --green:#2f9760;
-  --green2:#61b67e;
-  --red:#db5a60;
-  --amber:#e6a62c;
-  --purple:#7159bd;
-  --paper:#fbfcfd;
-  --line:#dbe6ed;
-  --shadow:0 15px 38px rgba(26,61,91,.16);
+  --bg:#eef8f9;
+  --card:#ffffff;
+  --ink:#263a4a;
+  --muted:#7b8a96;
+  --teal:#3aa5a1;
+  --teal-dark:#277e7a;
+  --teal-soft:#dff3f0;
+  --blue-soft:#edf8fb;
+  --line:#d8e5e8;
+  --gold:#f0c14a;
+  --gold-soft:#fff3ca;
+  --green:#2d9b60;
+  --green-soft:#e7f6ec;
+  --red:#d86060;
+  --red-soft:#fff0ef;
+  --purple:#7a5aa8;
+  --shadow:0 8px 24px rgba(40,75,90,.11);
 }
 
 html,body{
   margin:0;
   min-height:100%;
-  font-family:Arial,sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
   color:var(--ink);
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
@@ -36,10 +40,10 @@ html,body{
 body{
   min-height:100vh;
   min-height:100dvh;
-  overflow-x:hidden;
   background:
-    radial-gradient(circle at 10% 0%,rgba(143,219,245,.22),transparent 28%),
-    linear-gradient(160deg,#eef9fd,#f9fcfd 48%,#eef8f1);
+    radial-gradient(circle at top left,rgba(181,234,237,.38),transparent 28%),
+    linear-gradient(180deg,#f8fcfd,#eef8f9 68%,#f7fbfb);
+  overflow-x:hidden;
 }
 
 button,select{
@@ -47,12 +51,17 @@ button,select{
   touch-action:manipulation;
 }
 
-button{cursor:pointer}
-button:disabled{cursor:default}
+button{
+  cursor:pointer;
+}
+
+button:disabled{
+  cursor:default;
+}
 
 button:focus-visible,
 select:focus-visible{
-  outline:3px solid #88cdf2;
+  outline:3px solid #85d2cf;
   outline-offset:2px;
 }
 
@@ -64,7 +73,6 @@ h1,h2,h3,p{margin:0}
 /* =========================
    SPLASH
 ========================= */
-
 #splash{
   position:fixed;
   inset:0;
@@ -72,7 +80,7 @@ h1,h2,h3,p{margin:0}
   display:grid;
   place-items:center;
   background:#fff;
-  transition:opacity .35s ease,visibility .35s ease;
+  transition:opacity .35s ease, visibility .35s ease;
 }
 
 #splash.hide{
@@ -81,554 +89,466 @@ h1,h2,h3,p{margin:0}
   pointer-events:none;
 }
 
-.splashInner{text-align:center}
+.splashInner{
+  text-align:center;
+}
 
 .splashInner img{
-  width:145px;
-  max-width:42vw;
+  width:135px;
+  max-width:40vw;
 }
 
-.splashText{
+.splashInner div{
   margin-top:10px;
-  color:var(--blue);
   font-size:14px;
   font-weight:900;
-  letter-spacing:.6px;
-}
-
-
-/* =========================
-   SHARED
-========================= */
-
-.screen{
-  min-height:100vh;
-  min-height:100dvh;
-  display:grid;
-  place-items:center;
-  padding:14px;
-}
-
-.shell{width:min(800px,100%)}
-
-.panel{
-  overflow:hidden;
-  border-radius:25px;
-  background:#fff;
-  box-shadow:var(--shadow);
-}
-
-.primaryBtn{
-  min-height:48px;
-  border:0;
-  border-radius:13px;
-  padding:11px 20px;
-  background:linear-gradient(#2399d0,#106b9f);
-  color:#fff;
-  font-size:13px;
-  font-weight:900;
-  box-shadow:0 4px 0 #0c527b;
-}
-
-.secondaryBtn{
-  min-height:46px;
-  border:1.5px solid var(--line);
-  border-radius:12px;
-  padding:10px 15px;
-  background:#fff;
-  color:#4f6070;
-  font-size:12px;
-  font-weight:900;
+  color:var(--teal-dark);
+  letter-spacing:.7px;
 }
 
 
 /* =========================
    INTRO
 ========================= */
+#intro,
+#end{
+  display:none;
+  min-height:100vh;
+  min-height:100dvh;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+}
 
-#intro{display:none}
+.introCard,
+.endCard{
+  width:min(620px,100%);
+  overflow:hidden;
+  border-radius:24px;
+  background:#fff;
+  box-shadow:var(--shadow);
+}
 
-.introHero{
+.introTop{
   position:relative;
-  padding:88px 22px 24px;
+  padding:78px 18px 20px;
   text-align:center;
-  background:
-    radial-gradient(circle at 15% 15%,rgba(255,255,255,.98),transparent 28%),
-    linear-gradient(145deg,#e8f7fd,#eff6ff 50%,#eef8f1);
+  background:linear-gradient(145deg,#f6fcfd,#eef8fb 52%,#eff9f3);
 }
 
 .introLogo{
   position:absolute;
-  top:14px;
-  left:18px;
-  width:100px;
-  padding:5px;
-  border-radius:12px;
-  background:#fff;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:78px;
 }
 
 .kicker{
-  color:#6f8190;
-  text-transform:uppercase;
-  letter-spacing:1.5px;
   font-size:9px;
   font-weight:900;
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+  color:#718692;
 }
 
-.introHero h1{
+.introTop h1{
   margin-top:8px;
-  color:var(--blue);
-  font-size:clamp(38px,7.5vw,58px);
-  line-height:.96;
+  font-size:34px;
+  line-height:1;
+  color:var(--teal-dark);
 }
 
-.introHero h1 span{
+.introTop h1 span{
   display:block;
-  margin-top:8px;
-  color:var(--green);
-  font-size:.63em;
+  margin-top:6px;
+  font-size:.67em;
+  color:#37556a;
 }
 
-.introHero p{
-  max-width:590px;
-  margin:13px auto 0;
-  color:#617180;
-  font-size:14px;
+.introTop p{
+  max-width:500px;
+  margin:12px auto 0;
+  font-size:13px;
   line-height:1.45;
+  color:#627582;
   font-weight:700;
 }
 
-
-/* intro visual */
-
-.introLab{
-  position:relative;
-  width:min(520px,96%);
-  height:190px;
-  margin:18px auto 0;
+.introVisual{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:10px;
+  align-items:center;
+  width:min(440px,94%);
+  margin:20px auto 0;
 }
 
-.introDesk{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  height:46px;
-  border-radius:10px;
-  background:linear-gradient(#b38458,#8f6541);
-}
-
-.introNotebook{
-  position:absolute;
-  left:9%;
-  bottom:35px;
-  width:118px;
-  height:92px;
-  transform:rotate(-4deg);
-  border:2px solid #d8e1e6;
-  border-radius:8px;
-  background:
-    repeating-linear-gradient(#fff 0 17px,#e9f0f4 18px 19px);
-  box-shadow:0 8px 18px rgba(34,71,98,.12);
-}
-
-.introNotebook::before{
-  content:"RESEARCH\A NOTEBOOK";
-  white-space:pre;
-  position:absolute;
-  inset:21px 0 0;
-  color:#557184;
-  font-size:10px;
-  line-height:1.5;
-  font-weight:900;
-}
-
-.introGlass{
-  position:absolute;
-  bottom:42px;
-  width:88px;
-  height:112px;
-  border:4px solid #75b4d3;
-  border-top:0;
-  border-radius:0 0 18px 18px;
-  overflow:hidden;
-  background:rgba(255,255,255,.5);
-}
-
-.introGlass.warm{left:42%}
-.introGlass.cold{right:12%}
-
-.introGlass .water{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  height:68%;
-  background:linear-gradient(rgba(116,215,246,.62),rgba(54,162,211,.67));
-}
-
-.introGlass .sugar{
-  position:absolute;
-  left:50%;
-  bottom:9px;
-  width:44px;
-  height:12px;
-  transform:translateX(-50%);
-  border-radius:50%;
-  background:#efdb9b;
-}
-
-.introGlass.warm .sugar{
-  opacity:.2;
-  height:4px;
-}
-
-.tempTag{
-  position:absolute;
-  left:50%;
-  top:6px;
-  transform:translateX(-50%);
-  z-index:2;
-  padding:3px 7px;
-  border-radius:999px;
+.introBeaker{
+  min-height:125px;
+  padding:10px 8px;
+  border:1.5px solid var(--line);
+  border-radius:16px;
   background:#fff;
-  font-size:8px;
-  font-weight:900;
-  white-space:nowrap;
+  box-shadow:0 6px 15px rgba(40,75,90,.08);
 }
 
-.warm .tempTag{color:#c25837}
-.cold .tempTag{color:#277eb1}
+.introBeaker .emoji{
+  font-size:35px;
+}
 
-.introMagnifier{
-  position:absolute;
-  left:31%;
-  top:15px;
-  font-size:46px;
-  transform:rotate(-18deg);
+.introBeaker strong{
+  display:block;
+  margin-top:5px;
+  font-size:11px;
+}
+
+.introBeaker small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.25;
+}
+
+.arrow{
+  font-size:24px;
+  color:var(--teal);
+  font-weight:900;
 }
 
 .introBottom{
-  padding:18px 20px 22px;
+  padding:17px 16px 20px;
   text-align:center;
-}
-
-.introLead{
-  max-width:590px;
-  margin:auto;
-  color:#607181;
-  font-size:13px;
-  line-height:1.45;
 }
 
 .introSteps{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:6px;
-  margin:14px 0 17px;
+  gap:7px;
+  margin:0 0 16px;
 }
 
 .introSteps div{
-  min-height:59px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:4px;
-  border:1px solid #dce7ed;
+  min-height:58px;
+  padding:8px 4px;
+  border:1px solid var(--line);
   border-radius:12px;
-  background:#f8fbfd;
-  color:#526b7a;
+  background:#f8fbfc;
   font-size:8px;
+  font-weight:900;
+  color:#5d7280;
+}
+
+.introSteps span{
+  display:block;
+  margin-bottom:5px;
+  font-size:18px;
+}
+
+.primaryBtn,
+.secondaryBtn{
+  min-height:46px;
+  border:0;
+  border-radius:12px;
+  padding:10px 16px;
+  font-size:12px;
   font-weight:900;
 }
 
-.introSteps span{font-size:20px}
+.primaryBtn{
+  background:linear-gradient(#49aaa4,#318d88);
+  color:#fff;
+  box-shadow:0 3px 0 #246b67;
+}
+
+.secondaryBtn{
+  border:1.5px solid var(--line);
+  background:#fff;
+  color:#526674;
+}
 
 
 /* =========================
-   GAME
+   GAME APP
 ========================= */
-
 #game{
   display:none;
   min-height:100vh;
   min-height:100dvh;
-  padding:7px;
+  padding:8px 8px 18px;
 }
 
-.gameShell{
-  width:min(800px,100%);
+.app{
+  width:min(840px,100%);
   margin:auto;
 }
 
-.topbar{
+
+/* Header */
+.header{
   display:grid;
-  grid-template-columns:40px minmax(0,1fr) auto;
-  gap:5px;
-  align-items:center;
-  margin-bottom:5px;
+  grid-template-columns:74px minmax(0,1fr) 82px;
+  gap:8px;
+  margin-bottom:8px;
 }
 
-.topBox{
-  min-height:40px;
+.headerBox{
+  min-height:64px;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:7px 9px;
-  border-radius:12px;
+  border-radius:18px;
   background:#fff;
-  box-shadow:0 5px 14px rgba(38,79,110,.08);
-  font-size:10px;
-  font-weight:900;
+  box-shadow:var(--shadow);
 }
 
 .homeBtn{
-  width:40px;
   border:0;
-  color:#596a79;
+  font-size:24px;
+  color:#58707d;
 }
 
-.gameTitle{
-  min-width:0;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-  color:var(--blue);
+.appTitle{
+  gap:7px;
+  font-size:17px;
+  font-weight:900;
+  color:#227b8d;
 }
 
 .scoreBox{
-  color:#7b5c1f;
-  background:#fff4d6;
-  white-space:nowrap;
+  background:var(--gold-soft);
+  color:#86661c;
+  font-size:15px;
+  font-weight:900;
 }
 
 
-/* =========================
-   CASE HUD + NOTEBOOK
-========================= */
-
-.caseHud{
+/* Progress */
+.progressRow{
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:5px;
-  margin-bottom:5px;
+  grid-template-columns:minmax(0,1fr) 165px;
+  gap:8px;
+  margin-bottom:8px;
 }
 
-.progressPanel,
-.caseStamp{
-  padding:7px 9px;
-  border-radius:12px;
+.progressCard,
+.caseCard{
+  min-height:68px;
+  padding:10px 13px;
+  border-radius:18px;
   background:#fff;
-  box-shadow:0 5px 14px rgba(38,79,110,.07);
+  box-shadow:var(--shadow);
 }
 
 .progressMeta{
   display:flex;
   justify-content:space-between;
-  gap:8px;
-  margin-bottom:5px;
-  color:#6f7e8e;
-  font-size:9px;
+  gap:10px;
+  margin-bottom:9px;
+  color:#667985;
+  font-size:12px;
   font-weight:900;
 }
 
-.track{
-  height:6px;
+.progressTrack{
+  height:11px;
   overflow:hidden;
   border-radius:999px;
-  background:#e8eef3;
+  background:#edf1f4;
 }
 
-.trackFill{
+.progressFill{
   width:0;
   height:100%;
-  background:linear-gradient(90deg,#2ea7d5,#5bc4d7,#57b57b);
+  border-radius:inherit;
+  background:linear-gradient(90deg,#5ab9b0,#72c8bf);
   transition:width .35s ease;
 }
 
-.caseStamp{
-  min-width:84px;
-  text-align:center;
-  color:#6e5aa8;
-}
-
-.caseStamp strong{
-  display:block;
-  font-size:11px;
-}
-
-.caseStamp small{
-  display:block;
-  margin-top:2px;
-  color:#8c819f;
-  font-size:6px;
-  font-weight:900;
-}
-
-
-/* Notebook */
-
-.notebook{
-  margin-bottom:5px;
-  padding:7px 8px;
-  border-radius:13px;
-  background:#fff;
-  box-shadow:0 5px 14px rgba(38,79,110,.07);
-}
-
-.notebookTitle{
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:6px;
-  color:#597080;
-  font-size:8px;
-  font-weight:900;
-}
-
-.stepStrip{
-  display:grid;
-  grid-template-columns:repeat(8,minmax(0,1fr));
-  gap:4px;
-}
-
-.stepChip{
-  min-height:41px;
+.caseCard{
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:2px;
-  border:1px solid #dce6ed;
-  border-radius:9px;
-  background:#f7fafc;
-  color:#8693a0;
+  color:var(--purple);
   text-align:center;
-  font-size:6px;
+}
+
+.caseCard strong{
+  font-size:16px;
+}
+
+.caseCard span{
+  margin-top:4px;
+  font-size:8px;
   font-weight:900;
-}
-
-.stepChip span{font-size:15px}
-
-.stepChip.done{
-  border-color:#9fcab0;
-  background:#edf8f1;
-  color:#447255;
-}
-
-.stepChip.current{
-  border-color:#8abfdf;
-  background:#eaf6fd;
-  color:#1d6c98;
-  transform:translateY(-2px);
+  color:#8d8298;
 }
 
 
-/* =========================
-   MISSION CARD
-========================= */
+/* Notebook strip */
+.notebook{
+  margin-bottom:8px;
+  padding:10px 12px 12px;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:var(--shadow);
+}
 
+.notebookHead{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+  font-size:12px;
+  font-weight:900;
+  color:#536d78;
+}
+
+.tabsScroller{
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tabsScroller::-webkit-scrollbar{display:none}
+
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(8,92px);
+  gap:7px;
+  width:max-content;
+}
+
+.tab{
+  min-height:77px;
+  padding:8px 5px;
+  border:1.5px solid #d8e2e5;
+  border-radius:14px;
+  background:#f8fbfb;
+  color:#7c8b94;
+  text-align:center;
+  font-size:9px;
+  font-weight:900;
+  transition:.2s;
+}
+
+.tab span{
+  display:block;
+  margin-bottom:5px;
+  font-size:24px;
+}
+
+.tab.current{
+  border-color:#79bbb7;
+  background:#e9f7f5;
+  color:#2c7c79;
+  box-shadow:0 0 0 2px rgba(94,176,171,.08);
+}
+
+.tab.done{
+  border-color:#a9ceb9;
+  background:#eef8f1;
+  color:#47785a;
+}
+
+
+/* Mission card */
 .missionCard{
   overflow:hidden;
-  border-radius:17px;
+  border-radius:24px;
   background:#fff;
   box-shadow:var(--shadow);
 }
 
 .missionHead{
-  padding:9px 11px;
-  border-bottom:1px solid #e0e8ee;
-  background:linear-gradient(135deg,#eef9ff,#fbfdff);
+  padding:14px 18px 16px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(145deg,#f5fbfd,#f9fcfd);
 }
 
 .missionLabel{
-  color:#6d8090;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  font-size:7px;
+  margin-bottom:8px;
+  font-size:10px;
   font-weight:900;
+  letter-spacing:1.7px;
+  text-transform:uppercase;
+  color:#647d88;
 }
 
-.missionRow{
+.missionTitleRow{
   display:grid;
-  grid-template-columns:52px 1fr;
-  gap:8px;
+  grid-template-columns:96px 1fr;
+  gap:16px;
   align-items:center;
-  margin-top:6px;
 }
 
 .missionIcon{
-  width:50px;
-  height:50px;
+  width:96px;
+  height:96px;
   display:grid;
   place-items:center;
-  border-radius:14px;
+  border-radius:22px;
   background:#fff;
-  box-shadow:0 6px 14px rgba(36,74,108,.08);
-  font-size:27px;
+  box-shadow:0 6px 16px rgba(40,75,90,.08);
+  font-size:50px;
 }
 
 #missionTitle{
-  color:#334255;
-  font-size:16px;
-  line-height:1.23;
+  font-size:27px;
+  line-height:1.14;
   font-weight:900;
+  color:#2c4050;
 }
 
 #missionHint{
-  margin-top:3px;
-  color:#748494;
-  font-size:8px;
-  line-height:1.25;
+  margin-top:8px;
+  font-size:13px;
+  line-height:1.35;
+  color:#75858f;
 }
 
+
+/* Main body */
 .interaction{
-  min-height:258px;
-  padding:10px;
+  min-height:390px;
+  padding:20px;
 }
 
 
-/* =========================
-   GENERIC CHOICE
-========================= */
-
-.choiceGrid{
+/* Generic answer buttons */
+.answerGrid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
+  gap:12px;
 }
 
-.choiceBtn{
-  min-height:112px;
-  padding:10px 8px;
-  border:2px solid #dce5ec;
-  border-radius:14px;
+.answerBtn{
+  width:100%;
+  min-height:92px;
+  padding:15px 16px;
+  border:2px solid #d7e2e5;
+  border-radius:19px;
   background:#fff;
-  color:#405064;
-  text-align:center;
-  font-size:10px;
-  line-height:1.3;
+  color:#3c4f5d;
+  text-align:left;
+  font-size:16px;
+  line-height:1.35;
   font-weight:900;
-  box-shadow:0 6px 13px rgba(36,74,108,.06);
+  box-shadow:0 3px 10px rgba(50,80,90,.04);
 }
 
-.choiceBtn .big{
-  display:block;
-  margin-bottom:7px;
-  font-size:29px;
+.answerBtn.correct{
+  border-color:#70b68b;
+  background:var(--green-soft);
+  color:#306f48;
 }
 
-.choiceBtn.correct{
-  border-color:#72bd8b;
-  background:#eaf7ee;
-  color:#316d49;
-}
-
-.choiceBtn.wrong{
-  border-color:#dfa39d;
-  background:#fff0ed;
-  color:#80514c;
-  animation:shake .3s;
+.answerBtn.wrong{
+  border-color:#e09a99;
+  background:var(--red-soft);
+  color:#85504f;
+  animation:shake .28s;
 }
 
 @keyframes shake{
@@ -639,279 +559,44 @@ h1,h2,h3,p{margin:0}
 }
 
 
-/* =========================
-   OBSERVATION SCANNER
-========================= */
-
-.scannerStage{
+/* Mission 1 */
+.observationLayout{
   display:grid;
-  grid-template-columns:190px 1fr;
-  gap:9px;
+  grid-template-columns:36% 1fr;
+  gap:14px;
+  align-items:stretch;
 }
 
-.scannerVisual{
+.experimentVisual{
   position:relative;
-  min-height:210px;
+  min-height:410px;
   overflow:hidden;
-  border:1.5px solid #cfe0e9;
-  border-radius:15px;
-  background:linear-gradient(#eaf8ff 0 72%,#d9bd91 72%);
+  border:2px solid #c9dfe3;
+  border-radius:24px;
+  background:
+    linear-gradient(#e7f8fc 0 75%,#d7b98d 75% 100%);
 }
 
-.scannerGlass{
-  position:absolute;
-  bottom:34px;
-  width:62px;
-  height:92px;
-  overflow:hidden;
-  border:4px solid #78b8d5;
-  border-top:0;
-  border-radius:0 0 14px 14px;
-  background:rgba(255,255,255,.5);
-}
-
-.scannerGlass.a{left:24px}
-.scannerGlass.b{right:24px}
-
-.scannerGlass::before{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  height:70%;
-  background:rgba(82,190,230,.55);
-}
-
-.sugarPile{
+.beakerPair{
   position:absolute;
   left:50%;
-  bottom:8px;
-  width:34px;
-  height:9px;
+  bottom:74px;
+  width:82%;
   transform:translateX(-50%);
-  border-radius:50%;
-  background:#eedb9c;
-  z-index:2;
-}
-
-.scannerGlass.b .sugarPile{
-  width:16px;
-  height:4px;
-  opacity:.4;
-}
-
-.tempMini{
-  position:absolute;
-  top:7px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:3;
-  padding:3px 5px;
-  border-radius:999px;
-  background:#fff;
-  font-size:7px;
-  font-weight:900;
-}
-
-.scannerLabel{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:8px;
-  text-align:center;
-  color:#61798a;
-  font-size:8px;
-  font-weight:900;
-}
-
-.scannerCards{
-  display:grid;
-  gap:7px;
-}
-
-.statementBtn{
-  min-height:58px;
-  border:1.5px solid #dae5eb;
-  border-radius:11px;
-  padding:8px;
-  background:#fff;
-  color:#46576a;
-  text-align:left;
-  font-size:9px;
-  line-height:1.3;
-  font-weight:800;
-}
-
-.statementBtn.selected{
-  border-color:#70b8dc;
-  background:#edf8fe;
-  color:#236e98;
-}
-
-.statementBtn.wrong{
-  border-color:#dfa39d;
-  background:#fff1ee;
-}
-
-
-/* =========================
-   HYPOTHESIS BUILDER
-========================= */
-
-.hypothesisBox{
-  padding:10px;
-  border:1.5px solid #d9e3ea;
-  border-radius:14px;
-  background:#f8fbfd;
-}
-
-.hypothesisLine{
-  display:grid;
-  grid-template-columns:44px 1fr;
-  gap:7px;
-  align-items:center;
-  margin-bottom:8px;
-}
-
-.hypothesisLine:last-child{margin-bottom:0}
-
-.hypothesisTag{
-  padding:8px 4px;
-  border-radius:9px;
-  background:#e9f5fc;
-  color:#1b6e9c;
-  text-align:center;
-  font-size:8px;
-  font-weight:900;
-}
-
-.hypothesisSelect{
-  width:100%;
-  min-height:42px;
-  border:1.5px solid #d7e1e8;
-  border-radius:10px;
-  padding:7px 8px;
-  background:#fff;
-  color:#425265;
-  font-size:9px;
-  font-weight:800;
-}
-
-.checkBuildBtn{
-  width:100%;
-  min-height:42px;
-  margin-top:9px;
-  border:0;
-  border-radius:10px;
-  background:#7159bd;
-  color:#fff;
-  font-size:9px;
-  font-weight:900;
-}
-
-
-/* =========================
-   VARIABLE SORT
-========================= */
-
-.variableGame{
-  display:grid;
-  grid-template-columns:150px 1fr;
-  gap:8px;
-}
-
-.variableCards{
-  display:grid;
-  gap:6px;
-}
-
-.varCard{
-  min-height:42px;
-  border:1.5px solid #d8e3e9;
-  border-radius:9px;
-  padding:7px;
-  background:#fff;
-  color:#46586b;
-  font-size:8px;
-  font-weight:900;
-  text-align:left;
-}
-
-.varCard.active{
-  border-color:#6e9fce;
-  background:#edf7ff;
-  color:#23658e;
-}
-
-.varCard.done{
-  opacity:.55;
-}
-
-.varTargets{
-  display:grid;
-  gap:6px;
-}
-
-.varTarget{
-  min-height:61px;
-  border:2px dashed #c8d8e2;
-  border-radius:11px;
-  padding:8px;
-  background:#f8fbfc;
-  color:#657887;
-  font-size:8px;
-  font-weight:900;
-}
-
-.varTarget strong{
-  display:block;
-  margin-bottom:3px;
-  color:#345f7c;
-  font-size:9px;
-}
-
-.varTarget.correctPulse{
-  border-color:#84bd98;
-  background:#eef8f1;
-}
-
-
-/* =========================
-   FAIR TEST LAB
-========================= */
-
-.labStage{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-
-.labGlass{
-  position:relative;
-  min-height:180px;
-  padding:10px;
-  border:1.5px solid #d6e4eb;
-  border-radius:14px;
-  background:linear-gradient(#f8fcfe,#eef7fb);
-}
-
-.labGlass h3{
-  color:#4d6778;
-  font-size:10px;
-  text-align:center;
+  display:flex;
+  justify-content:center;
+  gap:0;
 }
 
 .beaker{
   position:relative;
-  width:86px;
-  height:96px;
-  margin:10px auto 7px;
+  width:48%;
+  height:155px;
   overflow:hidden;
-  border:4px solid #78b8d5;
+  border:6px solid #79bed0;
   border-top:0;
-  border-radius:0 0 15px 15px;
-  background:rgba(255,255,255,.6);
+  border-radius:0 0 26px 26px;
+  background:rgba(255,255,255,.55);
 }
 
 .beakerWater{
@@ -919,708 +604,881 @@ h1,h2,h3,p{margin:0}
   left:0;
   right:0;
   bottom:0;
-  height:70%;
-  background:rgba(81,190,230,.55);
+  height:68%;
+  background:rgba(90,192,225,.56);
 }
 
-.beakerSugar{
+.sugar{
   position:absolute;
   left:50%;
-  bottom:8px;
-  width:38px;
-  height:9px;
+  bottom:14px;
+  width:58px;
+  height:16px;
   transform:translateX(-50%);
   border-radius:50%;
-  background:#edd797;
+  background:#efda92;
   z-index:2;
 }
 
-.labControls{
-  grid-column:1/-1;
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:6px;
-  margin-top:1px;
+.warm .sugar{
+  width:26px;
+  height:8px;
+  opacity:.38;
 }
 
-.controlToggle{
-  min-height:61px;
-  border:1.5px solid #d6e1e7;
-  border-radius:10px;
-  padding:6px 4px;
-  background:#fff;
-  color:#566879;
-  text-align:center;
-  font-size:7px;
-  font-weight:900;
-}
-
-.controlToggle span{
-  display:block;
-  margin-top:4px;
-  color:#7d8995;
-  font-size:8px;
-}
-
-.controlToggle.same{
-  border-color:#83b798;
-  background:#eef8f2;
-  color:#3b7350;
-}
-
-.controlToggle.different{
-  border-color:#d8aa67;
-  background:#fff7e9;
-  color:#986b26;
-}
-
-.testFairBtn{
-  grid-column:1/-1;
-  min-height:42px;
-  border:0;
-  border-radius:10px;
-  background:#1f8fbf;
-  color:#fff;
-  font-size:9px;
-  font-weight:900;
-}
-
-
-/* =========================
-   RUN EXPERIMENT
-========================= */
-
-.experimentStage{
-  position:relative;
-  min-height:235px;
-  overflow:hidden;
-  border:1.5px solid #d5e4ec;
-  border-radius:15px;
-  background:linear-gradient(#edf9fe 0 72%,#c89e70 72%);
-}
-
-.expCup{
+.tempLabel{
   position:absolute;
-  bottom:42px;
-  width:92px;
-  height:116px;
-  overflow:hidden;
-  border:5px solid #75b5d4;
-  border-top:0;
-  border-radius:0 0 17px 17px;
-  background:rgba(255,255,255,.62);
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:3;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#fff;
+  font-size:11px;
+  font-weight:900;
 }
 
-.expCup.cold{left:18%}
-.expCup.warm{right:18%}
+.visualCaption{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:20px;
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  color:#557381;
+}
 
-.expWater{
+
+/* Hypothesis */
+.hypBox{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+  border:1.5px solid var(--line);
+  border-radius:18px;
+  background:#f9fcfd;
+}
+
+.hypRow{
+  display:grid;
+  grid-template-columns:70px 1fr;
+  gap:10px;
+  align-items:center;
+  margin-bottom:11px;
+}
+
+.hypRow:last-child{margin-bottom:0}
+
+.hypTag{
+  padding:12px 5px;
+  border-radius:12px;
+  background:#e6f4f3;
+  color:#287c78;
+  text-align:center;
+  font-size:11px;
+  font-weight:900;
+}
+
+.hypSelect{
+  width:100%;
+  min-height:50px;
+  padding:9px 12px;
+  border:1.5px solid #d7e2e5;
+  border-radius:12px;
+  background:#fff;
+  color:#415460;
+  font-size:13px;
+  font-weight:800;
+}
+
+
+/* Variables */
+.variableLayout{
+  display:grid;
+  grid-template-columns:38% 1fr;
+  gap:12px;
+}
+
+.variableCards{
+  display:grid;
+  gap:8px;
+}
+
+.varCard{
+  min-height:58px;
+  padding:10px 12px;
+  border:1.5px solid #d8e3e6;
+  border-radius:12px;
+  background:#fff;
+  color:#425764;
+  text-align:left;
+  font-size:12px;
+  font-weight:900;
+}
+
+.varCard.active{
+  border-color:#6eb2ae;
+  background:#eaf7f5;
+  color:#2a7773;
+}
+
+.varCard.done{
+  opacity:.45;
+}
+
+.targets{
+  display:grid;
+  gap:10px;
+}
+
+.target{
+  min-height:91px;
+  padding:12px;
+  border:2px dashed #bed2d7;
+  border-radius:15px;
+  background:#f8fbfc;
+  color:#5d7180;
+  font-size:11px;
+  font-weight:800;
+}
+
+.target strong{
+  display:block;
+  margin-bottom:5px;
+  color:#355d6d;
+  font-size:13px;
+}
+
+
+/* Fair test */
+.fairLab{
+  display:grid;
+  gap:12px;
+}
+
+.glassRow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.labGlass{
+  min-height:195px;
+  padding:12px;
+  border:1.5px solid #d7e4e7;
+  border-radius:17px;
+  background:#f9fcfd;
+  text-align:center;
+}
+
+.labGlass strong{
+  display:block;
+  font-size:13px;
+}
+
+.labBeaker{
+  position:relative;
+  width:90px;
+  height:110px;
+  margin:14px auto 0;
+  overflow:hidden;
+  border:5px solid #79bdcf;
+  border-top:0;
+  border-radius:0 0 18px 18px;
+  background:#fff;
+}
+
+.labBeaker::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:70%;
+  background:rgba(84,191,224,.55);
+}
+
+.labBeaker::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:10px;
+  width:40px;
+  height:9px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:#efd996;
+}
+
+.controlGrid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
+}
+
+.controlBtn{
+  min-height:72px;
+  padding:8px 4px;
+  border:1.5px solid #d8e2e5;
+  border-radius:12px;
+  background:#fff;
+  color:#576a78;
+  text-align:center;
+  font-size:10px;
+  font-weight:900;
+}
+
+.controlBtn span{
+  display:block;
+  margin-top:5px;
+  font-size:9px;
+}
+
+.controlBtn.same{
+  border-color:#a6cdb6;
+  background:#eef8f1;
+  color:#477558;
+}
+
+.controlBtn.different{
+  border-color:#e2c27a;
+  background:#fff8e8;
+  color:#8a6622;
+}
+
+
+/* Evidence */
+.evidenceWrap{
+  display:grid;
+  gap:14px;
+}
+
+.runStage{
+  position:relative;
+  min-height:265px;
+  overflow:hidden;
+  border:1.5px solid #d4e3e7;
+  border-radius:18px;
+  background:linear-gradient(#eefafd 0 72%,#d2b082 72%);
+}
+
+.runCup{
+  position:absolute;
+  bottom:54px;
+  width:102px;
+  height:128px;
+  overflow:hidden;
+  border:5px solid #79bdcf;
+  border-top:0;
+  border-radius:0 0 19px 19px;
+  background:#fff;
+}
+
+.runCup.cold{left:20%}
+.runCup.warm{right:20%}
+
+.runWater{
   position:absolute;
   left:0;
   right:0;
   bottom:0;
   height:72%;
-  background:rgba(81,188,229,.6);
+  background:rgba(84,191,224,.55);
 }
 
-.expSugar{
+.runSugar{
   position:absolute;
   left:50%;
-  bottom:8px;
-  width:44px;
-  height:11px;
+  bottom:10px;
+  width:46px;
+  height:10px;
   transform:translateX(-50%);
   border-radius:50%;
-  background:#efdca0;
-  z-index:3;
-  transition:opacity 2s ease,width 2s ease;
+  background:#efd996;
+  transition:all 2s ease;
 }
 
-.expCup.dissolved .expSugar{
-  opacity:.08;
+.runCup.dissolved .runSugar{
   width:12px;
+  opacity:.1;
 }
 
-.expTemp{
+.runTag{
   position:absolute;
-  top:7px;
+  top:10px;
   left:50%;
   transform:translateX(-50%);
-  z-index:4;
-  padding:3px 7px;
+  padding:5px 9px;
   border-radius:999px;
   background:#fff;
-  font-size:8px;
+  font-size:10px;
   font-weight:900;
 }
 
-.timerDisplay{
+.timer{
   position:absolute;
   top:24px;
-  min-width:80px;
-  padding:7px 8px;
+  min-width:82px;
+  padding:8px;
   border-radius:10px;
-  background:#172b3a;
-  color:#8ef0d1;
-  text-align:center;
+  background:#1e2e39;
+  color:#9cf0d3;
   font-family:monospace;
-  font-size:12px;
+  text-align:center;
+  font-size:14px;
   font-weight:900;
 }
 
-.timerDisplay.cold{left:12%}
-.timerDisplay.warm{right:12%}
+.timer.cold{left:13%}
+.timer.warm{right:13%}
 
-.runExperimentBtn{
+.runBtn{
   position:absolute;
   left:50%;
-  bottom:7px;
+  bottom:10px;
   transform:translateX(-50%);
-  min-height:34px;
+  min-height:38px;
+  padding:8px 14px;
   border:0;
   border-radius:10px;
-  padding:7px 16px;
-  background:#6656b7;
+  background:#745ab4;
   color:#fff;
-  font-size:8px;
+  font-size:10px;
   font-weight:900;
 }
 
 .dataTable{
   width:100%;
-  margin-top:8px;
   border-collapse:collapse;
-  font-size:8px;
+  font-size:12px;
 }
 
 .dataTable th,
 .dataTable td{
-  border:1px solid #d6e1e7;
-  padding:7px;
+  border:1px solid #d7e2e5;
+  padding:10px;
   text-align:center;
 }
 
 .dataTable th{
-  background:#eef7fb;
-  color:#4f6c7d;
+  background:#eef7f8;
 }
 
 
-/* =========================
-   O-I-P BONUS
-========================= */
+/* OIP */
+.oipLayout{
+  display:grid;
+  gap:12px;
+}
 
-.oipGrid{
+.oipTargets{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:7px;
+  gap:8px;
 }
 
 .oipTarget{
-  min-height:64px;
-  border:2px dashed #c8d8e2;
-  border-radius:11px;
-  padding:7px;
-  background:#f8fbfc;
-  color:#607482;
-  text-align:center;
-  font-size:7px;
-  font-weight:900;
+  min-height:96px;
+  padding:10px;
+  border:2px dashed #bfd3d8;
+  border-radius:14px;
+  background:#f9fcfd;
+  color:#627885;
+  font-size:10px;
+  font-weight:800;
 }
 
 .oipTarget strong{
   display:block;
-  margin-bottom:4px;
-  color:#315f7e;
-  font-size:9px;
+  margin-bottom:5px;
+  color:#365f6d;
+  font-size:12px;
 }
 
 .oipStatements{
   display:grid;
-  gap:6px;
-  margin-top:8px;
+  gap:8px;
 }
 
 .oipStatement{
-  min-height:46px;
-  border:1.5px solid #d8e3e9;
-  border-radius:9px;
-  padding:7px;
+  min-height:58px;
+  padding:10px 12px;
+  border:1.5px solid #d8e2e5;
+  border-radius:12px;
   background:#fff;
-  color:#47586a;
-  font-size:8px;
-  line-height:1.25;
-  font-weight:800;
+  color:#435765;
   text-align:left;
+  font-size:11px;
+  line-height:1.3;
+  font-weight:800;
 }
 
 .oipStatement.active{
-  border-color:#6d9fce;
-  background:#edf7ff;
+  border-color:#71b4b0;
+  background:#eaf7f5;
 }
 
-.oipStatement.done{opacity:.55}
+.oipStatement.done{
+  opacity:.45;
+}
 
 
-/* =========================
-   FEEDBACK / NEXT
-========================= */
-
-.feedbackWrap{
-  padding:0 10px 10px;
+/* Feedback */
+.feedbackArea{
+  padding:0 18px 18px;
 }
 
 #feedback{
   display:none;
-  padding:8px 9px;
-  border-radius:10px;
-  font-size:9px;
-  line-height:1.35;
+  margin-top:2px;
+  padding:12px 13px;
+  border-radius:13px;
+  font-size:12px;
+  line-height:1.4;
   font-weight:800;
 }
 
 #feedback.good{
   display:block;
-  border:1px solid #9ac8a7;
-  background:#eaf7ee;
-  color:#356d4d;
+  border:1px solid #98c6a7;
+  background:var(--green-soft);
+  color:#356f4a;
 }
 
 #feedback.bad{
   display:block;
-  border:1px solid #e0aaa4;
-  background:#fff0ed;
-  color:#7d514d;
+  border:1px solid #e0a2a1;
+  background:var(--red-soft);
+  color:#80504f;
 }
 
-.reward{
+#reward{
   display:none;
-  margin-top:6px;
-  padding:6px 8px;
-  border-radius:9px;
+  margin-top:8px;
+  padding:9px 10px;
+  border-radius:11px;
+  background:linear-gradient(135deg,#e6f7f5,#f1faf4);
+  color:#2c7772;
   text-align:center;
-  background:linear-gradient(135deg,#e7f8ff,#eefbf3);
-  color:#2c769f;
-  font-size:7px;
+  font-size:10px;
   font-weight:900;
 }
 
-.reward.show{
+#reward.show{
   display:block;
-  animation:pop .35s ease;
-}
-
-@keyframes pop{
-  from{transform:scale(.93);opacity:0}
-  to{transform:scale(1);opacity:1}
 }
 
 #nextBtn{
   width:100%;
-  min-height:40px;
-  margin-top:6px;
+  min-height:44px;
+  margin-top:9px;
   border:0;
-  border-radius:10px;
-  background:linear-gradient(#2796d6,#1574b5);
+  border-radius:12px;
+  background:linear-gradient(#49aaa4,#318d88);
   color:#fff;
-  font-size:9px;
+  font-size:11px;
   font-weight:900;
 }
 
 
-/* =========================
-   END REPORT
-========================= */
-
-#end{display:none}
-
-.endInner{
-  padding:22px 18px;
+/* End */
+.endCard{
+  padding:20px;
   text-align:center;
 }
 
-.endLogo{width:82px}
+.endCard img{
+  width:78px;
+}
 
-.trophy{
-  margin-top:6px;
+.endIcon{
+  margin-top:8px;
   font-size:52px;
 }
 
-.endInner h2{
-  margin-top:4px;
-  color:var(--blue);
-  font-size:24px;
+.endCard h2{
+  margin-top:5px;
+  color:var(--teal-dark);
+  font-size:25px;
 }
 
 .finalScore{
-  margin:9px auto 5px;
+  margin-top:10px;
   color:var(--green);
-  font-size:37px;
+  font-size:38px;
   font-weight:900;
 }
 
-.finalLevel{
+.level{
   display:inline-block;
+  margin-top:5px;
   padding:7px 12px;
   border-radius:999px;
-  background:#e8f5ff;
-  color:#2475a8;
-  font-size:9px;
+  background:#eaf6f4;
+  color:#2e7975;
+  font-size:10px;
   font-weight:900;
 }
 
 .reportGrid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:6px;
-  margin:14px 0;
+  gap:7px;
+  margin:15px 0;
 }
 
 .reportItem{
   display:flex;
   justify-content:space-between;
-  gap:7px;
-  padding:8px 9px;
-  border:1px solid #dce6ec;
-  border-radius:10px;
-  background:#f8fafb;
-  color:#657586;
-  font-size:8px;
+  gap:6px;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:#f8fbfc;
+  font-size:9px;
   font-weight:900;
-  text-align:left;
+  color:#60727f;
 }
 
 .reportItem span:last-child{
-  color:#2f7c52;
+  color:#2f7b51;
 }
 
-.reviewBox{
-  padding:10px;
+.review{
+  padding:11px;
   border-radius:11px;
-  background:#f3f7fa;
-  color:#5c6979;
+  background:#f4f8f9;
   text-align:left;
-  font-size:9px;
+  font-size:10px;
   line-height:1.4;
+  color:#5e6f7d;
 }
 
 .endActions{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:7px;
+  gap:8px;
   margin-top:12px;
 }
 
 
 /* =========================
-   MOBILE
+   PHONE VIEW
 ========================= */
 
 @media(max-width:600px){
 
-  .screen{
-    min-height:100svh;
-    min-height:100dvh;
-    padding:
-      max(6px,env(safe-area-inset-top))
-      max(6px,env(safe-area-inset-right))
-      max(8px,env(safe-area-inset-bottom))
-      max(6px,env(safe-area-inset-left));
-  }
-
-  .panel{border-radius:18px}
-
-  .introHero{
-    padding:82px 10px 12px;
-  }
-
-  .introLogo{
-    top:8px;
-    left:50%;
-    width:70px;
-    transform:translateX(-50%);
-  }
-
-  .kicker{font-size:7px}
-  .introHero h1{font-size:29px}
-  .introHero p{font-size:11px}
-
-  .introLab{
-    height:142px;
-    margin-top:10px;
-  }
-
-  .introDesk{height:34px}
-  .introNotebook{
-    width:82px;
-    height:66px;
-    bottom:26px;
-  }
-
-  .introNotebook::before{
-    inset:15px 0 0;
-    font-size:7px;
-  }
-
-  .introGlass{
-    width:61px;
-    height:78px;
-    bottom:29px;
-    border-width:3px;
-  }
-
-  .introGlass.warm{left:43%}
-  .introGlass.cold{right:11%}
-
-  .introMagnifier{
-    left:28%;
-    top:10px;
-    font-size:34px;
-  }
-
-  .tempTag{font-size:6px}
-
-  .introBottom{padding:11px 10px 13px}
-  .introLead{font-size:10px}
-
-  .introSteps{
-    gap:4px;
-    margin:9px 0 11px;
-  }
-
-  .introSteps div{
-    min-height:47px;
-    font-size:6px;
-  }
-
-  .introSteps span{font-size:15px}
-  .primaryBtn,.secondaryBtn{min-height:43px;font-size:11px}
-
   #game{
-    min-height:100svh;
-    min-height:100dvh;
     padding:
-      max(4px,env(safe-area-inset-top))
-      max(4px,env(safe-area-inset-right))
-      max(8px,env(safe-area-inset-bottom))
-      max(4px,env(safe-area-inset-left));
+      max(5px,env(safe-area-inset-top))
+      6px
+      max(10px,env(safe-area-inset-bottom));
   }
 
-  .topbar{
-    position:sticky;
-    top:max(4px,env(safe-area-inset-top));
-    z-index:30;
-    grid-template-columns:37px minmax(0,1fr) auto;
-    gap:4px;
-    margin-bottom:4px;
+  .header{
+    grid-template-columns:82px minmax(0,1fr) 82px;
+    gap:7px;
+    margin-bottom:7px;
   }
 
-  .topBox{
-    min-height:36px;
-    padding:5px 6px;
-    border-radius:9px;
-    font-size:8px;
+  .headerBox{
+    min-height:70px;
+    border-radius:18px;
   }
 
-  .homeBtn{width:37px}
-
-  .caseHud{
-    grid-template-columns:minmax(0,1fr) 72px;
-    gap:4px;
-    margin-bottom:4px;
+  .homeBtn{
+    font-size:23px;
   }
 
-  .progressPanel,
-  .caseStamp{
-    padding:6px 7px;
-    border-radius:9px;
+  .appTitle{
+    font-size:16px;
   }
 
-  .progressMeta{font-size:7px}
-  .track{height:5px}
-  .caseStamp{min-width:72px}
-  .caseStamp strong{font-size:9px}
-  .caseStamp small{font-size:5px}
+  .scoreBox{
+    font-size:14px;
+  }
+
+  .progressRow{
+    grid-template-columns:minmax(0,1fr) 165px;
+    gap:7px;
+    margin-bottom:7px;
+  }
+
+  .progressCard,
+  .caseCard{
+    min-height:69px;
+    border-radius:17px;
+  }
+
+  .progressMeta{
+    font-size:11px;
+  }
+
+  .progressTrack{
+    height:10px;
+  }
+
+  .caseCard strong{
+    font-size:15px;
+  }
 
   .notebook{
-    margin-bottom:4px;
-    padding:5px 6px;
-    border-radius:10px;
+    padding:10px 11px 11px;
+    border-radius:18px;
+    margin-bottom:7px;
   }
 
-  .notebookTitle{
-    margin-bottom:4px;
-    font-size:7px;
+  .notebookHead{
+    font-size:11px;
   }
 
-  .stepStrip{gap:3px}
-
-  .stepChip{
-    min-height:34px;
-    border-radius:7px;
-    font-size:5px;
+  .tabs{
+    grid-template-columns:repeat(8,92px);
+    gap:6px;
   }
 
-  .stepChip span{font-size:12px}
+  .tab{
+    min-height:75px;
+    font-size:9px;
+  }
 
-  .missionCard{border-radius:13px}
-  .missionHead{padding:7px 8px}
-  .missionLabel{font-size:6px}
+  .missionCard{
+    border-radius:23px;
+  }
 
-  .missionRow{
-    grid-template-columns:43px 1fr;
-    gap:7px;
-    margin-top:4px;
+  .missionHead{
+    padding:14px 16px;
+  }
+
+  .missionLabel{
+    font-size:9px;
+  }
+
+  .missionTitleRow{
+    grid-template-columns:96px 1fr;
+    gap:14px;
   }
 
   .missionIcon{
-    width:41px;
-    height:41px;
-    border-radius:11px;
-    font-size:22px;
+    width:96px;
+    height:96px;
+    font-size:49px;
   }
 
-  #missionTitle{font-size:13px}
-  #missionHint{font-size:7px}
+  #missionTitle{
+    font-size:25px;
+  }
+
+  #missionHint{
+    font-size:13px;
+  }
 
   .interaction{
-    min-height:210px;
-    padding:8px;
+    min-height:0;
+    padding:18px;
   }
 
-  .choiceGrid{gap:6px}
+  .observationLayout{
+    grid-template-columns:36% 1fr;
+    gap:13px;
+  }
 
-  .choiceBtn{
-    min-height:94px;
-    padding:7px 5px;
-    border-radius:11px;
+  .experimentVisual{
+    min-height:390px;
+  }
+
+  .answerBtn{
+    min-height:100px;
+    padding:15px;
+    font-size:15px;
+  }
+
+  .feedbackArea{
+    padding:0 16px 16px;
+  }
+
+  #feedback{
+    font-size:12px;
+  }
+}
+
+
+/* Narrower phone: stack experiment and answers */
+@media(max-width:470px){
+
+  .header{
+    grid-template-columns:66px minmax(0,1fr) 68px;
+  }
+
+  .headerBox{
+    min-height:58px;
+  }
+
+  .appTitle{
+    font-size:13px;
+  }
+
+  .scoreBox{
+    font-size:12px;
+  }
+
+  .progressRow{
+    grid-template-columns:minmax(0,1fr) 128px;
+  }
+
+  .progressCard,
+  .caseCard{
+    min-height:60px;
+    padding:8px 10px;
+  }
+
+  .progressMeta{
+    font-size:9px;
+  }
+
+  .caseCard strong{
+    font-size:13px;
+  }
+
+  .notebookHead{
+    font-size:10px;
+  }
+
+  .tabs{
+    grid-template-columns:repeat(8,82px);
+  }
+
+  .tab{
+    min-height:68px;
     font-size:8px;
   }
 
-  .choiceBtn .big{font-size:23px}
-
-  .scannerStage{
-    grid-template-columns:130px 1fr;
-    gap:6px;
+  .tab span{
+    font-size:21px;
   }
 
-  .scannerVisual{min-height:182px}
-  .scannerGlass{
-    width:46px;
-    height:70px;
-    bottom:33px;
-    border-width:3px;
+  .missionHead{
+    padding:12px 13px;
   }
 
-  .scannerGlass.a{left:14px}
-  .scannerGlass.b{right:14px}
-  .tempMini{font-size:5px}
-  .scannerLabel{font-size:6px}
-
-  .scannerCards{gap:5px}
-
-  .statementBtn{
-    min-height:51px;
-    padding:6px;
-    font-size:7px;
+  .missionTitleRow{
+    grid-template-columns:74px 1fr;
+    gap:11px;
   }
 
-  .hypothesisBox{padding:8px}
-  .hypothesisLine{
-    grid-template-columns:37px 1fr;
-    gap:5px;
-    margin-bottom:6px;
+  .missionIcon{
+    width:74px;
+    height:74px;
+    border-radius:18px;
+    font-size:39px;
   }
 
-  .hypothesisTag{font-size:7px}
-  .hypothesisSelect{min-height:38px;font-size:7px}
-  .checkBuildBtn{min-height:39px;font-size:8px}
-
-  .variableGame{
-    grid-template-columns:115px 1fr;
-    gap:6px;
+  #missionTitle{
+    font-size:21px;
   }
 
-  .variableCards{gap:4px}
-  .varCard{min-height:36px;padding:5px;font-size:6px}
-  .varTargets{gap:4px}
-  .varTarget{min-height:52px;padding:6px;font-size:6px}
-  .varTarget strong{font-size:7px}
-
-  .labStage{gap:6px}
-  .labGlass{min-height:150px;padding:7px}
-  .labGlass h3{font-size:8px}
-  .beaker{width:65px;height:76px}
-  .labControls{
-    grid-template-columns:repeat(5,minmax(0,1fr));
-    gap:4px;
-  }
-  .controlToggle{
-    min-height:53px;
-    padding:5px 2px;
-    font-size:6px;
-  }
-  .controlToggle span{font-size:6px}
-  .testFairBtn{min-height:39px;font-size:8px}
-
-  .experimentStage{min-height:205px}
-  .expCup{
-    width:69px;
-    height:88px;
-    bottom:38px;
-    border-width:4px;
+  #missionHint{
+    font-size:11px;
   }
 
-  .expCup.cold{left:16%}
-  .expCup.warm{right:16%}
-  .timerDisplay{
-    top:20px;
-    min-width:64px;
-    padding:5px 6px;
-    font-size:9px;
+  .interaction{
+    padding:12px;
   }
-  .timerDisplay.cold{left:9%}
-  .timerDisplay.warm{right:9%}
-  .expTemp{font-size:6px}
-  .runExperimentBtn{font-size:7px}
-  .dataTable{font-size:6px}
-  .dataTable th,.dataTable td{padding:5px}
 
-  .oipGrid{gap:4px}
-  .oipTarget{min-height:56px;padding:5px;font-size:5px}
-  .oipTarget strong{font-size:7px}
-  .oipStatements{gap:4px;margin-top:6px}
-  .oipStatement{min-height:40px;padding:6px;font-size:6px}
+  .observationLayout{
+    grid-template-columns:1fr;
+  }
 
-  .feedbackWrap{padding:0 8px 8px}
-  #feedback{padding:7px 8px;font-size:8px}
-  .reward{font-size:6px}
-  #nextBtn{min-height:38px;font-size:8px}
+  .experimentVisual{
+    min-height:245px;
+  }
 
-  .endInner{padding:15px 9px}
-  .endLogo{width:64px}
-  .trophy{font-size:42px}
-  .endInner h2{font-size:20px}
-  .finalScore{font-size:31px}
-  .finalLevel{font-size:7px}
-  .reportGrid{gap:4px}
-  .reportItem{font-size:6px;padding:7px}
-  .reviewBox{font-size:8px}
+  .beakerPair{
+    width:66%;
+    bottom:58px;
+  }
+
+  .beaker{
+    height:120px;
+  }
+
+  .visualCaption{
+    font-size:10px;
+  }
+
+  .answerGrid{
+    gap:9px;
+  }
+
+  .answerBtn{
+    min-height:74px;
+    padding:12px 13px;
+    font-size:13px;
+  }
+
+  .hypRow{
+    grid-template-columns:56px 1fr;
+  }
+
+  .hypSelect{
+    min-height:46px;
+    font-size:11px;
+  }
+
+  .variableLayout{
+    grid-template-columns:1fr;
+  }
+
+  .variableCards{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .varCard{
+    font-size:10px;
+  }
+
+  .controlGrid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .controlBtn{
+    min-height:62px;
+  }
+
+  .runStage{
+    min-height:230px;
+  }
+
+  .runCup{
+    width:82px;
+    height:105px;
+  }
+
+  .runCup.cold{left:14%}
+  .runCup.warm{right:14%}
+
+  .timer.cold{left:7%}
+  .timer.warm{right:7%}
+
+  .oipTargets{
+    grid-template-columns:1fr;
+  }
+
+  .reportGrid{
+    grid-template-columns:1fr;
+  }
 }
 
-@media(max-width:370px){
-  #missionTitle{font-size:12px}
-  .stepChip span{font-size:11px}
-  .scannerStage{grid-template-columns:118px 1fr}
-  .variableGame{grid-template-columns:104px 1fr}
-  .choiceBtn{font-size:7px}
+@media(max-width:360px){
+  #missionTitle{font-size:19px}
+  .missionIcon{width:66px;height:66px;font-size:34px}
+  .missionTitleRow{grid-template-columns:66px 1fr}
 }
 
 @media(prefers-reduced-motion:reduce){
-  *{
-    animation:none!important;
-    transition:none!important;
-  }
+  *{animation:none!important;transition:none!important}
 }
 </style>
 </head>
@@ -1631,70 +1489,61 @@ h1,h2,h3,p{margin:0}
 <div id="splash">
   <div class="splashInner">
     <img src="assets/innovine-logo.png" alt="Innovine logo">
-    <div class="splashText">INVESTIGATION HQ</div>
+    <div>INVESTIGATION HQ</div>
   </div>
 </div>
 
 
 <!-- INTRO -->
-<section id="intro" class="screen">
-  <div class="shell">
-    <div class="panel">
+<section id="intro">
+  <div class="introCard">
 
-      <div class="introHero">
-        <img src="assets/innovine-logo.png" class="introLogo" alt="Innovine logo">
+    <div class="introTop">
+      <img src="assets/innovine-logo.png" class="introLogo" alt="Innovine logo">
 
-        <div class="kicker">Grade 8 • Exploring the Investigative World of Science</div>
+      <div class="kicker">Grade 8 • Chapter 1</div>
 
-        <h1>
-          Investigation HQ
-          <span>Crack the Research Case</span>
-        </h1>
+      <h1>
+        Investigation HQ
+        <span>Crack the Research Case</span>
+      </h1>
 
-        <p>
-          A curious observation has reached the lab: sugar seems to dissolve faster in warm water.
-          Build a scientific investigation, test the idea and use evidence to reach a conclusion.
-        </p>
+      <p>
+        Follow the complete scientific investigation pathway — from observation to evidence-based conclusion.
+      </p>
 
-        <div class="introLab" aria-hidden="true">
-          <div class="introMagnifier">🔎</div>
+      <div class="introVisual">
 
-          <div class="introNotebook"></div>
-
-          <div class="introGlass warm">
-            <div class="tempTag">WARM</div>
-            <div class="water"></div>
-            <div class="sugar"></div>
-          </div>
-
-          <div class="introGlass cold">
-            <div class="tempTag">COLD</div>
-            <div class="water"></div>
-            <div class="sugar"></div>
-          </div>
-
-          <div class="introDesk"></div>
-        </div>
-      </div>
-
-      <div class="introBottom">
-
-        <p class="introLead">
-          Complete the research pathway from observation to conclusion. A correct first attempt earns a Research Star.
-        </p>
-
-        <div class="introSteps">
-          <div><span>👀</span>Observe</div>
-          <div><span>❓</span>Question</div>
-          <div><span>🧪</span>Test fairly</div>
-          <div><span>📊</span>Use evidence</div>
+        <div class="introBeaker">
+          <div class="emoji">🥶🧪</div>
+          <strong>Cold water</strong>
+          <small>Sugar takes longer to dissolve</small>
         </div>
 
-        <button id="startBtn" class="primaryBtn" type="button">
-          OPEN CASE FILE →
-        </button>
+        <div class="arrow">→</div>
+
+        <div class="introBeaker">
+          <div class="emoji">🌡️🧪</div>
+          <strong>Warm water</strong>
+          <small>Sugar appears to dissolve faster</small>
+        </div>
 
       </div>
+    </div>
+
+    <div class="introBottom">
+
+      <div class="introSteps">
+        <div><span>👀</span>Observe</div>
+        <div><span>❓</span>Investigate</div>
+        <div><span>🧪</span>Test</div>
+        <div><span>📊</span>Conclude</div>
+      </div>
+
+      <button id="startBtn" class="primaryBtn" type="button">
+        START INVESTIGATION →
+      </button>
+
     </div>
   </div>
 </section>
@@ -1702,31 +1551,41 @@ h1,h2,h3,p{margin:0}
 
 <!-- GAME -->
 <main id="game">
-  <div class="gameShell">
+  <div class="app">
 
-    <div class="topbar">
-      <button id="homeBtn" class="topBox homeBtn" type="button">⌂</button>
-      <div class="topBox gameTitle">🔬 Investigation HQ</div>
-      <div class="topBox scoreBox">⭐ <span id="score">0</span>/8</div>
+    <div class="header">
+
+      <button id="homeBtn" class="headerBox homeBtn" type="button">⌂</button>
+
+      <div class="headerBox appTitle">
+        🔬 Investigation HQ
+      </div>
+
+      <div class="headerBox scoreBox">
+        ⭐ <span id="score">0</span>/8
+      </div>
+
     </div>
 
 
-    <div class="caseHud">
+    <div class="progressRow">
 
-      <div class="progressPanel">
+      <div class="progressCard">
+
         <div class="progressMeta">
           <span id="missionCounter">Mission 1 / 8</span>
           <span id="skillName">Observation</span>
         </div>
 
-        <div class="track">
-          <div id="trackFill" class="trackFill"></div>
+        <div class="progressTrack">
+          <div id="progressFill" class="progressFill"></div>
         </div>
+
       </div>
 
-      <div class="caseStamp">
+      <div class="caseCard">
         <strong id="caseStatus">OPEN</strong>
-        <small>CASE STATUS</small>
+        <span>CASE STATUS</span>
       </div>
 
     </div>
@@ -1734,12 +1593,14 @@ h1,h2,h3,p{margin:0}
 
     <section class="notebook">
 
-      <div class="notebookTitle">
+      <div class="notebookHead">
         <span>📓 RESEARCH NOTEBOOK</span>
-        <span id="notebookCount">0 / 8 complete</span>
+        <span id="completeCount">0 / 8 complete</span>
       </div>
 
-      <div id="stepStrip" class="stepStrip"></div>
+      <div class="tabsScroller">
+        <div id="tabs" class="tabs"></div>
+      </div>
 
     </section>
 
@@ -1750,7 +1611,7 @@ h1,h2,h3,p{margin:0}
 
         <div id="missionLabel" class="missionLabel"></div>
 
-        <div class="missionRow">
+        <div class="missionTitleRow">
 
           <div id="missionIcon" class="missionIcon"></div>
 
@@ -1767,14 +1628,13 @@ h1,h2,h3,p{margin:0}
       <div id="interaction" class="interaction"></div>
 
 
-      <div class="feedbackWrap">
+      <div class="feedbackArea">
 
         <div id="feedback"></div>
-
-        <div id="reward" class="reward"></div>
+        <div id="reward"></div>
 
         <button id="nextBtn" type="button" hidden>
-          CONTINUE INVESTIGATION →
+          NEXT MISSION →
         </button>
 
       </div>
@@ -1786,38 +1646,33 @@ h1,h2,h3,p{margin:0}
 
 
 <!-- END -->
-<section id="end" class="screen">
-  <div class="shell">
-    <div class="panel">
+<section id="end">
+  <div class="endCard">
 
-      <div class="endInner">
+    <img src="assets/innovine-logo.png" alt="Innovine logo">
 
-        <img src="assets/innovine-logo.png" class="endLogo" alt="Innovine logo">
+    <div class="endIcon">🔬🏆</div>
 
-        <div class="trophy">🔬🏆</div>
+    <h2>Research Case Closed!</h2>
 
-        <h2>Research Case Closed!</h2>
+    <div id="finalScore" class="finalScore"></div>
 
-        <div id="finalScore" class="finalScore">0 / 8</div>
+    <div id="finalLevel" class="level"></div>
 
-        <div id="finalLevel" class="finalLevel"></div>
+    <div id="reportGrid" class="reportGrid"></div>
 
-        <div id="reportGrid" class="reportGrid"></div>
+    <div id="review" class="review"></div>
 
-        <div id="reviewBox" class="reviewBox"></div>
-
-        <div class="endActions">
-          <button id="againBtn" class="secondaryBtn" type="button">PLAY AGAIN</button>
-          <button id="restartBtn" class="primaryBtn" type="button">RESTART</button>
-        </div>
-
-      </div>
-
+    <div class="endActions">
+      <button id="againBtn" class="secondaryBtn" type="button">PLAY AGAIN</button>
+      <button id="restartBtn" class="primaryBtn" type="button">RESTART</button>
     </div>
+
   </div>
 </section>
 
 
+<!-- AUDIO -->
 <audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
 <audio id="clapSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
@@ -1829,243 +1684,166 @@ document.addEventListener("DOMContentLoaded",()=>{
 const $=id=>document.getElementById(id);
 
 
-/* =========================================================
+/* =========================
    GAME DATA
-   Based on the chapter's sugar-dissolving investigation.
-========================================================= */
+========================= */
 
 const missions=[
   {
     key:"observation",
-    label:"MISSION 1 • OBSERVATION SCANNER",
-    skill:"Observation",
+    tab:"Observe",
     icon:"👀",
+    label:"MISSION 1 • OBSERVATION SCANNER",
     title:"Scan the scene. Which statement is an observation?",
     hint:"An observation describes what happens, not why it happens."
   },
-
   {
     key:"question",
-    label:"MISSION 2 • RESEARCH QUESTION",
-    skill:"Asking Questions",
+    tab:"Question",
     icon:"❓",
-    title:"Choose the strongest scientific question.",
-    hint:"A good scientific question should be clear, specific and testable."
+    label:"MISSION 2 • RESEARCH QUESTION",
+    title:"Which question is clear, specific and testable?",
+    hint:"Choose the question that can be investigated through a simple experiment."
   },
-
   {
     key:"hypothesis",
-    label:"MISSION 3 • HYPOTHESIS BUILDER",
-    skill:"Hypothesis",
+    tab:"Hypothesis",
     icon:"💭",
-    title:"Build a testable hypothesis from the observation.",
-    hint:"A hypothesis is a possible explanation to be tested — not a proven fact."
+    label:"MISSION 3 • HYPOTHESIS BUILDER",
+    title:"Build a hypothesis that can be tested.",
+    hint:"A hypothesis is a possible explanation, not a proven fact."
   },
-
   {
     key:"variables",
-    label:"MISSION 4 • VARIABLE SORT",
-    skill:"Variables",
+    tab:"Variables",
     icon:"🧩",
-    title:"Sort the investigation variables into the correct groups.",
-    hint:"Ask: What is changed? What is measured? What must stay the same?"
+    label:"MISSION 4 • VARIABLE SORT",
+    title:"Classify the variables in Aisha's investigation.",
+    hint:"What is changed? What is measured? What must remain the same?"
   },
-
   {
-    key:"fairtest",
-    label:"MISSION 5 • FAIR TEST LAB",
-    skill:"Fair Testing",
+    key:"fair",
+    tab:"Fair Test",
     icon:"⚖️",
-    title:"Repair the investigation so only one factor is deliberately changed.",
-    hint:"Temperature should differ. Other relevant factors should stay the same."
+    label:"MISSION 5 • FAIR TEST LAB",
+    title:"Repair the experiment so it becomes a fair test.",
+    hint:"Only the independent variable should be deliberately changed."
   },
-
   {
-    key:"experiment",
-    label:"MISSION 6 • EVIDENCE LAB",
-    skill:"Recording Evidence",
+    key:"evidence",
+    tab:"Evidence",
     icon:"🧪",
-    title:"Run the fair test and record the evidence.",
-    hint:"Scientific investigations rely on recorded observations, not memory."
+    label:"MISSION 6 • EVIDENCE LAB",
+    title:"Run the investigation and record what happens.",
+    hint:"Scientific investigations depend on recorded observations, not memory."
   },
-
   {
     key:"conclusion",
-    label:"MISSION 7 • EVIDENCE VERDICT",
-    skill:"Conclusion",
+    tab:"Conclusion",
     icon:"📊",
+    label:"MISSION 7 • EVIDENCE VERDICT",
     title:"Which conclusion is supported by the evidence?",
-    hint:"A conclusion must be based on the observations collected."
+    hint:"Use only what the investigation actually showed."
   },
-
   {
     key:"oip",
-    label:"BONUS MISSION • SCIENTIFIC THINKING",
-    skill:"Observe • Infer • Predict",
+    tab:"O-I-P",
     icon:"🧠",
-    title:"Classify the rusting-nail statements.",
-    hint:"Observation = directly noticed. Inference = explanation. Prediction = what may happen next."
+    label:"MISSION 8 • SCIENTIFIC THINKING",
+    title:"Sort each statement as observation, inference or prediction.",
+    hint:"Directly noticed → explanation → what may happen next."
   }
 ];
 
-const chips=[
-  ["👀","Observe"],
-  ["❓","Question"],
-  ["💭","Hypothesis"],
-  ["🧩","Variables"],
-  ["⚖️","Fair Test"],
-  ["🧪","Evidence"],
-  ["📊","Conclusion"],
-  ["🧠","O-I-P"]
-];
-
-
-/* =========================================================
-   STATE
-========================================================= */
 
 let index=0;
 let score=0;
 let locked=false;
 let firstTry=true;
-let audioUnlocked=false;
-const earnedStars=new Array(missions.length).fill(false);
+const stars=new Array(missions.length).fill(false);
 
 
-/* =========================================================
+/* =========================
    AUDIO
-========================================================= */
-
-function unlockAudio(){
-
-  if(audioUnlocked)return;
-  audioUnlocked=true;
-
-  ["correctSound","wrongSound","clapSound"].forEach(id=>{
-
-    const audio=$(id);
-    audio.muted=true;
-
-    try{
-
-      const p=audio.play();
-
-      if(p&&p.then){
-
-        p.then(()=>{
-          audio.pause();
-          audio.currentTime=0;
-          audio.muted=false;
-        }).catch(()=>{
-          audio.muted=false;
-        });
-
-      }else{
-        audio.muted=false;
-      }
-
-    }catch(e){
-      audio.muted=false;
-    }
-
-  });
-}
-
-function stopSounds(){
-
-  ["correctSound","wrongSound","clapSound"].forEach(id=>{
-
-    const audio=$(id);
-    audio.pause();
-
-    try{
-      audio.currentTime=0;
-    }catch(e){}
-
-  });
-}
+========================= */
 
 function playSound(id){
-
-  stopSounds();
-
   const audio=$(id);
 
   try{
-
-    audio.muted=false;
-    audio.volume=1;
+    audio.pause();
     audio.currentTime=0;
-
-    const p=audio.play();
-
-    if(p&&p.catch){
-      p.catch(()=>{});
-    }
-
+    audio.volume=1;
+    audio.play().catch(()=>{});
   }catch(e){}
 }
 
 
-/* =========================================================
-   UI HELPERS
-========================================================= */
+/* =========================
+   UI
+========================= */
 
-function renderNotebook(){
+function renderTabs(){
 
-  const strip=$("stepStrip");
-  strip.replaceChildren();
+  const box=$("tabs");
+  box.replaceChildren();
 
-  chips.forEach((chip,i)=>{
+  missions.forEach((m,i)=>{
 
     const div=document.createElement("div");
-    div.className="stepChip";
+    div.className="tab";
 
     if(i<index)div.classList.add("done");
     if(i===index)div.classList.add("current");
 
     div.innerHTML=
-      "<span>"+chip[0]+"</span>"+
-      "<div>"+chip[1]+"</div>";
+      "<span>"+m.icon+"</span>"+
+      "<div>"+m.tab+"</div>";
 
-    strip.appendChild(div);
+    box.appendChild(div);
   });
 
-  $("notebookCount").textContent=
-    Math.min(index,missions.length)+" / "+missions.length+" complete";
+  const current=box.children[index];
+  if(current){
+    setTimeout(()=>{
+      current.scrollIntoView({
+        behavior:"smooth",
+        inline:"center",
+        block:"nearest"
+      });
+    },60);
+  }
 }
 
-function updateHUD(){
+
+function updateHeader(){
+
+  const m=missions[index];
 
   $("score").textContent=score;
+  $("missionCounter").textContent="Mission "+(index+1)+" / 8";
+  $("skillName").textContent=m.tab;
+  $("completeCount").textContent=index+" / 8 complete";
+  $("progressFill").style.width=Math.round(index/8*100)+"%";
+  $("caseStatus").textContent=index===7?"FINAL":"OPEN";
 
-  $("missionCounter").textContent=
-    "Mission "+(index+1)+" / "+missions.length;
-
-  $("skillName").textContent=
-    missions[index] ? missions[index].skill : "";
-
-  $("trackFill").style.width=
-    Math.round(index/missions.length*100)+"%";
-
-  $("caseStatus").textContent=
-    index<missions.length-1 ? "OPEN" : "FINAL";
-
-  renderNotebook();
+  renderTabs();
 }
+
 
 function resetFeedback(){
 
   $("feedback").className="";
   $("feedback").textContent="";
 
-  $("reward").className="reward";
+  $("reward").className="";
   $("reward").textContent="";
 
   $("nextBtn").hidden=true;
 }
 
-function markWrong(message){
+
+function wrong(message){
 
   firstTry=false;
 
@@ -2075,25 +1853,22 @@ function markWrong(message){
   playSound("wrongSound");
 }
 
-function completeMission(message){
+
+function complete(message){
 
   if(locked)return;
 
   locked=true;
 
   if(firstTry){
-
     score++;
-    earnedStars[index]=true;
+    stars[index]=true;
 
-    $("reward").className="reward show";
-    $("reward").textContent="⭐ RESEARCH STAR EARNED • FIRST-ATTEMPT ACCURACY";
-
+    $("reward").className="show";
+    $("reward").textContent="⭐ RESEARCH STAR EARNED • FIRST ATTEMPT";
   }else{
-
-    $("reward").className="reward show";
-    $("reward").textContent="✅ MISSION COMPLETED AFTER CORRECTION";
-
+    $("reward").className="show";
+    $("reward").textContent="✓ MISSION COMPLETED AFTER CORRECTION";
   }
 
   $("score").textContent=score;
@@ -2107,18 +1882,15 @@ function completeMission(message){
 }
 
 
-/* =========================================================
+/* =========================
    START / LOAD
-========================================================= */
+========================= */
 
 function startGame(){
 
   index=0;
   score=0;
-  locked=false;
-  firstTry=true;
-
-  earnedStars.fill(false);
+  stars.fill(false);
 
   $("intro").style.display="none";
   $("end").style.display="none";
@@ -2126,6 +1898,7 @@ function startGame(){
 
   loadMission();
 }
+
 
 function loadMission(){
 
@@ -2137,10 +1910,10 @@ function loadMission(){
   locked=false;
   firstTry=true;
 
-  const m=missions[index];
-
-  updateHUD();
+  updateHeader();
   resetFeedback();
+
+  const m=missions[index];
 
   $("missionLabel").textContent=m.label;
   $("missionIcon").textContent=m.icon;
@@ -2154,42 +1927,48 @@ function loadMission(){
   if(m.key==="question")renderQuestion();
   if(m.key==="hypothesis")renderHypothesis();
   if(m.key==="variables")renderVariables();
-  if(m.key==="fairtest")renderFairTest();
-  if(m.key==="experiment")renderExperiment();
+  if(m.key==="fair")renderFairTest();
+  if(m.key==="evidence")renderEvidence();
   if(m.key==="conclusion")renderConclusion();
   if(m.key==="oip")renderOIP();
 }
 
 
-/* =========================================================
-   MISSION 1 — OBSERVATION
-========================================================= */
+/* =========================
+   MISSION 1
+========================= */
 
 function renderObservation(){
 
   const wrap=document.createElement("div");
-  wrap.className="scannerStage";
+  wrap.className="observationLayout";
 
   wrap.innerHTML=`
-    <div class="scannerVisual">
+    <div class="experimentVisual">
 
-      <div class="scannerGlass a">
-        <div class="tempMini">COLD</div>
-        <div class="sugarPile"></div>
+      <div class="beakerPair">
+
+        <div class="beaker cold">
+          <div class="tempLabel">COLD</div>
+          <div class="beakerWater"></div>
+          <div class="sugar"></div>
+        </div>
+
+        <div class="beaker warm">
+          <div class="tempLabel">WARM</div>
+          <div class="beakerWater"></div>
+          <div class="sugar"></div>
+        </div>
+
       </div>
 
-      <div class="scannerGlass b">
-        <div class="tempMini">WARM</div>
-        <div class="sugarPile"></div>
-      </div>
-
-      <div class="scannerLabel">
-        Same sugar • different water temperature
+      <div class="visualCaption">
+        Same amount of sugar • different water temperature
       </div>
 
     </div>
 
-    <div class="scannerCards" id="scannerCards"></div>
+    <div id="answerGrid" class="answerGrid"></div>
   `;
 
   $("interaction").appendChild(wrap);
@@ -2209,86 +1988,14 @@ function renderObservation(){
     }
   ];
 
-  const box=$("scannerCards");
-
-  options.forEach(item=>{
-
-    const btn=document.createElement("button");
-    btn.type="button";
-    btn.className="statementBtn";
-    btn.textContent=item.text;
-
-    btn.addEventListener("click",()=>{
-
-      if(locked)return;
-
-      if(item.correct){
-
-        [...box.children].forEach(x=>x.disabled=true);
-        btn.classList.add("selected");
-
-        completeMission(
-          "✅ Correct. This statement describes what was directly noticed without explaining why it happened."
-        );
-
-      }else{
-
-        btn.classList.add("wrong");
-        btn.disabled=true;
-
-        markWrong(
-          "❌ That statement goes beyond direct observation. Look for the statement that only describes what happened."
-        );
-      }
-
-    });
-
-    box.appendChild(btn);
-  });
-}
-
-
-/* =========================================================
-   MISSION 2 — SCIENTIFIC QUESTION
-========================================================= */
-
-function renderQuestion(){
-
-  const grid=document.createElement("div");
-  grid.className="choiceGrid";
-
-  const options=[
-    {
-      icon:"🧪",
-      text:"Does warm water dissolve sugar faster than cold water?",
-      correct:true
-    },
-    {
-      icon:"✨",
-      text:"Is sugar magical?",
-      correct:false
-    },
-    {
-      icon:"🤔",
-      text:"Why is sugar nice?",
-      correct:false
-    },
-    {
-      icon:"🌍",
-      text:"Does everything dissolve faster everywhere?",
-      correct:false
-    }
-  ];
+  const grid=$("answerGrid");
 
   options.forEach(o=>{
 
     const btn=document.createElement("button");
     btn.type="button";
-    btn.className="choiceBtn";
-
-    btn.innerHTML=
-      '<span class="big">'+o.icon+'</span>'+
-      o.text;
+    btn.className="answerBtn";
+    btn.textContent=o.text;
 
     btn.addEventListener("click",()=>{
 
@@ -2299,8 +2006,8 @@ function renderQuestion(){
         [...grid.children].forEach(x=>x.disabled=true);
         btn.classList.add("correct");
 
-        completeMission(
-          "✅ Strong research question. It is clear, specific and can be investigated through a simple experiment."
+        complete(
+          "✅ Correct. This statement reports what was observed without explaining why it happened."
         );
 
       }else{
@@ -2308,8 +2015,73 @@ function renderQuestion(){
         btn.classList.add("wrong");
         btn.disabled=true;
 
-        markWrong(
-          "❌ This is not the strongest testable scientific question. Choose the question that can be investigated by comparing warm and cold water."
+        wrong(
+          "❌ That statement is not a direct observation. Choose the statement that only describes what happened."
+        );
+      }
+
+    });
+
+    grid.appendChild(btn);
+  });
+}
+
+
+/* =========================
+   MISSION 2
+========================= */
+
+function renderQuestion(){
+
+  const grid=document.createElement("div");
+  grid.className="answerGrid";
+
+  const options=[
+    {
+      text:"Does warm water dissolve sugar faster than cold water?",
+      correct:true
+    },
+    {
+      text:"Is sugar magical?",
+      correct:false
+    },
+    {
+      text:"Why is sugar sweet?",
+      correct:false
+    },
+    {
+      text:"Does everything dissolve faster everywhere?",
+      correct:false
+    }
+  ];
+
+  options.forEach(o=>{
+
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="answerBtn";
+    btn.textContent=o.text;
+
+    btn.addEventListener("click",()=>{
+
+      if(locked)return;
+
+      if(o.correct){
+
+        [...grid.children].forEach(x=>x.disabled=true);
+        btn.classList.add("correct");
+
+        complete(
+          "✅ Good scientific question. It is clear, specific and can be tested by comparing warm and cold water."
+        );
+
+      }else{
+
+        btn.classList.add("wrong");
+        btn.disabled=true;
+
+        wrong(
+          "❌ This is not the strongest investigable question. Look for a clear comparison that can be tested experimentally."
         );
       }
 
@@ -2322,42 +2094,39 @@ function renderQuestion(){
 }
 
 
-/* =========================================================
-   MISSION 3 — HYPOTHESIS BUILDER
-========================================================= */
+/* =========================
+   MISSION 3
+========================= */
 
 function renderHypothesis(){
 
   const box=document.createElement("div");
-  box.className="hypothesisBox";
+  box.className="hypBox";
 
   box.innerHTML=`
-    <div class="hypothesisLine">
-      <div class="hypothesisTag">IF</div>
-
-      <select id="hypIf" class="hypothesisSelect">
+    <div class="hypRow">
+      <div class="hypTag">IF</div>
+      <select id="ifPart" class="hypSelect">
         <option value="">Choose...</option>
-        <option value="temperature">water temperature is increased</option>
+        <option value="temp">water temperature increases</option>
         <option value="sugar">more sugar is added</option>
         <option value="glass">a different glass is used</option>
       </select>
     </div>
 
-    <div class="hypothesisLine">
-      <div class="hypothesisTag">THEN</div>
-
-      <select id="hypThen" class="hypothesisSelect">
+    <div class="hypRow">
+      <div class="hypTag">THEN</div>
+      <select id="thenPart" class="hypSelect">
         <option value="">Choose...</option>
         <option value="faster">the sugar will dissolve faster</option>
-        <option value="colour">the water will change colour</option>
         <option value="float">the sugar will float</option>
+        <option value="colour">the water will change colour</option>
       </select>
     </div>
 
-    <div class="hypothesisLine">
-      <div class="hypothesisTag">BECAUSE</div>
-
-      <select id="hypBecause" class="hypothesisSelect">
+    <div class="hypRow">
+      <div class="hypTag">BECAUSE</div>
+      <select id="becausePart" class="hypSelect">
         <option value="">Choose...</option>
         <option value="particles">warm water particles move more quickly than cold water particles</option>
         <option value="magic">warm water is magical</option>
@@ -2365,8 +2134,8 @@ function renderHypothesis(){
       </select>
     </div>
 
-    <button id="checkHyp" class="checkBuildBtn" type="button">
-      TEST MY HYPOTHESIS
+    <button id="checkHyp" class="primaryBtn" type="button" style="width:100%;margin-top:10px">
+      CHECK HYPOTHESIS
     </button>
   `;
 
@@ -2374,71 +2143,64 @@ function renderHypothesis(){
 
   $("checkHyp").addEventListener("click",()=>{
 
-    if(locked)return;
-
-    const a=$("hypIf").value;
-    const b=$("hypThen").value;
-    const c=$("hypBecause").value;
+    const a=$("ifPart").value;
+    const b=$("thenPart").value;
+    const c=$("becausePart").value;
 
     if(!a||!b||!c){
 
       $("feedback").className="bad";
-      $("feedback").textContent="Complete all three parts of the hypothesis.";
+      $("feedback").textContent="Complete all three parts before checking.";
       return;
     }
 
-    if(
-      a==="temperature" &&
-      b==="faster" &&
-      c==="particles"
-    ){
+    if(a==="temp" && b==="faster" && c==="particles"){
 
-      $("hypIf").disabled=true;
-      $("hypThen").disabled=true;
-      $("hypBecause").disabled=true;
+      $("ifPart").disabled=true;
+      $("thenPart").disabled=true;
+      $("becausePart").disabled=true;
       $("checkHyp").disabled=true;
 
-      completeMission(
-        "✅ Hypothesis locked. Remember: it is a possible explanation that must now be tested with evidence."
+      complete(
+        "✅ Hypothesis accepted for testing. It is a possible explanation, not a proven fact."
       );
 
     }else{
 
-      markWrong(
-        "❌ The hypothesis does not match the investigation. Build it around water temperature, dissolving rate and the textbook explanation about particle movement."
+      wrong(
+        "❌ Rebuild the hypothesis around water temperature, dissolving rate and the proposed particle explanation."
       );
     }
-
   });
 }
 
 
-/* =========================================================
-   MISSION 4 — VARIABLES
-========================================================= */
+/* =========================
+   MISSION 4
+========================= */
 
 function renderVariables(){
 
   const wrap=document.createElement("div");
-  wrap.className="variableGame";
+  wrap.className="variableLayout";
 
   wrap.innerHTML=`
-    <div class="variableCards" id="variableCards"></div>
+    <div id="variableCards" class="variableCards"></div>
 
-    <div class="varTargets">
-      <button class="varTarget" data-type="independent" type="button">
-        <strong>INDEPENDENT VARIABLE</strong>
-        Deliberately changed
+    <div class="targets">
+      <button class="target" data-type="independent" type="button">
+        <strong>Independent variable</strong>
+        Factor deliberately changed
       </button>
 
-      <button class="varTarget" data-type="dependent" type="button">
-        <strong>DEPENDENT VARIABLE</strong>
-        Measured / observed
+      <button class="target" data-type="dependent" type="button">
+        <strong>Dependent variable</strong>
+        Factor measured
       </button>
 
-      <button class="varTarget" data-type="controlled" type="button">
-        <strong>CONTROLLED VARIABLES</strong>
-        Kept the same
+      <button class="target" data-type="controlled" type="button">
+        <strong>Controlled variables</strong>
+        Factors kept the same
       </button>
     </div>
   `;
@@ -2464,7 +2226,7 @@ function renderVariables(){
     const btn=document.createElement("button");
     btn.type="button";
     btn.className="varCard";
-    btn.dataset.index=i;
+    btn.dataset.i=i;
     btn.textContent=v.name;
 
     btn.addEventListener("click",()=>{
@@ -2480,21 +2242,19 @@ function renderVariables(){
     cards.appendChild(btn);
   });
 
-  document.querySelectorAll(".varTarget").forEach(target=>{
+
+  document.querySelectorAll(".target").forEach(target=>{
 
     target.addEventListener("click",()=>{
 
-      if(locked)return;
-
       if(selected===null){
-
         $("feedback").className="bad";
         $("feedback").textContent="Select a variable card first.";
         return;
       }
 
       const v=variables[selected];
-      const card=document.querySelector('.varCard[data-index="'+selected+'"]');
+      const card=document.querySelector('.varCard[data-i="'+selected+'"]');
 
       if(v.type===target.dataset.type){
 
@@ -2502,21 +2262,15 @@ function renderVariables(){
         card.classList.add("done");
         card.disabled=true;
 
-        target.classList.add("correctPulse");
-
-        setTimeout(()=>{
-          target.classList.remove("correctPulse");
-        },350);
-
         placed++;
         selected=null;
 
         if(placed===variables.length){
 
-          document.querySelectorAll(".varTarget").forEach(x=>x.disabled=true);
+          document.querySelectorAll(".target").forEach(x=>x.disabled=true);
 
-          completeMission(
-            "✅ Variable map complete: temperature is changed, dissolving time is measured, and the other relevant factors are controlled."
+          complete(
+            "✅ Variable map complete. Temperature is changed, dissolving time is measured, and the other relevant factors are controlled."
           );
         }
 
@@ -2525,46 +2279,42 @@ function renderVariables(){
         card.classList.remove("active");
         selected=null;
 
-        markWrong(
-          "❌ Recheck that variable. Ask whether it is deliberately changed, measured, or kept the same."
+        wrong(
+          "❌ Recheck the variable: is it deliberately changed, measured, or kept the same?"
         );
       }
-
     });
-
   });
 }
 
 
-/* =========================================================
-   MISSION 5 — FAIR TEST
-========================================================= */
+/* =========================
+   MISSION 5
+========================= */
 
 function renderFairTest(){
 
   const wrap=document.createElement("div");
-  wrap.className="labStage";
+  wrap.className="fairLab";
 
   wrap.innerHTML=`
-    <div class="labGlass">
-      <h3>GLASS A • COLD WATER</h3>
-      <div class="beaker">
-        <div class="beakerWater"></div>
-        <div class="beakerSugar"></div>
+    <div class="glassRow">
+
+      <div class="labGlass">
+        <strong>Glass A • Cold water</strong>
+        <div class="labBeaker"></div>
       </div>
+
+      <div class="labGlass">
+        <strong>Glass B • Warm water</strong>
+        <div class="labBeaker"></div>
+      </div>
+
     </div>
 
-    <div class="labGlass">
-      <h3>GLASS B • WARM WATER</h3>
-      <div class="beaker">
-        <div class="beakerWater"></div>
-        <div class="beakerSugar"></div>
-      </div>
-    </div>
+    <div id="controlGrid" class="controlGrid"></div>
 
-    <div class="labControls" id="labControls"></div>
-
-    <button id="testFairBtn" class="testFairBtn" type="button">
+    <button id="inspectTest" class="primaryBtn" type="button" style="width:100%">
       INSPECT FAIR TEST
     </button>
   `;
@@ -2572,131 +2322,121 @@ function renderFairTest(){
   $("interaction").appendChild(wrap);
 
   const settings=[
-    {key:"temperature",label:"Temperature",value:"different",required:"different"},
-    {key:"sugar",label:"Sugar amount",value:"different",required:"same"},
-    {key:"water",label:"Water amount",value:"same",required:"same"},
-    {key:"stirring",label:"Stirring",value:"different",required:"same"},
-    {key:"container",label:"Container",value:"same",required:"same"}
+    {name:"Temperature",value:"different",required:"different"},
+    {name:"Sugar amount",value:"different",required:"same"},
+    {name:"Water amount",value:"same",required:"same"},
+    {name:"Stirring",value:"different",required:"same"},
+    {name:"Container",value:"same",required:"same"}
   ];
 
-  const controls=$("labControls");
+  const grid=$("controlGrid");
 
-  function refresh(){
+  function draw(){
 
-    controls.replaceChildren();
+    grid.replaceChildren();
 
     settings.forEach((s,i)=>{
 
       const btn=document.createElement("button");
       btn.type="button";
-      btn.className="controlToggle "+s.value;
+      btn.className="controlBtn "+s.value;
 
       btn.innerHTML=
-        s.label+
+        s.name+
         "<span>"+(s.value==="same"?"SAME":"DIFFERENT")+"</span>";
 
       btn.addEventListener("click",()=>{
 
-        if(locked)return;
-
         s.value=s.value==="same"?"different":"same";
-        refresh();
+        draw();
       });
 
-      controls.appendChild(btn);
+      grid.appendChild(btn);
     });
   }
 
-  refresh();
+  draw();
 
-  $("testFairBtn").addEventListener("click",()=>{
-
-    if(locked)return;
+  $("inspectTest").addEventListener("click",()=>{
 
     const errors=settings.filter(s=>s.value!==s.required);
 
     if(errors.length===0){
 
-      document.querySelectorAll(".controlToggle").forEach(x=>x.disabled=true);
-      $("testFairBtn").disabled=true;
+      document.querySelectorAll(".controlBtn").forEach(x=>x.disabled=true);
+      $("inspectTest").disabled=true;
 
-      completeMission(
-        "✅ Fair test approved. Only water temperature is deliberately changed; the other relevant variables are kept the same."
+      complete(
+        "✅ Fair test approved. Only temperature is deliberately changed; all other relevant variables are kept the same."
       );
 
     }else{
 
-      markWrong(
-        "⚠️ Fair-test alert! Temperature should be DIFFERENT, while sugar amount, water amount, stirring and container should be the SAME."
+      wrong(
+        "⚠️ Fair-test alert. Temperature should differ, while sugar amount, water amount, stirring and container should remain the same."
       );
     }
-
   });
 }
 
 
-/* =========================================================
-   MISSION 6 — RUN & RECORD
-========================================================= */
+/* =========================
+   MISSION 6
+========================= */
 
-function renderExperiment(){
+function renderEvidence(){
 
   const wrap=document.createElement("div");
+  wrap.className="evidenceWrap";
 
   wrap.innerHTML=`
-    <div class="experimentStage">
+    <div class="runStage">
 
-      <div class="timerDisplay cold" id="coldTimer">00 s</div>
-      <div class="timerDisplay warm" id="warmTimer">00 s</div>
+      <div id="coldTimer" class="timer cold">00 s</div>
+      <div id="warmTimer" class="timer warm">00 s</div>
 
-      <div class="expCup cold" id="coldCup">
-        <div class="expTemp">COLD</div>
-        <div class="expWater"></div>
-        <div class="expSugar"></div>
+      <div id="coldCup" class="runCup cold">
+        <div class="runTag">COLD</div>
+        <div class="runWater"></div>
+        <div class="runSugar"></div>
       </div>
 
-      <div class="expCup warm" id="warmCup">
-        <div class="expTemp">WARM</div>
-        <div class="expWater"></div>
-        <div class="expSugar"></div>
+      <div id="warmCup" class="runCup warm">
+        <div class="runTag">WARM</div>
+        <div class="runWater"></div>
+        <div class="runSugar"></div>
       </div>
 
-      <button id="runExperimentBtn" class="runExperimentBtn" type="button">
-        ▶ RUN FAIR TEST
+      <button id="runTest" class="runBtn" type="button">
+        ▶ RUN TEST
       </button>
 
     </div>
 
     <table class="dataTable">
-      <thead>
-        <tr>
-          <th>Water temperature</th>
-          <th>Time taken for sugar to dissolve</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Cold</td>
-          <td id="coldResult">—</td>
-        </tr>
-        <tr>
-          <td>Warm</td>
-          <td id="warmResult">—</td>
-        </tr>
-      </tbody>
+      <tr>
+        <th>Water</th>
+        <th>Time taken for sugar to dissolve</th>
+      </tr>
+      <tr>
+        <td>Cold</td>
+        <td id="coldResult">—</td>
+      </tr>
+      <tr>
+        <td>Warm</td>
+        <td id="warmResult">—</td>
+      </tr>
     </table>
 
-    <div id="recordPrompt" hidden style="margin-top:8px"></div>
+    <div id="evidenceQuestion"></div>
   `;
 
   $("interaction").appendChild(wrap);
 
-  $("runExperimentBtn").addEventListener("click",()=>{
+  $("runTest").addEventListener("click",()=>{
 
-    if(locked)return;
-
-    $("runExperimentBtn").disabled=true;
-    $("runExperimentBtn").textContent="TEST RUNNING...";
+    $("runTest").disabled=true;
+    $("runTest").textContent="TEST RUNNING...";
 
     let cold=0;
     let warm=0;
@@ -2706,97 +2446,81 @@ function renderExperiment(){
       if(cold<90)cold+=3;
       if(warm<35)warm+=2;
 
-      if(warm>35)warm=35;
       if(cold>90)cold=90;
+      if(warm>35)warm=35;
 
       $("coldTimer").textContent=String(cold).padStart(2,"0")+" s";
       $("warmTimer").textContent=String(warm).padStart(2,"0")+" s";
 
-      if(warm>=35){
-        $("warmCup").classList.add("dissolved");
-      }
+      if(warm>=35)$("warmCup").classList.add("dissolved");
+      if(cold>=90)$("coldCup").classList.add("dissolved");
 
-      if(cold>=90){
-        $("coldCup").classList.add("dissolved");
-      }
-
-      if(cold>=90&&warm>=35){
+      if(cold>=90 && warm>=35){
 
         clearInterval(interval);
 
         $("coldResult").textContent="90 seconds";
         $("warmResult").textContent="35 seconds";
+        $("runTest").textContent="EVIDENCE RECORDED ✓";
 
-        $("runExperimentBtn").textContent="EVIDENCE RECORDED ✓";
-
-        renderEvidenceCheck();
+        askEvidenceQuestion();
       }
 
     },55);
-
   });
 
-  function renderEvidenceCheck(){
 
-    const prompt=$("recordPrompt");
-    prompt.hidden=false;
+  function askEvidenceQuestion(){
 
-    prompt.innerHTML=`
-      <div style="font-size:8px;font-weight:900;color:#5a7182;margin-bottom:6px">
+    const q=$("evidenceQuestion");
+
+    q.innerHTML=`
+      <div style="font-weight:900;font-size:12px;color:#5e7480;margin:2px 0 8px">
         Which sample dissolved first?
       </div>
 
-      <div class="choiceGrid">
-        <button id="warmFirst" class="choiceBtn" type="button">
-          <span class="big">🌡️</span>
-          Warm water
-        </button>
-
-        <button id="coldFirst" class="choiceBtn" type="button">
-          <span class="big">❄️</span>
-          Cold water
-        </button>
+      <div class="answerGrid">
+        <button id="warmChoice" class="answerBtn" type="button">Warm water</button>
+        <button id="coldChoice" class="answerBtn" type="button">Cold water</button>
       </div>
     `;
 
-    $("warmFirst").addEventListener("click",()=>{
+    $("warmChoice").addEventListener("click",()=>{
 
-      $("warmFirst").classList.add("correct");
-      $("warmFirst").disabled=true;
-      $("coldFirst").disabled=true;
+      $("warmChoice").classList.add("correct");
+      $("warmChoice").disabled=true;
+      $("coldChoice").disabled=true;
 
-      completeMission(
-        "✅ Evidence recorded: cold water — 90 seconds; warm water — 35 seconds. Warm water dissolved the sugar faster in this investigation."
+      complete(
+        "✅ Evidence recorded: warm water — 35 seconds; cold water — 90 seconds. The warm-water sample dissolved first."
       );
-
     });
 
-    $("coldFirst").addEventListener("click",()=>{
+    $("coldChoice").addEventListener("click",()=>{
 
-      $("coldFirst").classList.add("wrong");
-      $("coldFirst").disabled=true;
+      $("coldChoice").classList.add("wrong");
+      $("coldChoice").disabled=true;
 
-      markWrong(
-        "❌ Check the recorded times. The shorter dissolving time shows which sample dissolved first."
+      wrong(
+        "❌ Compare the recorded times. The shorter time shows which sample dissolved first."
       );
-
     });
   }
 }
 
 
-/* =========================================================
-   MISSION 7 — CONCLUSION
-========================================================= */
+/* =========================
+   MISSION 7
+========================= */
 
 function renderConclusion(){
 
   const grid=document.createElement("div");
-  grid.className="choiceGrid";
+  grid.className="answerGrid";
 
   const options=[
     {
-      text:"Sugar dissolved faster in warm water than in cold water. Therefore, temperature affects the rate at which sugar dissolves in this investigation.",
+      text:"Sugar dissolved faster in warm water than in cold water. Therefore, temperature affected the rate at which sugar dissolved in this investigation.",
       correct:true
     },
     {
@@ -2804,36 +2528,31 @@ function renderConclusion(){
       correct:false
     },
     {
-      text:"The experiment proves that sugar can never dissolve in cold water.",
+      text:"Sugar can never dissolve in cold water.",
       correct:false
     },
     {
-      text:"The colour of the glass caused the difference in dissolving time.",
+      text:"The glass itself caused the difference in dissolving time.",
       correct:false
     }
   ];
 
-  options.forEach((o,i)=>{
+  options.forEach(o=>{
 
     const btn=document.createElement("button");
     btn.type="button";
-    btn.className="choiceBtn";
-
-    btn.innerHTML=
-      '<span class="big">'+(i===0?"📊":"📝")+'</span>'+
-      o.text;
+    btn.className="answerBtn";
+    btn.textContent=o.text;
 
     btn.addEventListener("click",()=>{
-
-      if(locked)return;
 
       if(o.correct){
 
         [...grid.children].forEach(x=>x.disabled=true);
         btn.classList.add("correct");
 
-        completeMission(
-          "✅ Evidence verdict accepted. The conclusion uses the recorded observations without making a claim beyond the investigation."
+        complete(
+          "✅ Evidence verdict accepted. The conclusion is based on the recorded results and does not go beyond the investigation."
         );
 
       }else{
@@ -2841,11 +2560,10 @@ function renderConclusion(){
         btn.classList.add("wrong");
         btn.disabled=true;
 
-        markWrong(
-          "❌ That claim is not supported by the recorded evidence. Choose the conclusion that stays within what the investigation showed."
+        wrong(
+          "❌ This conclusion is not supported by the recorded evidence. Choose the statement that matches the actual results."
         );
       }
-
     });
 
     grid.appendChild(btn);
@@ -2855,16 +2573,18 @@ function renderConclusion(){
 }
 
 
-/* =========================================================
-   BONUS — OBSERVATION / INFERENCE / PREDICTION
-========================================================= */
+/* =========================
+   MISSION 8
+========================= */
 
 function renderOIP(){
 
   const wrap=document.createElement("div");
+  wrap.className="oipLayout";
 
   wrap.innerHTML=`
-    <div class="oipGrid">
+    <div class="oipTargets">
+
       <button class="oipTarget" data-type="observation" type="button">
         <strong>OBSERVATION</strong>
         Directly noticed
@@ -2879,9 +2599,10 @@ function renderOIP(){
         <strong>PREDICTION</strong>
         What may happen next
       </button>
+
     </div>
 
-    <div class="oipStatements" id="oipStatements"></div>
+    <div id="oipStatements" class="oipStatements"></div>
   `;
 
   $("interaction").appendChild(wrap);
@@ -2911,12 +2632,12 @@ function renderOIP(){
     const btn=document.createElement("button");
     btn.type="button";
     btn.className="oipStatement";
-    btn.dataset.index=i;
+    btn.dataset.i=i;
     btn.textContent=s.text;
 
     btn.addEventListener("click",()=>{
 
-      if(locked||btn.classList.contains("done"))return;
+      if(btn.classList.contains("done"))return;
 
       document.querySelectorAll(".oipStatement").forEach(x=>x.classList.remove("active"));
 
@@ -2927,11 +2648,10 @@ function renderOIP(){
     box.appendChild(btn);
   });
 
+
   document.querySelectorAll(".oipTarget").forEach(target=>{
 
     target.addEventListener("click",()=>{
-
-      if(locked)return;
 
       if(selected===null){
 
@@ -2940,10 +2660,10 @@ function renderOIP(){
         return;
       }
 
-      const s=statements[selected];
-      const card=document.querySelector('.oipStatement[data-index="'+selected+'"]');
+      const item=statements[selected];
+      const card=document.querySelector('.oipStatement[data-i="'+selected+'"]');
 
-      if(s.type===target.dataset.type){
+      if(item.type===target.dataset.type){
 
         card.classList.remove("active");
         card.classList.add("done");
@@ -2956,8 +2676,8 @@ function renderOIP(){
 
           document.querySelectorAll(".oipTarget").forEach(x=>x.disabled=true);
 
-          completeMission(
-            "✅ Scientific thinking complete: observation tells what was noticed, inference explains it, and prediction states what may happen under similar conditions."
+          complete(
+            "✅ Scientific thinking complete. Observation tells what was noticed, inference explains it, and prediction states what may happen next."
           );
         }
 
@@ -2966,35 +2686,32 @@ function renderOIP(){
         card.classList.remove("active");
         selected=null;
 
-        markWrong(
-          "❌ Recheck the statement: is it directly noticed, an explanation, or something expected to happen later?"
+        wrong(
+          "❌ Recheck the statement. Is it directly noticed, an explanation, or a statement about what may happen later?"
         );
       }
-
     });
-
   });
 }
 
 
-/* =========================================================
+/* =========================
    NEXT / END
-========================================================= */
+========================= */
 
 function nextMission(){
-
   index++;
-
   loadMission();
 }
+
 
 function endGame(){
 
   $("game").style.display="none";
   $("intro").style.display="none";
-  $("end").style.display="grid";
+  $("end").style.display="flex";
 
-  $("finalScore").textContent=score+" / "+missions.length;
+  $("finalScore").textContent=score+" / 8";
 
   let level="🔎 Developing Investigator";
 
@@ -3013,54 +2730,46 @@ function endGame(){
 
   missions.forEach((m,i)=>{
 
-    const item=document.createElement("div");
-    item.className="reportItem";
+    const row=document.createElement("div");
+    row.className="reportItem";
 
-    item.innerHTML=
-      "<span>"+m.skill+"</span>"+
-      "<span>"+(earnedStars[i]?"⭐ First try":"✓ Corrected")+"</span>";
+    row.innerHTML=
+      "<span>"+m.tab+"</span>"+
+      "<span>"+(stars[i]?"⭐ First try":"✓ Corrected")+"</span>";
 
-    report.appendChild(item);
+    report.appendChild(row);
   });
+
 
   if(score===8){
 
-    $("reviewBox").innerHTML=
-      "<strong>Excellent investigation.</strong> You followed the complete research pathway: observation → question → hypothesis → variables → fair test → evidence → conclusion, and correctly distinguished observation, inference and prediction.";
+    $("review").innerHTML=
+      "<strong>Excellent investigation!</strong> You completed the entire research pathway accurately on the first attempt: observation → question → hypothesis → variables → fair test → evidence → conclusion → scientific thinking.";
 
     playSound("clapSound");
 
   }else{
 
-    $("reviewBox").innerHTML=
-      "<strong>Case solved.</strong> Try again to increase your first-attempt research accuracy. Focus especially on keeping only one independent variable different during a fair test and drawing conclusions only from recorded evidence.";
+    $("review").innerHTML=
+      "<strong>Case solved.</strong> Try again to improve your first-attempt research accuracy. Focus on fair testing, correct variable identification and drawing conclusions only from recorded evidence.";
   }
 }
 
 
-/* =========================================================
+/* =========================
    EVENTS
-========================================================= */
+========================= */
 
-$("startBtn").addEventListener("click",()=>{
-  unlockAudio();
-  startGame();
-});
-
+$("startBtn").addEventListener("click",startGame);
 $("nextBtn").addEventListener("click",nextMission);
-
 $("homeBtn").addEventListener("click",()=>location.reload());
-
 $("againBtn").addEventListener("click",startGame);
-
 $("restartBtn").addEventListener("click",()=>location.reload());
 
 
 setTimeout(()=>{
-
   $("splash").classList.add("hide");
-  $("intro").style.display="grid";
-
+  $("intro").style.display="flex";
 },1100);
 
 });
