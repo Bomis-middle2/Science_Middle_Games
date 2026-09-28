@@ -16,6 +16,8 @@ body{
   height: 100vh;
   display: flex;
   flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Master Juice: Camera Shake Template triggered via JS */
@@ -62,6 +64,7 @@ button{
   margin-top: 15px;
   box-shadow: 0 4px 0 #c2410c;
   transition: transform 0.1s, box-shadow 0.1s;
+  touch-action: manipulation;
 }
 button:active {
   transform: translateY(4px);
@@ -108,6 +111,7 @@ button:active {
   height:100vh;
   overflow:hidden;
   background:linear-gradient(to bottom,#ffedd5,#fdba74);
+  touch-action: none;
 }
 
 #ground{
@@ -190,6 +194,7 @@ button:active {
   font-weight:bold;
   box-shadow: 0 6px 0 #1d4ed8;
   cursor: pointer;
+  touch-action: manipulation;
 }
 .ctrlBtn:active {
   transform: translateY(4px);
@@ -239,7 +244,6 @@ button:active {
 </div>
 
 <div id="startScreen" style="display:none">
-  
   <h1>🔥 Thermo Rescue Runner</h1>
 
   <div class="instructions">
@@ -254,8 +258,6 @@ button:active {
 </div>
 
 <div id="endScreen" style="display:none">
-  
-
   <h1>🏆 Heat Lab Saved!</h1>
   <h2>Final Score: <span id="finalScore"></span> / 100</h2>
 
@@ -467,9 +469,9 @@ function fallObject(obj){
       checkAnswer(obj);
     }
 
+    // FIX: If option falls off screen without being caught, reset top to drop again!
     if(y>window.innerHeight){
-      clearInterval(fall);
-      obj.remove();
+      y = -120;
     }
   },20);
 
@@ -481,7 +483,7 @@ function checkAnswer(obj){
 
   if(obj.dataset.correct==="true"){
     isLocked=true;
-    document.getElementById("correctSound").play();
+    playSound("correctSound");
 
     score+=10;
     document.getElementById("score").textContent=score;
@@ -499,7 +501,7 @@ function checkAnswer(obj){
 
     setTimeout(loadLevel,1200);
   }else{
-    document.getElementById("wrongSound").play();
+    playSound("wrongSound");
 
     // Juice: Apply horizontal impact camera feedback loop to viewport frame
     document.body.classList.add("shake-screen");
@@ -530,6 +532,14 @@ function checkAnswer(obj){
         loadLevel();
       },2500);
     }
+  }
+}
+
+function playSound(id){
+  const snd = document.getElementById(id);
+  if(snd){
+    snd.currentTime = 0;
+    snd.play().catch(()=>{});
   }
 }
 
@@ -571,10 +581,15 @@ function moveRight(){
   player.style.left=playerX+"px";
 }
 
-document.getElementById("leftBtn").addEventListener("touchstart",moveLeft);
-document.getElementById("rightBtn").addEventListener("touchstart",moveRight);
-document.getElementById("leftBtn").addEventListener("click",moveLeft);
-document.getElementById("rightBtn").addEventListener("click",moveRight);
+// Touch & Click event handling fix to avoid double-stepping
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+
+leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveLeft(); });
+leftBtn.addEventListener("click", moveLeft);
+
+rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveRight(); });
+rightBtn.addEventListener("click", moveRight);
 
 document.addEventListener("keydown",e=>{
   if(e.key==="ArrowLeft")moveLeft();
@@ -584,7 +599,7 @@ document.addEventListener("keydown",e=>{
 function endGame(){
   clearObjects();
   clearCountdown();
-  document.getElementById("clapSound").play();
+  playSound("clapSound");
   document.getElementById("finalScore").textContent=score;
   endScreen.style.display="flex";
 }
