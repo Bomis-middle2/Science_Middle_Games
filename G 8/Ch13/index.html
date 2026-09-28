@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Defender of Earth: Chapter 13 Science Game</title>
     <style>
         * {
@@ -10,6 +10,8 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body {
@@ -20,18 +22,23 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
             overflow: hidden;
+            padding: 10px;
         }
 
         #game-container {
-            width: 800px;
-            height: 600px;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 4 / 3;
+            max-height: 90vh;
             background: radial-gradient(circle at center, #111836 0%, #050711 100%);
             border: 3px solid #3b82f6;
             border-radius: 12px;
             box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
             position: relative;
             overflow: hidden;
+            touch-action: none; /* Prevents scrolling while playing on mobile */
         }
 
         .screen {
@@ -44,8 +51,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
+            box-sizing: border-box;
         }
 
         .hidden {
@@ -60,8 +68,8 @@
         }
 
         #game-logo {
-            max-width: 300px;
-            max-height: 300px;
+            max-width: 60%;
+            max-height: 40%;
             object-fit: contain;
             margin-bottom: 20px;
             filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.6));
@@ -74,35 +82,36 @@
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
             color: #60a5fa;
             margin-bottom: 15px;
             text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
         }
 
         p {
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             color: #cbd5e1;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             max-width: 600px;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .btn {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
+            padding: 12px 28px;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             font-weight: bold;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
             margin: 8px;
+            touch-action: manipulation;
         }
 
-        .btn:hover {
+        .btn:hover, .btn:active {
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(37, 99, 235, 0.6);
             background: linear-gradient(135deg, #3b82f6, #2563eb);
@@ -111,22 +120,24 @@
         /* HUD Overlay */
         #hud {
             position: absolute;
-            top: 15px;
-            left: 20px;
-            right: 20px;
+            top: 10px;
+            left: 10px;
+            right: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 5px;
             z-index: 10;
         }
 
         .hud-item {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             border: 1px solid #334155;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 16px;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: clamp(0.7rem, 2.5vw, 0.95rem);
+            white-space: nowrap;
         }
 
         /* Question Overlay */
@@ -134,38 +145,50 @@
             background: rgba(15, 23, 42, 0.95);
             border: 2px solid #60a5fa;
             border-radius: 12px;
-            padding: 25px;
-            width: 85%;
+            padding: 15px;
+            width: 92%;
+            max-height: 90%;
+            overflow-y: auto;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
             z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         #question-text {
-            font-size: 1.25rem;
+            font-size: clamp(0.95rem, 3vw, 1.25rem);
             color: #f8fafc;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
+        }
+
+        @media (max-width: 550px) {
+            .options-grid {
+                grid-template-columns: 1fr; /* Stack options vertically on mobile */
+            }
         }
 
         .option-btn {
             background: #1e293b;
             border: 1px solid #475569;
             color: #e2e8f0;
-            padding: 12px;
+            padding: 10px 12px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: clamp(0.8rem, 2.5vw, 0.95rem);
             text-align: left;
             transition: background 0.2s;
+            touch-action: manipulation;
         }
 
-        .option-btn:hover {
+        .option-btn:hover, .option-btn:active {
             background: #334155;
             border-color: #60a5fa;
         }
@@ -176,13 +199,14 @@
             left: 0;
             width: 100%;
             height: 100%;
+            touch-action: none;
         }
 
         .feedback {
             font-weight: bold;
-            font-size: 1.1rem;
-            margin-top: 15px;
-            height: 24px;
+            font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+            margin-top: 10px;
+            min-height: 20px;
         }
 
         .feedback.correct { color: #4ade80; }
@@ -194,15 +218,15 @@
 <div id="game-container">
     <!-- HUD -->
     <div id="hud" class="hidden">
-        <div class="hud-item">Earth Shield Health: <span id="health-val" style="color: #4ade80;">100%</span></div>
+        <div class="hud-item">Shield: <span id="health-val" style="color: #4ade80;">100%</span></div>
         <div class="hud-item">Score: <span id="score-val" style="color: #60a5fa;">0</span></div>
         <div class="hud-item">Level: <span id="level-val" style="color: #facc15;">1/5</span></div>
     </div>
 
     <!-- Intro / Logo Screen -->
     <div id="logo-screen" class="screen" onclick="skipLogo()">
-        <img id="game-logo" src="assets/logo.png" alt="Game Logo">
-        <p style="font-size: 0.9rem; color: #64748b;">Click anywhere to skip</p>
+        <img id="game-logo" src="assets/logo.png" alt="Game Logo" onerror="this.style.display='none';">
+        <p style="font-size: 0.9rem; color: #64748b;">Tap anywhere to skip</p>
     </div>
 
     <!-- Start Screen -->
@@ -218,7 +242,7 @@
     <!-- Quiz Overlay Phase -->
     <div id="quiz-screen" class="screen hidden">
         <div id="quiz-card">
-            <h2 style="color: #facc15; margin-bottom: 10px;">Science Challenge!</h2>
+            <h2 style="color: #facc15; margin-bottom: 8px; font-size: clamp(1.1rem, 3.5vw, 1.5rem);">Science Challenge!</h2>
             <div id="question-text">Question goes here...</div>
             <div class="options-grid" id="options-container"></div>
             <div id="feedback" class="feedback"></div>
@@ -277,9 +301,13 @@
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
 
+    // Internal canvas logical resolution (fixed coordinate space)
+    const CANVAS_WIDTH = 800;
+    const CANVAS_HEIGHT = 600;
+
     function resizeCanvas() {
-        canvas.width = 800;
-        canvas.height = 600;
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
     }
     resizeCanvas();
 
@@ -299,13 +327,40 @@
         }
     }
 
-    // Mouse control for shield
-    canvas.addEventListener('mousemove', (e) => {
+    // Input handlers for Shield angle (Handles both Mouse & Touch events)
+    function updateShieldPosition(clientX, clientY) {
         const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left - canvas.width / 2;
-        const mouseY = e.clientY - rect.top - canvas.height / 2;
+        
+        // Scale client coordinates to match internal canvas 800x600 resolution
+        const scaleX = CANVAS_WIDTH / rect.width;
+        const scaleY = CANVAS_HEIGHT / rect.height;
+
+        const canvasX = (clientX - rect.left) * scaleX;
+        const canvasY = (clientY - rect.top) * scaleY;
+
+        const mouseX = canvasX - CANVAS_WIDTH / 2;
+        const mouseY = canvasY - CANVAS_HEIGHT / 2;
+        
         shieldAngle = Math.atan2(mouseY, mouseX);
+    }
+
+    // Mouse movement
+    canvas.addEventListener('mousemove', (e) => {
+        updateShieldPosition(e.clientX, e.clientY);
     });
+
+    // Touch controls for mobile devices
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 0) {
+            updateShieldPosition(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+            updateShieldPosition(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: true });
 
     function startGame() {
         health = 100;
