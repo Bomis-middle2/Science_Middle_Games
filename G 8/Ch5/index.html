@@ -74,6 +74,30 @@ body {
   padding: 24px;
 }
 
+/* Innovine Splash Screen Styling */
+#splashScreen {
+  z-index: 60; /* Displays above loader */
+  background: #000000;
+  animation: fadeOutSplash 0.5s ease 4.8s forwards;
+}
+
+.splash-logo {
+  max-width: 220px;
+  max-height: 220px;
+  object-fit: contain;
+  animation: logoPulse 2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 20px var(--accent-glow));
+}
+
+@keyframes logoPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes fadeOutSplash {
+  to { opacity: 0; visibility: hidden; }
+}
+
 /* Primary Button Design */
 button.primary-btn {
   border: none;
@@ -309,6 +333,11 @@ button.primary-btn:active {
 
 <body>
 
+<!-- 5-Second Innovine Splash Screen -->
+<div id="splashScreen" class="screen">
+  <img src="assets/logo.png" alt="Innovine Logo" class="splash-logo">
+</div>
+
 <div id="loader" class="screen">
   <div style="font-size:48px; margin-bottom:12px; filter: drop-shadow(0 0 10px var(--accent-glow));">🧪</div>
   <h3 style="letter-spacing: 1px;">Loading Pressure Lab...</h3>
@@ -375,10 +404,18 @@ let level = 0, score = 0, chances = 2, locked = false, selected = null, placed =
 const targetArea = document.getElementById("targetArea");
 const sourceArea = document.getElementById("sourceArea");
 
-window.onload = () => setTimeout(() => {
-  document.getElementById("loader").style.display = "none";
-  document.getElementById("instructions").style.display = "flex";
-}, 600);
+window.onload = () => {
+  // Hide splash logo screen after 5 seconds
+  setTimeout(() => {
+    document.getElementById("splashScreen").style.display = "none";
+    
+    // Briefly show loader before instructions screen
+    setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("instructions").style.display = "flex";
+    }, 600);
+  }, 5000);
+};
 
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
