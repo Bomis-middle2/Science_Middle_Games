@@ -2,25 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Thermo Rescue Runner</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+  touch-action: manipulation;
+}
 
 body{
   margin:0;
   overflow:hidden;
-  font-family:Arial,sans-serif;
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background:#ffe8c7;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
-/* Master Juice: Camera Shake Template triggered via JS */
+/* Juice: Camera Shake Template triggered via JS */
 .shake-screen {
   animation: cameraShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
@@ -48,7 +53,9 @@ body{
 }
 
 .logo{
-  width:min(180px,50vw);
+  width:min(180px,40vw);
+  max-height: 120px;
+  object-fit: contain;
   margin-bottom:20px;
 }
 
@@ -57,14 +64,13 @@ button{
   border-radius:14px;
   background:#f97316;
   color:white;
-  font-size:20px;
+  font-size:clamp(18px, 4vw, 22px);
   font-weight:bold;
-  padding:14px 26px;
+  padding:14px 28px;
   cursor:pointer;
   margin-top: 15px;
   box-shadow: 0 4px 0 #c2410c;
   transition: transform 0.1s, box-shadow 0.1s;
-  touch-action: manipulation;
 }
 button:active {
   transform: translateY(4px);
@@ -78,37 +84,38 @@ button:active {
   width:100%;
   background:#7c2d12;
   color:white;
-  padding:10px;
+  padding:8px 12px;
   display:flex;
-  justify-content:space-around;
-  flex-wrap:wrap;
-  z-index:5;
-  font-size:20px;
+  justify-content:space-between;
+  align-items:center;
+  z-index:15;
+  font-size:clamp(14px, 3.8vw, 18px);
   font-weight:bold;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 #questionBox{
   position:fixed;
-  top:65px;
+  top:50px;
   left:50%;
   transform:translateX(-50%);
-  width:min(900px,94vw);
+  width:min(92vw, 800px);
   background:white;
-  border:4px solid #f97316;
-  border-radius:18px;
-  padding:12px;
-  font-size:clamp(18px,2.8vw,26px);
+  border:3px solid #f97316;
+  border-radius:14px;
+  padding:8px 12px;
+  font-size:clamp(15px, 3.8vw, 22px);
   font-weight:bold;
-  z-index:5;
+  z-index:15;
   text-align:center;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 #game{
   position:relative;
   width:100vw;
   height:100vh;
+  height:100dvh;
   overflow:hidden;
   background:linear-gradient(to bottom,#ffedd5,#fdba74);
   touch-action: none;
@@ -118,49 +125,50 @@ button:active {
   position:absolute;
   bottom:0;
   width:100%;
-  height:120px;
+  height:90px;
   background:#92400e;
-  border-top: 6px solid #b45309;
+  border-top: 5px solid #b45309;
 }
 
 #player{
   position:absolute;
-  bottom:120px;
-  left:120px;
-  width:90px;
-  height:90px;
-  font-size:70px;
+  bottom:90px;
+  left:50%;
+  transform: translateX(-50%);
+  width:75px;
+  height:75px;
+  font-size:55px;
   display:flex;
   align-items:center;
   justify-content:center;
-  transition: left 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.1s ease;
+  transition: left 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index:4;
 }
 
 /* Juice: Smooth item scale transitions */
 .player-catch {
-  transform: scale(1.3);
+  transform: scale(1.3) !important;
 }
 
 .object{
   position:absolute;
   top:-120px;
-  width:180px;
-  min-height:80px;
+  width:clamp(100px, 28vw, 160px);
+  min-height:65px;
   background:white;
-  border:4px solid #f97316;
-  border-radius:18px;
-  padding:12px;
+  border:3px solid #f97316;
+  border-radius:14px;
+  padding:8px 6px;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  font-size:22px;
+  font-size:clamp(13px, 3.2vw, 18px);
   font-weight:bold;
   color:#111;
   z-index:3;
-  box-shadow: 0 6px 0 #fdba74;
-  transition: transform 0.1s;
+  box-shadow: 0 4px 0 #fdba74;
+  word-break: break-word;
 }
 
 .correctGlow{
@@ -168,69 +176,72 @@ button:active {
 }
 
 @keyframes glow{
-  0%{box-shadow:0 0 10px #22c55e, 0 6px 0 #22c55e}
-  50%{box-shadow:0 0 35px #22c55e, 0 6px 0 #22c55e}
-  100%{box-shadow:0 0 10px #22c55e, 0 6px 0 #22c55e}
+  0%{box-shadow:0 0 10px #22c55e, 0 4px 0 #22c55e}
+  50%{box-shadow:0 0 25px #22c55e, 0 4px 0 #22c55e}
+  100%{box-shadow:0 0 10px #22c55e, 0 4px 0 #22c55e}
 }
 
 #controls{
   position:fixed;
-  bottom:15px;
+  bottom:10px;
   width:100%;
   display:flex;
-  justify-content:center;
-  gap:30px;
-  z-index:10;
+  justify-content:space-around;
+  padding: 0 20px;
+  z-index:20;
 }
 
 .ctrlBtn{
-  width:95px;
-  height:95px;
-  border-radius:24px;
+  width:clamp(70px, 20vw, 90px);
+  height:clamp(70px, 20vw, 90px);
+  border-radius:20px;
   border:none;
   background:#2563eb;
   color:white;
-  font-size:42px;
+  font-size:clamp(30px, 8vw, 40px);
   font-weight:bold;
-  box-shadow: 0 6px 0 #1d4ed8;
+  box-shadow: 0 5px 0 #1d4ed8;
   cursor: pointer;
-  touch-action: manipulation;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 .ctrlBtn:active {
-  transform: translateY(4px);
+  transform: translateY(3px);
   box-shadow: 0 2px 0 #1d4ed8;
 }
 
 #message{
   position:fixed;
-  top:165px;
+  top:125px;
   width:100%;
   text-align:center;
-  font-size:clamp(20px, 3vw, 30px);
+  font-size:clamp(16px, 4.2vw, 24px);
   font-weight:bold;
-  z-index:6;
+  z-index:14;
+  padding:0 10px;
   text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
 
 #readTimer{
   position:fixed;
-  top:120px;
-  right:20px;
+  top:50px;
+  right:10px;
   background:white;
   color:#111;
-  padding:10px 16px;
-  border-radius:14px;
-  font-size:24px;
+  padding:4px 10px;
+  border-radius:10px;
+  font-size:clamp(14px, 3.5vw, 18px);
   font-weight:bold;
-  border:4px solid #f97316;
-  z-index:20;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border:2px solid #f97316;
+  z-index:25;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .instructions{
-  max-width:750px;
-  font-size:clamp(16px, 2.5vw, 22px);
-  line-height:1.6;
+  max-width:600px;
+  font-size:clamp(14px, 3.8vw, 18px);
+  line-height:1.5;
   color: #334155;
   margin-bottom: 10px;
 }
@@ -240,7 +251,7 @@ button:active {
 <body>
 
 <div id="loader">
-  <img src="assets/logo.png" class="logo">
+  <img src="assets/logo.png" class="logo" alt="Logo">
 </div>
 
 <div id="startScreen" style="display:none">
@@ -283,9 +294,9 @@ button:active {
   <button class="ctrlBtn" id="rightBtn">➡️</button>
 </div>
 
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
-<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
 
 <script>
 const questions=[
@@ -344,11 +355,12 @@ const questions=[
 let level=0;
 let score=0;
 let chances=2;
-let playerX=120;
+let playerX=0;
 let currentObjects=[];
 let currentIntervals=[];
 let isLocked=false;
 let countdownInterval=null;
+let moveInterval=null;
 
 const player=document.getElementById("player");
 const game=document.getElementById("game");
@@ -360,11 +372,13 @@ window.onload=()=>{
   setTimeout(()=>{
     loader.style.display="none";
     startScreen.style.display="flex";
-  }, 5000);
+  }, 2000);
 };
 
 function startGame(){
   startScreen.style.display="none";
+  playerX = (window.innerWidth / 2) - 37;
+  player.style.left = playerX + "px";
   loadLevel();
 }
 
@@ -385,7 +399,7 @@ function loadLevel(){
 
   showMessage("⏳ Read the question carefully.","#2563eb");
 
-  let readTime=6; 
+  let readTime=5; 
 
   const timerBox=document.createElement("div");
   timerBox.id="readTimer";
@@ -428,12 +442,20 @@ function spawnObjects(){
   const q=questions[level];
   const shuffled=[...q.options].sort(()=>Math.random()-0.5);
 
+  const screenW = window.innerWidth;
+  const colWidth = screenW / 3;
+
   shuffled.forEach((opt,index)=>{
     const obj=document.createElement("div");
     obj.className="object";
     obj.textContent=opt;
     obj.dataset.correct=(opt===q.correct);
-    obj.style.left=(10+index*32)+"vw";
+    
+    // Dynamically align columns within viewport edges
+    const cardWidth = Math.min(160, screenW * 0.28);
+    const leftPos = (colWidth * index) + (colWidth / 2) - (cardWidth / 2);
+    
+    obj.style.left=Math.max(5, Math.min(leftPos, screenW - cardWidth - 5)) + "px";
     obj.style.top="-120px";
 
     game.appendChild(obj);
@@ -445,7 +467,7 @@ function spawnObjects(){
 
 function fallObject(obj){
   let y=-120;
-  const speed=2.8+Math.random()*2.2;
+  const speed=2.2 + Math.random()*1.8;
 
   const fall=setInterval(()=>{
     if(isLocked){
@@ -469,7 +491,7 @@ function fallObject(obj){
       checkAnswer(obj);
     }
 
-    // FIX: If option falls off screen without being caught, reset top to drop again!
+    // Recycling falling option if missed
     if(y>window.innerHeight){
       y = -120;
     }
@@ -490,7 +512,6 @@ function checkAnswer(obj){
 
     showMessage("✅ Correct!","#22c55e");
 
-    // Juice: Pop Catch Animation Mechanics
     player.classList.add("player-catch");
     setTimeout(()=>player.classList.remove("player-catch"),200);
 
@@ -503,11 +524,9 @@ function checkAnswer(obj){
   }else{
     playSound("wrongSound");
 
-    // Juice: Apply horizontal impact camera feedback loop to viewport frame
     document.body.classList.add("shake-screen");
     setTimeout(()=>document.body.classList.remove("shake-screen"),400);
 
-    // Juice: Flash alternative short-circuit graphic asset context state
     player.textContent="💥";
     setTimeout(()=>player.textContent="🤖",400);
 
@@ -515,7 +534,7 @@ function checkAnswer(obj){
     document.getElementById("chances").textContent=chances;
 
     if(chances>0){
-      showMessage("❌ Wrong! All options will fall again.","#ef4444");
+      showMessage("❌ Wrong! Try again.","#ef4444");
 
       setTimeout(()=>{
         spawnObjects();
@@ -550,7 +569,7 @@ function highlightCorrect(){
   currentObjects.forEach(o=>{
     if(o.dataset.correct==="true"){
       o.classList.add("correctGlow");
-      o.style.top="280px";
+      o.style.top="200px";
       o.style.left="50%";
       o.style.transform="translateX(-50%)";
     }else{
@@ -568,32 +587,80 @@ function showMessage(text,color){
 }
 
 function moveLeft(){
-  playerX-=85;
+  playerX-=25;
   if(playerX<0)playerX=0;
   player.style.left=playerX+"px";
 }
 
 function moveRight(){
-  playerX+=85;
-  if(playerX>window.innerWidth-100){
-    playerX=window.innerWidth-100;
-  }
+  playerX+=25;
+  const maxRight = window.innerWidth - 75;
+  if(playerX>maxRight) playerX=maxRight;
   player.style.left=playerX+"px";
 }
 
-// Touch & Click event handling fix to avoid double-stepping
+function startMove(dir) {
+  if(moveInterval) clearInterval(moveInterval);
+  if(dir === 'left') moveLeft();
+  if(dir === 'right') moveRight();
+  moveInterval = setInterval(() => {
+    if(dir === 'left') moveLeft();
+    if(dir === 'right') moveRight();
+  }, 50);
+}
+
+function stopMove() {
+  if(moveInterval) {
+    clearInterval(moveInterval);
+    moveInterval = null;
+  }
+}
+
+// Touch control handlers supporting continuous movement on hold
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 
-leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveLeft(); });
-leftBtn.addEventListener("click", moveLeft);
+leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startMove('left'); });
+leftBtn.addEventListener("touchend", stopMove);
+leftBtn.addEventListener("mousedown", () => startMove('left'));
+leftBtn.addEventListener("mouseup", stopMove);
 
-rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveRight(); });
-rightBtn.addEventListener("click", moveRight);
+rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startMove('right'); });
+rightBtn.addEventListener("touchend", stopMove);
+rightBtn.addEventListener("mousedown", () => startMove('right'));
+rightBtn.addEventListener("mouseup", stopMove);
+
+// Direct swipe control on screen
+let touchStartX = 0;
+game.addEventListener("touchstart", (e) => {
+  touchStartX = e.touches[0].clientX;
+}, {passive: true});
+
+game.addEventListener("touchmove", (e) => {
+  if(!touchStartX) return;
+  const touchCurrentX = e.touches[0].clientX;
+  const diffX = touchCurrentX - touchStartX;
+
+  if (Math.abs(diffX) > 10) {
+    playerX += diffX * 0.8;
+    const maxRight = window.innerWidth - 75;
+    playerX = Math.max(0, Math.min(playerX, maxRight));
+    player.style.left = playerX + "px";
+    touchStartX = touchCurrentX;
+  }
+}, {passive: true});
 
 document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft")moveLeft();
-  if(e.key==="ArrowRight")moveRight();
+  if(e.key==="ArrowLeft") moveLeft();
+  if(e.key==="ArrowRight") moveRight();
+});
+
+window.addEventListener("resize", () => {
+  const maxRight = window.innerWidth - 75;
+  if (playerX > maxRight) {
+    playerX = Math.max(0, maxRight);
+    player.style.left = playerX + "px";
+  }
 });
 
 function endGame(){
